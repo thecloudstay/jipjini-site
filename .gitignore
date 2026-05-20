@@ -1,0 +1,19 @@
+# 백업 폴더 (배포에 포함되면 안 됨)
+_backup_*/
+
+# 인수인계 문서 (내부용 — public 레포일 경우 노출 방지)
+_HANDOFF_*.md
+
+# OS 부산물
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# 에디터 부산물
+.vscode/
+.idea/
+*.swp
+*~
+
+# 로그
+*.log
