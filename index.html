@@ -126,6 +126,9 @@
       <a class="btn btn-outline btn-lg" href="https://pf.kakao.com/_NjpxhC/chat" target="_blank" rel="noopener">
         <i class="ti ti-message-circle"></i>카톡 상담
       </a>
+      <a class="btn btn-outline btn-lg" href="files/jipjini-guide.pdf" target="_blank" rel="noopener">
+        <i class="ti ti-file-text"></i>가이드 카탈로그
+      </a>
     </div>
     <p class="hero-note">
       <strong>완전 무료 가안</strong> · 부분 수리 3개 이상부터 · 모든 상담 온라인
@@ -695,6 +698,10 @@
         <i class="ti ti-message-circle"></i>
         카톡 채널 @집지니 추가하기
       </a>
+      <a href="files/jipjini-guide.pdf" target="_blank" rel="noopener" class="qf-success-kakao" style="background:#6B6B6B;margin-top:12px;">
+        <i class="ti ti-file-text"></i>
+        기다리는 동안 가이드 카탈로그 보기
+      </a>
     </div>
   </div>
 </section>
@@ -744,7 +751,8 @@
   © 2026 주식회사 운휴원 · 집지니 (Direct Coordi™)<br>
   인천 강화군 강화읍 동문로 33, 2층 · 카톡 @집지니 · thecloudstay@gmail.com<br>
   대표 박찬영 · 사업자등록번호 · 통신판매업신고번호 (별도 표기)<br>
-  포트폴리오: blog.naver.com/cloudstay_ · 유튜브: 촌닭건축
+  포트폴리오: blog.naver.com/cloudstay_ · 유튜브: 촌닭건축<br>
+  <a href="files/jipjini-guide.pdf" target="_blank" rel="noopener" style="color:inherit;text-decoration:underline;">가이드 카탈로그 PDF 다운로드</a>
 </div>
 
 <script>
@@ -1037,6 +1045,24 @@
     }
 
     const formData = new FormData(form);
+
+    // ═══════════════════════════════════════════════════
+    // [집지니 ERP 연동] Apps Script doPost — 시트 직접 입력 + 자동 견적서 생성 + 박 대표 알림
+    // 박 대표 액션: 아래 URL을 Apps Script 배포 URL로 교체
+    // ═══════════════════════════════════════════════════
+    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx73VnNsBo7K6LZj3K_DsH4vkuK2iyQquAVtphqVQHWaYkXL5Zs9YjHUh4J5mq-F6puWg/exec';
+    if (APPS_SCRIPT_URL && APPS_SCRIPT_URL.indexOf('script.google.com') >= 0) {
+      fetch(APPS_SCRIPT_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams(formData).toString(),
+        mode: 'no-cors'
+      }).catch(function(err){
+        console.warn('[집지니 ERP] Apps Script 호출 실패 (Netlify 백업으로 처리됨):', err);
+      });
+    }
+
+    // Netlify Forms — 백업 채널 + 완료 화면 트리거
     fetch('/', {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
