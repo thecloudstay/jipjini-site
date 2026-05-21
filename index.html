@@ -73,6 +73,13 @@
     집지니가 그 30%를 <strong>건축주에게 돌려드립니다.</strong>
   </p>
 
+  <!-- 서비스 소개 동영상 -->
+  <div style="max-width:680px;margin:32px auto;padding:0 16px;">
+    <div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:12px;background:#000;box-shadow:0 4px 20px rgba(0,0,0,0.08);">
+      <iframe src="https://www.youtube.com/embed/6Z96kEzQMYs?rel=0" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" title="집지니 서비스 소개" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy"></iframe>
+    </div>
+  </div>
+
   <!-- 마진 차트 -->
   <div class="hero-chart">
     <div class="hero-chart-title">일반 견적의 약 30%는 마진입니다</div>
@@ -544,18 +551,18 @@
             <input type="radio" id="gr1" name="grade" value="보급형" required>
             <label for="gr1">
               <div class="qf-grade-name">보급형</div>
-              <div class="qf-grade-desc">합지·국산<br>-40% 절약</div>
+              <div class="qf-grade-desc">가성비 제품 중심<br>저렴한 자재 위주</div>
             </label>
             <input type="radio" id="gr2" name="grade" value="중급" checked>
             <label for="gr2">
               <span class="qf-grade-tag">추천</span>
               <div class="qf-grade-name">중급</div>
-              <div class="qf-grade-desc">개나리·LX<br>-30% 절약</div>
+              <div class="qf-grade-desc">국산 보급형<br>표준 마감</div>
             </label>
             <input type="radio" id="gr3" name="grade" value="프리미엄">
             <label for="gr3">
               <div class="qf-grade-name">프리미엄</div>
-              <div class="qf-grade-desc">베스띠·이태리<br>-25% 절약</div>
+              <div class="qf-grade-desc">프리미엄 자재 중심<br>고급 마감</div>
             </label>
             <input type="radio" id="gr4" name="grade" value="미정">
             <label for="gr4">
@@ -844,19 +851,50 @@
     const pyeong = getPyeong();
     const grade = form.querySelector('input[name="grade"]:checked');
     const gradeVal = grade ? grade.value : '중급';
-    const gm = PRICING.gradeMultiplier[gradeVal] || 1.0;
-    const bathCnt = parseInt((form.querySelector('input[name="bathrooms"]:checked') || {}).value) || 1;
 
-    let material = 0; // 자재+노무 합산(시공총액 기반)
-    if (checked.includes('올수리')) {
-      material = PRICING.allInOne * pyeong;
-    } else {
-      checked.forEach(v => {
-        if (PRICING.areaBased[v] != null) material += PRICING.areaBased[v] * pyeong;
-        else if (PRICING.unitBased[v] != null) material += PRICING.unitBased[v];
-      });
+    // 정책: (1) 자재 등급 미정 → 0원 상담, (2) 올수리 미선택 → 0원 상담 (단품 시공은 상담 후 결정)
+    const isAllInOne = checked.includes('올수리');
+    if (gradeVal === '미정' || !isAllInOne) {
+      const reason = gradeVal === '미정'
+        ? '<strong>자재 등급 미정</strong>이라 정확한 가안 산출이 어렵습니다.'
+        : '<strong>단품 시공</strong>은 현장 상황·자재 단가에 따라 변동이 커서 일률적 추정이 어렵습니다.';
+      body.innerHTML = `
+        <div class="qf-est-row"><span>예상 견적</span><b style="color:var(--jp-charcoal);">코디 상담 후 결정</b></div>
+        <div class="qf-est-note">
+          <i class="ti ti-info-circle"></i>
+          ${reason}<br>
+          무료 가안 신청 후 <strong>카카오톡 채널 @집지니</strong>로 코디가 상세 안내드립니다.
+        </div>
+        <div class="qf-est-teaser">
+          <div class="qf-teaser-col free">
+            <div class="qf-teaser-tag">지금 보시는 것</div>
+            <div class="qf-teaser-title">무료 가안</div>
+            <ul>
+              <li>코디 상담 매칭</li>
+              <li class="blur">자재 모델명·브랜드</li>
+              <li class="blur">매칭 자재상·기술자</li>
+              <li class="blur">공정별 상세 단가</li>
+            </ul>
+          </div>
+          <div class="qf-teaser-arrow"><i class="ti ti-arrow-right"></i></div>
+          <div class="qf-teaser-col real">
+            <div class="qf-teaser-tag green">3만원 결제 후</div>
+            <div class="qf-teaser-title">정식 코디 견적서</div>
+            <ul>
+              <li>자재 모델명·규격 전체 공개</li>
+              <li>검증된 자재상·기술자 매칭</li>
+              <li>공정별 단가 100% 투명</li>
+              <li>턴키 대비 절감률 보장</li>
+            </ul>
+          </div>
+        </div>
+      `;
+      return;
     }
-    material = material * gm;
+
+    // 올수리 + 자재 등급 확정 → 평수 × 등급별 평당 가격 산출
+    const gm = PRICING.gradeMultiplier[gradeVal] || 1.0;
+    const material = PRICING.allInOne * pyeong * gm;
     const waste = material * PRICING.wasteRate;
     const S = material + waste; // 시공 총액
     const codi = codiFee(S);
@@ -868,7 +906,7 @@
       <div class="qf-est-row sub"><span>+ PM 추가 선택 시</span><b>+ ${won(pm)} 원</b></div>
       <div class="qf-est-note">
         <i class="ti ti-info-circle"></i>
-        ${pyeong}평 · ${gradeVal} 기준 <strong>자동 추정치</strong>입니다.
+        ${pyeong}평 올수리 · ${gradeVal} 기준 <strong>자동 추정치</strong>입니다.
         자재비·노무비는 자재상·기술자에게 직접 결제하며, 집지니는 코디 운영비만 받습니다.
       </div>
       <div class="qf-est-teaser">
@@ -1050,7 +1088,7 @@
     // [집지니 ERP 연동] Apps Script doPost — 시트 직접 입력 + 자동 견적서 생성 + 박 대표 알림
     // 박 대표 액션: 아래 URL을 Apps Script 배포 URL로 교체
     // ═══════════════════════════════════════════════════
-    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx73VnNsBo7K6LZj3K_DsH4vkuK2iyQquAVtphqVQHWaYkXL5Zs9YjHUh4J5mq-F6puWg/exec';
+    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxk3YmJZylwyYjbpFN69kQd1T-o5-1YYoPBaDtMMZdNZxkw1YJBL6Ph8gL6rmRfSekLSw/exec';
     if (APPS_SCRIPT_URL && APPS_SCRIPT_URL.indexOf('script.google.com') >= 0) {
       fetch(APPS_SCRIPT_URL, {
         method: 'POST',
@@ -1062,27 +1100,17 @@
       });
     }
 
-    // Netlify Forms — 백업 채널 + 완료 화면 트리거
-    fetch('/', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: new URLSearchParams(formData).toString()
-    })
-    .then(() => {
+    // 완료 화면 표시 (Apps Script no-cors 발사라 응답 못 받음 — 백엔드 비동기 처리)
+    setTimeout(function(){
       form.style.display = 'none';
       document.querySelector('.qf-progress').style.display = 'none';
       success.classList.add('show');
-      // 폼 섹션(#quote-form) 기준으로 스크롤 (폼이 사라져도 위치 유지)
       const section = document.getElementById('quote-form');
       if (section) {
         const top = section.getBoundingClientRect().top + window.scrollY - 40;
         window.scrollTo({ top: top, behavior: 'smooth' });
       }
-    })
-    .catch(err => {
-      alert('신청 전송 중 오류가 발생했습니다. 카카오톡 채널 @집지니로 직접 문의해 주세요.');
-      console.error(err);
-    });
+    }, 600);
   });
 })();
 </script>
