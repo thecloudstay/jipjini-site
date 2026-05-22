@@ -43,7 +43,7 @@
 .ci-row-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
 .ci-row-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
 .ci-space-grid { border: 1px solid var(--jp-line); border-radius: 8px; overflow: hidden; }
-.ci-space-row { display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr 2fr 32px; gap: 0; border-bottom: 1px solid var(--jp-line); align-items: center; }
+.ci-space-row { display: grid; grid-template-columns: 1.4fr 1fr 1fr 2fr 32px; gap: 0; border-bottom: 1px solid var(--jp-line); align-items: center; }
 .ci-space-row:last-child { border-bottom: none; }
 .ci-space-row.head { background: #f7f4ec; font-size: 11px; font-weight: 600; color: var(--jp-gray); letter-spacing: 0.05em; }
 .ci-space-row.head > div { padding: 8px 10px; }
@@ -90,7 +90,8 @@
 .ci-success-kakao { display: inline-block; background: #FAE100; color: #3C1E1E; padding: 12px 22px; border-radius: 8px; font-weight: 700; text-decoration: none; font-size: 14px; }
 @media (max-width: 640px) {
   .ci-row, .ci-row-3, .ci-row-4 { grid-template-columns: 1fr; }
-  .ci-space-row { grid-template-columns: 1fr 1fr 1fr; gap: 4px; padding: 8px; }
+  .ci-space-row { grid-template-columns: 1fr 1fr 1fr 30px; gap: 4px; padding: 8px; }
+  .ci-space-row > div:nth-child(4) { display: none; }
   .ci-space-row.head { display: none; }
   .ci-grade-cards { grid-template-columns: repeat(2, 1fr); }
   .ci-step { padding: 18px; }
@@ -263,10 +264,17 @@
         </div>
       </div>
 
-      <div class="ci-field">
-        <label class="ci-field-label">평면도·도면<span class="opt">선택</span></label>
-        <div class="ci-field-hint">JPG·PDF 가능. 있으면 정확도 ↑. 신청 후 카톡 채널 @집지니로 전송해 주셔도 됩니다.</div>
-        <input type="text" class="ci-input" name="평면도참고" placeholder="평면도 첨부 예정 / 별도 카톡 전송 등 메모">
+      <div class="ci-row">
+        <div class="ci-field">
+          <label class="ci-field-label">천장 높이<span class="req">*</span></label>
+          <div class="ci-field-hint">아파트는 보통 <strong>2.4m</strong>. 빌라·단독은 다르면 수정.</div>
+          <input type="number" class="ci-input" name="천장높이" value="2.4" step="0.05" min="2.0" max="4.0" required>
+        </div>
+        <div class="ci-field">
+          <label class="ci-field-label">평면도·도면<span class="opt">선택</span></label>
+          <div class="ci-field-hint">JPG·PDF 가능. 있으면 정확도 ↑.</div>
+          <input type="text" class="ci-input" name="평면도참고" placeholder="평면도 첨부 예정 / 별도 카톡 전송 등 메모">
+        </div>
       </div>
 
       <div class="ci-nav">
@@ -283,15 +291,15 @@
 
       <div class="ci-info-box">
         <strong>💡 입력 팁</strong><br>
-        · 길이 단위는 <strong>미터(m)</strong>. 소수점 가능 (예: 5.4)<br>
-        · 높이는 보통 <strong>2.3~2.5m</strong> (천장 고정)<br>
+        · 단위는 <strong>미터(m)</strong>. 소수점 가능 (예: 5.4)<br>
+        · 천장 높이는 STEP 2에서 한 번만 입력 (보통 2.4m). 공간별로 다르면 메모에 적어주세요<br>
         · 잘 모르는 공간은 비워두셔도 됩니다 — 코디 현장 방문 시 실측<br>
         · "+ 공간 추가" 버튼으로 드레스룸·서재 등 추가 가능
       </div>
 
       <div class="ci-space-grid" id="ci-space-grid">
         <div class="ci-space-row head">
-          <div>공간명</div><div>가로(m)</div><div>세로(m)</div><div>높이(m)</div><div>메모</div><div></div>
+          <div>공간명</div><div>가로(m)</div><div>세로(m)</div><div>메모</div><div></div>
         </div>
         <!-- 기본 8개 공간 자동 생성 -->
       </div>
@@ -459,7 +467,6 @@
       <div><input type="text" name="공간명[]" value="${name||''}" placeholder="공간명"></div>
       <div><input type="number" name="공간_가로[]" placeholder="-" step="0.1" oninput="updateSpaceSummary()"></div>
       <div><input type="number" name="공간_세로[]" placeholder="-" step="0.1" oninput="updateSpaceSummary()"></div>
-      <div><input type="number" name="공간_높이[]" placeholder="-" step="0.1" oninput="updateSpaceSummary()"></div>
       <div><input type="text" name="공간_메모[]" placeholder="시공 메모"></div>
       <div><button type="button" class="ci-space-del" onclick="this.closest('.ci-space-row').remove();updateSpaceSummary();" title="삭제"><i class="ti ti-x"></i></button></div>
     `;
@@ -480,20 +487,22 @@
 
   // ===== 14공종 매칭 =====
   const TRADES = [
-    {코드:'A', 이름:'철거', 일반:'욕실 철거·주방 철거·내부 확장 등'},
-    {코드:'B', 이름:'설비', 일반:'배관 이동·신설'},
-    {코드:'C', 이름:'샷시(창호)', 일반:'창호 교체 (※ 아파트는 단지 동의 필요)'},
-    {코드:'D', 이름:'목공', 일반:'가벽·우물천장·아트월'},
-    {코드:'E', 이름:'타일', 일반:'욕실·주방·베란다 타일'},
-    {코드:'F', 이름:'도장', 일반:'천장·문틀 페인트'},
-    {코드:'G', 이름:'도배', 일반:'실크/합지 벽지 시공'},
-    {코드:'H', 이름:'마루·장판', 일반:'강마루·합판마루·장판'},
-    {코드:'I', 이름:'가구', 일반:'싱크대·붙박이장·신발장 (m 단위)'},
-    {코드:'J', 이름:'전기·조명', 일반:'등기구·콘센트·스위치'},
-    {코드:'K', 이름:'도어', 일반:'방문·현관문·욕실문'},
-    {코드:'L', 이름:'필름', 일반:'몰딩·문 필름 마감'},
-    {코드:'M', 이름:'단열·방수', 일반:'단열재·방수 (베란다·욕실)'},
-    {코드:'N', 이름:'입주청소', 일반:'시공 후 입주 청소'}
+    {코드:'100', 이름:'확장공사', 일반:'베란다 확장·바닥 단높임·단열'},
+    {코드:'200', 이름:'창호공사', 일반:'KCC·LG 샷시 교체·폴딩도어'},
+    {코드:'300', 이름:'도아공사', 일반:'방문·현관문·도어록·문선몰딩'},
+    {코드:'400', 이름:'도기공사', 일반:'양변기·세면기·욕조'},
+    {코드:'500', 이름:'수전공사', 일반:'수전·액세서리·욕실 수납장·SMC천정'},
+    {코드:'600', 이름:'타일공사', 일반:'욕실·주방·발코니·현관 타일'},
+    {코드:'700', 이름:'가구공사', 일반:'싱크대·붙박이장·신발장'},
+    {코드:'800', 이름:'조명공사', 일반:'LED 거실·방·식탁·다운라이트'},
+    {코드:'900', 이름:'전기공사', 일반:'콘센트·스위치·배선·차단기'},
+    {코드:'1000', 이름:'도장공사', 일반:'천장·문틀·발코니 페인트'},
+    {코드:'1100', 이름:'시트공사', 일반:'필름·시트 마감 (LG/한화)'},
+    {코드:'1200', 이름:'바닥공사', 일반:'강마루·강화·데코타일'},
+    {코드:'1300', 이름:'도배공사', 일반:'실크·합지·천연벽지'},
+    {코드:'1400', 이름:'목공사', 일반:'가벽·우물천장·아트월·몰딩'},
+    {코드:'1500', 이름:'철거공사', 일반:'욕실·마루·가구·샷시·벽체 철거'},
+    {코드:'1600', 이름:'기타공사', 일반:'준공청소·새집증후군·실리콘·동의서'}
   ];
   const tradeList = document.getElementById('ci-trade-list');
   TRADES.forEach((t, i) => {
@@ -666,14 +675,19 @@
       }
     }
     // 공간 배열을 객체로 정리
+    const ceilingHeight = parseFloat(flat['천장높이']) || 2.4;
     const spaces = [];
     const sNames = arrays['공간명[]'] || [];
     sNames.forEach((name, i) => {
+      const w = parseFloat((arrays['공간_가로[]']||[])[i]) || null;
+      const h = parseFloat((arrays['공간_세로[]']||[])[i]) || null;
       spaces.push({
         공간명: name,
-        가로: parseFloat((arrays['공간_가로[]']||[])[i]) || null,
-        세로: parseFloat((arrays['공간_세로[]']||[])[i]) || null,
-        높이: parseFloat((arrays['공간_높이[]']||[])[i]) || null,
+        가로: w,
+        세로: h,
+        높이: ceilingHeight,
+        바닥면적: (w && h) ? +(w * h).toFixed(2) : null,
+        벽면적: (w && h) ? +((w + h) * 2 * ceilingHeight).toFixed(2) : null,
         메모: (arrays['공간_메모[]']||[])[i] || ''
       });
     });

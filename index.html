@@ -508,34 +508,40 @@
           <label class="qf-field-label">시공 범위<span class="req">*</span></label>
           <div class="qf-field-hint"><strong style="color: var(--jp-charcoal);">3개 이상 선택</strong>해 주세요. 그 이하는 직영 시공이 유리합니다.</div>
           <div class="qf-scope-grid">
-            <input type="checkbox" id="sc1" name="scope" value="도배">
-            <label for="sc1">도배</label>
-            <input type="checkbox" id="sc2" name="scope" value="장판/마루">
-            <label for="sc2">장판·마루</label>
-            <input type="checkbox" id="sc3" name="scope" value="욕실 1개소">
-            <label for="sc3">욕실 1개</label>
-            <input type="checkbox" id="sc4" name="scope" value="욕실 추가">
-            <label for="sc4">욕실 추가</label>
-            <input type="checkbox" id="sc5" name="scope" value="주방가구">
-            <label for="sc5">주방 가구</label>
-            <input type="checkbox" id="sc6" name="scope" value="주방타일">
-            <label for="sc6">주방 타일</label>
-            <input type="checkbox" id="sc7" name="scope" value="도어 교체">
-            <label for="sc7">도어 교체</label>
-            <input type="checkbox" id="sc8" name="scope" value="창호(샷시)">
-            <label for="sc8">창호·샷시</label>
-            <input type="checkbox" id="sc9" name="scope" value="전기/조명">
-            <label for="sc9">전기·조명</label>
-            <input type="checkbox" id="sc10" name="scope" value="페인트/필름">
-            <label for="sc10">페인트·필름</label>
-            <input type="checkbox" id="sc11" name="scope" value="단열/방수">
-            <label for="sc11">단열·방수</label>
-            <input type="checkbox" id="sc12" name="scope" value="철거">
-            <label for="sc12">철거</label>
-            <input type="checkbox" id="sc13" name="scope" value="베란다 확장">
-            <label for="sc13">베란다 확장</label>
-            <input type="checkbox" id="sc14" name="scope" value="올수리">
-            <label for="sc14">올수리 (전체)</label>
+            <input type="checkbox" id="sc1" name="scope" value="100 확장공사">
+            <label for="sc1">확장</label>
+            <input type="checkbox" id="sc2" name="scope" value="200 창호공사">
+            <label for="sc2">창호</label>
+            <input type="checkbox" id="sc3" name="scope" value="300 도아공사">
+            <label for="sc3">도아·문</label>
+            <input type="checkbox" id="sc4" name="scope" value="400 도기공사">
+            <label for="sc4">도기 (욕실)</label>
+            <input type="checkbox" id="sc5" name="scope" value="500 수전공사">
+            <label for="sc5">수전·욕실 액세서리</label>
+            <input type="checkbox" id="sc6" name="scope" value="600 타일공사">
+            <label for="sc6">타일</label>
+            <input type="checkbox" id="sc7" name="scope" value="700 가구공사">
+            <label for="sc7">가구·싱크대</label>
+            <input type="checkbox" id="sc8" name="scope" value="800 조명공사">
+            <label for="sc8">조명</label>
+            <input type="checkbox" id="sc9" name="scope" value="900 전기공사">
+            <label for="sc9">전기</label>
+            <input type="checkbox" id="sc10" name="scope" value="1000 도장공사">
+            <label for="sc10">도장</label>
+            <input type="checkbox" id="sc11" name="scope" value="1100 시트공사">
+            <label for="sc11">시트·필름</label>
+            <input type="checkbox" id="sc12" name="scope" value="1200 바닥공사">
+            <label for="sc12">바닥</label>
+            <input type="checkbox" id="sc13" name="scope" value="1300 도배공사">
+            <label for="sc13">도배</label>
+            <input type="checkbox" id="sc14" name="scope" value="1400 목공사">
+            <label for="sc14">목공</label>
+            <input type="checkbox" id="sc15" name="scope" value="1500 철거공사">
+            <label for="sc15">철거</label>
+            <input type="checkbox" id="sc16" name="scope" value="1600 기타공사">
+            <label for="sc16">기타·청소</label>
+            <input type="checkbox" id="sc17" name="scope" value="올수리">
+            <label for="sc17">올수리 (전체)</label>
           </div>
           <div class="qf-scope-warn" id="qf-scope-warn">
             <strong>부분 수리 3개 이하는 직영 시공이 유리합니다.</strong><br>
@@ -697,8 +703,24 @@
       <div class="qf-success-title">신청이 접수되었습니다</div>
       <div class="qf-success-desc">
         <strong>영업일 2-3일 내</strong>로 카카오톡 채널 <strong>@집지니</strong>로<br>
-        코디가 작성한 무료 가안을 보내드립니다.<br><br>
-        <strong>현장 사진·평면도</strong>가 있으시면 지금 카톡 채널로 보내주세요.<br>
+        코디가 작성한 무료 가안을 보내드립니다.
+      </div>
+
+      <!-- 정밀 입력기 강력 CTA (가안 정확도 핵심) -->
+      <div style="background:linear-gradient(135deg,#1a472a,#2a6a3a);color:#fff;padding:24px 20px;border-radius:14px;margin:24px auto;max-width:540px;text-align:left;box-shadow:0 6px 24px rgba(26,71,42,0.2);">
+        <div style="font-size:11px;letter-spacing:0.25em;color:#a8d4b8;margin-bottom:8px;">NEXT STEP · 가안 정확도 ↑</div>
+        <div style="font-size:18px;font-weight:800;margin-bottom:8px;line-height:1.4;">정밀 입력기에서 5분만 더 작성하시면<br>가안이 <span style="color:#FFD966;">실제 견적에 가깝게</span> 산출됩니다</div>
+        <div style="font-size:13px;color:#d4e4d8;line-height:1.7;margin-bottom:16px;">
+          공간별 가로·세로·높이 실측 + 14공종 시공 의향 + 자재 등급까지 한 번에.<br>
+          코디가 카톡으로 별도 요청할 내용을 <strong>지금 한 번에 보내주시면</strong> 가안 작성 시간이 줄어 더 빨리 받으실 수 있습니다.
+        </div>
+        <a id="qf-success-precision-cta" href="client-input.html" style="display:inline-flex;align-items:center;gap:8px;background:#FFD966;color:#1a472a;padding:13px 22px;border-radius:8px;font-weight:800;text-decoration:none;font-size:14px;">
+          <i class="ti ti-pencil-plus"></i> 정밀 입력기 작성 (5분, +가안 정확도 ↑↑)
+        </a>
+      </div>
+
+      <div class="qf-success-desc">
+        <strong>현장 사진·평면도</strong>가 있으시면 카톡 채널로도 보내주세요.<br>
         가안 정확도가 훨씬 높아집니다.
       </div>
       <a href="https://pf.kakao.com/_NjpxhC/chat" target="_blank" rel="noopener" class="qf-success-kakao">
