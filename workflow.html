@@ -230,12 +230,14 @@
       카페·미용실·주택 등 100여 건의 실제 시공 과정과 완성 사진을<br>
       네이버 블로그와 유튜브에 단계별로 기록해 두었습니다.
     </div>
-    <div class="realproc-blog-buttons">
-      <a class="btn btn-primary" href="https://blog.naver.com/cloudstay_" target="_blank" rel="noopener">
-        <i class="ti ti-brand-blogger"></i>네이버 블로그에서 시공 사례 보기
+    <div class="realproc-blog-buttons" style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:20px;">
+      <a href="https://blog.naver.com/cloudstay_" target="_blank" rel="noopener"
+         style="background:#03C75A;color:#fff;padding:14px 24px;border-radius:8px;font-weight:700;text-decoration:none;display:inline-flex;align-items:center;gap:8px;box-shadow:0 4px 12px rgba(3,199,90,0.3);font-size:15px;">
+        <i class="ti ti-brand-blogger" style="font-size:20px;"></i>네이버 블로그 · 시공 사례 100건
       </a>
-      <a class="btn btn-secondary" href="https://www.youtube.com/@%EC%B4%8C%EB%8B%AD%EA%B1%B4%EC%B6%95" target="_blank" rel="noopener">
-        <i class="ti ti-brand-youtube"></i>유튜브 · 촌닭건축
+      <a href="https://www.youtube.com/@%EC%B4%8C%EB%8B%AD%EA%B1%B4%EC%B6%95" target="_blank" rel="noopener"
+         style="background:#FF0000;color:#fff;padding:14px 24px;border-radius:8px;font-weight:700;text-decoration:none;display:inline-flex;align-items:center;gap:8px;box-shadow:0 4px 12px rgba(255,0,0,0.3);font-size:15px;">
+        <i class="ti ti-brand-youtube" style="font-size:20px;"></i>유튜브 · 촌닭건축
       </a>
     </div>
   </div>
@@ -509,171 +511,6 @@
   포트폴리오: blog.naver.com/cloudstay_ · 유튜브: 촌닭건축<br>
   <a href="files/jipjini-guide.pdf" target="_blank" rel="noopener" style="color:inherit;text-decoration:underline;">가이드 카탈로그 PDF 다운로드</a>
 </div>
-
-<script>
-(function() {
-  const form = document.getElementById('qf-form');
-  if (!form) return;
-
-  const steps = document.querySelectorAll('.qf-step');
-  const bars = document.querySelectorAll('.qf-progress-step');
-  const success = document.getElementById('qf-success');
-
-  function showStep(n) {
-    steps.forEach(s => s.classList.remove('active'));
-    document.querySelector('.qf-step[data-step="' + n + '"]').classList.add('active');
-    bars.forEach((b, i) => {
-      b.classList.remove('active', 'done');
-      if (i + 1 < n) b.classList.add('done');
-      else if (i + 1 === n) b.classList.add('active');
-    });
-    // 폼 섹션 기준 스크롤 (안정적)
-    const section = document.getElementById('quote-form');
-    if (section) {
-      const top = section.getBoundingClientRect().top + window.scrollY - 40;
-      window.scrollTo({ top: top, behavior: 'smooth' });
-    }
-  }
-
-  // STEP 1 검증: 라디오 6개 모두 선택됐는지
-  function validateStep1() {
-    const required = ['building_type', 'floor', 'rooms', 'bathrooms', 'balcony'];
-    for (const name of required) {
-      if (!form.querySelector('input[name="' + name + '"]:checked')) {
-        alert('STEP 1의 모든 항목을 선택해 주세요.');
-        return false;
-      }
-    }
-    const area = form.querySelector('select[name="area"]').value;
-    if (!area) {
-      alert('전용면적을 선택해 주세요.');
-      return false;
-    }
-    if (area === '직접입력' && !form.querySelector('input[name="area_direct"]').value.trim()) {
-      alert('전용면적을 직접 입력해 주세요.');
-      return false;
-    }
-    return true;
-  }
-
-  // STEP 2 검증: 시공범위·등급·시공시작일
-  function validateStep2() {
-    const scope = form.querySelectorAll('input[name="scope"]:checked').length;
-    if (scope === 0) {
-      alert('시공 범위를 최소 1개 이상 선택해 주세요.');
-      return false;
-    }
-    if (!form.querySelector('input[name="grade"]:checked')) {
-      alert('자재 등급을 선택해 주세요.');
-      return false;
-    }
-    const startDate = form.querySelector('input[name="start_date"]').value;
-    if (!startDate) {
-      alert('예상 시공 시작일을 선택해 주세요.');
-      return false;
-    }
-    return true;
-  }
-
-  // 다음 버튼
-  form.querySelectorAll('.qf-btn-next').forEach(btn => {
-    btn.addEventListener('click', function() {
-      const next = parseInt(this.dataset.next);
-      if (next === 2 && !validateStep1()) return;
-      if (next === 3 && !validateStep2()) return;
-      showStep(next);
-    });
-  });
-
-  // 이전 버튼
-  form.querySelectorAll('.qf-btn-back').forEach(btn => {
-    btn.addEventListener('click', function() {
-      showStep(parseInt(this.dataset.back));
-    });
-  });
-
-  // 면적 직접 입력 토글
-  const areaSel = document.getElementById('qf-area');
-  const areaDirect = document.getElementById('qf-area-direct');
-  areaSel.addEventListener('change', function() {
-    areaDirect.classList.toggle('show', this.value === '직접입력');
-  });
-
-  // 시공 시작일: 오늘 이후만 선택 가능
-  const startDate = document.getElementById('qf-start-date');
-  if (startDate) {
-    const today = new Date();
-    const yyyy = today.getFullYear();
-    const mm = String(today.getMonth() + 1).padStart(2, '0');
-    const dd = String(today.getDate()).padStart(2, '0');
-    startDate.min = yyyy + '-' + mm + '-' + dd;
-  }
-
-  // 시공 범위 3개 미만 경고
-  const scopeBoxes = form.querySelectorAll('input[name="scope"]');
-  const scopeWarn = document.getElementById('qf-scope-warn');
-  scopeBoxes.forEach(box => {
-    box.addEventListener('change', function() {
-      const checked = form.querySelectorAll('input[name="scope"]:checked').length;
-      scopeWarn.classList.toggle('show', checked > 0 && checked < 3);
-    });
-  });
-
-  // 폼 제출 → Netlify Forms는 fetch로 처리 후 완료 화면 표시
-  form.addEventListener('submit', function(e) {
-    e.preventDefault();
-    const name = form.querySelector('input[name="name"]').value.trim();
-    const email = form.querySelector('input[name="email"]').value.trim();
-    const kakao = form.querySelector('input[name="kakao_id"]').value.trim();
-    const phone = form.querySelector('input[name="phone"]').value.trim();
-    const address = form.querySelector('input[name="address"]').value.trim();
-
-    if (!name) {
-      alert('성함을 입력해 주세요.');
-      return;
-    }
-    if (!email) {
-      alert('이메일을 입력해 주세요. 접수 확인 메일이 발송됩니다.');
-      return;
-    }
-    // 이메일 형식 간단 검증
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      alert('올바른 이메일 형식이 아닙니다.');
-      return;
-    }
-    if (!kakao && !phone) {
-      alert('카카오톡 ID 또는 휴대폰 중 하나는 반드시 입력해 주세요.');
-      return;
-    }
-    if (!address) {
-      alert('시공 주소를 입력해 주세요.');
-      return;
-    }
-
-    const formData = new FormData(form);
-    fetch('/', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: new URLSearchParams(formData).toString()
-    })
-    .then(() => {
-      form.style.display = 'none';
-      document.querySelector('.qf-progress').style.display = 'none';
-      success.classList.add('show');
-      // 폼 섹션(#quote-form) 기준으로 스크롤 (폼이 사라져도 위치 유지)
-      const section = document.getElementById('quote-form');
-      if (section) {
-        const top = section.getBoundingClientRect().top + window.scrollY - 40;
-        window.scrollTo({ top: top, behavior: 'smooth' });
-      }
-    })
-    .catch(err => {
-      alert('신청 전송 중 오류가 발생했습니다. 카카오톡 채널 @집지니로 직접 문의해 주세요.');
-      console.error(err);
-    });
-  });
-})();
-</script>
 
 <script>
 /* 모바일 햄버거 메뉴 닫힘 처리 */
