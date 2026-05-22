@@ -1,0 +1,59 @@
+name: 집지니 Apps Script 초기 동기화 (수동 1회)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  init-sync:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: 체크아웃
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Node.js 셋업
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: clasp 설치
+        run: npm install -g @google/clasp
+
+      - name: clasp 인증
+        run: |
+          echo '${{ secrets.CLASPRC_JSON }}' > ~/.clasprc.json
+          chmod 600 ~/.clasprc.json
+
+      - name: Apps Script 코드 pull (Apps Script → GitHub 미러링)
+        working-directory: apps-script
+        run: clasp pull -f
+
+      - name: 변경 사항 commit + push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add apps-script/
+          if git diff --staged --quiet; then
+            echo "::notice::변경 없음 (이미 동기화됨)"
+          else
+            git commit -m "chore: Apps Script → GitHub 자동 동기화 [skip deploy]"
+            git push
+            echo "::notice::Apps Script 코드 GitHub apps-script/ 폴더에 미러링 완료"
+          fi
+
+      - name: clasp push (no-op일 가능성, 변경 있으면 sync)
+        working-directory: apps-script
+        run: clasp push -f
+
+      - name: 새 v14 배포 (clasp deploy)
+        working-directory: apps-script
+        run: |
+          clasp deploy --deploymentId AKfycbxk3YmJZylwyYjbpFN69kQd1T-o5-1YYoPBaDtMMZdNZxkw1YJBL6Ph8gL6rmRfSekLSw --description "GitHub Actions 초기 자동 배포 v14 (commit ${{ github.sha }})"
+
+      - name: 완료 메시지
+        if: success()
+        run: |
+          echo "::notice::🎉 박 대표 Apps Script 자동 배포 시스템 가동! 이제 GitHub apps-script/ 폴더에 .gs 수정 → push → 자동 배포."
