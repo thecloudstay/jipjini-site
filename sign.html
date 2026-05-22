@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>집지니 · 의뢰서 자체 서명</title>
+<meta name="description" content="집지니 코디 서비스 의뢰서에 동의 서명합니다. HTML5 Canvas 자체 서명.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.34.0/dist/tabler-icons.min.css">
+<style>
+:root { --jp-dark:#1a472a; --jp-oatmeal:#F5F1E8; --jp-line:#C8C4BC; --jp-gray:#6B6B6B; --jp-red:#E74C3C; }
+* { box-sizing: border-box; }
+body { font-family: Pretendard, -apple-system, sans-serif; background: var(--jp-oatmeal); color: #2A2A2A; margin: 0; padding: 24px 16px 80px; }
+.wrap { max-width: 720px; margin: 0 auto; }
+.hero { text-align: center; padding: 24px 0; }
+.eyebrow { font-size: 11px; letter-spacing: 0.3em; color: var(--jp-gray); }
+h1 { font-size: 26px; font-weight: 800; margin: 8px 0; }
+.summary { background: #fff; border: 1px solid var(--jp-line); border-radius: 12px; padding: 24px; margin-bottom: 20px; }
+.summary h2 { font-size: 16px; color: var(--jp-dark); margin: 0 0 12px; border-left: 4px solid var(--jp-dark); padding-left: 10px; }
+.summary table { width: 100%; border-collapse: collapse; }
+.summary th { text-align: left; padding: 6px 10px; font-size: 13px; color: var(--jp-gray); width: 35%; font-weight: 500; }
+.summary td { padding: 6px 10px; font-size: 14px; }
+.notice { background: #fffbeb; border-left: 4px solid #f59e0b; padding: 12px 16px; border-radius: 6px; font-size: 13px; line-height: 1.7; margin: 12px 0; }
+.agree-box { background: #fff; border: 1px solid var(--jp-line); border-radius: 12px; padding: 20px 24px; margin-bottom: 20px; }
+.agree-box label { display: flex; align-items: flex-start; gap: 10px; padding: 8px 0; cursor: pointer; font-size: 14px; line-height: 1.6; }
+.agree-box input[type="checkbox"] { width: 18px; height: 18px; margin-top: 2px; accent-color: var(--jp-dark); }
+.canvas-box { background: #fff; border: 2px solid var(--jp-line); border-radius: 12px; padding: 20px; margin-bottom: 20px; }
+.canvas-box h2 { font-size: 16px; color: var(--jp-dark); margin: 0 0 8px; }
+.canvas-hint { font-size: 12px; color: var(--jp-gray); margin-bottom: 10px; }
+canvas { display: block; width: 100%; height: 200px; background: #fafaf5; border: 1px dashed var(--jp-line); border-radius: 8px; cursor: crosshair; touch-action: none; }
+.canvas-btns { display: flex; gap: 8px; margin-top: 10px; }
+.btn-clear { padding: 8px 16px; background: #fff; border: 1px solid var(--jp-line); border-radius: 6px; cursor: pointer; font-size: 13px; }
+.btn-clear:hover { background: #f5f1e8; }
+.submit-btn { width: 100%; padding: 16px; background: var(--jp-dark); color: #fff; border: none; border-radius: 10px; font-size: 16px; font-weight: 700; cursor: pointer; }
+.submit-btn:hover { background: #0f3a20; }
+.submit-btn:disabled { background: #9a9a9a; cursor: not-allowed; }
+.success { display: none; text-align: center; background: #fff; border: 2px solid var(--jp-dark); border-radius: 12px; padding: 40px 24px; }
+.success.show { display: block; }
+.success-icon { font-size: 48px; color: var(--jp-dark); margin-bottom: 12px; }
+.success h2 { font-size: 22px; color: var(--jp-dark); }
+.contract-id { font-family: monospace; background: var(--jp-oatmeal); padding: 6px 12px; border-radius: 6px; display: inline-block; margin: 8px 0; }
+@media (max-width: 480px) {
+  canvas { height: 160px; }
+  h1 { font-size: 22px; }
+  .summary { padding: 18px; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="hero">
+    <p class="eyebrow">DIGITAL SIGNATURE</p>
+    <h1>의뢰서 자체 서명</h1>
+    <p style="color: var(--jp-gray);">집지니 코디네이션 서비스 의뢰서 내용에 동의 서명해 주세요.</p>
+  </div>
+
+  <div id="main-form">
+    <div class="summary">
+      <h2>의뢰서 요약</h2>
+      <table>
+        <tr><th>의뢰서ID</th><td id="proposal-id">—</td></tr>
+        <tr><th>의뢰인</th><td id="customer-name">—</td></tr>
+        <tr><th>시공 주소</th><td id="customer-address">—</td></tr>
+        <tr><th>평수</th><td id="customer-area">—</td></tr>
+        <tr><th>시공 총액 (예상)</th><td id="quote-total">—</td></tr>
+        <tr><th>코디 운영비</th><td id="codi-fee">—</td></tr>
+      </table>
+    </div>
+
+    <div class="notice">
+      <strong>📋 책임 분리 안내</strong><br>
+      집지니의 역할은 <strong>코디네이션</strong> (자재상·기술자 매칭, 단가 검증, 공정 조율)이며, 실제 시공·하자 보증 책임은 자재상·기술자에게 있습니다. 자재·노무비는 의뢰인이 직접 결제하며, 집지니는 마진 0 정찰제 코디비만 받습니다.
+    </div>
+
+    <div class="agree-box">
+      <h2 style="font-size: 16px; color: var(--jp-dark); margin: 0 0 12px;">동의 사항</h2>
+      <label><input type="checkbox" id="ag1" required> [필수] 의뢰서 내용을 모두 확인했으며 동의합니다.</label>
+      <label><input type="checkbox" id="ag2" required> [필수] 집지니의 코디 범위 + <strong>시공 책임 분리</strong> 내용을 이해했습니다.</label>
+      <label><input type="checkbox" id="ag3" required> [필수] 자재·노무비는 자재상·기술자에게 <strong>직접 결제</strong>합니다.</label>
+      <label><input type="checkbox" id="ag4" required> [필수] 코디 운영비 (정찰제, 마진 0) 정책에 동의합니다.</label>
+      <label><input type="checkbox" id="ag5" required> [필수] 개인정보 수집·이용에 동의합니다 (서명·연락처 자동 저장).</label>
+    </div>
+
+    <div class="canvas-box">
+      <h2>자체 서명</h2>
+      <div class="canvas-hint">아래 영역에 마우스나 손가락으로 본인 서명을 그려주세요.</div>
+      <canvas id="signature-canvas"></canvas>
+      <div class="canvas-btns">
+        <button type="button" class="btn-clear" onclick="clearCanvas()"><i class="ti ti-eraser"></i> 다시 그리기</button>
+        <span style="margin-left: auto; font-size: 12px; color: var(--jp-gray); align-self: center;" id="signature-status">서명 대기 중</span>
+      </div>
+    </div>
+
+    <button type="button" class="submit-btn" id="submit-btn" onclick="submitSignature()">
+      <i class="ti ti-signature"></i> 서명 제출 + 의뢰서 효력 발생
+    </button>
+  </div>
+
+  <div class="success" id="success">
+    <div class="success-icon"><i class="ti ti-check-circle"></i></div>
+    <h2>의뢰서 서명 완료</h2>
+    <p style="color: var(--jp-gray); margin: 12px 0;">서명이 정상 접수되었습니다. 계약이 체결되어 집지니 코디네이션 서비스가 시작됩니다.</p>
+    <div class="contract-id" id="contract-id">계약ID: —</div>
+    <p style="font-size: 13px; color: var(--jp-gray); line-height: 1.7;">
+      박 대표가 카톡으로 다음 단계 (1차 입금·시공 일정·자재상 매칭) 안내드립니다.<br>
+      문의: <strong>카카오톡 채널 @집지니</strong>
+    </p>
+    <a href="https://pf.kakao.com/_NjpxhC/chat" target="_blank" rel="noopener" style="display: inline-block; margin-top: 16px; padding: 12px 22px; background: #FAE100; color: #3C1E1E; border-radius: 8px; font-weight: 700; text-decoration: none;">
+      <i class="ti ti-message-circle"></i> 카톡 채널 @집지니 추가
+    </a>
+  </div>
+</div>
+
+<script>
+(function(){
+  const params = new URLSearchParams(location.search);
+  const proposalId = params.get('p') || 'P-' + Date.now().toString(36).toUpperCase();
+  const quoteId = params.get('q') || '';
+  const reqId = params.get('r') || '';
+  const wfId = params.get('w') || '';
+
+  document.getElementById('proposal-id').textContent = proposalId;
+  document.getElementById('customer-name').textContent = params.get('name') || '—';
+  document.getElementById('customer-address').textContent = params.get('addr') || '—';
+  document.getElementById('customer-area').textContent = (params.get('py') || '—') + '평';
+  document.getElementById('quote-total').textContent = (Number(params.get('total') || 0)).toLocaleString('ko-KR') + '원';
+  document.getElementById('codi-fee').textContent = (Number(params.get('codi') || 0)).toLocaleString('ko-KR') + '원';
+
+  const canvas = document.getElementById('signature-canvas');
+  const ctx = canvas.getContext('2d');
+  let isDrawing = false;
+  let hasSignature = false;
+
+  function resizeCanvas() {
+    const rect = canvas.getBoundingClientRect();
+    canvas.width = rect.width * window.devicePixelRatio;
+    canvas.height = rect.height * window.devicePixelRatio;
+    ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+    ctx.lineWidth = 2.5;
+    ctx.strokeStyle = '#1a472a';
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+  }
+  resizeCanvas();
+  window.addEventListener('resize', resizeCanvas);
+
+  function getXY(e) {
+    const rect = canvas.getBoundingClientRect();
+    const x = (e.clientX || (e.touches && e.touches[0].clientX) || 0) - rect.left;
+    const y = (e.clientY || (e.touches && e.touches[0].clientY) || 0) - rect.top;
+    return { x: x, y: y };
+  }
+
+  function startDraw(e) {
+    e.preventDefault();
+    isDrawing = true;
+    const p = getXY(e);
+    ctx.beginPath();
+    ctx.moveTo(p.x, p.y);
+  }
+  function draw(e) {
+    if (!isDrawing) return;
+    e.preventDefault();
+    const p = getXY(e);
+    ctx.lineTo(p.x, p.y);
+    ctx.stroke();
+    if (!hasSignature) {
+      hasSignature = true;
+      document.getElementById('signature-status').textContent = '✓ 서명 입력됨';
+      document.getElementById('signature-status').style.color = '#1a472a';
+    }
+  }
+  function endDraw() { isDrawing = false; }
+
+  canvas.addEventListener('mousedown', startDraw);
+  canvas.addEventListener('mousemove', draw);
+  canvas.addEventListener('mouseup', endDraw);
+  canvas.addEventListener('mouseleave', endDraw);
+  canvas.addEventListener('touchstart', startDraw);
+  canvas.addEventListener('touchmove', draw);
+  canvas.addEventListener('touchend', endDraw);
+
+  window.clearCanvas = function() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    hasSignature = false;
+    document.getElementById('signature-status').textContent = '서명 대기 중';
+    document.getElementById('signature-status').style.color = '';
+  };
+
+  window.submitSignature = function() {
+    for (let i = 1; i <= 5; i++) {
+      if (!document.getElementById('ag' + i).checked) {
+        alert('필수 동의 항목 ' + i + '번을 체크해 주세요.');
+        return;
+      }
+    }
+    if (!hasSignature) {
+      alert('서명을 그려주세요.');
+      return;
+    }
+
+    document.getElementById('submit-btn').disabled = true;
+    document.getElementById('submit-btn').innerHTML = '<i class="ti ti-loader-2"></i> 제출 중...';
+
+    const signaturePng = canvas.toDataURL('image/png');
+    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxk3YmJZylwyYjbpFN69kQd1T-o5-1YYoPBaDtMMZdNZxkw1YJBL6Ph8gL6rmRfSekLSw/exec';
+    const formData = new URLSearchParams();
+    formData.set('type', 'signature');
+    formData.set('의뢰서ID', proposalId);
+    formData.set('견적서ID', quoteId);
+    formData.set('의뢰ID', reqId);
+    formData.set('공정표ID', wfId);
+    formData.set('서명_base64', signaturePng);
+    formData.set('서명일시', new Date().toISOString());
+    formData.set('동의_의뢰서', '동의');
+    formData.set('동의_책임분리', '동의');
+    formData.set('동의_직접결제', '동의');
+    formData.set('동의_코디비정찰제', '동의');
+    formData.set('동의_개인정보', '동의');
+
+    fetch(APPS_SCRIPT_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: formData.toString(),
+      mode: 'no-cors'
+    }).catch(function(err){
+      console.warn('[집지니 서명] Apps Script 호출 실패:', err);
+    });
+
+    setTimeout(function(){
+      document.getElementById('main-form').style.display = 'none';
+      document.getElementById('success').classList.add('show');
+      const contractId = 'C-' + Date.now().toString(36).toUpperCase();
+      document.getElementById('contract-id').textContent = '계약ID: ' + contractId;
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }, 800);
+  };
+})();
+</script>
+</body>
+</html>
