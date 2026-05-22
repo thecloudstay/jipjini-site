@@ -1,0 +1,43 @@
+name: 집지니 Apps Script 자동 배포
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'apps-script/**'
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 체크아웃
+        uses: actions/checkout@v4
+
+      - name: Node.js 셋업
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: clasp 설치
+        run: npm install -g @google/clasp
+
+      - name: clasp 인증 (박 대표 OAuth 토큰)
+        run: |
+          mkdir -p ~/.config
+          echo '${{ secrets.CLASPRC_JSON }}' > ~/.clasprc.json
+          chmod 600 ~/.clasprc.json
+
+      - name: Apps Script 코드 push
+        working-directory: apps-script
+        run: clasp push -f
+
+      - name: 새 버전 배포
+        working-directory: apps-script
+        run: |
+          clasp deploy --deploymentId AKfycbxk3YmJZylwyYjbpFN69kQd1T-o5-1YYoPBaDtMMZdNZxkw1YJBL6Ph8gL6rmRfSekLSw --description "GitHub Actions 자동 배포 — commit ${{ github.sha }}"
+
+      - name: 배포 결과 요약
+        if: success()
+        run: |
+          echo "::notice::집지니 Apps Script 새 버전 자동 배포 완료 (commit ${{ github.sha }})"
