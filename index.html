@@ -255,13 +255,13 @@
         <div class="tier-point pro"><i class="ti ti-plus"></i><span>직영 대비 <strong>시간 1/10</strong></span></div>
         <div class="tier-point pro"><i class="ti ti-plus"></i><span>모든 단가 투명 공시</span></div>
         <div class="tier-point pro"><i class="ti ti-plus"></i><span>자재·인부 <strong>직접 결제</strong></span></div>
-        <div class="tier-point pro"><i class="ti ti-plus"></i><span>등급·옵션 자유 선택 (스드메처럼)</span></div>
+        <div class="tier-point pro"><i class="ti ti-plus"></i><span>자재 옵션 자유 선택 (스드메처럼)</span></div>
       </div>
       <div class="tier-divider">
         <div class="tier-subhead">CONS</div>
         <div class="tier-points" style="margin-bottom: 0;">
           <div class="tier-point con"><i class="ti ti-minus"></i><span>현장 관리는 직접 (또는 PM 선택)</span></div>
-          <div class="tier-point con"><i class="ti ti-minus"></i><span>일부 결정은 직접 (자재 등급 등)</span></div>
+          <div class="tier-point con"><i class="ti ti-minus"></i><span>자재 브랜드·옵션은 직접 결정</span></div>
         </div>
       </div>
     </div>
@@ -500,8 +500,8 @@
       <!-- ========= STEP 2 · 시공 정보 ========= -->
       <div class="qf-step" data-step="2">
         <div class="qf-step-label">STEP 2 · 시공 정보</div>
-        <div class="qf-step-title">무엇을 어떻게 시공하고 싶으세요</div>
-        <div class="qf-step-desc">시공 범위와 자재 등급을 선택해 주세요.</div>
+        <div class="qf-step-title">무엇을 시공하고 싶으세요</div>
+        <div class="qf-step-desc">시공 범위를 선택해 주세요. 자재는 모두 표준(중급)으로 통일된 정찰제로 제공됩니다.</div>
 
         <!-- 시공 범위 -->
         <div class="qf-field">
@@ -550,33 +550,8 @@
           </div>
         </div>
 
-        <!-- 자재 등급 -->
-        <div class="qf-field">
-          <label class="qf-field-label">자재 등급<span class="req">*</span></label>
-          <div class="qf-grade-cards">
-            <input type="radio" id="gr1" name="grade" value="보급형" required>
-            <label for="gr1">
-              <div class="qf-grade-name">보급형</div>
-              <div class="qf-grade-desc">가성비 제품 중심<br>저렴한 자재 위주</div>
-            </label>
-            <input type="radio" id="gr2" name="grade" value="중급" checked>
-            <label for="gr2">
-              <span class="qf-grade-tag">추천</span>
-              <div class="qf-grade-name">중급</div>
-              <div class="qf-grade-desc">국산 보급형<br>표준 마감</div>
-            </label>
-            <input type="radio" id="gr3" name="grade" value="프리미엄">
-            <label for="gr3">
-              <div class="qf-grade-name">프리미엄</div>
-              <div class="qf-grade-desc">프리미엄 자재 중심<br>고급 마감</div>
-            </label>
-            <input type="radio" id="gr4" name="grade" value="미정">
-            <label for="gr4">
-              <div class="qf-grade-name">미정</div>
-              <div class="qf-grade-desc">코디 상담 후<br>결정</div>
-            </label>
-          </div>
-        </div>
+        <!-- 자재 등급 (정찰제 통일 2026-05-24) - 모두 표준(중급) -->
+        <input type="hidden" name="grade" value="중급">
 
         <!-- 예상 시공 시작일 -->
         <div class="qf-field">
@@ -711,7 +686,7 @@
         <div style="font-size:11px;letter-spacing:0.25em;color:#a8d4b8;margin-bottom:8px;">NEXT STEP · 가안 정확도 ↑</div>
         <div style="font-size:18px;font-weight:800;margin-bottom:8px;line-height:1.4;">정밀 입력기에서 5분만 더 작성하시면<br>가안이 <span style="color:#FFD966;">실제 견적에 가깝게</span> 산출됩니다</div>
         <div style="font-size:13px;color:#d4e4d8;line-height:1.7;margin-bottom:16px;">
-          공간별 가로·세로·높이 실측 + 14공종 시공 의향 + 자재 등급까지 한 번에.<br>
+          공간별 가로·세로·높이 실측 + 14공종 시공 의향까지 한 번에.<br>
           코디가 카톡으로 별도 요청할 내용을 <strong>지금 한 번에 보내주시면</strong> 가안 작성 시간이 줄어 더 빨리 받으실 수 있습니다.
         </div>
         <a id="qf-success-precision-cta" href="client-input.html" style="display:inline-flex;align-items:center;gap:8px;background:#FFD966;color:#1a472a;padding:13px 22px;border-radius:8px;font-weight:800;text-decoration:none;font-size:14px;">
@@ -777,7 +752,7 @@
 
 <!-- ========= FOOTER ========= -->
 <div class="foot">
-  © 2026 주식회사 운휴원 · 집지니 (Direct Coordi™)<br>
+  &copy; 2026 주식회사 운휴원 · 집지니 (Direct Coordi&trade;)<br>
   인천 강화군 강화읍 동문로 33, 2층 · 카톡 @집지니 · thecloudstay@gmail.com<br>
   대표 박찬영 · 사업자등록번호 · 통신판매업신고번호 (별도 표기)<br>
   포트폴리오: blog.naver.com/cloudstay_ · 유튜브: 촌닭건축<br>
@@ -793,7 +768,7 @@
      실시간 견적 계산기
      단가 기준: 2026 시장 시세 조사 기반 추정 (코디형 = 턴키시세 × 약 0.72).
      실제 계약 견적은 현장 실측 후 확정됩니다. 가안용 추정치.
-     표준 등급 기준. 면적비례=평당, 개소/식=건당.
+     표준(중급) 등급 단일 정찰제 — 2026-05-24 박 대표 결정.
      ======================================================== */
   const PRICING = {
     // 면적 비례형 (평당 단가, 원) — 표준 등급, 코디형
@@ -817,8 +792,6 @@
     },
     // 올수리: 평당 일괄 (선택 시 다른 공정 무시) — 코디형 표준 평당 135만
     allInOne: 1350000,
-    // 등급 배수 (가성비 / 표준 / 고급)
-    gradeMultiplier: { '보급형': 0.78, '중급': 1.0, '프리미엄': 1.35, '미정': 1.0 },
     // 폐기물 추정 비율
     wasteRate: 0.03,
   };
@@ -871,15 +844,13 @@
       return;
     }
     const pyeong = getPyeong();
-    const grade = form.querySelector('input[name="grade"]:checked');
-    const gradeVal = grade ? grade.value : '중급';
+    // 정찰제 통일: 자재 등급은 항상 표준(중급)
+    const gradeVal = '중급';
 
-    // 정책: (1) 자재 등급 미정 → 0원 상담, (2) 올수리 미선택 → 0원 상담 (단품 시공은 상담 후 결정)
+    // 정책: 올수리 미선택 → 코디 상담 후 결정 (단품 시공은 현장 상황·자재 단가 변동 큼)
     const isAllInOne = checked.includes('올수리');
-    if (gradeVal === '미정' || !isAllInOne) {
-      const reason = gradeVal === '미정'
-        ? '<strong>자재 등급 미정</strong>이라 정확한 가안 산출이 어렵습니다.'
-        : '<strong>단품 시공</strong>은 현장 상황·자재 단가에 따라 변동이 커서 일률적 추정이 어렵습니다.';
+    if (!isAllInOne) {
+      const reason = '<strong>단품 시공</strong>은 현장 상황·자재 단가에 따라 변동이 커서 일률적 추정이 어렵습니다.';
       body.innerHTML = `
         <div class="qf-est-row"><span>예상 견적</span><b style="color:var(--jp-charcoal);">코디 상담 후 결정</b></div>
         <div class="qf-est-note">
@@ -914,9 +885,8 @@
       return;
     }
 
-    // 올수리 + 자재 등급 확정 → 평수 × 등급별 평당 가격 산출
-    const gm = PRICING.gradeMultiplier[gradeVal] || 1.0;
-    const material = PRICING.allInOne * pyeong * gm;
+    // 올수리 → 평수 × 표준(중급) 평당 가격 산출
+    const material = PRICING.allInOne * pyeong;
     const waste = material * PRICING.wasteRate;
     const S = material + waste; // 시공 총액
     const codi = codiFee(S);
@@ -928,7 +898,7 @@
       <div class="qf-est-row sub"><span>+ PM 추가 선택 시</span><b>+ ${won(pm)} 원</b></div>
       <div class="qf-est-note">
         <i class="ti ti-info-circle"></i>
-        ${pyeong}평 올수리 · ${gradeVal} 기준 <strong>자동 추정치</strong>입니다.
+        ${pyeong}평 올수리 · 표준(중급) 정찰제 <strong>자동 추정치</strong>입니다.
         자재비·노무비는 자재상·기술자에게 직접 결제하며, 집지니는 코디 운영비만 받습니다.
       </div>
       <div class="qf-est-teaser">
@@ -999,15 +969,11 @@
     return true;
   }
 
-  // STEP 2 검증: 시공범위·등급·시공시작일
+  // STEP 2 검증: 시공범위·시공시작일 (자재 등급은 정찰제 통일로 제거)
   function validateStep2() {
     const scope = form.querySelectorAll('input[name="scope"]:checked').length;
     if (scope === 0) {
       alert('시공 범위를 최소 1개 이상 선택해 주세요.');
-      return false;
-    }
-    if (!form.querySelector('input[name="grade"]:checked')) {
-      alert('자재 등급을 선택해 주세요.');
       return false;
     }
     const startDate = form.querySelector('input[name="start_date"]').value;
@@ -1063,8 +1029,8 @@
     });
   });
 
-  // 등급·평형·욕실 개수 변경 시에도 견적 재계산
-  form.querySelectorAll('input[name="grade"], input[name="bathrooms"]').forEach(el => {
+  // 평형·욕실 개수 변경 시에도 견적 재계산 (자재 등급 제거됨)
+  form.querySelectorAll('input[name="bathrooms"]').forEach(el => {
     el.addEventListener('change', calcEstimate);
   });
   const areaSelEl = form.querySelector('select[name="area"]');
