@@ -116,14 +116,14 @@ body{font-family:'Pretendard',sans-serif;background:var(--jp-oatmeal);color:var(
       <div class="field"><label>시공 완료일 (예상)</label><input type="date" id="endDate"></div>
     </div>
     <div class="field-row">
-      <div class="field"><label>총 시공 견적액 (VAT 포함, 원)</label><input type="number" id="totalAmount" step="10000"><div class="field-hint">자재비·인건비 포함 추정 — 실제 직거래 금액에 따라 변동</div></div>
-      <div class="field"><label>코디 비용 (VAT 별도, 원)</label><input type="number" id="coordiFee" step="10000"><div class="field-hint">정찰제 · 박 대표만 받는 금액</div></div>
+      <div class="field"><label>총 시공 견적액 (공급가액, 원)</label><input type="number" id="totalAmount" step="10000"><div class="field-hint">자재비·인건비 포함 추정 — 실제 직거래 금액에 따라 변동. VAT 별도.</div></div>
+      <div class="field"><label>코디 비용 (공급가액, 원)</label><input type="number" id="coordiFee" step="10000"><div class="field-hint">정찰제 · 박 대표만 받는 금액 · VAT 별도</div></div>
     </div>
     <div class="field-row">
       <div class="field"><label>PM 비용 (선택 시, 원)</label><input type="number" id="pmFee" step="10000"></div>
       <div class="field"><label>A/S 기간 (개월)</label><select id="asMonths"><option value="6" selected>6개월 (기본)</option><option value="12">12개월 (프리미엄 옵션)</option></select></div>
     </div>
-    <div class="field"><label>결제 조건</label><textarea id="paymentTerms" rows="2">계약 즉시 코디비 결제. 자재비·인건비는 자재상·기술자에게 건축주가 직접 결제 (집지니 통과 X).</textarea></div>
+    <div class="field"><label>결제 조건</label><textarea id="paymentTerms" rows="2">코디비 · PM비 모두 시공 시작 전 100% 선불 결제. 자재비·인건비는 자재상·기술자에게 건축주가 직접 결제 (집지니 통과 X).</textarea></div>
     <div class="field"><label>특약 사항 (선택)</label><textarea id="specialNote" rows="3" placeholder="추가 합의 사항이 있으면 입력하세요."></textarea></div>
     <div style="text-align:right;margin-top:10px;"><button onclick="saveDraft()" style="background:transparent;border:1px solid var(--jp-line);padding:8px 14px;border-radius:6px;font-size:12px;color:var(--jp-gray);cursor:pointer;"><i class="ti ti-device-floppy"></i> 초안만 저장 (서명 X)</button></div>
   </div>
@@ -150,7 +150,8 @@ body{font-family:'Pretendard',sans-serif;background:var(--jp-oatmeal);color:var(
 </div>
 <div id="toast" class="status-toast"></div>
 <script>
-const APPS_SCRIPT_URL='https://script.google.com/macros/s/AKfycbxk3YmJZylwyYjbpFN69kQd1T-o5-1YYoPBaDtMMZdNZxkw1YJBL6Ph8gL6rmRfSekLSw/exec';
+// 2026-05-27 박 대표 영구 deploy URL 통일 (단일 진실 소스)
+const APPS_SCRIPT_URL='https://script.google.com/macros/s/AKfycbzCukHi-LWcaKMowr3W_hgLUP4vHhczAx8y7sYR5sydljmiPkddOincsY-imPpYrOTEdg/exec';
 let currentQuote=null,currentContext=null;
 const $=id=>document.getElementById(id);
 function toast(msg,k){const t=$('toast');t.textContent=msg;t.className='status-toast show'+(k==='error'?' error':k==='success'?' success':'');setTimeout(()=>t.classList.remove('show'),3500);}
@@ -158,7 +159,7 @@ $('quoteIdInput').addEventListener('input',deb(function(){const k=this.value.tri
 function deb(fn,ms){let t;return function(){const a=arguments,c=this;clearTimeout(t);t=setTimeout(()=>fn.apply(c,a),ms);};}
 async function searchQuotes(k){try{const r=await fetch(APPS_SCRIPT_URL+'?type=search_quotes&keyword='+encodeURIComponent(k));if(!r.ok)return;const d=await r.json();const list=d&&d.ok?(Array.isArray(d)?d:(d.list||[])):(Array.isArray(d)?d:[]);if(!list.length){$('suggestions').classList.remove('show');return;}$('suggestions').innerHTML=list.map(q=>`<div class="lookup-suggestion" onclick="document.getElementById('quoteIdInput').value='${q.id}';document.getElementById('suggestions').classList.remove('show');lookupQuote();"><span><b>${q.id}</b> · ${q.customer||'-'} · ${q.area||'-'}평</span><span style="color:var(--jp-green);font-weight:700;">${Number(q.total||0).toLocaleString()}원</span></div>`).join('');$('suggestions').classList.add('show');}catch(e){console.error(e);}}
 async function lookupQuote(){const qid=$('quoteIdInput').value.trim();if(!qid){toast('견적서 ID를 입력하세요','error');return;}$('lookupBtn').disabled=true;toast('견적서 불러오는 중...');try{const r=await fetch(APPS_SCRIPT_URL+'?type=load_quote_for_contract&quoteId='+encodeURIComponent(qid));if(!r.ok)throw new Error('서버 오류 '+r.status);const d=await r.json();if(!d||d.err||d.ok===false)throw new Error(d.err||'견적서 없음');currentContext=d;currentQuote=d.quote;renderPreview(d);fillTermsForm(d);showStep(2);toast('견적서 로드 완료','success');}catch(e){toast('오류: '+e.message,'error');}finally{$('lookupBtn').disabled=false;}}
-function renderPreview(d){const c=d.contractDraft||{};const items=[{label:'견적서ID',value:d.quote['견적서ID']},{label:'고객명',value:c.customerName},{label:'주소',value:c.customerAddress},{label:'평수',value:c.area+' 평'},{label:'시공 범위',value:c.scope||'-'},{label:'총액 (VAT)',value:Number(c.totalAmount).toLocaleString()+' 원',cls:'amount'},{label:'코디비',value:Number(c.coordiFee).toLocaleString()+' 원'},{label:'절감액',value:'-'+Number(c.savings).toLocaleString()+' 원',cls:'savings'}];$('previewGrid').innerHTML=items.map(it=>`<div class="preview-item"><label>${it.label}</label><div class="value ${it.cls||''}">${it.value||'-'}</div></div>`).join('');$('preview').classList.add('show');if(d.existingContract&&d.existingContract['계약ID']){$('existingNote').style.display='block';$('existingNote').innerHTML='⚠️ 이 견적서로 이미 계약 <b>'+d.existingContract['계약ID']+'</b>이 등록되어 있습니다. 새 계약을 만들면 별도 ID로 추가됩니다.';}}
+function renderPreview(d){const c=d.contractDraft||{};const items=[{label:'견적서ID',value:d.quote['견적서ID']},{label:'고객명',value:c.customerName},{label:'주소',value:c.customerAddress},{label:'평수',value:c.area+' 평'},{label:'시공 범위',value:c.scope||'-'},{label:'시공총액 (공급가액)',value:Number(c.totalAmount).toLocaleString()+' 원',cls:'amount'},{label:'코디비',value:Number(c.coordiFee).toLocaleString()+' 원'},{label:'PM비 (선택)',value:Number(c.pmFee||0).toLocaleString()+' 원'}];$('previewGrid').innerHTML=items.map(it=>`<div class="preview-item"><label>${it.label}</label><div class="value ${it.cls||''}">${it.value||'-'}</div></div>`).join('');$('preview').classList.add('show');if(d.existingContract&&d.existingContract['계약ID']){$('existingNote').style.display='block';$('existingNote').innerHTML='⚠️ 이 견적서로 이미 계약 <b>'+d.existingContract['계약ID']+'</b>이 등록되어 있습니다. 새 계약을 만들면 별도 ID로 추가됩니다.';}}
 function fillTermsForm(d){const c=d.contractDraft||{};$('startDate').value=c.startDate||'';$('endDate').value=c.endDate||'';$('totalAmount').value=Math.round(c.totalAmount)||0;$('coordiFee').value=Math.round(c.coordiFee)||0;$('pmFee').value=Math.round(c.pmFee)||0;}
 function showStep(n){if(n>=2)$('preview').classList.add('show');if(n>=3)$('terms').classList.add('show');if(n>=4)$('signSection').classList.add('show');if(n>=5)$('submitSection').classList.add('show');setTimeout(()=>{const t=n>=5?$('submitSection'):n>=4?$('signSection'):n>=3?$('terms'):$('preview');if(t)t.scrollIntoView({behavior:'smooth',block:'start'});},100);}
 ['startDate','endDate','totalAmount','coordiFee'].forEach(id=>{$(id).addEventListener('blur',()=>{if($('startDate').value&&$('endDate').value&&$('totalAmount').value&&$('coordiFee').value)showStep(4);});});
