@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>계약서 작성 · 집지니 Direct Coordi</title>
-<meta name="description" content="집지니 견적서 ID를 입력하면 계약서가 자동으로 만들어집니다. 톱니바퀴 8단계 중 계약 단계.">
+<title>계약???�성 · 집�???Direct Coordi</title>
+<meta name="description" content="집�???견적??ID�??�력?�면 계약?��? ?�동?�로 만들?�집?�다. ?�니바�?8?�계 �?계약 ?�계.">
 <meta name="robots" content="noindex">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -84,89 +84,89 @@ body{font-family:'Pretendard',sans-serif;background:var(--jp-oatmeal);color:var(
 </head>
 <body>
 <div class="container">
-  <a href="index.html" class="back-link"><i class="ti ti-arrow-left"></i>홈으로</a>
+  <a href="index.html" class="back-link"><i class="ti ti-arrow-left"></i>?�으�?/a>
   <div class="contract-head">
-    <p class="eyebrow">DIRECT COORDI · 톱니 8단계</p>
-    <h1>📋 계약서 자동 작성</h1>
-    <p>견적서 ID 하나로 계약서·관리대장 한 번에. 박 대표 톱니바퀴 시스템.</p>
+    <p class="eyebrow">DIRECT COORDI · ?�니 8?�계</p>
+    <h1>?�� 계약???�동 ?�성</h1>
+    <p>견적??ID ?�나�?계약?�·�?리�?????번에. �??�???�니바�??�스??</p>
   </div>
   <div class="step-indicator">
-    <div class="step-indicator-label">CURRENT STEP · 톱니 7 → 8 연결</div>
-    <div class="step-indicator-title">기존 견적서 → 계약서 자동 빌드</div>
-    <div class="step-indicator-desc">견적서 정보·공정표·고객정보가 자동으로 채워집니다. 박 대표·고객 서명만 받으면 계약관리대장에 즉시 등록됩니다.</div>
+    <div class="step-indicator-label">CURRENT STEP · ?�니 7 ??8 ?�결</div>
+    <div class="step-indicator-title">기존 견적????계약???�동 빌드</div>
+    <div class="step-indicator-desc">견적???�보·공정?�·고객정보�? ?�동?�로 채워집니?? �??�?�·고�??�명�?받으�?계약관리�??�에 즉시 ?�록?�니??</div>
   </div>
   <div class="lookup-card">
-    <h2><span class="num">1</span>견적서 불러오기</h2>
+    <h2><span class="num">1</span>견적??불러?�기</h2>
     <div class="lookup-row">
-      <input id="quoteIdInput" type="text" placeholder="견적서 ID (예: Q-2026-001)" autocomplete="off">
-      <button class="btn-lookup" id="lookupBtn" onclick="lookupQuote()"><i class="ti ti-search"></i>불러오기</button>
+      <input id="quoteIdInput" type="text" placeholder="견적??ID (?? Q-2026-001)" autocomplete="off">
+      <button class="btn-lookup" id="lookupBtn" onclick="lookupQuote()"><i class="ti ti-search"></i>불러?�기</button>
     </div>
-    <div class="lookup-hint">최근 작성한 견적서 ID를 입력하세요. 박 대표는 코디 콘솔에서 ID 복사, 고객은 카톡으로 받은 견적서 PDF 상단의 ID 입력.</div>
+    <div class="lookup-hint">최근 ?�성??견적??ID�??�력?�세?? �??�?�는 코디 콘솔?�서 ID 복사, 고객?� 카톡?�로 받�? 견적??PDF ?�단??ID ?�력.</div>
     <div id="suggestions" class="lookup-suggestions"></div>
   </div>
   <div id="preview" class="preview-card">
-    <h2><span class="num">2</span>견적서 정보 확인</h2>
+    <h2><span class="num">2</span>견적???�보 ?�인</h2>
     <div class="preview-grid" id="previewGrid"></div>
     <div id="existingNote" style="display:none;padding:12px 14px;background:#FFF4E5;border-left:3px solid var(--jp-amber);border-radius:6px;font-size:12px;color:#7a5a2c;margin-top:10px;"></div>
   </div>
   <div id="terms" class="terms-card">
-    <h2><span class="num">3</span>계약 조건 (미리채움 · 수정 가능)</h2>
+    <h2><span class="num">3</span>계약 조건 (미리채�? · ?�정 가??</h2>
     <div class="field-row">
-      <div class="field"><label>시공 시작일</label><input type="date" id="startDate"></div>
-      <div class="field"><label>시공 완료일 (예상)</label><input type="date" id="endDate"></div>
+      <div class="field"><label>?�공 ?�작??/label><input type="date" id="startDate"></div>
+      <div class="field"><label>?�공 ?�료??(?�상)</label><input type="date" id="endDate"></div>
     </div>
     <div class="field-row">
-      <div class="field"><label>총 시공 견적액 (공급가액, 원)</label><input type="number" id="totalAmount" step="10000"><div class="field-hint">자재비·인건비 포함 추정 — 실제 직거래 금액에 따라 변동. VAT 별도.</div></div>
-      <div class="field"><label>코디 비용 (공급가액, 원)</label><input type="number" id="coordiFee" step="10000"><div class="field-hint">정찰제 · 박 대표만 받는 금액 · VAT 별도</div></div>
+      <div class="field"><label>�??�공 견적??(공급가?? ??</label><input type="number" id="totalAmount" step="10000"><div class="field-hint">?�재비·인건비 ?�함 추정 ???�제 직거??금액???�라 변?? VAT 별도.</div></div>
+      <div class="field"><label>코디 비용 (공급가?? ??</label><input type="number" id="coordiFee" step="10000"><div class="field-hint">?�찰??· �??�?�만 받는 금액 · VAT 별도</div></div>
     </div>
     <div class="field-row">
-      <div class="field"><label>PM 비용 (선택 시, 원)</label><input type="number" id="pmFee" step="10000"></div>
-      <div class="field"><label>A/S 기간 (개월)</label><select id="asMonths"><option value="6" selected>6개월 (기본)</option><option value="12">12개월 (프리미엄 옵션)</option></select></div>
+      <div class="field"><label>PM 비용 (?�택 ?? ??</label><input type="number" id="pmFee" step="10000"></div>
+      <div class="field"><label>A/S 기간 (개월)</label><select id="asMonths"><option value="6" selected>6개월 (기본)</option><option value="12">12개월 (?�리미엄 ?�션)</option></select></div>
     </div>
-    <div class="field"><label>결제 조건</label><textarea id="paymentTerms" rows="2">코디비 · PM비 모두 시공 시작 전 100% 선불 결제. 자재비·인건비는 자재상·기술자에게 건축주가 직접 결제 (집지니 통과 X).</textarea></div>
-    <div class="field"><label>특약 사항 (선택)</label><textarea id="specialNote" rows="3" placeholder="추가 합의 사항이 있으면 입력하세요."></textarea></div>
-    <div style="text-align:right;margin-top:10px;"><button onclick="saveDraft()" style="background:transparent;border:1px solid var(--jp-line);padding:8px 14px;border-radius:6px;font-size:12px;color:var(--jp-gray);cursor:pointer;"><i class="ti ti-device-floppy"></i> 초안만 저장 (서명 X)</button></div>
+    <div class="field"><label>결제 조건</label><textarea id="paymentTerms" rows="2">코디�?· PM�?모두 ?�공 ?�작 ??100% ?�불 결제. ?�재비·인건비???�재?�·기?�자?�게 건축주�? 직접 결제 (집�????�과 X).</textarea></div>
+    <div class="field"><label>?�약 ?�항 (?�택)</label><textarea id="specialNote" rows="3" placeholder="추�? ?�의 ?�항???�으�??�력?�세??"></textarea></div>
+    <div style="text-align:right;margin-top:10px;"><button onclick="saveDraft()" style="background:transparent;border:1px solid var(--jp-line);padding:8px 14px;border-radius:6px;font-size:12px;color:var(--jp-gray);cursor:pointer;"><i class="ti ti-device-floppy"></i> 초안�??�??(?�명 X)</button></div>
   </div>
   <div id="signSection" class="sign-section">
-    <h2><span class="num">4</span>서명</h2>
+    <h2><span class="num">4</span>?�명</h2>
     <div class="sign-grid">
-      <div class="sign-box"><div class="sign-box-label">건축주 (갑) 서명</div><div class="sign-canvas-wrap"><canvas class="sign-canvas" id="customerCanvas"></canvas><button class="sign-clear" onclick="clearSign('customer')">지우기</button></div><div style="font-size:11px;color:var(--jp-gray-soft);margin-top:6px;">손가락·마우스로 서명하세요.</div></div>
-      <div class="sign-box"><div class="sign-box-label">집지니 코디 (을) 서명</div><div class="sign-canvas-wrap"><canvas class="sign-canvas" id="codinatorCanvas"></canvas><button class="sign-clear" onclick="clearSign('codinator')">지우기</button></div><div style="font-size:11px;color:var(--jp-gray-soft);margin-top:6px;">박 대표 서명 (자체 서명).</div></div>
+      <div class="sign-box"><div class="sign-box-label">건축�?(�? ?�명</div><div class="sign-canvas-wrap"><canvas class="sign-canvas" id="customerCanvas"></canvas><button class="sign-clear" onclick="clearSign('customer')">지?�기</button></div><div style="font-size:11px;color:var(--jp-gray-soft);margin-top:6px;">?��??�·마?�스�??�명?�세??</div></div>
+      <div class="sign-box"><div class="sign-box-label">집�???코디 (?? ?�명</div><div class="sign-canvas-wrap"><canvas class="sign-canvas" id="codinatorCanvas"></canvas><button class="sign-clear" onclick="clearSign('codinator')">지?�기</button></div><div style="font-size:11px;color:var(--jp-gray-soft);margin-top:6px;">�??�???�명 (?�체 ?�명).</div></div>
     </div>
-    <div style="background:var(--jp-oatmeal-soft);padding:14px;border-radius:8px;margin-top:14px;font-size:12px;line-height:1.7;color:var(--jp-gray);">서명함으로써 위 계약 내용을 확인하고 동의합니다. <strong>시공 하자에 대한 책임은 시공을 직접 수행한 기술자와 자재상에게 있음</strong>을 양당사자가 확인합니다. 집지니는 자재·기술자 매칭과 공정 조율, A/S 코디네이팅을 담당합니다.</div>
+    <div style="background:var(--jp-oatmeal-soft);padding:14px;border-radius:8px;margin-top:14px;font-size:12px;line-height:1.7;color:var(--jp-gray);">?�명?�으로써 ??계약 ?�용???�인?�고 ?�의?�니?? <strong>?�공 ?�자???�??책임?� ?�공??직접 ?�행??기술?��? ?�재?�에�??�음</strong>???�당?�자가 ?�인?�니?? 집�??�는 ?�재·기술??매칭�?공정 조율, A/S 코디?�이?�을 ?�당?�니??</div>
   </div>
   <div id="submitSection" class="submit-section">
-    <h2>🚀 계약서 생성 + 관리대장 등록</h2>
-    <p>한 번 클릭하면: ① 계약서 PDF 생성 → ② Drive 저장 → ③ 계약관리대장 시트 등록 → ④ 박 대표 Gmail 알림.</p>
-    <button class="btn-submit" id="submitBtn" onclick="submitContract()"><i class="ti ti-file-check"></i> 계약 확정 · 관리대장에 등록하기</button>
+    <h2>?? 계약???�성 + 관리�????�록</h2>
+    <p>??�??�릭?�면: ??계약??PDF ?�성 ????Drive ?�??????계약관리�????�트 ?�록 ????�??�??Gmail ?�림.</p>
+    <button class="btn-submit" id="submitBtn" onclick="submitContract()"><i class="ti ti-file-check"></i> 계약 ?�정 · 관리�??�에 ?�록?�기</button>
   </div>
   <div id="successScreen" class="success-screen">
     <div class="success-icon"><i class="ti ti-check"></i></div>
-    <h2>계약서 생성 완료</h2>
-    <p>계약관리대장에 자동 등록되었습니다. 박 대표 Gmail로 알림이 발송되었습니다.</p>
+    <h2>계약???�성 ?�료</h2>
+    <p>계약관리�??�에 ?�동 ?�록?�었?�니?? �??�??Gmail�??�림??발송?�었?�니??</p>
     <div class="contract-id" id="successContractId">C-...</div>
-    <div style="margin-top:14px;"><a id="successPdfLink" href="#" target="_blank"><i class="ti ti-file-text"></i> 계약서 PDF 열기</a><a href="index.html" class="secondary"><i class="ti ti-home"></i> 홈으로</a></div>
+    <div style="margin-top:14px;"><a id="successPdfLink" href="#" target="_blank"><i class="ti ti-file-text"></i> 계약??PDF ?�기</a><a href="index.html" class="secondary"><i class="ti ti-home"></i> ?�으�?/a></div>
   </div>
 </div>
 <div id="toast" class="status-toast"></div>
 <script>
-// 2026-05-27 박 대표 영구 deploy URL 통일 (단일 진실 소스)
-const APPS_SCRIPT_URL='https://script.google.com/macros/s/AKfycbzCukHi-LWcaKMowr3W_hgLUP4vHhczAx8y7sYR5sydljmiPkddOincsY-imPpYrOTEdg/exec';
+// 2026-05-27 �??�???�구 deploy URL ?�일 (?�일 진실 ?�스)
+const APPS_SCRIPT_URL='https://script.google.com/macros/s/AKfycbx4-6DDXe-2gUPeXWduV346qYlGmak9zFoPMfLWRZfTYQD3-9DjR7MNojM792W_6U780Q/exec';
 let currentQuote=null,currentContext=null;
 const $=id=>document.getElementById(id);
 function toast(msg,k){const t=$('toast');t.textContent=msg;t.className='status-toast show'+(k==='error'?' error':k==='success'?' success':'');setTimeout(()=>t.classList.remove('show'),3500);}
 $('quoteIdInput').addEventListener('input',deb(function(){const k=this.value.trim();if(k.length<2){$('suggestions').classList.remove('show');return;}searchQuotes(k);},300));
 function deb(fn,ms){let t;return function(){const a=arguments,c=this;clearTimeout(t);t=setTimeout(()=>fn.apply(c,a),ms);};}
-async function searchQuotes(k){try{const r=await fetch(APPS_SCRIPT_URL+'?type=search_quotes&keyword='+encodeURIComponent(k));if(!r.ok)return;const d=await r.json();const list=d&&d.ok?(Array.isArray(d)?d:(d.list||[])):(Array.isArray(d)?d:[]);if(!list.length){$('suggestions').classList.remove('show');return;}$('suggestions').innerHTML=list.map(q=>`<div class="lookup-suggestion" onclick="document.getElementById('quoteIdInput').value='${q.id}';document.getElementById('suggestions').classList.remove('show');lookupQuote();"><span><b>${q.id}</b> · ${q.customer||'-'} · ${q.area||'-'}평</span><span style="color:var(--jp-green);font-weight:700;">${Number(q.total||0).toLocaleString()}원</span></div>`).join('');$('suggestions').classList.add('show');}catch(e){console.error(e);}}
-async function lookupQuote(){const qid=$('quoteIdInput').value.trim();if(!qid){toast('견적서 ID를 입력하세요','error');return;}$('lookupBtn').disabled=true;toast('견적서 불러오는 중...');try{const r=await fetch(APPS_SCRIPT_URL+'?type=load_quote_for_contract&quoteId='+encodeURIComponent(qid));if(!r.ok)throw new Error('서버 오류 '+r.status);const d=await r.json();if(!d||d.err||d.ok===false)throw new Error(d.err||'견적서 없음');currentContext=d;currentQuote=d.quote;renderPreview(d);fillTermsForm(d);showStep(2);toast('견적서 로드 완료','success');}catch(e){toast('오류: '+e.message,'error');}finally{$('lookupBtn').disabled=false;}}
-function renderPreview(d){const c=d.contractDraft||{};const items=[{label:'견적서ID',value:d.quote['견적서ID']},{label:'고객명',value:c.customerName},{label:'주소',value:c.customerAddress},{label:'평수',value:c.area+' 평'},{label:'시공 범위',value:c.scope||'-'},{label:'시공총액 (공급가액)',value:Number(c.totalAmount).toLocaleString()+' 원',cls:'amount'},{label:'코디비',value:Number(c.coordiFee).toLocaleString()+' 원'},{label:'PM비 (선택)',value:Number(c.pmFee||0).toLocaleString()+' 원'}];$('previewGrid').innerHTML=items.map(it=>`<div class="preview-item"><label>${it.label}</label><div class="value ${it.cls||''}">${it.value||'-'}</div></div>`).join('');$('preview').classList.add('show');if(d.existingContract&&d.existingContract['계약ID']){$('existingNote').style.display='block';$('existingNote').innerHTML='⚠️ 이 견적서로 이미 계약 <b>'+d.existingContract['계약ID']+'</b>이 등록되어 있습니다. 새 계약을 만들면 별도 ID로 추가됩니다.';}}
+async function searchQuotes(k){try{const r=await fetch(APPS_SCRIPT_URL+'?type=search_quotes&keyword='+encodeURIComponent(k));if(!r.ok)return;const d=await r.json();const list=d&&d.ok?(Array.isArray(d)?d:(d.list||[])):(Array.isArray(d)?d:[]);if(!list.length){$('suggestions').classList.remove('show');return;}$('suggestions').innerHTML=list.map(q=>`<div class="lookup-suggestion" onclick="document.getElementById('quoteIdInput').value='${q.id}';document.getElementById('suggestions').classList.remove('show');lookupQuote();"><span><b>${q.id}</b> · ${q.customer||'-'} · ${q.area||'-'}??/span><span style="color:var(--jp-green);font-weight:700;">${Number(q.total||0).toLocaleString()}??/span></div>`).join('');$('suggestions').classList.add('show');}catch(e){console.error(e);}}
+async function lookupQuote(){const qid=$('quoteIdInput').value.trim();if(!qid){toast('견적??ID�??�력?�세??,'error');return;}$('lookupBtn').disabled=true;toast('견적??불러?�는 �?..');try{const r=await fetch(APPS_SCRIPT_URL+'?type=load_quote_for_contract&quoteId='+encodeURIComponent(qid));if(!r.ok)throw new Error('?�버 ?�류 '+r.status);const d=await r.json();if(!d||d.err||d.ok===false)throw new Error(d.err||'견적???�음');currentContext=d;currentQuote=d.quote;renderPreview(d);fillTermsForm(d);showStep(2);toast('견적??로드 ?�료','success');}catch(e){toast('?�류: '+e.message,'error');}finally{$('lookupBtn').disabled=false;}}
+function renderPreview(d){const c=d.contractDraft||{};const items=[{label:'견적?�ID',value:d.quote['견적?�ID']},{label:'고객�?,value:c.customerName},{label:'주소',value:c.customerAddress},{label:'?�수',value:c.area+' ??},{label:'?�공 범위',value:c.scope||'-'},{label:'?�공총액 (공급가??',value:Number(c.totalAmount).toLocaleString()+' ??,cls:'amount'},{label:'코디�?,value:Number(c.coordiFee).toLocaleString()+' ??},{label:'PM�?(?�택)',value:Number(c.pmFee||0).toLocaleString()+' ??}];$('previewGrid').innerHTML=items.map(it=>`<div class="preview-item"><label>${it.label}</label><div class="value ${it.cls||''}">${it.value||'-'}</div></div>`).join('');$('preview').classList.add('show');if(d.existingContract&&d.existingContract['계약ID']){$('existingNote').style.display='block';$('existingNote').innerHTML='?�️ ??견적?�로 ?��? 계약 <b>'+d.existingContract['계약ID']+'</b>???�록?�어 ?�습?�다. ??계약??만들�?별도 ID�?추�??�니??';}}
 function fillTermsForm(d){const c=d.contractDraft||{};$('startDate').value=c.startDate||'';$('endDate').value=c.endDate||'';$('totalAmount').value=Math.round(c.totalAmount)||0;$('coordiFee').value=Math.round(c.coordiFee)||0;$('pmFee').value=Math.round(c.pmFee)||0;}
 function showStep(n){if(n>=2)$('preview').classList.add('show');if(n>=3)$('terms').classList.add('show');if(n>=4)$('signSection').classList.add('show');if(n>=5)$('submitSection').classList.add('show');setTimeout(()=>{const t=n>=5?$('submitSection'):n>=4?$('signSection'):n>=3?$('terms'):$('preview');if(t)t.scrollIntoView({behavior:'smooth',block:'start'});},100);}
 ['startDate','endDate','totalAmount','coordiFee'].forEach(id=>{$(id).addEventListener('blur',()=>{if($('startDate').value&&$('endDate').value&&$('totalAmount').value&&$('coordiFee').value)showStep(4);});});
 const canvases={};['customer','codinator'].forEach(r=>{const c=$(r+'Canvas');c.width=c.offsetWidth*devicePixelRatio;c.height=140*devicePixelRatio;const x=c.getContext('2d');x.scale(devicePixelRatio,devicePixelRatio);x.lineWidth=2;x.lineCap='round';x.strokeStyle='#1a1a1a';let d=0,lx=0,ly=0,h=0;function gp(e){const b=c.getBoundingClientRect();return{x:(e.touches?e.touches[0].clientX:e.clientX)-b.left,y:(e.touches?e.touches[0].clientY:e.clientY)-b.top};}function s(e){e.preventDefault();d=1;const p=gp(e);lx=p.x;ly=p.y;x.beginPath();x.moveTo(lx,ly);}function m(e){if(!d)return;e.preventDefault();const p=gp(e);x.lineTo(p.x,p.y);x.stroke();lx=p.x;ly=p.y;h=1;showStep(5);}function en(){d=0;}c.addEventListener('mousedown',s);c.addEventListener('mousemove',m);c.addEventListener('mouseup',en);c.addEventListener('mouseleave',en);c.addEventListener('touchstart',s);c.addEventListener('touchmove',m);c.addEventListener('touchend',en);canvases[r]={canvas:c,ctx:x,isDrawn:()=>h,clear:()=>{x.clearRect(0,0,c.width,c.height);h=0;},toDataURL:()=>c.toDataURL('image/png')};});
 function clearSign(r){canvases[r].clear();}
-async function saveDraft(){if(!currentQuote){toast('견적서 먼저 불러오세요','error');return;}toast('초안 저장 중...');try{const f=new URLSearchParams();f.append('type','save_contract_draft');f.append('quoteId',currentQuote['견적서ID']);f.append('termsJson',JSON.stringify(buildTerms()));const r=await fetch(APPS_SCRIPT_URL,{method:'POST',body:f});const d=await r.json();if(d.ok)toast('초안 저장 완료','success');else throw new Error(d.err||'저장 실패');}catch(e){toast('오류: '+e.message,'error');}}
-async function submitContract(){if(!currentQuote){toast('견적서 먼저 불러오세요','error');return;}if(!canvases.customer.isDrawn()){toast('건축주 서명을 입력하세요','error');return;}if(!canvases.codinator.isDrawn()){toast('박 대표 서명을 입력하세요','error');return;}if(!confirm('계약을 확정하고 관리대장에 등록합니다. 계속하시겠어요?'))return;$('submitBtn').disabled=true;toast('계약서 생성 중... 15초 정도 걸립니다');try{const t=buildTerms();t.signaturePngs={customer:canvases.customer.toDataURL(),codinator:canvases.codinator.toDataURL()};const f=new URLSearchParams();f.append('type','build_contract');f.append('quoteId',currentQuote['견적서ID']);f.append('termsJson',JSON.stringify(t));const r=await fetch(APPS_SCRIPT_URL,{method:'POST',body:f});const d=await r.json();if(!d.ok)throw new Error(d.err||'계약 생성 실패');$('successContractId').textContent=d.contractId;$('successPdfLink').href=d.contractPdfUrl;document.querySelectorAll('.lookup-card,.preview-card,.terms-card,.sign-section,.submit-section').forEach(el=>el.style.display='none');$('successScreen').classList.add('show');$('successScreen').scrollIntoView({behavior:'smooth'});toast('계약 확정 완료','success');}catch(e){toast('오류: '+e.message,'error');$('submitBtn').disabled=false;}}
+async function saveDraft(){if(!currentQuote){toast('견적??먼�? 불러?�세??,'error');return;}toast('초안 ?�??�?..');try{const f=new URLSearchParams();f.append('type','save_contract_draft');f.append('quoteId',currentQuote['견적?�ID']);f.append('termsJson',JSON.stringify(buildTerms()));const r=await fetch(APPS_SCRIPT_URL,{method:'POST',body:f});const d=await r.json();if(d.ok)toast('초안 ?�???�료','success');else throw new Error(d.err||'?�???�패');}catch(e){toast('?�류: '+e.message,'error');}}
+async function submitContract(){if(!currentQuote){toast('견적??먼�? 불러?�세??,'error');return;}if(!canvases.customer.isDrawn()){toast('건축�??�명???�력?�세??,'error');return;}if(!canvases.codinator.isDrawn()){toast('�??�???�명???�력?�세??,'error');return;}if(!confirm('계약???�정?�고 관리�??�에 ?�록?�니?? 계속?�시겠어??'))return;$('submitBtn').disabled=true;toast('계약???�성 �?.. 15�??�도 걸립?�다');try{const t=buildTerms();t.signaturePngs={customer:canvases.customer.toDataURL(),codinator:canvases.codinator.toDataURL()};const f=new URLSearchParams();f.append('type','build_contract');f.append('quoteId',currentQuote['견적?�ID']);f.append('termsJson',JSON.stringify(t));const r=await fetch(APPS_SCRIPT_URL,{method:'POST',body:f});const d=await r.json();if(!d.ok)throw new Error(d.err||'계약 ?�성 ?�패');$('successContractId').textContent=d.contractId;$('successPdfLink').href=d.contractPdfUrl;document.querySelectorAll('.lookup-card,.preview-card,.terms-card,.sign-section,.submit-section').forEach(el=>el.style.display='none');$('successScreen').classList.add('show');$('successScreen').scrollIntoView({behavior:'smooth'});toast('계약 ?�정 ?�료','success');}catch(e){toast('?�류: '+e.message,'error');$('submitBtn').disabled=false;}}
 function buildTerms(){return{startDate:$('startDate').value,endDate:$('endDate').value,totalAmount:Number($('totalAmount').value)||0,coordiFee:Number($('coordiFee').value)||0,pmFee:Number($('pmFee').value)||0,asMonths:Number($('asMonths').value)||6,paymentTerms:$('paymentTerms').value,specialNote:$('specialNote').value};}
 (function(){const p=new URLSearchParams(location.search);const q=p.get('quoteId');if(q){$('quoteIdInput').value=q;setTimeout(lookupQuote,300);}})();
 </script>

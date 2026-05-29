@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>집지니 · 의뢰서 자체 서명</title>
-<meta name="description" content="집지니 코디 서비스 의뢰서에 동의 서명합니다. HTML5 Canvas 자체 서명.">
+<title>집�???· ?�뢰???�체 ?�명</title>
+<meta name="description" content="집�???코디 ?�비???�뢰?�에 ?�의 ?�명?�니?? HTML5 Canvas ?�체 ?�명.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@300;400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
@@ -54,78 +54,78 @@ canvas { display: block; width: 100%; height: 200px; background: #fafaf5; border
 <div class="wrap">
   <div class="hero">
     <p class="eyebrow">DIGITAL SIGNATURE</p>
-    <h1>의뢰서 자체 서명</h1>
-    <p style="color: var(--jp-gray);">집지니 코디네이션 서비스 의뢰서 내용에 동의 서명해 주세요.</p>
+    <h1>?�뢰???�체 ?�명</h1>
+    <p style="color: var(--jp-gray);">집�???코디?�이???�비???�뢰???�용???�의 ?�명??주세??</p>
   </div>
 
   <div id="error-box" class="error-box">
     <div style="font-size:36px;color:var(--jp-red);margin-bottom:10px;"><i class="ti ti-alert-triangle"></i></div>
-    <h2 style="color:var(--jp-red);font-size:18px;margin-bottom:8px;">서명 전송 실패</h2>
-    <p style="font-size:13px;color:var(--jp-gray);line-height:1.6;" id="error-msg">서버 응답 오류</p>
-    <button onclick="document.getElementById('error-box').classList.remove('show');document.getElementById('submit-btn').disabled=false;document.getElementById('submit-btn').innerHTML='<i class=&quot;ti ti-signature&quot;></i> 서명 제출 + 의뢰서 효력 발생';" style="margin-top:14px;padding:10px 18px;background:var(--jp-dark);color:#fff;border:none;border-radius:6px;cursor:pointer;">다시 시도</button>
+    <h2 style="color:var(--jp-red);font-size:18px;margin-bottom:8px;">?�명 ?�송 ?�패</h2>
+    <p style="font-size:13px;color:var(--jp-gray);line-height:1.6;" id="error-msg">?�버 ?�답 ?�류</p>
+    <button onclick="document.getElementById('error-box').classList.remove('show');document.getElementById('submit-btn').disabled=false;document.getElementById('submit-btn').innerHTML='<i class=&quot;ti ti-signature&quot;></i> ?�명 ?�출 + ?�뢰???�력 발생';" style="margin-top:14px;padding:10px 18px;background:var(--jp-dark);color:#fff;border:none;border-radius:6px;cursor:pointer;">?�시 ?�도</button>
   </div>
 
   <div id="main-form">
     <div class="summary">
-      <h2>의뢰서 요약</h2>
+      <h2>?�뢰???�약</h2>
       <table>
-        <tr><th>의뢰서ID</th><td id="proposal-id">—</td></tr>
-        <tr><th>의뢰인</th><td id="customer-name">—</td></tr>
-        <tr><th>시공 주소</th><td id="customer-address">—</td></tr>
-        <tr><th>평수</th><td id="customer-area">—</td></tr>
-        <tr><th>시공 총액 (예상)</th><td id="quote-total">—</td></tr>
-        <tr><th>코디 운영비</th><td id="codi-fee">—</td></tr>
+        <tr><th>?�뢰?�ID</th><td id="proposal-id">??/td></tr>
+        <tr><th>?�뢰??/th><td id="customer-name">??/td></tr>
+        <tr><th>?�공 주소</th><td id="customer-address">??/td></tr>
+        <tr><th>?�수</th><td id="customer-area">??/td></tr>
+        <tr><th>?�공 총액 (?�상)</th><td id="quote-total">??/td></tr>
+        <tr><th>코디 ?�영�?/th><td id="codi-fee">??/td></tr>
       </table>
     </div>
 
     <div class="notice">
-      <strong>📋 책임 분리 안내</strong><br>
-      집지니의 역할은 <strong>코디네이션</strong> (자재상·기술자 매칭, 단가 검증, 공정 조율)이며, 실제 시공·하자 보증 책임은 자재상·기술자에게 있습니다. 자재·노무비는 의뢰인이 직접 결제하며, 집지니는 마진 0 정찰제 코디비만 받습니다.
+      <strong>?�� 책임 분리 ?�내</strong><br>
+      집�??�의 ??��?� <strong>코디?�이??/strong> (?�재?�·기?�자 매칭, ?��? 검�? 공정 조율)?�며, ?�제 ?�공·?�자 보증 책임?� ?�재?�·기?�자?�게 ?�습?�다. ?�재·?�무비는 ?�뢰?�이 직접 결제?�며, 집�??�는 마진 0 ?�찰??코디비만 받습?�다.
     </div>
 
     <div class="agree-box">
-      <h2 style="font-size: 16px; color: var(--jp-dark); margin: 0 0 12px;">동의 사항</h2>
-      <label><input type="checkbox" id="ag1" required> [필수] 의뢰서 내용을 모두 확인했으며 동의합니다.</label>
-      <label><input type="checkbox" id="ag2" required> [필수] 집지니의 코디 범위 + <strong>시공 책임 분리</strong> 내용을 이해했습니다.</label>
-      <label><input type="checkbox" id="ag3" required> [필수] 자재·노무비는 자재상·기술자에게 <strong>직접 결제</strong>합니다.</label>
-      <label><input type="checkbox" id="ag4" required> [필수] 코디비·PM비 <strong>시공 시작 전 100% 선불</strong> 결제 (정찰제·마진 0)에 동의합니다.</label>
-      <label><input type="checkbox" id="ag5" required> [필수] 개인정보 수집·이용에 동의합니다 (서명·연락처 자동 저장).</label>
+      <h2 style="font-size: 16px; color: var(--jp-dark); margin: 0 0 12px;">?�의 ?�항</h2>
+      <label><input type="checkbox" id="ag1" required> [?�수] ?�뢰???�용??모두 ?�인?�으�??�의?�니??</label>
+      <label><input type="checkbox" id="ag2" required> [?�수] 집�??�의 코디 범위 + <strong>?�공 책임 분리</strong> ?�용???�해?�습?�다.</label>
+      <label><input type="checkbox" id="ag3" required> [?�수] ?�재·?�무비는 ?�재?�·기?�자?�게 <strong>직접 결제</strong>?�니??</label>
+      <label><input type="checkbox" id="ag4" required> [?�수] 코디비·PM�?<strong>?�공 ?�작 ??100% ?�불</strong> 결제 (?�찰?�·마�?0)???�의?�니??</label>
+      <label><input type="checkbox" id="ag5" required> [?�수] 개인?�보 ?�집·?�용???�의?�니??(?�명·?�락�??�동 ?�??.</label>
     </div>
 
     <div class="canvas-box">
-      <h2>자체 서명</h2>
-      <div class="canvas-hint">아래 영역에 마우스나 손가락으로 본인 서명을 그려주세요.</div>
+      <h2>?�체 ?�명</h2>
+      <div class="canvas-hint">?�래 ?�역??마우?�나 ?��??�으�?본인 ?�명??그려주세??</div>
       <canvas id="signature-canvas"></canvas>
       <div class="canvas-btns">
-        <button type="button" class="btn-clear" onclick="clearCanvas()"><i class="ti ti-eraser"></i> 다시 그리기</button>
-        <span style="margin-left: auto; font-size: 12px; color: var(--jp-gray); align-self: center;" id="signature-status">서명 대기 중</span>
+        <button type="button" class="btn-clear" onclick="clearCanvas()"><i class="ti ti-eraser"></i> ?�시 그리�?/button>
+        <span style="margin-left: auto; font-size: 12px; color: var(--jp-gray); align-self: center;" id="signature-status">?�명 ?��?�?/span>
       </div>
     </div>
 
     <button type="button" class="submit-btn" id="submit-btn" onclick="submitSignature()">
-      <i class="ti ti-signature"></i> 서명 제출 + 의뢰서 효력 발생
+      <i class="ti ti-signature"></i> ?�명 ?�출 + ?�뢰???�력 발생
     </button>
   </div>
 
   <div class="success" id="success">
     <div class="success-icon"><i class="ti ti-check-circle"></i></div>
-    <h2>의뢰서 서명 완료</h2>
-    <p style="color: var(--jp-gray); margin: 12px 0;">서명이 정상 접수되어 박 대표 시스템에 등록되었습니다. 계약이 체결되어 집지니 코디네이션 서비스가 시작됩니다.</p>
-    <div class="contract-id" id="contract-id">계약ID: —</div>
+    <h2>?�뢰???�명 ?�료</h2>
+    <p style="color: var(--jp-gray); margin: 12px 0;">?�명???�상 ?�수?�어 �??�???�스?�에 ?�록?�었?�니?? 계약??체결?�어 집�???코디?�이???�비?��? ?�작?�니??</p>
+    <div class="contract-id" id="contract-id">계약ID: ??/div>
     <p style="font-size: 13px; color: var(--jp-gray); line-height: 1.7;">
-      박 대표가 카톡으로 다음 단계 (코디비·PM비 선불 결제·시공 일정·자재상 매칭) 안내드립니다.<br>
-      문의: <strong>카카오톡 채널 @집지니</strong>
+      �??�?��? 카톡?�로 ?�음 ?�계 (코디비·PM�??�불 결제·?�공 ?�정·?�재??매칭) ?�내?�립?�다.<br>
+      문의: <strong>카카?�톡 채널 @집�???/strong>
     </p>
     <a href="https://pf.kakao.com/_NjpxhC/chat" target="_blank" rel="noopener" style="display: inline-block; margin-top: 16px; padding: 12px 22px; background: #FAE100; color: #3C1E1E; border-radius: 8px; font-weight: 700; text-decoration: none;">
-      <i class="ti ti-message-circle"></i> 카톡 채널 @집지니 추가
+      <i class="ti ti-message-circle"></i> 카톡 채널 @집�???추�?
     </a>
   </div>
 </div>
 
 <script>
 (function(){
-  // 2026-05-27 박 대표 영구 deploy URL (단일 진실 소스)
-  const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzCukHi-LWcaKMowr3W_hgLUP4vHhczAx8y7sYR5sydljmiPkddOincsY-imPpYrOTEdg/exec';
+  // 2026-05-27 �??�???�구 deploy URL (?�일 진실 ?�스)
+  const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx4-6DDXe-2gUPeXWduV346qYlGmak9zFoPMfLWRZfTYQD3-9DjR7MNojM792W_6U780Q/exec';
 
   const params = new URLSearchParams(location.search);
   const proposalId = params.get('p') || 'P-' + Date.now().toString(36).toUpperCase();
@@ -134,11 +134,11 @@ canvas { display: block; width: 100%; height: 200px; background: #fafaf5; border
   const wfId = params.get('w') || '';
 
   document.getElementById('proposal-id').textContent = proposalId;
-  document.getElementById('customer-name').textContent = params.get('name') || '—';
-  document.getElementById('customer-address').textContent = params.get('addr') || '—';
-  document.getElementById('customer-area').textContent = (params.get('py') || '—') + '평';
-  document.getElementById('quote-total').textContent = (Number(params.get('total') || 0)).toLocaleString('ko-KR') + '원';
-  document.getElementById('codi-fee').textContent = (Number(params.get('codi') || 0)).toLocaleString('ko-KR') + '원';
+  document.getElementById('customer-name').textContent = params.get('name') || '??;
+  document.getElementById('customer-address').textContent = params.get('addr') || '??;
+  document.getElementById('customer-area').textContent = (params.get('py') || '??) + '??;
+  document.getElementById('quote-total').textContent = (Number(params.get('total') || 0)).toLocaleString('ko-KR') + '??;
+  document.getElementById('codi-fee').textContent = (Number(params.get('codi') || 0)).toLocaleString('ko-KR') + '??;
 
   const canvas = document.getElementById('signature-canvas');
   const ctx = canvas.getContext('2d');
@@ -180,7 +180,7 @@ canvas { display: block; width: 100%; height: 200px; background: #fafaf5; border
     ctx.stroke();
     if (!hasSignature) {
       hasSignature = true;
-      document.getElementById('signature-status').textContent = '✓ 서명 입력됨';
+      document.getElementById('signature-status').textContent = '???�명 ?�력??;
       document.getElementById('signature-status').style.color = '#1a472a';
     }
   }
@@ -197,58 +197,58 @@ canvas { display: block; width: 100%; height: 200px; background: #fafaf5; border
   window.clearCanvas = function() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     hasSignature = false;
-    document.getElementById('signature-status').textContent = '서명 대기 중';
+    document.getElementById('signature-status').textContent = '?�명 ?��?�?;
     document.getElementById('signature-status').style.color = '';
   };
 
-  // 2026-05-27 박 대표 결함 fix:
-  //  - 옛 코드: mode:'no-cors' + 800ms setTimeout 후 무조건 success → 서버 에러여도 고객은 "성공" 봄
-  //  - 옛 코드: contractId가 client Date.now() 가짜 생성 → 박 대표 시스템 실제 ID와 불일치
-  //  - 새 코드: 실제 fetch 응답 파싱 + 실제 contractId 표시 + 에러 시 명확히 안내
+  // 2026-05-27 �??�??결함 fix:
+  //  - ??코드: mode:'no-cors' + 800ms setTimeout ??무조�?success ???�버 ?�러?�도 고객?� "?�공" �?
+  //  - ??코드: contractId가 client Date.now() 가�??�성 ??�??�???�스???�제 ID?� 불일�?
+  //  - ??코드: ?�제 fetch ?�답 ?�싱 + ?�제 contractId ?�시 + ?�러 ??명확???�내
   window.submitSignature = function() {
     for (let i = 1; i <= 5; i++) {
       if (!document.getElementById('ag' + i).checked) {
-        alert('필수 동의 항목 ' + i + '번을 체크해 주세요.');
+        alert('?�수 ?�의 ??�� ' + i + '번을 체크??주세??');
         return;
       }
     }
     if (!hasSignature) {
-      alert('서명을 그려주세요.');
+      alert('?�명??그려주세??');
       return;
     }
 
     document.getElementById('submit-btn').disabled = true;
-    document.getElementById('submit-btn').innerHTML = '<i class="ti ti-loader-2"></i> 제출 중...';
+    document.getElementById('submit-btn').innerHTML = '<i class="ti ti-loader-2"></i> ?�출 �?..';
     document.getElementById('error-box').classList.remove('show');
 
     const signaturePng = canvas.toDataURL('image/png');
     const formData = new URLSearchParams();
     formData.set('type', 'signature');
-    formData.set('의뢰서ID', proposalId);
-    formData.set('견적서ID', quoteId);
-    formData.set('의뢰ID', reqId);
-    formData.set('공정표ID', wfId);
-    formData.set('서명_base64', signaturePng);
-    formData.set('서명일시', new Date().toISOString());
-    formData.set('동의_의뢰서', '동의');
-    formData.set('동의_책임분리', '동의');
-    formData.set('동의_직접결제', '동의');
-    formData.set('동의_코디비정찰제', '동의');
-    formData.set('동의_개인정보', '동의');
+    formData.set('?�뢰?�ID', proposalId);
+    formData.set('견적?�ID', quoteId);
+    formData.set('?�뢰ID', reqId);
+    formData.set('공정?�ID', wfId);
+    formData.set('?�명_base64', signaturePng);
+    formData.set('?�명?�시', new Date().toISOString());
+    formData.set('?�의_?�뢰??, '?�의');
+    formData.set('?�의_책임분리', '?�의');
+    formData.set('?�의_직접결제', '?�의');
+    formData.set('?�의_코디비정찰제', '?�의');
+    formData.set('?�의_개인?�보', '?�의');
 
-    // simple POST (application/x-www-form-urlencoded) — CORS preflight 없음. GAS ANYONE_ANONYMOUS 받음.
+    // simple POST (application/x-www-form-urlencoded) ??CORS preflight ?�음. GAS ANYONE_ANONYMOUS 받음.
     fetch(APPS_SCRIPT_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       body: formData.toString()
     })
     .then(function(r){
-      if (!r.ok) throw new Error('서버 응답 오류 ' + r.status);
+      if (!r.ok) throw new Error('?�버 ?�답 ?�류 ' + r.status);
       return r.json();
     })
     .then(function(d){
-      if (!d || d.ok === false || d.err) throw new Error((d && d.err) || '서명 처리 실패');
-      // 실제 GAS에서 발번된 contractId 표시
+      if (!d || d.ok === false || d.err) throw new Error((d && d.err) || '?�명 처리 ?�패');
+      // ?�제 GAS?�서 발번??contractId ?�시
       const realContractId = d.contractId || d.result?.contractId || (proposalId.replace('P-', 'C-'));
       document.getElementById('main-form').style.display = 'none';
       document.getElementById('success').classList.add('show');
@@ -256,11 +256,11 @@ canvas { display: block; width: 100%; height: 200px; background: #fafaf5; border
       window.scrollTo({ top: 0, behavior: 'smooth' });
     })
     .catch(function(err){
-      console.error('[집지니 서명] 실패:', err);
-      document.getElementById('error-msg').textContent = err.message || '네트워크 오류 — 박 대표(@집지니)에게 카톡 문의해 주세요.';
+      console.error('[집�????�명] ?�패:', err);
+      document.getElementById('error-msg').textContent = err.message || '?�트?�크 ?�류 ??�??�??@집�????�게 카톡 문의??주세??';
       document.getElementById('error-box').classList.add('show');
       document.getElementById('submit-btn').disabled = false;
-      document.getElementById('submit-btn').innerHTML = '<i class="ti ti-signature"></i> 서명 제출 + 의뢰서 효력 발생';
+      document.getElementById('submit-btn').innerHTML = '<i class="ti ti-signature"></i> ?�명 ?�출 + ?�뢰???�력 발생';
       document.getElementById('error-box').scrollIntoView({ behavior: 'smooth', block: 'center' });
     });
   };
