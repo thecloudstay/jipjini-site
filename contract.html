@@ -151,7 +151,7 @@ body{font-family:'Pretendard',sans-serif;background:var(--jp-oatmeal);color:var(
 <div id="toast" class="status-toast"></div>
 <script>
 // 2026-05-27 박 대표 영구 deploy URL 통일 (단일 진실 소스)
-const APPS_SCRIPT_URL='https://script.google.com/macros/s/AKfycbzCukHi-LWcaKMowr3W_hgLUP4vHhczAx8y7sYR5sydljmiPkddOincsY-imPpYrOTEdg/exec';
+const APPS_SCRIPT_URL='https://script.google.com/macros/s/AKfycbx4-6DDXe-2gUPeXWduV346qYlGmak9zFoPMfLWRZfTYQD3-9DjR7MNojM792W_6U780Q/exec';
 let currentQuote=null,currentContext=null;
 const $=id=>document.getElementById(id);
 function toast(msg,k){const t=$('toast');t.textContent=msg;t.className='status-toast show'+(k==='error'?' error':k==='success'?' success':'');setTimeout(()=>t.classList.remove('show'),3500);}
