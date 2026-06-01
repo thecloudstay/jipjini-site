@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>집지니 · 맞춤 결제</title>
+<meta name="description" content="집지니 다이렉트 코디 맞춤 결제. 안내받으신 견적 금액을 입력하고 네이버 안전결제로 진행하세요. 마진 0% 정찰제.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
+<style>
+  :root{
+    --charcoal:#2A2A2A;--charcoal-soft:#3D3D3D;--gray:#6B6B6B;--gray-soft:#9A9A9A;
+    --line:#C8C4BC;--oatmeal:#F5F1E8;--oatmeal-soft:#FBF8F1;--oatmeal-deep:#EBE5D5;
+    --clay:#9a5a4a;--clay-deep:#7c4438;--forest:#4a6a45;--white:#fff;
+    --serif:'Nanum Myeongjo',serif;--latin:'Cormorant Garamond',serif;--sans:'Pretendard','Apple SD Gothic Neo',sans-serif;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:var(--oatmeal-soft);font-family:var(--sans);color:var(--charcoal);-webkit-font-smoothing:antialiased;letter-spacing:-.2px}
+  .wrap{max-width:600px;margin:0 auto;padding:0 20px 72px}
+  .eyebrow{font-family:var(--latin);font-size:17px;font-weight:600;letter-spacing:5px;color:var(--clay);text-transform:uppercase;text-align:center}
+  .rule{width:34px;height:1px;background:var(--clay);margin:14px auto 0}
+  .hero{text-align:center;padding:60px 0 40px}
+  .hero h1{font-family:var(--serif);font-weight:800;font-size:38px;line-height:1.4;letter-spacing:-1px;margin-top:24px}
+  .hero h1 em{font-style:normal;color:var(--clay)}
+  .hero .sub{font-size:15px;color:var(--gray);line-height:1.85;margin-top:18px}
+  .card{background:var(--white);border:1px solid var(--oatmeal-deep);border-radius:16px;padding:30px 26px}
+  .lab{font-family:var(--serif);font-weight:700;font-size:16px;margin-bottom:14px}
+  .amount-box{position:relative}
+  .amount-box input{width:100%;font-family:var(--serif);font-size:30px;font-weight:800;text-align:right;padding:16px 50px 16px 18px;border:1.5px solid var(--line);border-radius:12px;outline:none;background:var(--oatmeal-soft);color:var(--charcoal);transition:border-color .15s}
+  .amount-box input:focus{border-color:var(--clay)}
+  .amount-box .won{position:absolute;right:18px;top:50%;transform:translateY(-50%);font-size:18px;font-weight:700;color:var(--gray)}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+  .chip{border:1px solid var(--line);background:var(--white);border-radius:999px;padding:8px 15px;font-size:13.5px;font-weight:500;color:var(--charcoal-soft);cursor:pointer;transition:.12s}
+  .chip:hover{border-color:var(--clay);color:var(--clay)}
+  .result{margin-top:20px;background:var(--oatmeal);border:1px dashed var(--line);border-radius:12px;padding:18px;text-align:center}
+  .result .q{font-size:14px;color:var(--gray)}
+  .result .q b{font-family:var(--serif);font-size:32px;color:var(--clay);display:block;margin:4px 0;letter-spacing:-.5px}
+  .result small{color:var(--gray);font-size:12.5px}
+  .cta{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;text-align:center;margin-top:20px;background:var(--charcoal);color:var(--oatmeal-soft);font-size:17px;font-weight:700;padding:18px;border:none;border-radius:12px;cursor:pointer;text-decoration:none;transition:.14s;font-family:var(--serif)}
+  .cta:hover{background:var(--clay-deep)}
+  .pay-icons{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:16px}
+  .pay-icons span{font-size:12px;color:var(--gray);background:var(--white);border:1px solid var(--oatmeal-deep);border-radius:6px;padding:4px 10px;font-weight:500}
+  .note{font-size:12.5px;color:var(--gray);margin-top:14px;line-height:1.7;text-align:center}
+  .note b{color:var(--clay-deep)}
+  .sec{padding:54px 0 0}
+  .sec-h{font-family:var(--serif);font-weight:700;font-size:20px;text-align:center;margin-bottom:26px}
+  .steps{display:flex;border-top:1px solid var(--line)}
+  .stp{flex:1;padding:24px 12px 22px;text-align:center}
+  .stp + .stp{border-left:1px solid var(--line)}
+  .stp .i{font-family:var(--latin);font-size:26px;font-weight:500;color:var(--clay)}
+  .stp .t{font-size:13px;color:var(--charcoal-soft);line-height:1.55;margin-top:12px}
+  .stp .t b{font-weight:700}
+  .foot{margin-top:60px;border-top:1px solid var(--line);padding-top:26px;text-align:center}
+  .foot .lg{font-family:var(--latin);font-size:18px;letter-spacing:5px;color:var(--clay);text-transform:uppercase}
+  .foot p{font-size:12px;color:var(--gray);line-height:2;margin-top:10px}
+  .foot a{color:var(--gray)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="hero">
+    <div class="eyebrow">Direct Coordi</div>
+    <div class="rule"></div>
+    <h1>안내받으신 견적 금액,<br><em>그대로 결제</em>하세요</h1>
+    <div class="sub">상담 시 안내된 금액을 입력하면 결제 수량이 자동 계산됩니다.<br>정찰제 · 마진 0% · 네이버 안전결제(에스크로)</div>
+  </div>
+  <div class="card">
+    <div class="lab">결제 금액</div>
+    <div class="amount-box">
+      <input id="amount" type="text" inputmode="numeric" placeholder="0" autocomplete="off">
+      <span class="won">원</span>
+    </div>
+    <div class="chips" id="chips">
+      <span class="chip" data-v="500000">50만원</span>
+      <span class="chip" data-v="1000000">100만원</span>
+      <span class="chip" data-v="3000000">300만원</span>
+      <span class="chip" data-v="5000000">500만원</span>
+      <span class="chip" data-v="10000000">1,000만원</span>
+    </div>
+    <div class="result">
+      <div class="q">스마트스토어 수량란에 입력 <b id="qty">0</b></div>
+      <small>단가 1,000원 × <span id="qtyInline">0</span>개 = <span id="amtEcho">0</span>원</small>
+    </div>
+    <a class="cta" id="payBtn" href="https://smartstore.naver.com/zipjini/products/13613705245" target="_blank" rel="noopener">네이버 안전결제로 진행하기 →</a>
+    <div class="pay-icons"><span>네이버페이</span><span>신용·체크카드</span><span>가상계좌</span><span>계좌이체</span></div>
+    <p class="note">💡 1,000만원 이상 고액은 카드 한도로 막힐 수 있어요. 그럴 땐 결제수단에서 <b>가상계좌(무통장입금)</b>를 선택하세요. 에스크로가 자동 적용됩니다.</p>
+  </div>
+  <div class="sec">
+    <div class="sec-h">결제 방법 (1분)</div>
+    <div class="steps">
+      <div class="stp"><div class="i">01</div><div class="t">안내받은 <b>금액 입력</b></div></div>
+      <div class="stp"><div class="i">02</div><div class="t">계산된 <b>수량 확인</b></div></div>
+      <div class="stp"><div class="i">03</div><div class="t">스토어에서<br><b>수량 입력</b></div></div>
+      <div class="stp"><div class="i">04</div><div class="t">원하는 수단<br><b>결제 완료</b></div></div>
+    </div>
+    <p class="note" style="margin-top:18px">※ 상품 단가가 1,000원으로 보이는 것은 정상입니다. <b>수량으로 총 결제금액을 맞추는 방식</b>이에요. (예: 870만원 = 수량 8,700)</p>
+  </div>
+  <div class="foot">
+    <div class="lg">Jipjini</div>
+    <p>
+      집지니 · 대표 박찬영 · 사업자등록번호 874-10-00088<br>
+      인천광역시 강화군 강화읍 동문로 33<br>
+      카카오톡 @집지니 · <a href="mailto:thecloudstay@gmail.com">thecloudstay@gmail.com</a> · <a href="https://jipjini.com">jipjini.com</a>
+    </p>
+  </div>
+</div>
+<script>
+  var UNIT_PRICE=1000;
+  var STORE_URL="https://smartstore.naver.com/zipjini/products/13613705245";
+  var amountEl=document.getElementById('amount'),qtyEl=document.getElementById('qty'),qtyInline=document.getElementById('qtyInline'),amtEcho=document.getElementById('amtEcho'),payBtn=document.getElementById('payBtn');
+  function fmt(n){return n.toLocaleString('ko-KR');}
+  function update(){
+    var raw=(amountEl.value||'').replace(/[^0-9]/g,'');
+    var amount=parseInt(raw||'0',10);
+    var qty=Math.floor(amount/UNIT_PRICE);
+    qtyEl.textContent=fmt(qty);qtyInline.textContent=fmt(qty);amtEcho.textContent=fmt(qty*UNIT_PRICE);
+    if(raw){amountEl.value=fmt(amount);}
+  }
+  amountEl.addEventListener('input',update);
+  document.getElementById('chips').addEventListener('click',function(e){
+    if(e.target.classList.contains('chip')){amountEl.value=e.target.getAttribute('data-v');update();amountEl.focus();}
+  });
+  payBtn.addEventListener('click',function(e){
+    var qty=parseInt((qtyEl.textContent||'0').replace(/[^0-9]/g,''),10);
+    if(qty){e.preventDefault();alert('스마트스토어 결제 화면에서\n수량란에 [ '+fmt(qty)+' ]을(를) 입력하세요.');window.open(STORE_URL,'_blank');}
+  });
+  update();
+</script>
+</body>
+</html>
