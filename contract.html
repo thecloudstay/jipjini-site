@@ -88,12 +88,12 @@ body{font-family:'Pretendard',sans-serif;background:var(--jp-oatmeal);color:var(
   <div class="contract-head">
     <p class="eyebrow">DIRECT COORDI · 톱니 8단계</p>
     <h1>📋 계약서 자동 작성</h1>
-    <p>견적서 ID 하나로 계약서·관리대장 한 번에. 박 대표 톱니바퀴 시스템.</p>
+    <p>견적서 ID 하나로 계약서·관리대장 한 번에. 집지니의 코디(Codi) 톱니바퀴 시스템.</p>
   </div>
   <div class="step-indicator">
     <div class="step-indicator-label">CURRENT STEP · 톱니 7 → 8 연결</div>
     <div class="step-indicator-title">기존 견적서 → 계약서 자동 빌드</div>
-    <div class="step-indicator-desc">견적서 정보·공정표·고객정보가 자동으로 채워집니다. 박 대표·고객 서명만 받으면 계약관리대장에 즉시 등록됩니다.</div>
+    <div class="step-indicator-desc">견적서 정보·공정표·고객정보가 자동으로 채워집니다. 코디·고객 서명만 받으면 계약관리대장에 즉시 등록됩니다.</div>
   </div>
   <div class="lookup-card">
     <h2><span class="num">1</span>견적서 불러오기</h2>
@@ -101,7 +101,7 @@ body{font-family:'Pretendard',sans-serif;background:var(--jp-oatmeal);color:var(
       <input id="quoteIdInput" type="text" placeholder="견적서 ID (예: Q-2026-001)" autocomplete="off">
       <button class="btn-lookup" id="lookupBtn" onclick="lookupQuote()"><i class="ti ti-search"></i>불러오기</button>
     </div>
-    <div class="lookup-hint">최근 작성한 견적서 ID를 입력하세요. 박 대표는 코디 콘솔에서 ID 복사, 고객은 카톡으로 받은 견적서 PDF 상단의 ID 입력.</div>
+    <div class="lookup-hint">최근 작성한 견적서 ID를 입력하세요. 코디는 콘솔에서 ID 복사, 고객은 카톡으로 받은 견적서 PDF 상단의 ID 입력.</div>
     <div id="suggestions" class="lookup-suggestions"></div>
   </div>
   <div id="preview" class="preview-card">
@@ -117,7 +117,7 @@ body{font-family:'Pretendard',sans-serif;background:var(--jp-oatmeal);color:var(
     </div>
     <div class="field-row">
       <div class="field"><label>총 시공 견적액 (공급가액, 원)</label><input type="number" id="totalAmount" step="10000"><div class="field-hint">자재비·인건비 포함 추정 — 실제 직거래 금액에 따라 변동. VAT 별도.</div></div>
-      <div class="field"><label>코디 비용 (공급가액, 원)</label><input type="number" id="coordiFee" step="10000"><div class="field-hint">정찰제 · 박 대표만 받는 금액 · VAT 별도</div></div>
+      <div class="field"><label>코디 비용 (공급가액, 원)</label><input type="number" id="coordiFee" step="10000"><div class="field-hint">정찰제 · 집지니의 코디(Codi)만 받는 금액 · VAT 별도</div></div>
     </div>
     <div class="field-row">
       <div class="field"><label>PM 비용 (선택 시, 원)</label><input type="number" id="pmFee" step="10000"></div>
@@ -131,26 +131,25 @@ body{font-family:'Pretendard',sans-serif;background:var(--jp-oatmeal);color:var(
     <h2><span class="num">4</span>서명</h2>
     <div class="sign-grid">
       <div class="sign-box"><div class="sign-box-label">건축주 (갑) 서명</div><div class="sign-canvas-wrap"><canvas class="sign-canvas" id="customerCanvas"></canvas><button class="sign-clear" onclick="clearSign('customer')">지우기</button></div><div style="font-size:11px;color:var(--jp-gray-soft);margin-top:6px;">손가락·마우스로 서명하세요.</div></div>
-      <div class="sign-box"><div class="sign-box-label">집지니 코디 (을) 서명</div><div class="sign-canvas-wrap"><canvas class="sign-canvas" id="codinatorCanvas"></canvas><button class="sign-clear" onclick="clearSign('codinator')">지우기</button></div><div style="font-size:11px;color:var(--jp-gray-soft);margin-top:6px;">박 대표 서명 (자체 서명).</div></div>
+      <div class="sign-box"><div class="sign-box-label">집지니 코디 (을) 서명</div><div class="sign-canvas-wrap"><canvas class="sign-canvas" id="codinatorCanvas"></canvas><button class="sign-clear" onclick="clearSign('codinator')">지우기</button></div><div style="font-size:11px;color:var(--jp-gray-soft);margin-top:6px;">코디(Codi) 자체 서명.</div></div>
     </div>
     <div style="background:var(--jp-oatmeal-soft);padding:14px;border-radius:8px;margin-top:14px;font-size:12px;line-height:1.7;color:var(--jp-gray);">서명함으로써 위 계약 내용을 확인하고 동의합니다. <strong>시공 하자에 대한 책임은 시공을 직접 수행한 기술자와 자재상에게 있음</strong>을 양당사자가 확인합니다. 집지니는 자재·기술자 매칭과 공정 조율, A/S 코디네이팅을 담당합니다.</div>
   </div>
   <div id="submitSection" class="submit-section">
     <h2>🚀 계약서 생성 + 관리대장 등록</h2>
-    <p>한 번 클릭하면: ① 계약서 PDF 생성 → ② Drive 저장 → ③ 계약관리대장 시트 등록 → ④ 박 대표 Gmail 알림.</p>
+    <p>한 번 클릭하면: ① 계약서 PDF 생성 → ② Drive 저장 → ③ 계약관리대장 시트 등록 → ④ 집지니의 코디(Codi) Gmail 알림.</p>
     <button class="btn-submit" id="submitBtn" onclick="submitContract()"><i class="ti ti-file-check"></i> 계약 확정 · 관리대장에 등록하기</button>
   </div>
   <div id="successScreen" class="success-screen">
     <div class="success-icon"><i class="ti ti-check"></i></div>
     <h2>계약서 생성 완료</h2>
-    <p>계약관리대장에 자동 등록되었습니다. 박 대표 Gmail로 알림이 발송되었습니다.</p>
+    <p>계약관리대장에 자동 등록되었습니다. 집지니의 코디(Codi) Gmail로 알림이 발송되었습니다.</p>
     <div class="contract-id" id="successContractId">C-...</div>
     <div style="margin-top:14px;"><a id="successPdfLink" href="#" target="_blank"><i class="ti ti-file-text"></i> 계약서 PDF 열기</a><a href="index.html" class="secondary"><i class="ti ti-home"></i> 홈으로</a></div>
   </div>
 </div>
 <div id="toast" class="status-toast"></div>
 <script>
-// 2026-05-27 박 대표 영구 deploy URL 통일 (단일 진실 소스)
 const APPS_SCRIPT_URL='https://script.google.com/macros/s/AKfycbx4-6DDXe-2gUPeXWduV346qYlGmak9zFoPMfLWRZfTYQD3-9DjR7MNojM792W_6U780Q/exec';
 let currentQuote=null,currentContext=null;
 const $=id=>document.getElementById(id);
@@ -166,7 +165,7 @@ function showStep(n){if(n>=2)$('preview').classList.add('show');if(n>=3)$('terms
 const canvases={};['customer','codinator'].forEach(r=>{const c=$(r+'Canvas');c.width=c.offsetWidth*devicePixelRatio;c.height=140*devicePixelRatio;const x=c.getContext('2d');x.scale(devicePixelRatio,devicePixelRatio);x.lineWidth=2;x.lineCap='round';x.strokeStyle='#1a1a1a';let d=0,lx=0,ly=0,h=0;function gp(e){const b=c.getBoundingClientRect();return{x:(e.touches?e.touches[0].clientX:e.clientX)-b.left,y:(e.touches?e.touches[0].clientY:e.clientY)-b.top};}function s(e){e.preventDefault();d=1;const p=gp(e);lx=p.x;ly=p.y;x.beginPath();x.moveTo(lx,ly);}function m(e){if(!d)return;e.preventDefault();const p=gp(e);x.lineTo(p.x,p.y);x.stroke();lx=p.x;ly=p.y;h=1;showStep(5);}function en(){d=0;}c.addEventListener('mousedown',s);c.addEventListener('mousemove',m);c.addEventListener('mouseup',en);c.addEventListener('mouseleave',en);c.addEventListener('touchstart',s);c.addEventListener('touchmove',m);c.addEventListener('touchend',en);canvases[r]={canvas:c,ctx:x,isDrawn:()=>h,clear:()=>{x.clearRect(0,0,c.width,c.height);h=0;},toDataURL:()=>c.toDataURL('image/png')};});
 function clearSign(r){canvases[r].clear();}
 async function saveDraft(){if(!currentQuote){toast('견적서 먼저 불러오세요','error');return;}toast('초안 저장 중...');try{const f=new URLSearchParams();f.append('type','save_contract_draft');f.append('quoteId',currentQuote['견적서ID']);f.append('termsJson',JSON.stringify(buildTerms()));const r=await fetch(APPS_SCRIPT_URL,{method:'POST',body:f});const d=await r.json();if(d.ok)toast('초안 저장 완료','success');else throw new Error(d.err||'저장 실패');}catch(e){toast('오류: '+e.message,'error');}}
-async function submitContract(){if(!currentQuote){toast('견적서 먼저 불러오세요','error');return;}if(!canvases.customer.isDrawn()){toast('건축주 서명을 입력하세요','error');return;}if(!canvases.codinator.isDrawn()){toast('박 대표 서명을 입력하세요','error');return;}if(!confirm('계약을 확정하고 관리대장에 등록합니다. 계속하시겠어요?'))return;$('submitBtn').disabled=true;toast('계약서 생성 중... 15초 정도 걸립니다');try{const t=buildTerms();t.signaturePngs={customer:canvases.customer.toDataURL(),codinator:canvases.codinator.toDataURL()};const f=new URLSearchParams();f.append('type','build_contract');f.append('quoteId',currentQuote['견적서ID']);f.append('termsJson',JSON.stringify(t));const r=await fetch(APPS_SCRIPT_URL,{method:'POST',body:f});const d=await r.json();if(!d.ok)throw new Error(d.err||'계약 생성 실패');$('successContractId').textContent=d.contractId;$('successPdfLink').href=d.contractPdfUrl;document.querySelectorAll('.lookup-card,.preview-card,.terms-card,.sign-section,.submit-section').forEach(el=>el.style.display='none');$('successScreen').classList.add('show');$('successScreen').scrollIntoView({behavior:'smooth'});toast('계약 확정 완료','success');}catch(e){toast('오류: '+e.message,'error');$('submitBtn').disabled=false;}}
+async function submitContract(){if(!currentQuote){toast('견적서 먼저 불러오세요','error');return;}if(!canvases.customer.isDrawn()){toast('건축주 서명을 입력하세요','error');return;}if(!canvases.codinator.isDrawn()){toast('코디 서명을 입력하세요','error');return;}if(!confirm('계약을 확정하고 관리대장에 등록합니다. 계속하시겠어요?'))return;$('submitBtn').disabled=true;toast('계약서 생성 중... 15초 정도 걸립니다');try{const t=buildTerms();t.signaturePngs={customer:canvases.customer.toDataURL(),codinator:canvases.codinator.toDataURL()};const f=new URLSearchParams();f.append('type','build_contract');f.append('quoteId',currentQuote['견적서ID']);f.append('termsJson',JSON.stringify(t));const r=await fetch(APPS_SCRIPT_URL,{method:'POST',body:f});const d=await r.json();if(!d.ok)throw new Error(d.err||'계약 생성 실패');$('successContractId').textContent=d.contractId;$('successPdfLink').href=d.contractPdfUrl;document.querySelectorAll('.lookup-card,.preview-card,.terms-card,.sign-section,.submit-section').forEach(el=>el.style.display='none');$('successScreen').classList.add('show');$('successScreen').scrollIntoView({behavior:'smooth'});toast('계약 확정 완료','success');}catch(e){toast('오류: '+e.message,'error');$('submitBtn').disabled=false;}}
 function buildTerms(){return{startDate:$('startDate').value,endDate:$('endDate').value,totalAmount:Number($('totalAmount').value)||0,coordiFee:Number($('coordiFee').value)||0,pmFee:Number($('pmFee').value)||0,asMonths:Number($('asMonths').value)||6,paymentTerms:$('paymentTerms').value,specialNote:$('specialNote').value};}
 (function(){const p=new URLSearchParams(location.search);const q=p.get('quoteId');if(q){$('quoteIdInput').value=q;setTimeout(lookupQuote,300);}})();
 </script>
