@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
@@ -150,7 +150,7 @@ body{font-family:'Pretendard',sans-serif;background:var(--jp-oatmeal);color:var(
 </div>
 <div id="toast" class="status-toast"></div>
 <script>
-const APPS_SCRIPT_URL='https://script.google.com/macros/s/AKfycbx4-6DDXe-2gUPeXWduV346qYlGmak9zFoPMfLWRZfTYQD3-9DjR7MNojM792W_6U780Q/exec';
+const APPS_SCRIPT_URL='https://script.google.com/macros/s/AKfycbzxm4mmZs1yVJPa3T-wb0cdJbEUMPYl6dDKtQNSNmJy4nEsCholrEnPAN8e0JfAtOV99A/exec';
 let currentQuote=null,currentContext=null;
 const $=id=>document.getElementById(id);
 function toast(msg,k){const t=$('toast');t.textContent=msg;t.className='status-toast show'+(k==='error'?' error':k==='success'?' success':'');setTimeout(()=>t.classList.remove('show'),3500);}
