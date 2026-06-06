@@ -46,7 +46,7 @@
   .ck-add { background:#1a472a; color:#F5F1E8; border:none; padding:8px 16px; border-radius:5px; cursor:pointer; font-size:12.5px; margin:6px 0 0; font-weight:600; font-family:inherit; letter-spacing:-.2px; }
   .ck-add:hover { background:#2c5d3f; }
 
-  .note-box { background:#F5F1E8; border-left:4px solid #c98e7e; padding:16px 20px; margin:24px 0; font-size:13.5px; color:#5a5347; line-height:1.7; border-radius:0 6px 6px 0; }
+  .note-box { background:#F5F1E8; border-left:4px solid #c98e7e; padding:18px 22px; margin:24px 0; font-size:13.5px; color:#5a5347; line-height:1.85; border-radius:0 6px 6px 0; }
   .note-box strong { color:#9a5a4a; font-weight:600; }
   .final-cta { background:#2A2A2A; color:#F5F1E8; padding:48px 22px; text-align:center; margin-top:40px; }
   .final-cta a.btn-primary { display:inline-flex; align-items:center; gap:9px; background:#9a5a4a; color:#F5F1E8; padding:17px 32px; border-radius:10px; font-weight:600; text-decoration:none; font-size:16px; font-family:inherit; box-shadow:0 4px 18px rgba(154,90,74,0.35); letter-spacing:-.3px; }
@@ -82,7 +82,7 @@
     table.cklist td input[type=checkbox] { width:11px; height:11px; }
     table.cklist td label { font-size:8.5px; margin-right:6px; gap:3px; }
 
-    .note-box { display:none; }
+    .note-box { background:#fff !important; border-left:3px solid #9a5a4a; padding:5px 8px; margin:6px 0 0; font-size:9px; color:#2A2A2A; line-height:1.55; }
     .ck-add { display:none; }
     .final-cta { display:none; }
     nav, .foot { display:none; }
@@ -111,7 +111,7 @@
   <div class="eyebrow">PREPARATION CHECKLIST</div>
   <div class="divider"></div>
   <h1>이 양식 그대로 적으세요<br><span class="accent">5분이면 충분합니다</span></h1>
-  <p>줄자 1개로 탁탁 적으시고 의뢰서에 그대로 옮기시면 됩니다.<br>모르는 항목은 비워두셔도 코디(Codi)가 카톡으로 안내합니다.</p>
+  <p>줄자 1개로 가로 × 세로만 적으시면 됩니다. 면적·총평수·둘레는 정밀의뢰서가 자동 계산합니다.<br>모르는 항목은 비워두셔도 코디(Codi)가 카톡으로 안내합니다.</p>
 </section>
 
 <div class="prep-toolbar no-print">
@@ -143,8 +143,8 @@
 
   <!-- 2. 방별 측정 -->
   <div class="prep-card">
-    <span class="prep-card-num">2</span><h2>방별 측정 — 도배·바닥·몰딩 자동 계산</h2>
-    <p class="hint">줄자로 가로 × 세로 (m). 안방·작은방·거실 모두. 천장 높이는 2.4m 통일.</p>
+    <span class="prep-card-num">2</span><h2>방별 측정 — 가로 × 세로만</h2>
+    <p class="hint">줄자로 가로 × 세로 (m). 안방·작은방·거실 모두. 천장 높이는 2.4m 고정. 면적·몰딩은 자동 계산.</p>
     <table class="cklist" id="t-room">
       <colgroup><col style="width:36%"><col style="width:32%"><col style="width:32%"></colgroup>
       <tr><th>공간 이름</th><th>가로 (m)</th><th>세로 (m)</th></tr>
@@ -159,8 +159,8 @@
 
   <!-- 3. 욕실 측정 -->
   <div class="prep-card">
-    <span class="prep-card-num">3</span><h2>욕실 측정 — 타일 자동 계산</h2>
-    <p class="hint">욕실별 가로 × 세로 (m) + 욕조·샤워부스 설치 여부</p>
+    <span class="prep-card-num">3</span><h2>욕실 측정 — 가로 × 세로 + 욕조·샤워부스</h2>
+    <p class="hint">욕실별 가로 × 세로 (m). 욕조·샤워부스 설치 여부 체크. 타일 면적은 자동 계산.</p>
     <table class="cklist" id="t-bath">
       <colgroup><col style="width:32%"><col style="width:18%"><col style="width:18%"><col style="width:16%"><col style="width:16%"></colgroup>
       <tr><th>욕실 이름</th><th>가로 (m)</th><th>세로 (m)</th><th>욕조</th><th>샤워부스</th></tr>
@@ -173,8 +173,8 @@
 
   <!-- 4. 베란다 -->
   <div class="prep-card">
-    <span class="prep-card-num">4</span><h2>베란다 측정 — 도장·단열 자동 계산</h2>
-    <p class="hint">바닥 가로 × 세로 (m) + 단열 시공 시 벽 가로 × 세로 별도 입력</p>
+    <span class="prep-card-num">4</span><h2>베란다 측정 — 바닥 + 단열 벽</h2>
+    <p class="hint">바닥 가로 × 세로 (m). 단열 시공할 경우 벽 가로 × 세로 별도. 도장 면적은 자동 계산.</p>
     <table class="cklist" id="t-balc">
       <colgroup><col style="width:24%"><col><col><col><col></colgroup>
       <tr><th>베란다 이름</th><th>바닥 가로 (m)</th><th>바닥 세로 (m)</th><th>단열 가로 (m)</th><th>단열 세로 (m)</th></tr>
@@ -186,7 +186,7 @@
 
   <!-- 5. 외창 -->
   <div class="prep-card">
-    <span class="prep-card-num">5</span><h2>외창 측정 — 창호 자동 계산</h2>
+    <span class="prep-card-num">5</span><h2>외창 측정 — 가로 × 세로</h2>
     <p class="hint">외창 1개씩 가로 × 세로 (m). 대략 적어도 OK — 코디가 현장에서 정확 실측합니다.</p>
     <table class="cklist" id="t-win">
       <colgroup><col style="width:36%"><col><col></colgroup>
@@ -202,7 +202,7 @@
   <!-- 6. 타일 -->
   <div class="prep-card">
     <span class="prep-card-num">6</span><h2>타일 면적 — 주방·현관·베란다</h2>
-    <p class="hint">시공할 부위만 가로 × 세로 (m)</p>
+    <p class="hint">시공할 부위만 가로 × 세로 (m). 안 하시면 비워두세요.</p>
     <table class="cklist">
       <colgroup><col style="width:36%"><col><col></colgroup>
       <tr><th>부위</th><th>가로 (m)</th><th>세로 (m)</th></tr>
@@ -239,7 +239,7 @@
   <!-- 8. 등급 선택 -->
   <div class="prep-card">
     <span class="prep-card-num">8</span><h2>등급 선택 — 취향</h2>
-    <p class="hint">모르시면 비워두세요. "상담 후 결정" 체크 시 코디가 카톡으로 안내합니다.</p>
+    <p class="hint">모르시면 비워두세요. 의뢰서의 "상담 후 결정" 체크 시 코디가 카톡으로 안내합니다.</p>
     <table class="cklist">
       <colgroup><col style="width:26%"><col></colgroup>
       <tr><th>공종</th><th>옵션 (1개 선택)</th></tr>
@@ -267,30 +267,12 @@
         <label><input type="checkbox"> 노브랜드 (저비용)</label>
         <label><input type="checkbox"> 한샘</label>
       </td></tr>
-      <tr><td class="label">에어컨 기기 조달</td><td>
-        <label><input type="checkbox"> 건축주 직접 (권장)</label>
-        <label><input type="checkbox"> 집지니 카탈로그</label>
-        <label><input type="checkbox"> 상담 후 결정</label>
-      </td></tr>
-    </table>
-  </div>
-
-  <!-- 9. 사진·평면도 -->
-  <div class="prep-card">
-    <span class="prep-card-num">9</span><h2>사진·평면도 — 정확도 +50%</h2>
-    <p class="hint">아래 항목이 있으면 의뢰서 제출 후 카톡 @집지니로 함께 보내주세요.</p>
-    <table class="cklist">
-      <colgroup><col style="width:75%"><col></colgroup>
-      <tr><th>준비물</th><th>체크</th></tr>
-      <tr><td class="label">평면도 (분양 도면 또는 부동산 도면)</td><td><label><input type="checkbox"> 준비됨</label></td></tr>
-      <tr><td class="label">각 방·욕실 사진 (전체 보이게)</td><td><label><input type="checkbox"> 준비됨</label></td></tr>
-      <tr><td class="label">시공 원하는 부위 클로즈업</td><td><label><input type="checkbox"> 준비됨</label></td></tr>
-      <tr><td class="label">외창 사진 (외부에서 본 모양)</td><td><label><input type="checkbox"> 준비됨</label></td></tr>
     </table>
   </div>
 
   <div class="note-box">
-    <strong>모르시는 항목은 비워두세요.</strong> 의뢰서 각 공종 옆 "상담 후 결정" 체크 시 집지니의 코디(Codi)가 카톡으로 직접 안내해드립니다. 사진·평면도가 있으면 견적 정확도가 +50% 올라갑니다.
+    <strong>모르시는 항목은 비워두세요.</strong> 의뢰서 각 공종 옆 "상담 후 결정" 체크 시 집지니의 코디(Codi)가 카톡으로 직접 안내해드립니다.<br>
+    <strong>사진·평면도는 카톡 별송.</strong> 평면도 · 각 방·욕실 전체 사진 · 시공 부위 클로즈업 · 외창 외부 사진이 있으면 카톡 @집지니로 보내주세요 — 견적 정확도 +50%.
   </div>
 </section>
 
