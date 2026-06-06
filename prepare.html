@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="naver-site-verification" content="c251139cf29944ffe603d11ecf58e973d448a8fa" />
 <title>집지니 · 정밀 의뢰서 사전 준비 체크리스트</title>
 <meta name="description" content="정밀 의뢰서 작성 전 5분. 표 양식 그대로 적으세요.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -11,6 +12,14 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.34.0/dist/tabler-icons.min.css">
 <link rel="stylesheet" href="css/style.css">
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-35EM7T3M9W"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-35EM7T3M9W');
+</script>
 <style>
   body { background:#FBF8F1; color:#2A2A2A; font-family:'Pretendard',sans-serif; }
   .prep-hero { background:#2A2A2A; color:#F5F1E8; padding:72px 22px 56px; text-align:center; position:relative; overflow:hidden; }
@@ -121,7 +130,6 @@
 
 <section class="prep-section">
 
-  <!-- 1. 기본 정보 -->
   <div class="prep-card">
     <span class="prep-card-num">1</span><h2>기본 정보</h2>
     <p class="hint">계약 및 카톡 안내용 필수 정보</p>
@@ -130,7 +138,7 @@
       <tr><th>항목</th><th>적기</th></tr>
       <tr><td class="label">이름</td><td><input type="text" placeholder="홍길동"></td></tr>
       <tr><td class="label">연락처 (카톡 가능)</td><td><input type="text" placeholder="010-0000-0000"></td></tr>
-      <tr><td class="label">주소 (동·호수)</td><td><input type="text" placeholder="강화군 ○○동 ○○아파트 101동 1001호"></td></tr>
+      <tr><td class="label">주소 (동·호수)</td><td><input type="text" placeholder="서울특별시 ○○구 ○○동 ○○아파트 101동 1001호"></td></tr>
       <tr><td class="label">건물 유형 / 층수 / 평수</td><td><input type="text" placeholder="아파트 / 12층 / 32평"></td></tr>
       <tr><td class="label">엘리베이터 / 거주 상태</td><td><input type="text" placeholder="있음 / 공실"></td></tr>
       <tr><td class="label">시공 희망 시작일</td><td><input type="text" placeholder="2026-07-01"></td></tr>
@@ -141,7 +149,6 @@
     </table>
   </div>
 
-  <!-- 2. 방별 측정 -->
   <div class="prep-card">
     <span class="prep-card-num">2</span><h2>방별 측정 — 가로 × 세로만</h2>
     <p class="hint">줄자로 가로 × 세로 (m). 안방·작은방·거실 모두. 천장 높이는 2.4m 고정. 면적·몰딩은 자동 계산.</p>
@@ -157,7 +164,6 @@
     <button class="ck-add no-print" onclick="addRow('t-room')">+ 방 추가</button>
   </div>
 
-  <!-- 3. 욕실 측정 -->
   <div class="prep-card">
     <span class="prep-card-num">3</span><h2>욕실 측정 — 가로 × 세로 + 욕조·샤워부스</h2>
     <p class="hint">욕실별 가로 × 세로 (m). 욕조·샤워부스 설치 여부 체크. 타일 면적은 자동 계산.</p>
@@ -171,7 +177,6 @@
     <button class="ck-add no-print" onclick="addBathRow('t-bath')">+ 욕실 추가</button>
   </div>
 
-  <!-- 4. 베란다 -->
   <div class="prep-card">
     <span class="prep-card-num">4</span><h2>베란다 측정 — 바닥 + 단열 벽</h2>
     <p class="hint">바닥 가로 × 세로 (m). 단열 시공할 경우 벽 가로 × 세로 별도. 도장 면적은 자동 계산.</p>
@@ -184,7 +189,6 @@
     <button class="ck-add no-print" onclick="add5Row('t-balc')">+ 베란다 추가</button>
   </div>
 
-  <!-- 5. 외창 -->
   <div class="prep-card">
     <span class="prep-card-num">5</span><h2>외창 측정 — 가로 × 세로</h2>
     <p class="hint">외창 1개씩 가로 × 세로 (m). 대략 적어도 OK — 코디가 현장에서 정확 실측합니다.</p>
@@ -199,7 +203,6 @@
     <button class="ck-add no-print" onclick="addRow('t-win')">+ 창 추가</button>
   </div>
 
-  <!-- 6. 타일 -->
   <div class="prep-card">
     <span class="prep-card-num">6</span><h2>타일 면적 — 주방·현관·베란다</h2>
     <p class="hint">시공할 부위만 가로 × 세로 (m). 안 하시면 비워두세요.</p>
@@ -212,7 +215,6 @@
     </table>
   </div>
 
-  <!-- 7. 갯수 -->
   <div class="prep-card">
     <span class="prep-card-num">7</span><h2>갯수 카운트 — 눈으로 셈</h2>
     <p class="hint">교체 또는 신설할 갯수. 없으면 0.</p>
@@ -236,7 +238,6 @@
     </table>
   </div>
 
-  <!-- 8. 등급 선택 -->
   <div class="prep-card">
     <span class="prep-card-num">8</span><h2>등급 선택 — 취향</h2>
     <p class="hint">모르시면 비워두세요. 의뢰서의 "상담 후 결정" 체크 시 코디가 카톡으로 안내합니다.</p>
@@ -285,7 +286,7 @@
 
 <div class="foot no-print">
   © 2026 집지니 · Direct Coordi™<br>
-  인천광역시 강화군 강화읍 동문로 33 · 카톡 @집지니 · thecloudstay@gmail.com
+  서울·경기·인천 수도권 전역 · 카톡 @집지니 · thecloudstay@gmail.com
 </div>
 
 <script>
