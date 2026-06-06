@@ -3,17 +3,35 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>집지니 · 정밀 의뢰서 사전 준비 가이드</title>
-<meta name="description" content="정밀 의뢰서 작성 전 5분 미리 준비. 줄자 1개로 측정할 항목·갯수 셈할 항목 체크리스트.">
+<title>집지니 · 정밀 의뢰서 사전 준비 체크리스트</title>
+<meta name="description" content="정밀 의뢰서 작성 전 5분. 바로 적을 수 있는 표 양식 체크리스트.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.34.0/dist/tabler-icons.min.css">
 <link rel="stylesheet" href="css/style.css">
+<style>
+table.cklist { width:100%; border-collapse:collapse; margin:10px 0 6px; background:#fff; }
+table.cklist th { background:#1a472a; color:#fff; padding:10px 8px; font-size:13px; text-align:left; border:1px solid #1a472a; }
+table.cklist td { padding:8px 8px; border:1px solid #C8C4BC; font-size:13.5px; }
+table.cklist td input[type=text],
+table.cklist td input[type=number] { width:100%; padding:6px 8px; border:1px solid #C8C4BC; border-radius:4px; font-size:13px; background:#FBF8F1; }
+table.cklist td input[type=text]:focus,
+table.cklist td input[type=number]:focus { background:#fff; border-color:#1a472a; outline:none; }
+table.cklist td input[type=checkbox] { width:18px; height:18px; cursor:pointer; accent-color:#1a472a; }
+table.cklist tr.example td { background:#F1F5F2; color:#5a5347; font-style:italic; }
+.ck-add { background:#1a472a; color:#fff; border:none; padding:7px 14px; border-radius:5px; cursor:pointer; font-size:12.5px; margin:4px 0 14px; font-weight:600; }
+.ck-sec { background:#FBF8F1; border:2px solid #1a472a; border-radius:12px; padding:20px 22px; margin-bottom:18px; }
+.ck-sec h2 { font-size:17px; font-weight:800; color:#1a472a; margin:0 0 10px; }
+.ck-sec p.hint { font-size:12.5px; color:#5a5347; margin:0 0 10px; line-height:1.6; }
+.ck-grade { background:#fff7e6; border:2px solid #d99a2b; border-radius:12px; padding:20px 22px; margin-bottom:18px; }
+.ck-grade h2 { font-size:17px; font-weight:800; color:#5a4520; margin:0 0 10px; }
+@media print { .no-print { display:none !important; } body { background:#fff; } }
+</style>
 </head>
 <body>
-<nav class="nav">
+<nav class="nav no-print">
   <a href="index.html" class="logo">
     <div class="logo-box">집</div>
     <span class="logo-text">집지니</span>
@@ -30,70 +48,176 @@
   </div>
 </nav>
 
-<section style="padding:50px 18px 30px;max-width:880px;margin:0 auto;text-align:center;">
-  <div style="font-size:11px;letter-spacing:0.3em;color:#9a5a4a;font-weight:700;margin-bottom:8px;">PREPARATION GUIDE</div>
-  <h1 style="font-family:'Noto Serif KR',serif;font-weight:600;font-size:clamp(28px,5vw,40px);line-height:1.4;color:#1a472a;margin:0 0 14px;">정밀 의뢰서 작성 전<br>5분 준비하면 끝납니다</h1>
-  <p style="font-size:15px;color:#5a5347;line-height:1.7;">줄자 1개와 휴대폰만 있으면 OK. 모르시면 비워두셔도 코디(Codi)가 카톡으로 도와드립니다.</p>
-</section>
-
-<section style="padding:0 18px 40px;max-width:880px;margin:0 auto;">
-  <div style="background:#FBF8F1;border:2px solid #1a472a;border-radius:14px;padding:28px 24px;margin-bottom:18px;">
-    <div style="font-size:18px;font-weight:800;color:#1a472a;margin-bottom:14px;">📐 1. 기본 측정 (줄자 1개로 OK)</div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;font-size:13.5px;line-height:1.8;color:#2A2A2A;">
-      <div>① 안방·작은방·거실 <strong>가로 × 세로</strong> (m)</div>
-      <div>② 욕실별 <strong>가로 × 세로</strong> (m)</div>
-      <div>③ 베란다 <strong>바닥 가로 × 세로</strong> (m)</div>
-      <div>④ 외창 <strong>각 창별 가로 × 세로</strong> (m, 대략 OK)</div>
-      <div>⑤ 주방 / 현관 / 베란다 <strong>타일 면적</strong> (가로 × 세로)</div>
-      <div>⑥ 단열 시공 <strong>벽 면적</strong> (가로 × 세로, 베란다만)</div>
-    </div>
-  </div>
-
-  <div style="background:#FBF8F1;border:2px solid #d99a2b;border-radius:14px;padding:28px 24px;margin-bottom:18px;">
-    <div style="font-size:18px;font-weight:800;color:#1a472a;margin-bottom:14px;">🔢 2. 갯수 카운트 (눈으로 셈)</div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;font-size:13.5px;line-height:1.8;color:#2A2A2A;">
-      <div>① 외창 <strong>갯수</strong></div>
-      <div>② 방문 / 현관문 / 도어락 갯수</div>
-      <div>③ 수도꼭지 (싱크·세면대·욕실) 갯수</div>
-      <div>④ 정수기·세탁기·식기세척기 갯수</div>
-      <div>⑤ 매입등 (다운라이트) 신설 갯수</div>
-      <div>⑥ 보일러 분배기·가스 이전 여부</div>
-    </div>
-  </div>
-
-  <div style="background:#FBF8F1;border:2px solid #c98e7e;border-radius:14px;padding:28px 24px;margin-bottom:18px;">
-    <div style="font-size:18px;font-weight:800;color:#1a472a;margin-bottom:14px;">💡 3. 등급 선택 (취향)</div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;font-size:13.5px;line-height:1.8;color:#2A2A2A;">
-      <div>① 도배: <strong>합지 / 실크 (보급/표준/프리미엄)</strong></div>
-      <div>② 바닥: <strong>장판 / 강마루 / 타일</strong></div>
-      <div>③ 창호: <strong>보급 / 중급 / 프리미엄</strong></div>
-      <div>④ 욕실 시공: <strong>덧방 / 철거후</strong></div>
-      <div>⑤ 싱크: <strong>노브랜드 / 한샘</strong></div>
-      <div>⑥ 에어컨 기기: <strong>건축주 직접 조달 (권장)</strong></div>
-    </div>
-  </div>
-
-  <div style="background:#fff7e6;border-left:5px solid #d99a2b;border-radius:8px;padding:18px 22px;font-size:14px;color:#5a4520;line-height:1.7;">
-    ⚠ <strong>모르셔도 OK</strong> — 각 항목 옆 "🗨️ 상담 후 결정 (코디 추천)" 체크하시면 집지니의 코디(Codi)가 카톡으로 직접 안내해드립니다.<br>
-    📸 <strong>현장 사진·평면도</strong>가 있으시면 카카오톡 채널 @집지니로 함께 보내주세요. 견적 정확도가 훨씬 높아집니다.
+<section style="padding:50px 18px 24px;max-width:920px;margin:0 auto;text-align:center;">
+  <div style="font-size:11px;letter-spacing:0.3em;color:#9a5a4a;font-weight:700;margin-bottom:8px;">PREPARATION CHECKLIST</div>
+  <h1 style="font-family:'Noto Serif KR',serif;font-weight:600;font-size:clamp(26px,4.5vw,36px);line-height:1.4;color:#1a472a;margin:0 0 12px;">이 양식 그대로 적으세요</h1>
+  <p style="font-size:14.5px;color:#5a5347;line-height:1.7;">의뢰서 작성 전 <b>5분</b>이면 끝. 줄자 1개로 탁탁 적고 → 의뢰서에 그대로 옮기시면 됩니다.</p>
+  <div class="no-print" style="margin-top:14px;">
+    <button onclick="window.print()" style="background:#fff;border:1px solid #1a472a;color:#1a472a;padding:8px 18px;border-radius:6px;cursor:pointer;font-size:13px;font-weight:600;"><i class="ti ti-printer"></i> 인쇄 / PDF 저장</button>
   </div>
 </section>
 
-<section style="padding:30px 18px 60px;max-width:880px;margin:0 auto;text-align:center;">
+<section style="padding:0 18px 40px;max-width:920px;margin:0 auto;">
+
+  <!-- 1. 기본 정보 -->
+  <div class="ck-sec">
+    <h2>📋 1. 기본 정보</h2>
+    <table class="cklist">
+      <tr><th style="width:40%">항목</th><th>적기</th></tr>
+      <tr><td>이름</td><td><input type="text" placeholder="예: 홍길동"></td></tr>
+      <tr><td>연락처 (카톡)</td><td><input type="text" placeholder="010-0000-0000"></td></tr>
+      <tr><td>주소 (동·호수까지)</td><td><input type="text" placeholder="예: 강화군 ○○동 ○○아파트 101동 1001호"></td></tr>
+      <tr><td>건물 유형 / 층수 / 평수 / 엘리베이터</td><td><input type="text" placeholder="아파트 / 12층 / 32평 / 있음"></td></tr>
+      <tr><td>거주 상태 / 시공 희망일</td><td><input type="text" placeholder="공실 / 2026-07-01"></td></tr>
+      <tr><td>공사 진행 방식</td><td><label><input type="checkbox"> 직접 시공</label> &nbsp; <label><input type="checkbox"> 집지니 PM 파견 요청</label></td></tr>
+    </table>
+  </div>
+
+  <!-- 2. 방별 측정 -->
+  <div class="ck-sec">
+    <h2>🏠 2. 방별 측정 (도배·바닥·몰딩 자동 계산)</h2>
+    <p class="hint">줄자로 가로 × 세로 (m). 모든 방 + 거실 적어주세요. 천장 높이는 2.4m 통일.</p>
+    <table class="cklist" id="t-room">
+      <tr><th>공간 이름</th><th style="width:22%">가로 (m)</th><th style="width:22%">세로 (m)</th></tr>
+      <tr class="example"><td>예: 안방</td><td>4.0</td><td>3.5</td></tr>
+      <tr><td><input type="text" placeholder="안방"></td><td><input type="number" step="0.1"></td><td><input type="number" step="0.1"></td></tr>
+      <tr><td><input type="text" placeholder="작은방 1"></td><td><input type="number" step="0.1"></td><td><input type="number" step="0.1"></td></tr>
+      <tr><td><input type="text" placeholder="작은방 2"></td><td><input type="number" step="0.1"></td><td><input type="number" step="0.1"></td></tr>
+      <tr><td><input type="text" placeholder="거실"></td><td><input type="number" step="0.1"></td><td><input type="number" step="0.1"></td></tr>
+    </table>
+    <button class="ck-add no-print" onclick="addRow('t-room', ['방 이름', '가로(m)', '세로(m)'])">+ 방 추가</button>
+  </div>
+
+  <!-- 3. 욕실 측정 -->
+  <div class="ck-sec">
+    <h2>🚿 3. 욕실 측정 (타일 자동 계산)</h2>
+    <p class="hint">욕실 가로 × 세로 + 시공 옵션 체크 (욕조·샤워부스).</p>
+    <table class="cklist" id="t-bath">
+      <tr><th>욕실 이름</th><th style="width:18%">가로(m)</th><th style="width:18%">세로(m)</th><th>욕조</th><th>샤워부스</th></tr>
+      <tr class="example"><td>예: 안방욕실</td><td>2.0</td><td>2.5</td><td>☑</td><td>☐</td></tr>
+      <tr><td><input type="text" placeholder="안방욕실"></td><td><input type="number" step="0.1"></td><td><input type="number" step="0.1"></td><td><input type="checkbox"></td><td><input type="checkbox"></td></tr>
+      <tr><td><input type="text" placeholder="공용욕실"></td><td><input type="number" step="0.1"></td><td><input type="number" step="0.1"></td><td><input type="checkbox"></td><td><input type="checkbox"></td></tr>
+    </table>
+    <button class="ck-add no-print" onclick="addRow('t-bath', ['욕실 이름','가로(m)','세로(m)','욕조','샤워부스'])">+ 욕실 추가</button>
+  </div>
+
+  <!-- 4. 베란다 측정 -->
+  <div class="ck-sec">
+    <h2>🌿 4. 베란다 측정 (도장·단열 자동 계산)</h2>
+    <p class="hint">바닥 가로 × 세로 / 단열 시공 시 벽 가로 × 세로.</p>
+    <table class="cklist" id="t-balc">
+      <tr><th>베란다 이름</th><th>바닥 가로(m)</th><th>바닥 세로(m)</th><th>단열 가로(m)</th><th>단열 세로(m)</th></tr>
+      <tr class="example"><td>예: 거실베란다</td><td>1.5</td><td>4.0</td><td>2.5</td><td>2.4</td></tr>
+      <tr><td><input type="text" placeholder="거실베란다"></td><td><input type="number" step="0.1"></td><td><input type="number" step="0.1"></td><td><input type="number" step="0.1"></td><td><input type="number" step="0.1"></td></tr>
+    </table>
+    <button class="ck-add no-print" onclick="addRow('t-balc', ['베란다','바닥W','바닥D','단열W','단열D'])">+ 베란다 추가</button>
+  </div>
+
+  <!-- 5. 외창 측정 -->
+  <div class="ck-sec">
+    <h2>🪟 5. 외창 측정 (창호 자동 계산)</h2>
+    <p class="hint">외창 1개씩. 대략 OK. 코디가 현장에서 정확 실측해드림.</p>
+    <table class="cklist" id="t-win">
+      <tr><th>창 위치</th><th>가로(m)</th><th>세로(m)</th></tr>
+      <tr class="example"><td>예: 거실창</td><td>2.5</td><td>1.8</td></tr>
+      <tr><td><input type="text" placeholder="거실창"></td><td><input type="number" step="0.1"></td><td><input type="number" step="0.1"></td></tr>
+      <tr><td><input type="text" placeholder="안방창"></td><td><input type="number" step="0.1"></td><td><input type="number" step="0.1"></td></tr>
+      <tr><td><input type="text" placeholder="작은방창"></td><td><input type="number" step="0.1"></td><td><input type="number" step="0.1"></td></tr>
+    </table>
+    <button class="ck-add no-print" onclick="addRow('t-win', ['창 위치','가로','세로'])">+ 창 추가</button>
+  </div>
+
+  <!-- 6. 타일 면적 -->
+  <div class="ck-sec">
+    <h2>🧱 6. 타일 면적 (주방·현관·베란다)</h2>
+    <p class="hint">시공할 부위만 가로 × 세로 적기.</p>
+    <table class="cklist">
+      <tr><th>부위</th><th>가로(m)</th><th>세로(m)</th></tr>
+      <tr><td>주방 타일 (벽)</td><td><input type="number" step="0.1"></td><td><input type="number" step="0.1"></td></tr>
+      <tr><td>현관 타일</td><td><input type="number" step="0.1"></td><td><input type="number" step="0.1"></td></tr>
+      <tr><td>베란다 타일</td><td><input type="number" step="0.1"></td><td><input type="number" step="0.1"></td></tr>
+    </table>
+  </div>
+
+  <!-- 7. 갯수 카운트 -->
+  <div class="ck-sec">
+    <h2>🔢 7. 갯수 카운트 (눈으로 셈)</h2>
+    <p class="hint">교체 / 신설할 갯수만. 없으면 0.</p>
+    <table class="cklist">
+      <tr><th style="width:50%">항목</th><th>갯수</th></tr>
+      <tr><td>방문 교체</td><td><input type="number" min="0" placeholder="0~5"></td></tr>
+      <tr><td>현관문 교체</td><td><input type="number" min="0" max="1" placeholder="0~1"></td></tr>
+      <tr><td>도어락 교체</td><td><input type="number" min="0" max="1" placeholder="0~1"></td></tr>
+      <tr><td>수도꼭지 신설 (싱크·세면·욕실)</td><td><input type="number" min="0" placeholder="0~5"></td></tr>
+      <tr><td>세탁기 배수</td><td><input type="number" min="0" max="1" placeholder="0~1"></td></tr>
+      <tr><td>식기세척기 급배수</td><td><input type="number" min="0" max="1" placeholder="0~1"></td></tr>
+      <tr><td>보일러 분배기</td><td><input type="number" min="0" max="1" placeholder="0~1"></td></tr>
+      <tr><td>정수기 직수</td><td><input type="number" min="0" max="1" placeholder="0~1"></td></tr>
+      <tr><td>가스 이전</td><td><input type="number" min="0" max="1" placeholder="0~1"></td></tr>
+      <tr><td>매입등 (다운라이트) 신설</td><td><input type="number" min="0" placeholder="0~20"></td></tr>
+      <tr><td>벽걸이 에어컨 신설</td><td><input type="number" min="0" placeholder="0~4"></td></tr>
+      <tr><td>에어컨 배관 길이 (1대당 m)</td><td><input type="number" step="0.5" placeholder="예: 5"></td></tr>
+    </table>
+  </div>
+
+  <!-- 8. 등급 선택 -->
+  <div class="ck-grade">
+    <h2>💡 8. 등급 선택 (취향)</h2>
+    <p class="hint" style="color:#5a4520;">모르시면 비워두세요. "🗨️ 상담 후 결정" 체크 시 코디가 카톡으로 안내.</p>
+    <table class="cklist">
+      <tr><th style="width:30%">공종</th><th>옵션 (하나만 ☑)</th></tr>
+      <tr><td>도배</td><td><label><input type="checkbox"> 합지</label> &nbsp; <label><input type="checkbox"> 실크 보급</label> &nbsp; <label><input type="checkbox"> 실크 표준</label> &nbsp; <label><input type="checkbox"> 실크 프리미엄</label></td></tr>
+      <tr><td>바닥</td><td><label><input type="checkbox"> 장판</label> &nbsp; <label><input type="checkbox"> 강마루</label> &nbsp; <label><input type="checkbox"> 타일</label></td></tr>
+      <tr><td>창호</td><td><label><input type="checkbox"> 보급</label> &nbsp; <label><input type="checkbox"> 중급</label> &nbsp; <label><input type="checkbox"> 프리미엄</label></td></tr>
+      <tr><td>욕실 시공방식</td><td><label><input type="checkbox"> 덧방 (저비용)</label> &nbsp; <label><input type="checkbox"> 철거후 (방수+신규)</label></td></tr>
+      <tr><td>싱크대 브랜드</td><td><label><input type="checkbox"> 노브랜드 (저비용)</label> &nbsp; <label><input type="checkbox"> 한샘</label></td></tr>
+      <tr><td>에어컨 기기</td><td><label><input type="checkbox"> 건축주 직접 조달 (권장 30%↓)</label> &nbsp; <label><input type="checkbox"> 집지니 카탈로그</label></td></tr>
+    </table>
+  </div>
+
+  <!-- 9. 사진·평면도 -->
+  <div class="ck-sec" style="border-color:#c98e7e;">
+    <h2 style="color:#9a5a4a;">📸 9. 사진·평면도 (있으면 +50% 정확도)</h2>
+    <p class="hint">아래 항목 있으면 의뢰서 제출 후 <strong>카톡 @집지니</strong>로 같이 보내주세요.</p>
+    <table class="cklist">
+      <tr><th>준비물</th><th>체크</th></tr>
+      <tr><td>① 평면도 (분양 도면, 부동산 도면)</td><td><label><input type="checkbox"> 준비됨</label></td></tr>
+      <tr><td>② 각 방·욕실 사진 (전체 보이게)</td><td><label><input type="checkbox"> 준비됨</label></td></tr>
+      <tr><td>③ 시공 원하는 부위 클로즈업</td><td><label><input type="checkbox"> 준비됨</label></td></tr>
+      <tr><td>④ 외창 사진 (외부에서 본 모양)</td><td><label><input type="checkbox"> 준비됨</label></td></tr>
+    </table>
+  </div>
+
+  <div style="background:#1a472a;color:#fff;border-radius:12px;padding:18px 22px;font-size:14px;line-height:1.7;text-align:center;">
+    ⚠ <strong>다 모르셔도 OK</strong> — 각 항목 옆 "🗨️ 상담 후 결정" 체크하시면 코디(Codi)가 카톡으로 친절히 안내해드립니다.
+  </div>
+</section>
+
+<section style="padding:20px 18px 60px;max-width:920px;margin:0 auto;text-align:center;" class="no-print">
   <a href="https://script.google.com/macros/s/AKfycbzxm4mmZs1yVJPa3T-wb0cdJbEUMPYl6dDKtQNSNmJy4nEsCholrEnPAN8e0JfAtOV99A/exec?type=request_form" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:10px;background:#9a5a4a;color:#F5F1E8;padding:18px 36px;border-radius:11px;font-weight:800;text-decoration:none;font-size:17px;box-shadow:0 4px 16px rgba(154,90,74,0.4);">
-    <i class="ti ti-pencil-plus" style="font-size:22px;"></i> 준비 완료 → 정밀 의뢰서 작성 (5분, 무료)
+    <i class="ti ti-pencil-plus" style="font-size:22px;"></i> 준비 완료 → 정밀 의뢰서 작성 (5분)
   </a>
   <div style="margin-top:18px;">
     <a href="https://pf.kakao.com/_NjpxhC/chat" target="_blank" rel="noopener" style="color:#5a5347;text-decoration:underline;font-size:14px;">📲 먼저 카톡으로 문의 (@집지니)</a>
   </div>
 </section>
 
-<div class="foot">
+<div class="foot no-print">
   © 2026 집지니 · Direct Coordi™<br>
   인천광역시 강화군 강화읍 동문로 33 · 카톡 @집지니 · thecloudstay@gmail.com
 </div>
 
 <script>
+function addRow(tableId, cols) {
+  var t = document.getElementById(tableId);
+  if (!t) return;
+  var tr = t.insertRow(-1);
+  cols.forEach(function(c, i) {
+    var td = tr.insertCell(-1);
+    if (i === 0) td.innerHTML = '<input type="text" placeholder="' + c + '">';
+    else td.innerHTML = '<input type="number" step="0.1">';
+  });
+}
 (function(){
   var menu = document.querySelector('.nav-menu');
   var toggle = document.querySelector('.nav-toggle');
