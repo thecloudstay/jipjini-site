@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>집지니 · 정밀 의뢰서 사전 준비 체크리스트</title>
-<meta name="description" content="정밀 의뢰서 작성 전 5분. 바로 적을 수 있는 표 양식 체크리스트.">
+<meta name="description" content="정밀 의뢰서 작성 전 5분. 표 양식 그대로 적으세요.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -12,22 +12,56 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.34.0/dist/tabler-icons.min.css">
 <link rel="stylesheet" href="css/style.css">
 <style>
-table.cklist { width:100%; border-collapse:collapse; margin:10px 0 6px; background:#fff; }
-table.cklist th { background:#1a472a; color:#fff; padding:10px 8px; font-size:13px; text-align:left; border:1px solid #1a472a; }
-table.cklist td { padding:8px 8px; border:1px solid #C8C4BC; font-size:13.5px; }
-table.cklist td input[type=text],
-table.cklist td input[type=number] { width:100%; padding:6px 8px; border:1px solid #C8C4BC; border-radius:4px; font-size:13px; background:#FBF8F1; }
-table.cklist td input[type=text]:focus,
-table.cklist td input[type=number]:focus { background:#fff; border-color:#1a472a; outline:none; }
-table.cklist td input[type=checkbox] { width:18px; height:18px; cursor:pointer; accent-color:#1a472a; }
-table.cklist tr.example td { background:#F1F5F2; color:#5a5347; font-style:italic; }
-.ck-add { background:#1a472a; color:#fff; border:none; padding:7px 14px; border-radius:5px; cursor:pointer; font-size:12.5px; margin:4px 0 14px; font-weight:600; }
-.ck-sec { background:#FBF8F1; border:2px solid #1a472a; border-radius:12px; padding:20px 22px; margin-bottom:18px; }
-.ck-sec h2 { font-size:17px; font-weight:800; color:#1a472a; margin:0 0 10px; }
-.ck-sec p.hint { font-size:12.5px; color:#5a5347; margin:0 0 10px; line-height:1.6; }
-.ck-grade { background:#fff7e6; border:2px solid #d99a2b; border-radius:12px; padding:20px 22px; margin-bottom:18px; }
-.ck-grade h2 { font-size:17px; font-weight:800; color:#5a4520; margin:0 0 10px; }
-@media print { .no-print { display:none !important; } body { background:#fff; } }
+  body { background:#FBF8F1; color:#2A2A2A; font-family:'Pretendard',sans-serif; }
+  .prep-hero { background:#2A2A2A; color:#F5F1E8; padding:72px 22px 56px; text-align:center; position:relative; overflow:hidden; }
+  .prep-hero::before { content:''; position:absolute; inset:24px; border:1px solid rgba(245,241,232,0.15); pointer-events:none; }
+  .prep-hero .eyebrow { font-family:'Noto Serif KR',serif; font-size:13px; letter-spacing:9px; color:#c98e7e; text-transform:uppercase; font-weight:500; }
+  .prep-hero .divider { width:42px; height:1px; background:#c98e7e; margin:24px auto 30px; }
+  .prep-hero h1 { font-family:'Noto Serif KR',serif; font-weight:600; font-size:clamp(28px,5.5vw,46px); line-height:1.45; letter-spacing:-1px; margin:0; color:#FBF8F1; }
+  .prep-hero h1 .accent { color:#c98e7e; }
+  .prep-hero p { font-size:clamp(14px,2vw,16px); color:#a8a298; line-height:1.9; margin:24px auto 0; max-width:540px; letter-spacing:-.2px; }
+  .prep-toolbar { background:#FBF8F1; padding:18px 22px; text-align:center; border-bottom:1px solid #E5E1D8; }
+  .prep-toolbar .btn-print { background:#fff; border:1px solid #1a472a; color:#1a472a; padding:9px 22px; border-radius:6px; cursor:pointer; font-size:13px; font-weight:600; font-family:inherit; }
+  .prep-toolbar .btn-print:hover { background:#1a472a; color:#fff; }
+
+  .prep-section { max-width:920px; margin:0 auto; padding:34px 22px 0; }
+  .prep-card { background:#fff; border:1px solid #E5E1D8; border-radius:10px; padding:26px 28px; margin-bottom:22px; }
+  .prep-card-num { display:inline-block; width:32px; height:32px; line-height:32px; border-radius:50%; background:#1a472a; color:#fff; text-align:center; font-weight:700; font-size:14px; margin-right:10px; vertical-align:middle; font-family:'Noto Serif KR',serif; }
+  .prep-card h2 { display:inline-block; vertical-align:middle; font-family:'Noto Serif KR',serif; font-size:21px; font-weight:600; color:#1a472a; margin:0; letter-spacing:-.5px; }
+  .prep-card .hint { font-size:13px; color:#5a5347; margin:12px 0 14px; line-height:1.7; padding-left:42px; }
+
+  table.cklist { width:100%; border-collapse:collapse; margin:6px 0; background:#fff; font-family:inherit; }
+  table.cklist th { background:#1a472a; color:#F5F1E8; padding:11px 10px; font-size:13px; text-align:left; border:1px solid #1a472a; font-weight:600; letter-spacing:-.2px; }
+  table.cklist td { padding:9px 10px; border:1px solid #D8D2C6; font-size:13.5px; color:#2A2A2A; vertical-align:middle; }
+  table.cklist td.label { background:#F5F1E8; font-weight:500; color:#1a472a; }
+  table.cklist tr.example td { background:#F8F5EC; color:#8a857c; font-style:italic; }
+  table.cklist td input[type=text],
+  table.cklist td input[type=number] { width:100%; padding:7px 10px; border:1px solid #C8C4BC; border-radius:5px; font-size:13.5px; background:#FBF8F1; font-family:inherit; color:#2A2A2A; }
+  table.cklist td input[type=text]:focus,
+  table.cklist td input[type=number]:focus { background:#fff; border-color:#1a472a; outline:none; box-shadow:0 0 0 2px rgba(26,71,42,0.1); }
+  table.cklist td input[type=checkbox] { width:17px; height:17px; cursor:pointer; accent-color:#1a472a; vertical-align:middle; }
+  table.cklist td label { font-size:13px; color:#2A2A2A; cursor:pointer; display:inline-flex; align-items:center; gap:5px; margin-right:14px; }
+  table.cklist td label:last-child { margin-right:0; }
+  .ck-add { background:#1a472a; color:#F5F1E8; border:none; padding:8px 16px; border-radius:5px; cursor:pointer; font-size:12.5px; margin:6px 0 0; font-weight:600; font-family:inherit; letter-spacing:-.2px; }
+  .ck-add:hover { background:#2c5d3f; }
+
+  .note-box { background:#F5F1E8; border-left:4px solid #c98e7e; padding:16px 20px; margin:24px 0; font-size:13.5px; color:#5a5347; line-height:1.7; border-radius:0 6px 6px 0; }
+  .note-box strong { color:#9a5a4a; font-weight:600; }
+  .final-cta { background:#2A2A2A; color:#F5F1E8; padding:48px 22px; text-align:center; margin-top:40px; }
+  .final-cta a.btn-primary { display:inline-flex; align-items:center; gap:9px; background:#9a5a4a; color:#F5F1E8; padding:17px 32px; border-radius:10px; font-weight:600; text-decoration:none; font-size:16px; font-family:inherit; box-shadow:0 4px 18px rgba(154,90,74,0.35); letter-spacing:-.3px; }
+  .final-cta a.btn-secondary { display:inline-block; margin-top:18px; color:#a8a298; text-decoration:underline; font-size:13.5px; }
+
+  @media print {
+    .no-print { display:none !important; }
+    body { background:#fff; }
+    .prep-hero { background:#fff; color:#2A2A2A; padding:30px 22px; }
+    .prep-hero h1 { color:#1a472a; }
+    .prep-hero .eyebrow { color:#9a5a4a; }
+    .prep-hero p { color:#5a5347; }
+    .prep-card { box-shadow:none; page-break-inside:avoid; border-color:#C8C4BC; }
+    table.cklist th { background:#fff; color:#1a472a; border:1px solid #1a472a; }
+    table.cklist td input { border:1px solid #1a472a !important; background:#fff !important; }
+  }
 </style>
 </head>
 <body>
@@ -48,158 +82,197 @@ table.cklist tr.example td { background:#F1F5F2; color:#5a5347; font-style:itali
   </div>
 </nav>
 
-<section style="padding:50px 18px 24px;max-width:920px;margin:0 auto;text-align:center;">
-  <div style="font-size:11px;letter-spacing:0.3em;color:#9a5a4a;font-weight:700;margin-bottom:8px;">PREPARATION CHECKLIST</div>
-  <h1 style="font-family:'Noto Serif KR',serif;font-weight:600;font-size:clamp(26px,4.5vw,36px);line-height:1.4;color:#1a472a;margin:0 0 12px;">이 양식 그대로 적으세요</h1>
-  <p style="font-size:14.5px;color:#5a5347;line-height:1.7;">의뢰서 작성 전 <b>5분</b>이면 끝. 줄자 1개로 탁탁 적고 → 의뢰서에 그대로 옮기시면 됩니다.</p>
-  <div class="no-print" style="margin-top:14px;">
-    <button onclick="window.print()" style="background:#fff;border:1px solid #1a472a;color:#1a472a;padding:8px 18px;border-radius:6px;cursor:pointer;font-size:13px;font-weight:600;"><i class="ti ti-printer"></i> 인쇄 / PDF 저장</button>
-  </div>
+<section class="prep-hero">
+  <div class="eyebrow">PREPARATION CHECKLIST</div>
+  <div class="divider"></div>
+  <h1>이 양식 그대로 적으세요<br><span class="accent">5분이면 충분합니다</span></h1>
+  <p>줄자 1개로 탁탁 적으시고 의뢰서에 그대로 옮기시면 됩니다.<br>모르는 항목은 비워두셔도 코디(Codi)가 카톡으로 안내합니다.</p>
 </section>
 
-<section style="padding:0 18px 40px;max-width:920px;margin:0 auto;">
+<div class="prep-toolbar no-print">
+  <button class="btn-print" onclick="window.print()"><i class="ti ti-printer"></i> 인쇄 / PDF 저장</button>
+</div>
+
+<section class="prep-section">
 
   <!-- 1. 기본 정보 -->
-  <div class="ck-sec">
-    <h2>📋 1. 기본 정보</h2>
+  <div class="prep-card">
+    <span class="prep-card-num">1</span><h2>기본 정보</h2>
+    <p class="hint">계약 및 카톡 안내용 필수 정보</p>
     <table class="cklist">
-      <tr><th style="width:40%">항목</th><th>적기</th></tr>
-      <tr><td>이름</td><td><input type="text" placeholder="예: 홍길동"></td></tr>
-      <tr><td>연락처 (카톡)</td><td><input type="text" placeholder="010-0000-0000"></td></tr>
-      <tr><td>주소 (동·호수까지)</td><td><input type="text" placeholder="예: 강화군 ○○동 ○○아파트 101동 1001호"></td></tr>
-      <tr><td>건물 유형 / 층수 / 평수 / 엘리베이터</td><td><input type="text" placeholder="아파트 / 12층 / 32평 / 있음"></td></tr>
-      <tr><td>거주 상태 / 시공 희망일</td><td><input type="text" placeholder="공실 / 2026-07-01"></td></tr>
-      <tr><td>공사 진행 방식</td><td><label><input type="checkbox"> 직접 시공</label> &nbsp; <label><input type="checkbox"> 집지니 PM 파견 요청</label></td></tr>
+      <colgroup><col style="width:38%"><col></colgroup>
+      <tr><th>항목</th><th>적기</th></tr>
+      <tr><td class="label">이름</td><td><input type="text" placeholder="홍길동"></td></tr>
+      <tr><td class="label">연락처 (카톡 가능)</td><td><input type="text" placeholder="010-0000-0000"></td></tr>
+      <tr><td class="label">주소 (동·호수)</td><td><input type="text" placeholder="강화군 ○○동 ○○아파트 101동 1001호"></td></tr>
+      <tr><td class="label">건물 유형 / 층수 / 평수</td><td><input type="text" placeholder="아파트 / 12층 / 32평"></td></tr>
+      <tr><td class="label">엘리베이터 / 거주 상태</td><td><input type="text" placeholder="있음 / 공실"></td></tr>
+      <tr><td class="label">시공 희망 시작일</td><td><input type="text" placeholder="2026-07-01"></td></tr>
+      <tr><td class="label">공사 진행 방식</td><td>
+        <label><input type="checkbox"> 직접 시공</label>
+        <label><input type="checkbox"> 집지니 PM 파견 요청</label>
+      </td></tr>
     </table>
   </div>
 
   <!-- 2. 방별 측정 -->
-  <div class="ck-sec">
-    <h2>🏠 2. 방별 측정 (도배·바닥·몰딩 자동 계산)</h2>
-    <p class="hint">줄자로 가로 × 세로 (m). 모든 방 + 거실 적어주세요. 천장 높이는 2.4m 통일.</p>
+  <div class="prep-card">
+    <span class="prep-card-num">2</span><h2>방별 측정 — 도배·바닥·몰딩 자동 계산</h2>
+    <p class="hint">줄자로 가로 × 세로 (m). 안방·작은방·거실 모두. 천장 높이는 2.4m 통일.</p>
     <table class="cklist" id="t-room">
-      <tr><th>공간 이름</th><th style="width:22%">가로 (m)</th><th style="width:22%">세로 (m)</th></tr>
-      <tr class="example"><td>예: 안방</td><td>4.0</td><td>3.5</td></tr>
+      <colgroup><col style="width:36%"><col style="width:32%"><col style="width:32%"></colgroup>
+      <tr><th>공간 이름</th><th>가로 (m)</th><th>세로 (m)</th></tr>
+      <tr class="example"><td>안방</td><td>4.0</td><td>3.5</td></tr>
       <tr><td><input type="text" placeholder="안방"></td><td><input type="number" step="0.1"></td><td><input type="number" step="0.1"></td></tr>
       <tr><td><input type="text" placeholder="작은방 1"></td><td><input type="number" step="0.1"></td><td><input type="number" step="0.1"></td></tr>
       <tr><td><input type="text" placeholder="작은방 2"></td><td><input type="number" step="0.1"></td><td><input type="number" step="0.1"></td></tr>
       <tr><td><input type="text" placeholder="거실"></td><td><input type="number" step="0.1"></td><td><input type="number" step="0.1"></td></tr>
     </table>
-    <button class="ck-add no-print" onclick="addRow('t-room', ['방 이름', '가로(m)', '세로(m)'])">+ 방 추가</button>
+    <button class="ck-add no-print" onclick="addRow('t-room')">+ 방 추가</button>
   </div>
 
   <!-- 3. 욕실 측정 -->
-  <div class="ck-sec">
-    <h2>🚿 3. 욕실 측정 (타일 자동 계산)</h2>
-    <p class="hint">욕실 가로 × 세로 + 시공 옵션 체크 (욕조·샤워부스).</p>
+  <div class="prep-card">
+    <span class="prep-card-num">3</span><h2>욕실 측정 — 타일 자동 계산</h2>
+    <p class="hint">욕실별 가로 × 세로 (m) + 욕조·샤워부스 설치 여부</p>
     <table class="cklist" id="t-bath">
-      <tr><th>욕실 이름</th><th style="width:18%">가로(m)</th><th style="width:18%">세로(m)</th><th>욕조</th><th>샤워부스</th></tr>
-      <tr class="example"><td>예: 안방욕실</td><td>2.0</td><td>2.5</td><td>☑</td><td>☐</td></tr>
+      <colgroup><col style="width:32%"><col style="width:18%"><col style="width:18%"><col style="width:16%"><col style="width:16%"></colgroup>
+      <tr><th>욕실 이름</th><th>가로 (m)</th><th>세로 (m)</th><th>욕조</th><th>샤워부스</th></tr>
+      <tr class="example"><td>안방욕실</td><td>2.0</td><td>2.5</td><td>O</td><td>X</td></tr>
       <tr><td><input type="text" placeholder="안방욕실"></td><td><input type="number" step="0.1"></td><td><input type="number" step="0.1"></td><td><input type="checkbox"></td><td><input type="checkbox"></td></tr>
       <tr><td><input type="text" placeholder="공용욕실"></td><td><input type="number" step="0.1"></td><td><input type="number" step="0.1"></td><td><input type="checkbox"></td><td><input type="checkbox"></td></tr>
     </table>
-    <button class="ck-add no-print" onclick="addRow('t-bath', ['욕실 이름','가로(m)','세로(m)','욕조','샤워부스'])">+ 욕실 추가</button>
+    <button class="ck-add no-print" onclick="addBathRow('t-bath')">+ 욕실 추가</button>
   </div>
 
-  <!-- 4. 베란다 측정 -->
-  <div class="ck-sec">
-    <h2>🌿 4. 베란다 측정 (도장·단열 자동 계산)</h2>
-    <p class="hint">바닥 가로 × 세로 / 단열 시공 시 벽 가로 × 세로.</p>
+  <!-- 4. 베란다 -->
+  <div class="prep-card">
+    <span class="prep-card-num">4</span><h2>베란다 측정 — 도장·단열 자동 계산</h2>
+    <p class="hint">바닥 가로 × 세로 (m) + 단열 시공 시 벽 가로 × 세로 별도 입력</p>
     <table class="cklist" id="t-balc">
-      <tr><th>베란다 이름</th><th>바닥 가로(m)</th><th>바닥 세로(m)</th><th>단열 가로(m)</th><th>단열 세로(m)</th></tr>
-      <tr class="example"><td>예: 거실베란다</td><td>1.5</td><td>4.0</td><td>2.5</td><td>2.4</td></tr>
+      <colgroup><col style="width:24%"><col><col><col><col></colgroup>
+      <tr><th>베란다 이름</th><th>바닥 가로 (m)</th><th>바닥 세로 (m)</th><th>단열 가로 (m)</th><th>단열 세로 (m)</th></tr>
+      <tr class="example"><td>거실베란다</td><td>1.5</td><td>4.0</td><td>2.5</td><td>2.4</td></tr>
       <tr><td><input type="text" placeholder="거실베란다"></td><td><input type="number" step="0.1"></td><td><input type="number" step="0.1"></td><td><input type="number" step="0.1"></td><td><input type="number" step="0.1"></td></tr>
     </table>
-    <button class="ck-add no-print" onclick="addRow('t-balc', ['베란다','바닥W','바닥D','단열W','단열D'])">+ 베란다 추가</button>
+    <button class="ck-add no-print" onclick="add5Row('t-balc')">+ 베란다 추가</button>
   </div>
 
-  <!-- 5. 외창 측정 -->
-  <div class="ck-sec">
-    <h2>🪟 5. 외창 측정 (창호 자동 계산)</h2>
-    <p class="hint">외창 1개씩. 대략 OK. 코디가 현장에서 정확 실측해드림.</p>
+  <!-- 5. 외창 -->
+  <div class="prep-card">
+    <span class="prep-card-num">5</span><h2>외창 측정 — 창호 자동 계산</h2>
+    <p class="hint">외창 1개씩 가로 × 세로 (m). 대략 적어도 OK — 코디가 현장에서 정확 실측합니다.</p>
     <table class="cklist" id="t-win">
-      <tr><th>창 위치</th><th>가로(m)</th><th>세로(m)</th></tr>
-      <tr class="example"><td>예: 거실창</td><td>2.5</td><td>1.8</td></tr>
+      <colgroup><col style="width:36%"><col><col></colgroup>
+      <tr><th>창 위치</th><th>가로 (m)</th><th>세로 (m)</th></tr>
+      <tr class="example"><td>거실창</td><td>2.5</td><td>1.8</td></tr>
       <tr><td><input type="text" placeholder="거실창"></td><td><input type="number" step="0.1"></td><td><input type="number" step="0.1"></td></tr>
       <tr><td><input type="text" placeholder="안방창"></td><td><input type="number" step="0.1"></td><td><input type="number" step="0.1"></td></tr>
       <tr><td><input type="text" placeholder="작은방창"></td><td><input type="number" step="0.1"></td><td><input type="number" step="0.1"></td></tr>
     </table>
-    <button class="ck-add no-print" onclick="addRow('t-win', ['창 위치','가로','세로'])">+ 창 추가</button>
+    <button class="ck-add no-print" onclick="addRow('t-win')">+ 창 추가</button>
   </div>
 
-  <!-- 6. 타일 면적 -->
-  <div class="ck-sec">
-    <h2>🧱 6. 타일 면적 (주방·현관·베란다)</h2>
-    <p class="hint">시공할 부위만 가로 × 세로 적기.</p>
+  <!-- 6. 타일 -->
+  <div class="prep-card">
+    <span class="prep-card-num">6</span><h2>타일 면적 — 주방·현관·베란다</h2>
+    <p class="hint">시공할 부위만 가로 × 세로 (m)</p>
     <table class="cklist">
-      <tr><th>부위</th><th>가로(m)</th><th>세로(m)</th></tr>
-      <tr><td>주방 타일 (벽)</td><td><input type="number" step="0.1"></td><td><input type="number" step="0.1"></td></tr>
-      <tr><td>현관 타일</td><td><input type="number" step="0.1"></td><td><input type="number" step="0.1"></td></tr>
-      <tr><td>베란다 타일</td><td><input type="number" step="0.1"></td><td><input type="number" step="0.1"></td></tr>
+      <colgroup><col style="width:36%"><col><col></colgroup>
+      <tr><th>부위</th><th>가로 (m)</th><th>세로 (m)</th></tr>
+      <tr><td class="label">주방 타일 (벽)</td><td><input type="number" step="0.1"></td><td><input type="number" step="0.1"></td></tr>
+      <tr><td class="label">현관 타일</td><td><input type="number" step="0.1"></td><td><input type="number" step="0.1"></td></tr>
+      <tr><td class="label">베란다 타일</td><td><input type="number" step="0.1"></td><td><input type="number" step="0.1"></td></tr>
     </table>
   </div>
 
-  <!-- 7. 갯수 카운트 -->
-  <div class="ck-sec">
-    <h2>🔢 7. 갯수 카운트 (눈으로 셈)</h2>
-    <p class="hint">교체 / 신설할 갯수만. 없으면 0.</p>
+  <!-- 7. 갯수 -->
+  <div class="prep-card">
+    <span class="prep-card-num">7</span><h2>갯수 카운트 — 눈으로 셈</h2>
+    <p class="hint">교체 또는 신설할 갯수. 없으면 0.</p>
     <table class="cklist">
-      <tr><th style="width:50%">항목</th><th>갯수</th></tr>
-      <tr><td>방문 교체</td><td><input type="number" min="0" placeholder="0~5"></td></tr>
-      <tr><td>현관문 교체</td><td><input type="number" min="0" max="1" placeholder="0~1"></td></tr>
-      <tr><td>도어락 교체</td><td><input type="number" min="0" max="1" placeholder="0~1"></td></tr>
-      <tr><td>수도꼭지 신설 (싱크·세면·욕실)</td><td><input type="number" min="0" placeholder="0~5"></td></tr>
-      <tr><td>세탁기 배수</td><td><input type="number" min="0" max="1" placeholder="0~1"></td></tr>
-      <tr><td>식기세척기 급배수</td><td><input type="number" min="0" max="1" placeholder="0~1"></td></tr>
-      <tr><td>보일러 분배기</td><td><input type="number" min="0" max="1" placeholder="0~1"></td></tr>
-      <tr><td>정수기 직수</td><td><input type="number" min="0" max="1" placeholder="0~1"></td></tr>
-      <tr><td>가스 이전</td><td><input type="number" min="0" max="1" placeholder="0~1"></td></tr>
-      <tr><td>매입등 (다운라이트) 신설</td><td><input type="number" min="0" placeholder="0~20"></td></tr>
-      <tr><td>벽걸이 에어컨 신설</td><td><input type="number" min="0" placeholder="0~4"></td></tr>
-      <tr><td>에어컨 배관 길이 (1대당 m)</td><td><input type="number" step="0.5" placeholder="예: 5"></td></tr>
+      <colgroup><col style="width:60%"><col></colgroup>
+      <tr><th>항목</th><th>갯수</th></tr>
+      <tr><td class="label">방문 교체</td><td><input type="number" min="0" placeholder="0 ~ 5"></td></tr>
+      <tr><td class="label">현관문 교체</td><td><input type="number" min="0" max="1" placeholder="0 또는 1"></td></tr>
+      <tr><td class="label">도어락 교체</td><td><input type="number" min="0" max="1" placeholder="0 또는 1"></td></tr>
+      <tr><td class="label">수도꼭지 신설 (싱크·세면·욕실)</td><td><input type="number" min="0" placeholder="0 ~ 5"></td></tr>
+      <tr><td class="label">세탁기 배수</td><td><input type="number" min="0" max="1" placeholder="0 또는 1"></td></tr>
+      <tr><td class="label">식기세척기 급배수</td><td><input type="number" min="0" max="1" placeholder="0 또는 1"></td></tr>
+      <tr><td class="label">보일러 분배기</td><td><input type="number" min="0" max="1" placeholder="0 또는 1"></td></tr>
+      <tr><td class="label">정수기 직수</td><td><input type="number" min="0" max="1" placeholder="0 또는 1"></td></tr>
+      <tr><td class="label">가스 이전</td><td><input type="number" min="0" max="1" placeholder="0 또는 1"></td></tr>
+      <tr><td class="label">매입등 (다운라이트) 신설</td><td><input type="number" min="0" placeholder="0 ~ 20"></td></tr>
+      <tr><td class="label">벽걸이 에어컨 신설</td><td><input type="number" min="0" placeholder="0 ~ 4"></td></tr>
+      <tr><td class="label">에어컨 배관 길이 (1대당 m)</td><td><input type="number" step="0.5" placeholder="5"></td></tr>
+      <tr><td class="label">콘센트 추가</td><td><input type="number" min="0" placeholder="0 ~ 10"></td></tr>
+      <tr><td class="label">스위치 추가</td><td><input type="number" min="0" placeholder="0 ~ 10"></td></tr>
     </table>
   </div>
 
   <!-- 8. 등급 선택 -->
-  <div class="ck-grade">
-    <h2>💡 8. 등급 선택 (취향)</h2>
-    <p class="hint" style="color:#5a4520;">모르시면 비워두세요. "🗨️ 상담 후 결정" 체크 시 코디가 카톡으로 안내.</p>
+  <div class="prep-card">
+    <span class="prep-card-num">8</span><h2>등급 선택 — 취향</h2>
+    <p class="hint">모르시면 비워두세요. "상담 후 결정" 체크 시 코디가 카톡으로 안내합니다.</p>
     <table class="cklist">
-      <tr><th style="width:30%">공종</th><th>옵션 (하나만 ☑)</th></tr>
-      <tr><td>도배</td><td><label><input type="checkbox"> 합지</label> &nbsp; <label><input type="checkbox"> 실크 보급</label> &nbsp; <label><input type="checkbox"> 실크 표준</label> &nbsp; <label><input type="checkbox"> 실크 프리미엄</label></td></tr>
-      <tr><td>바닥</td><td><label><input type="checkbox"> 장판</label> &nbsp; <label><input type="checkbox"> 강마루</label> &nbsp; <label><input type="checkbox"> 타일</label></td></tr>
-      <tr><td>창호</td><td><label><input type="checkbox"> 보급</label> &nbsp; <label><input type="checkbox"> 중급</label> &nbsp; <label><input type="checkbox"> 프리미엄</label></td></tr>
-      <tr><td>욕실 시공방식</td><td><label><input type="checkbox"> 덧방 (저비용)</label> &nbsp; <label><input type="checkbox"> 철거후 (방수+신규)</label></td></tr>
-      <tr><td>싱크대 브랜드</td><td><label><input type="checkbox"> 노브랜드 (저비용)</label> &nbsp; <label><input type="checkbox"> 한샘</label></td></tr>
-      <tr><td>에어컨 기기</td><td><label><input type="checkbox"> 건축주 직접 조달 (권장 30%↓)</label> &nbsp; <label><input type="checkbox"> 집지니 카탈로그</label></td></tr>
+      <colgroup><col style="width:26%"><col></colgroup>
+      <tr><th>공종</th><th>옵션 (1개 선택)</th></tr>
+      <tr><td class="label">도배</td><td>
+        <label><input type="checkbox"> 합지</label>
+        <label><input type="checkbox"> 실크 보급</label>
+        <label><input type="checkbox"> 실크 표준</label>
+        <label><input type="checkbox"> 실크 프리미엄</label>
+      </td></tr>
+      <tr><td class="label">바닥</td><td>
+        <label><input type="checkbox"> 장판</label>
+        <label><input type="checkbox"> 강마루</label>
+        <label><input type="checkbox"> 타일</label>
+      </td></tr>
+      <tr><td class="label">창호</td><td>
+        <label><input type="checkbox"> 보급</label>
+        <label><input type="checkbox"> 중급</label>
+        <label><input type="checkbox"> 프리미엄</label>
+      </td></tr>
+      <tr><td class="label">욕실 시공방식</td><td>
+        <label><input type="checkbox"> 덧방 (저비용, 기존 위)</label>
+        <label><input type="checkbox"> 철거후 (방수+신규)</label>
+      </td></tr>
+      <tr><td class="label">싱크대 브랜드</td><td>
+        <label><input type="checkbox"> 노브랜드 (저비용)</label>
+        <label><input type="checkbox"> 한샘</label>
+      </td></tr>
+      <tr><td class="label">에어컨 기기 조달</td><td>
+        <label><input type="checkbox"> 건축주 직접 (권장)</label>
+        <label><input type="checkbox"> 집지니 카탈로그</label>
+        <label><input type="checkbox"> 상담 후 결정</label>
+      </td></tr>
     </table>
   </div>
 
   <!-- 9. 사진·평면도 -->
-  <div class="ck-sec" style="border-color:#c98e7e;">
-    <h2 style="color:#9a5a4a;">📸 9. 사진·평면도 (있으면 +50% 정확도)</h2>
-    <p class="hint">아래 항목 있으면 의뢰서 제출 후 <strong>카톡 @집지니</strong>로 같이 보내주세요.</p>
+  <div class="prep-card">
+    <span class="prep-card-num">9</span><h2>사진·평면도 — 정확도 +50%</h2>
+    <p class="hint">아래 항목이 있으면 의뢰서 제출 후 카톡 @집지니로 함께 보내주세요.</p>
     <table class="cklist">
+      <colgroup><col style="width:75%"><col></colgroup>
       <tr><th>준비물</th><th>체크</th></tr>
-      <tr><td>① 평면도 (분양 도면, 부동산 도면)</td><td><label><input type="checkbox"> 준비됨</label></td></tr>
-      <tr><td>② 각 방·욕실 사진 (전체 보이게)</td><td><label><input type="checkbox"> 준비됨</label></td></tr>
-      <tr><td>③ 시공 원하는 부위 클로즈업</td><td><label><input type="checkbox"> 준비됨</label></td></tr>
-      <tr><td>④ 외창 사진 (외부에서 본 모양)</td><td><label><input type="checkbox"> 준비됨</label></td></tr>
+      <tr><td class="label">평면도 (분양 도면 또는 부동산 도면)</td><td><label><input type="checkbox"> 준비됨</label></td></tr>
+      <tr><td class="label">각 방·욕실 사진 (전체 보이게)</td><td><label><input type="checkbox"> 준비됨</label></td></tr>
+      <tr><td class="label">시공 원하는 부위 클로즈업</td><td><label><input type="checkbox"> 준비됨</label></td></tr>
+      <tr><td class="label">외창 사진 (외부에서 본 모양)</td><td><label><input type="checkbox"> 준비됨</label></td></tr>
     </table>
   </div>
 
-  <div style="background:#1a472a;color:#fff;border-radius:12px;padding:18px 22px;font-size:14px;line-height:1.7;text-align:center;">
-    ⚠ <strong>다 모르셔도 OK</strong> — 각 항목 옆 "🗨️ 상담 후 결정" 체크하시면 코디(Codi)가 카톡으로 친절히 안내해드립니다.
+  <div class="note-box">
+    <strong>모르시는 항목은 비워두세요.</strong> 의뢰서 각 공종 옆 "상담 후 결정" 체크 시 집지니의 코디(Codi)가 카톡으로 직접 안내해드립니다. 사진·평면도가 있으면 견적 정확도가 +50% 올라갑니다.
   </div>
 </section>
 
-<section style="padding:20px 18px 60px;max-width:920px;margin:0 auto;text-align:center;" class="no-print">
-  <a href="https://script.google.com/macros/s/AKfycbzxm4mmZs1yVJPa3T-wb0cdJbEUMPYl6dDKtQNSNmJy4nEsCholrEnPAN8e0JfAtOV99A/exec?type=request_form" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:10px;background:#9a5a4a;color:#F5F1E8;padding:18px 36px;border-radius:11px;font-weight:800;text-decoration:none;font-size:17px;box-shadow:0 4px 16px rgba(154,90,74,0.4);">
-    <i class="ti ti-pencil-plus" style="font-size:22px;"></i> 준비 완료 → 정밀 의뢰서 작성 (5분)
+<section class="final-cta no-print">
+  <a class="btn-primary" href="https://script.google.com/macros/s/AKfycbzxm4mmZs1yVJPa3T-wb0cdJbEUMPYl6dDKtQNSNmJy4nEsCholrEnPAN8e0JfAtOV99A/exec?type=request_form" target="_blank" rel="noopener">
+    <i class="ti ti-pencil-plus"></i> 준비 완료 — 정밀 의뢰서 작성하기
   </a>
-  <div style="margin-top:18px;">
-    <a href="https://pf.kakao.com/_NjpxhC/chat" target="_blank" rel="noopener" style="color:#5a5347;text-decoration:underline;font-size:14px;">📲 먼저 카톡으로 문의 (@집지니)</a>
-  </div>
+  <div><a class="btn-secondary" href="https://pf.kakao.com/_NjpxhC/chat" target="_blank" rel="noopener">먼저 카톡으로 문의 (@집지니)</a></div>
 </section>
 
 <div class="foot no-print">
@@ -208,15 +281,27 @@ table.cklist tr.example td { background:#F1F5F2; color:#5a5347; font-style:itali
 </div>
 
 <script>
-function addRow(tableId, cols) {
-  var t = document.getElementById(tableId);
-  if (!t) return;
+function addRow(id) {
+  var t = document.getElementById(id);
   var tr = t.insertRow(-1);
-  cols.forEach(function(c, i) {
-    var td = tr.insertCell(-1);
-    if (i === 0) td.innerHTML = '<input type="text" placeholder="' + c + '">';
-    else td.innerHTML = '<input type="number" step="0.1">';
-  });
+  tr.insertCell(-1).innerHTML = '<input type="text" placeholder="추가 항목">';
+  tr.insertCell(-1).innerHTML = '<input type="number" step="0.1">';
+  tr.insertCell(-1).innerHTML = '<input type="number" step="0.1">';
+}
+function addBathRow(id) {
+  var t = document.getElementById(id);
+  var tr = t.insertRow(-1);
+  tr.insertCell(-1).innerHTML = '<input type="text" placeholder="욕실 이름">';
+  tr.insertCell(-1).innerHTML = '<input type="number" step="0.1">';
+  tr.insertCell(-1).innerHTML = '<input type="number" step="0.1">';
+  tr.insertCell(-1).innerHTML = '<input type="checkbox">';
+  tr.insertCell(-1).innerHTML = '<input type="checkbox">';
+}
+function add5Row(id) {
+  var t = document.getElementById(id);
+  var tr = t.insertRow(-1);
+  tr.insertCell(-1).innerHTML = '<input type="text" placeholder="베란다 이름">';
+  for (var k = 0; k < 4; k++) tr.insertCell(-1).innerHTML = '<input type="number" step="0.1">';
 }
 (function(){
   var menu = document.querySelector('.nav-menu');
