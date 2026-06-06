@@ -23,6 +23,7 @@
   .prep-toolbar { background:#FBF8F1; padding:18px 22px; text-align:center; border-bottom:1px solid #E5E1D8; }
   .prep-toolbar .btn-print { background:#fff; border:1px solid #1a472a; color:#1a472a; padding:9px 22px; border-radius:6px; cursor:pointer; font-size:13px; font-weight:600; font-family:inherit; }
   .prep-toolbar .btn-print:hover { background:#1a472a; color:#fff; }
+  .prep-toolbar .hint-print { font-size:12px; color:#5a5347; margin-top:8px; }
 
   .prep-section { max-width:920px; margin:0 auto; padding:34px 22px 0; }
   .prep-card { background:#fff; border:1px solid #E5E1D8; border-radius:10px; padding:26px 28px; margin-bottom:22px; }
@@ -51,16 +52,40 @@
   .final-cta a.btn-primary { display:inline-flex; align-items:center; gap:9px; background:#9a5a4a; color:#F5F1E8; padding:17px 32px; border-radius:10px; font-weight:600; text-decoration:none; font-size:16px; font-family:inherit; box-shadow:0 4px 18px rgba(154,90,74,0.35); letter-spacing:-.3px; }
   .final-cta a.btn-secondary { display:inline-block; margin-top:18px; color:#a8a298; text-decoration:underline; font-size:13.5px; }
 
+  /* A4 1-2장 인쇄 최적화 */
   @media print {
+    @page { size: A4; margin: 10mm 9mm; }
     .no-print { display:none !important; }
-    body { background:#fff; }
-    .prep-hero { background:#fff; color:#2A2A2A; padding:30px 22px; }
-    .prep-hero h1 { color:#1a472a; }
-    .prep-hero .eyebrow { color:#9a5a4a; }
-    .prep-hero p { color:#5a5347; }
-    .prep-card { box-shadow:none; page-break-inside:avoid; border-color:#C8C4BC; }
-    table.cklist th { background:#fff; color:#1a472a; border:1px solid #1a472a; }
-    table.cklist td input { border:1px solid #1a472a !important; background:#fff !important; }
+    body { background:#fff; font-size:9.5px; }
+    .prep-hero { background:#fff; color:#2A2A2A; padding:0 0 6px; margin:0; }
+    .prep-hero::before { display:none; }
+    .prep-hero .eyebrow { font-size:8px; letter-spacing:4px; color:#9a5a4a; }
+    .prep-hero .divider { width:24px; margin:6px auto 8px; }
+    .prep-hero h1 { font-size:16px; line-height:1.25; color:#1a472a; }
+    .prep-hero h1 br { display:none; }
+    .prep-hero h1 .accent { color:#9a5a4a; }
+    .prep-hero p { display:none; }
+
+    .prep-section { padding:0; max-width:100%; }
+    .prep-card { padding:5px 7px; margin-bottom:4px; border:1px solid #C8C4BC; border-radius:4px; page-break-inside:avoid; box-shadow:none; }
+    .prep-card-num { width:18px; height:18px; line-height:18px; font-size:10px; margin-right:5px; }
+    .prep-card h2 { font-size:11.5px; letter-spacing:-.3px; }
+    .prep-card .hint { display:none; }
+
+    table.cklist { margin:3px 0 0; }
+    table.cklist th { background:#fff !important; color:#1a472a; border:1px solid #1a472a; padding:3px 5px; font-size:9px; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+    table.cklist td { padding:2.5px 5px; font-size:9.5px; border:1px solid #C8C4BC; }
+    table.cklist td.label { background:#F8F5EC !important; -webkit-print-color-adjust:exact; print-color-adjust:exact; font-size:9.5px; }
+    table.cklist tr.example { display:none; }
+    table.cklist td input[type=text],
+    table.cklist td input[type=number] { padding:1px 4px; font-size:9px; border:1px solid #777; background:#fff !important; height:14px; box-shadow:none; }
+    table.cklist td input[type=checkbox] { width:11px; height:11px; }
+    table.cklist td label { font-size:8.5px; margin-right:6px; gap:3px; }
+
+    .note-box { display:none; }
+    .ck-add { display:none; }
+    .final-cta { display:none; }
+    nav, .foot { display:none; }
   }
 </style>
 </head>
@@ -90,7 +115,8 @@
 </section>
 
 <div class="prep-toolbar no-print">
-  <button class="btn-print" onclick="window.print()"><i class="ti ti-printer"></i> 인쇄 / PDF 저장</button>
+  <button class="btn-print" onclick="window.print()"><i class="ti ti-printer"></i> A4 인쇄 / PDF 저장</button>
+  <div class="hint-print">크롬·엣지에서 인쇄 화면 → "PDF로 저장" 선택 시 PDF 1~2장으로 저장됩니다.</div>
 </div>
 
 <section class="prep-section">
