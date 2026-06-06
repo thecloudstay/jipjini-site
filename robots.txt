@@ -1,0 +1,24 @@
+# 집지니 (jipjini.com) robots.txt
+# 모든 검색엔진 허용
+
+User-agent: *
+Allow: /
+
+# 네이버 검색 봇 (Yeti) — 강조
+User-agent: Yeti
+Allow: /
+
+# 구글봇
+User-agent: Googlebot
+Allow: /
+
+# 빙봇
+User-agent: Bingbot
+Allow: /
+
+# 다음봇
+User-agent: Daumoa
+Allow: /
+
+# 사이트맵 위치
+Sitemap: https://jipjini.com/sitemap.xml
