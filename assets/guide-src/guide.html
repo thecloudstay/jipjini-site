@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<style>
+@page { size: A4; margin: 0; }
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'Noto Sans CJK KR','Noto Sans KR',sans-serif; color:#2b2b2b; }
+.page { width:210mm; height:297mm; padding:22mm 20mm; page-break-after:always; position:relative; }
+.dark { background:#173222; color:#f4efe6; }
+.accent { color:#c9a227; }
+.dark .accent { color:#e3c25b; }
+.eyebrow { font-size:9pt; letter-spacing:4px; color:#c9a227; font-weight:700; margin-bottom:6mm; }
+h1 { font-size:28pt; font-weight:900; line-height:1.35; margin-bottom:8mm; }
+h2 { font-size:20pt; font-weight:800; line-height:1.4; margin-bottom:6mm; }
+p.lead { font-size:11pt; line-height:1.8; }
+p.body { font-size:10pt; line-height:1.8; margin-bottom:4mm; }
+.logo { font-size:13pt; font-weight:900; letter-spacing:1px; }
+.logo .box { display:inline-block; background:#c9a227; color:#173222; padding:1mm 2.5mm; border-radius:2mm; margin-right:2mm; }
+.footer { position:absolute; bottom:12mm; left:20mm; right:20mm; display:flex; justify-content:space-between; font-size:8pt; color:#999; }
+.dark .footer { color:#cbbfa4; }
+table { width:100%; border-collapse:collapse; font-size:9.5pt; margin:5mm 0; }
+th { background:#173222; color:#f4efe6; padding:3mm; text-align:left; font-weight:700; }
+td { padding:3mm; border-bottom:0.3mm solid #ddd; }
+tr.hl td { background:#faf3dd; font-weight:700; }
+.card { border:0.4mm solid #e2dccc; border-radius:3mm; padding:6mm; margin-bottom:5mm; background:#fbf9f4; }
+.card h3 { font-size:12pt; margin-bottom:2mm; }
+.big { font-size:44pt; font-weight:900; color:#c9a227; line-height:1.1; }
+.stepnum { display:inline-block; width:8mm; height:8mm; line-height:8mm; border-radius:50%; background:#173222; color:#fff; text-align:center; font-weight:800; font-size:10pt; margin-right:3mm; }
+.step { display:flex; align-items:flex-start; margin-bottom:3.2mm; font-size:9.5pt; line-height:1.5; }
+.step b { display:block; font-size:10.5pt; }
+.divider { height:0.6mm; background:#c9a227; width:24mm; margin:6mm 0; }
+.quote { background:#fbf6e7; border-left:1.2mm solid #c9a227; padding:5mm 6mm; font-size:10.5pt; line-height:1.8; margin:5mm 0; border-radius:0 2mm 2mm 0; }
+.kv { display:flex; margin-bottom:2.5mm; font-size:10.5pt; }
+.kv .k { width:34mm; font-weight:700; color:#173222; }
+.flow { background:#fbf9f4; border:0.4mm solid #e2dccc; border-radius:3mm; padding:5mm 6mm; margin:4mm 0; font-size:10pt; line-height:1.7; }
+</style>
+</head>
+<body>
+
+<!-- P1 COVER -->
+<div class="page dark">
+  <div class="logo"><span class="box">집</span>집지니 JIPJINI <span style="font-weight:400;opacity:.7">· DIRECT COORDI</span></div>
+  <div style="margin-top:50mm">
+    <div class="eyebrow">INTERIOR COORDINATING GUIDE</div>
+    <h1>인테리어,<br><span class="accent">30%를 돌려드립니다</span></h1>
+    <p class="lead">중간 마진 없이 자재상·기술자와 직접 연결하는<br>'코디네이팅' 방식의 새로운 인테리어.<br>같은 시공을, 더 투명하게, 더 저렴하게.</p>
+  </div>
+  <div style="position:absolute;bottom:28mm;left:20mm">
+    <p style="font-size:11pt;font-weight:700">집지니 서비스 가이드</p>
+    <p style="font-size:10pt;opacity:.85;margin-top:2mm">jipjini.com · 카카오톡 @집지니</p>
+  </div>
+</div>
+
+<!-- P2 PROBLEM -->
+<div class="page">
+  <div class="eyebrow">THE PROBLEM</div>
+  <h2>왜 인테리어는<br>항상 비싸고 불투명할까요?</h2>
+  <p class="body">턴키 업체에 맡기면 편하지만, 견적서 안에는 자재비·인건비에 겹겹이 얹힌 중간 마진이 숨어 있습니다. 소비자는 무엇이 진짜 원가인지 알 수 없습니다.</p>
+  <div style="margin:10mm 0">
+    <div class="big">30%</div>
+    <p class="body" style="font-weight:700;margin-top:2mm">일반 인테리어 견적의 약 30%는 중간 마진입니다.</p>
+  </div>
+  <div class="card">
+    <h3>32평 올수리 기준 — 마진은 얼마일까?</h3>
+    <div class="kv"><span class="k">일반 턴키 견적</span><span>약 6,500만 원</span></div>
+    <div class="kv"><span class="k">실제 자재비+인건비</span><span>약 4,500만 원</span></div>
+    <div class="kv"><span class="k" style="color:#b0392e">숨어있는 중간 마진</span><span style="font-weight:800;color:#b0392e">약 2,000만 원</span></div>
+  </div>
+  <p style="font-size:8.5pt;color:#888">* 위 금액은 시장 평균 기준 예시이며, 현장에 따라 다릅니다.</p>
+  <div class="footer"><span>집지니 GUIDE</span><span>01</span></div>
+</div>
+
+<!-- P3 SOLUTION -->
+<div class="page">
+  <div class="eyebrow">THE SOLUTION</div>
+  <h2>집지니는 시공하지 않습니다.<br>'연결'하고 '관리'합니다.</h2>
+  <p class="body">집지니는 코디네이터(Coordinator)입니다. 직접 시공하는 대신, 검증된 자재상·기술자를 연결하고 공정 순서와 일정을 관리합니다. 자재비·인건비는 소비자가 직접 결제하므로 중간 마진이 0원입니다.</p>
+  <div class="flow">
+    <b>기존 턴키 — 돈이 한 번 더 거칩니다</b><br>
+    고객 → 업체 <span style="color:#b0392e;font-weight:700">(마진 30%)</span> → 자재상·기술자
+  </div>
+  <div class="flow" style="background:#eef5ee;border-color:#173222">
+    <b>집지니 코디 — 직접 연결, 마진 0</b><br>
+    고객 → 자재상·기술자 (직거래)<br>
+    + 집지니 (코디 운영비만 별도)
+  </div>
+  <div class="divider"></div>
+  <p class="body">그 결과, 같은 자재와 같은 기술자에게 시공받아도 <b>최소 20~30% 더 저렴</b>합니다. 차이는 단 하나 — <b>중간 마진을 누가 가져가느냐</b>입니다.</p>
+  <div class="footer"><span>집지니 GUIDE</span><span>02</span></div>
+</div>
+
+<!-- P4 3 OPTIONS -->
+<div class="page">
+  <div class="eyebrow">3 OPTIONS</div>
+  <h2>인테리어에는<br>3가지 길이 있습니다</h2>
+  <p class="body">턴키는 비싸고, 직영은 힘듭니다. 집지니는 그 사이의 새로운 선택지입니다.</p>
+  <table>
+    <tr><th></th><th>턴키</th><th>직영(셀프)</th><th style="background:#c9a227;color:#173222">집지니 코디</th></tr>
+    <tr><td><b>방식</b></td><td>업체에 통째로 맡김</td><td>내가 직접 다 함</td><td>연결·관리만 맡김</td></tr>
+    <tr><td><b>32평 비용</b></td><td>약 6,500만</td><td>약 3,500만</td><td>약 4,000만대</td></tr>
+    <tr><td><b>내 시간</b></td><td>거의 없음</td><td>200시간+</td><td>20~30시간</td></tr>
+    <tr><td><b>중간 마진</b></td><td>30~50%</td><td>0%</td><td>0% (코디비만)</td></tr>
+    <tr><td><b>단가 투명성</b></td><td>불투명</td><td>직접 확인</td><td>100% 공개</td></tr>
+    <tr><td><b>난이도</b></td><td>매우 쉬움</td><td>매우 어려움</td><td>쉬움</td></tr>
+  </table>
+  <p class="body" style="font-weight:700">턴키의 편함과 직영의 저렴함을 동시에 — 그것이 집지니 코디네이팅입니다.</p>
+  <div class="footer"><span>집지니 GUIDE</span><span>03</span></div>
+</div>
+
+<!-- P5 PRICING -->
+<div class="page">
+  <div class="eyebrow">PRICING</div>
+  <h2>집지니는<br>'코디 운영비'만 받습니다</h2>
+  <p class="body">자재비·인건비에는 한 푼도 얹지 않습니다. 시공 총액에 따라 정해진 코디 운영비만 투명하게 받습니다.</p>
+  <table>
+    <tr><th>시공 총액 구간</th><th>코디 운영비</th></tr>
+    <tr><td>500만 원 이하</td><td>15% (최소 75만)</td></tr>
+    <tr><td>500만 ~ 1,000만</td><td>11%</td></tr>
+    <tr><td>1,000만 ~ 2,000만</td><td>8.5%</td></tr>
+    <tr><td>2,000만 ~ 3,000만</td><td>7%</td></tr>
+    <tr><td>3,000만 ~ 4,000만</td><td>6%</td></tr>
+    <tr class="hl"><td>4,000만 ~ 5,000만 (표준)</td><td>5%</td></tr>
+    <tr><td>5,000만 ~ 7,000만</td><td>4.5%</td></tr>
+    <tr><td>7,000만 ~ 1억</td><td>4%</td></tr>
+    <tr><td>1억 이상</td><td>3.5%</td></tr>
+  </table>
+  <p class="body" style="font-size:9pt;color:#666">PM(현장 관리자)을 추가하시면 시공 기간 동안 현장을 대신 챙겨드립니다. PM 비용은 시공 총액에 따라 별도 책정됩니다 (80만~700만). 소규모 의뢰는 PM 없이도 가능합니다.</p>
+  <div class="footer"><span>집지니 GUIDE</span><span>04</span></div>
+</div>
+
+<!-- P6 PROCESS -->
+<div class="page">
+  <div class="eyebrow">PROCESS</div>
+  <h2>비교부터 입주까지,<br>11단계로 투명하게</h2>
+  <div style="margin-top:6mm">
+    <div class="step"><span class="stepnum">1</span><span><b>방식 비교 · 검토</b>턴키·직영·코디 중 내게 맞는 방식 확인</span></div>
+    <div class="step"><span class="stepnum">2</span><span><b>무료 가안 신청</b>홈페이지에서 평형·범위 입력 (0원)</span></div>
+    <div class="step"><span class="stepnum">3</span><span><b>정식 견적서 신청 (3만원)</b>진행 시 코디 비용에서 차감</span></div>
+    <div class="step"><span class="stepnum">4</span><span><b>정식 견적서 수령</b>자재 모델명·단가·매칭 파트너 100% 공개</span></div>
+    <div class="step"><span class="stepnum">5</span><span><b>검토 · 진행 결정</b>마음에 들면 진행, 아니면 부담 없이 종료</span></div>
+    <div class="step"><span class="stepnum">6</span><span><b>코디 비용 결제 · 전자계약</b>먼저 낸 3만원 차감</span></div>
+    <div class="step"><span class="stepnum">7</span><span><b>단톡방 · 노션 초대</b>진행 상황 실시간 공유</span></div>
+    <div class="step"><span class="stepnum">8</span><span><b>자재 매칭 · 코디표 확정</b>검증된 자재상·기술자 배정, 단가 사전 협상</span></div>
+    <div class="step"><span class="stepnum">9</span><span><b>자재 발주 · 픽업</b>건축주 명의 직거래, 마진 0</span></div>
+    <div class="step"><span class="stepnum">10</span><span><b>시공 · PM 현장 관리</b>매일 카톡으로 진행 상황 보고</span></div>
+    <div class="step"><span class="stepnum">11</span><span><b>입주 · 6개월 A/S</b>하자 점검 후 입주, 6개월 통합 사후관리</span></div>
+  </div>
+  <div class="footer"><span>집지니 GUIDE</span><span>05</span></div>
+</div>
+
+<!-- P7 PRINCIPLES -->
+<div class="page">
+  <div class="eyebrow">OUR PRINCIPLES</div>
+  <h2>집지니가<br>반드시 지키는 3가지</h2>
+  <div class="card"><h3><span class="accent">01</span> 마진 0</h3>
+  <p class="body" style="margin:0">자재비·인건비에 한 푼도 얹지 않습니다. 집지니는 코디 운영비만 받습니다. 모든 자재·시공은 소비자가 직접 결제합니다.</p></div>
+  <div class="card"><h3><span class="accent">02</span> 책임은 명확하게</h3>
+  <p class="body" style="margin:0">시공은 기술자가, 자재는 자재상이 책임집니다. 집지니는 매칭 품질과 일정을 책임집니다. 역할이 섞이지 않아야 신뢰가 생깁니다.</p></div>
+  <div class="card"><h3><span class="accent">03</span> 정직한 거절</h3>
+  <p class="body" style="margin:0">부분 수리 1~2개는 직영이 더 쌉니다. 그런 의뢰는 정중히 거절하고 방법을 알려드립니다. 코디의 가치가 생기는 3개 공정 이상부터 받습니다.</p></div>
+  <div class="quote">
+    <b>대표가 직접 겪은 이야기</b><br>
+    "얘들아, 저거 골조 기둥 하나 빼버리자."<br>
+    내 돈 내고 집을 짓는데 오히려 '을'이 되던 경험. 두 번 다시 그런 일이 없도록, 투명한 인테리어를 만들기로 했습니다.
+  </div>
+  <div class="footer"><span>집지니 GUIDE</span><span>06</span></div>
+</div>
+
+<!-- P8 HOW TO START -->
+<div class="page">
+  <div class="eyebrow">HOW TO START</div>
+  <h2>무료로 시작해서,<br>마음에 들면 진행하세요</h2>
+  <p class="body">부담 없이 무료 가안부터. 마음에 들면 단 3만원으로 정식 견적서까지. 진행을 결정하시면 그 3만원은 코디 비용에서 차감됩니다.</p>
+  <table>
+    <tr><th style="text-align:center">STEP 1</th><th style="text-align:center">STEP 2</th><th style="text-align:center">STEP 3</th></tr>
+    <tr><td style="text-align:center"><b>무료 가안</b><br>0원</td><td style="text-align:center"><b>정식 견적서</b><br>3만원 (차감)</td><td style="text-align:center"><b>진행 시작</b><br>코디비 결제</td></tr>
+  </table>
+  <div class="card"><h3>의뢰 가능 범위</h3>
+  <p class="body" style="margin:0">집지니는 <b>부분 수리 3개 공정 이상</b>부터 받습니다. 도배만, 장판만 같은 단일 공정은 인부에게 직접 의뢰하시는 것이 더 저렴합니다. 공정 간 순서·자재·인부 조율이 필요한 규모부터 코디의 가치가 발생합니다.</p></div>
+  <div class="card"><h3>상담은 온라인으로 편하게</h3>
+  <p class="body" style="margin:0">모든 상담·견적은 카카오톡·전화로 진행합니다. 평면도·사진을 보내주시면 더 정확한 견적이 가능합니다. 실물 자재 샘플은 거래처 쇼룸 방문 또는 택배로 받아보실 수 있습니다.</p></div>
+  <div class="footer"><span>집지니 GUIDE</span><span>07</span></div>
+</div>
+
+<!-- P9 BACK -->
+<div class="page dark">
+  <div class="logo"><span class="box">집</span>집지니 JIPJINI <span style="font-weight:400;opacity:.7">· DIRECT COORDI</span></div>
+  <div style="margin-top:55mm">
+    <div class="eyebrow">START NOW</div>
+    <h2>지금, 투명한 인테리어를<br>시작하세요</h2>
+    <div style="margin-top:10mm">
+      <div class="kv"><span class="k" style="color:#e3c25b">홈페이지</span><span style="font-weight:800">jipjini.com</span></div>
+      <div class="kv"><span class="k" style="color:#e3c25b">카카오톡 채널</span><span>@집지니</span></div>
+      <div class="kv"><span class="k" style="color:#e3c25b">전화</span><span>010-9806-0422</span></div>
+      <div class="kv"><span class="k" style="color:#e3c25b">시공 사례</span><span>네이버 블로그 · 유튜브 촌닭건축</span></div>
+    </div>
+  </div>
+  <div style="position:absolute;bottom:22mm;left:20mm;font-size:8.5pt;line-height:1.8;opacity:.85">
+    집지니 (JIPJINI) · 인테리어 코디네이팅<br>
+    사업자등록번호 874-10-00088 · 인천광역시 강화군 동문로 33<br>
+    thecloudstay@gmail.com
+  </div>
+</div>
+
+</body>
+</html>
