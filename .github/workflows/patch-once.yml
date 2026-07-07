@@ -1,0 +1,72 @@
+name: One-shot site patch
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/patch-once.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Apply patches
+        run: |
+          python3 - <<'EOF'
+          import io, glob
+
+          GTAG = '''<!-- Google tag (gtag.js) -->
+          <script async src="https://www.googletagmanager.com/gtag/js?id=G-35EM7T3M9W"></script>
+          <script>
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-35EM7T3M9W');
+          </script>
+          '''
+          GTAG = '\n'.join(l.strip() and ('' if False else l[10:] if l.startswith(' '*10) else l) for l in GTAG.split('\n'))
+
+          def patch(path, pairs):
+              s = io.open(path, encoding='utf-8').read()
+              o = s
+              for a, b in pairs:
+                  s = s.replace(a, b)
+              if s != o:
+                  io.open(path, 'w', encoding='utf-8').write(s)
+                  print('patched', path)
+
+          # 1) index.html 섹션 id
+          patch('index.html', [
+              ('<section class="concept-section"', '<section class="concept-section" id="concept"'),
+              ('<section class="market-3tier"',    '<section class="market-3tier" id="market"'),
+              ('<section class="scope-section"',   '<section class="scope-section" id="eligibility"'),
+          ])
+
+          # 2) 전 페이지 nav #top 링크 → 실제 섹션
+          for f in glob.glob('*.html'):
+              patch(f, [
+                  ('<a href="index.html#top">서비스 소개</a>',    '<a href="index.html#concept">서비스 소개</a>'),
+                  ('<a href="index.html#top">3가지 선택지</a>',   '<a href="index.html#market">3가지 선택지</a>'),
+                  ('<a href="index.html#top">의뢰 가능 범위</a>', '<a href="index.html#eligibility">의뢰 가능 범위</a>'),
+              ])
+
+          # 3) sign/contract GA4 (없을 때만)
+          for f in ['sign.html', 'contract.html']:
+              s = io.open(f, encoding='utf-8').read()
+              if 'G-35EM7T3M9W' not in s and '<head>' in s:
+                  s = s.replace('<head>', '<head>\n' + GTAG, 1)
+                  io.open(f, 'w', encoding='utf-8').write(s)
+                  print('gtag added', f)
+          EOF
+      - name: Commit
+        run: |
+          git config user.name "jipjini-bot"
+          git config user.email "thecloudstay@gmail.com"
+          git add -A
+          git diff --cached --quiet || git commit -m "patch: nav 앵커 + 섹션 id + GA4 (sign/contract) 일괄 반영"
+          git push
