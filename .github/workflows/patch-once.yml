@@ -32,24 +32,16 @@ jobs:
                   io.open(path, 'w', encoding='utf-8').write(s)
                   print('patched', path)
 
-          PROMISE_BOX = '''
-
-    <div style="max-width:680px;margin:28px auto 0;padding:20px 22px;background:#f6f8f6;border:1px solid #d8e2d8;border-radius:14px;text-align:center;">
-      <div style="font-size:11px;letter-spacing:0.22em;color:#1a472a;font-weight:700;margin-bottom:8px;">JIPJINI PROMISE</div>
-      <div style="font-size:18px;font-weight:800;color:#1a472a;line-height:1.5;">집지니 하자 조율 약속</div>
-      <div style="font-size:14px;color:#444;line-height:1.7;margin-top:8px;">
-        시공 하자의 <strong>책임</strong>은 시공한 기술자·자재상이 직접 집니다 (직거래 원칙).<br>
-        그리고 그 <strong>해결 과정</strong>은 — 집지니 코디가 접수부터 재시공 마무리까지 <strong>끝까지 무상으로 조율</strong>합니다.<br>
-        <span style="color:#1a472a;font-weight:700;">연결만 하고 사라지는 플랫폼과 다릅니다. 코디는 공사가 끝나도 남습니다.</span>
-      </div>
-    </div>'''
+          PROMISE_BOX = '\n\n    <div style="max-width:680px;margin:28px auto 0;padding:20px 22px;background:#f6f8f6;border:1px solid #d8e2d8;border-radius:14px;text-align:center;"><div style="font-size:11px;letter-spacing:0.22em;color:#1a472a;font-weight:700;margin-bottom:8px;">JIPJINI PROMISE</div><div style="font-size:18px;font-weight:800;color:#1a472a;line-height:1.5;">집지니 하자 조율 약속</div><div style="font-size:14px;color:#444;line-height:1.7;margin-top:8px;">시공 하자의 <strong>책임</strong>은 시공한 기술자·자재상이 직접 집니다 (직거래 원칙).<br>그리고 그 <strong>해결 과정</strong>은 — 집지니 코디가 접수부터 재시공 마무리까지 <strong>끝까지 무상으로 조율</strong>합니다.<br><span style="color:#1a472a;font-weight:700;">연결만 하고 사라지는 플랫폼과 다릅니다. 코디는 공사가 끝나도 남습니다.</span></div></div>'
 
           # 1) index.html
           patch('index.html', [
               ('<div class="concept-role-who">현장 관리(PM)</div>',
-               '<div class="concept-role-who">현장 관리 (원래 건축주 몸)</div>'),
-              ('<div class="concept-role-who">PM 파견 <span class="concept-opt-tag">선택</span></div>\n        <div class="concept-role-what">현장 관리가 어려우시면, 그때 집지니가 PM을 파견해 대신 챙겨드립니다.</div>',
-               '<div class="concept-role-who">관리대리인 선임 <span class="concept-opt-tag">선택</span></div>\n        <div class="concept-role-what">현장 관리가 어려우시면, 당신을 대리해 현장을 관리할 <strong>관리대리인(집지니 PM)</strong>을 선임하세요. 시공은 각 기술자가, 관리는 대리인이 맡습니다.</div>'),
+               '<div class="concept-role-who">현장 관리 (원래 건축주 몫)</div>'),
+              ('<div class="concept-role-what">현장 관리가 어려우시면, 그때 집지니가 PM을 파견해 대신 챙겨드립니다.</div>',
+               '<div class="concept-role-what">현장 관리가 어려우시면, 당신을 대리해 현장을 관리할 <strong>관리대리인(집지니 PM)</strong>을 선임하세요. 시공은 각 기술자가, 관리는 대리인이 맡습니다.</div>'),
+              ('<div class="concept-role-who">PM 파견 <span class="concept-opt-tag">선택</span></div>',
+               '<div class="concept-role-who">관리대리인 선임 <span class="concept-opt-tag">선택</span></div>'),
               ('<div class="tier-point pro"><i class="ti ti-plus"></i><span>자재 옵션 자유 선택 (스드메처럼)</span></div>',
                '<div class="tier-point pro"><i class="ti ti-plus"></i><span>자재 옵션 자유 선택 (스드메처럼)</span></div>\n        <div class="tier-point pro"><i class="ti ti-plus"></i><span><strong>하자 조율 약속</strong> — 책임은 기술자가, 조율은 코디가 끝까지</span></div>'),
           ])
@@ -62,14 +54,14 @@ jobs:
 
           # 2) pricing.html
           patch('pricing.html', [
-              ('<strong style="color: var(--jp-dark); font-weight: 500;">SERVICE #2 · PM 파견 (선택)</strong>',
-               '<strong style="color: var(--jp-dark); font-weight: 500;">SERVICE #2 · 관리대리인 선임 — 집지니 PM (선택)</strong>'),
-              ('PM은 <strong>현장 책임 관리(공정 조율·진행 보고·이슈 발견)</strong>을 담당합니다. 직접 수리가 아닌 발견·조율·보고가 역할이며, 자재·시공 하자의 보증은 자재상·기술자에게 있습니다.',
+              ('SERVICE #2 · PM 파견 (선택)</strong>',
+               'SERVICE #2 · 관리대리인 선임 — 집지니 PM (선택)</strong>'),
+              ('PM은 <strong>현장 책임 관리(공정 조율·진행 보고·이슈 발견)</strong>를 담당합니다. 직접 수리가 아닌 발견·조율·보고가 역할이며, 자재·시공 하자의 보증은 자재상·기술자에게 있습니다.',
                'PM 방식은 <strong>관리대리인 선임계약</strong>입니다 — 집지니 PM은 건축주를 대리해 현장을 관리(공정 조율·진행 보고·이슈 발견)하는 관리대리인이며, 시공자가 아닙니다. 자재·시공 하자의 책임은 자재상·기술자에게 있고, 그 해결 조율은 코디가 끝까지 무상 지원합니다 (하자 조율 약속).'),
               ('* PM 파견만 원하시는 분은 별도 연락 부탁드립니다.',
                '* 관리대리인(PM) 선임만 원하시는 분은 별도 연락 부탁드립니다.'),
-              ('<div class="sec-head"><p class="eyebrow">AFTER-SERVICE</p><h2>입주 후 12개월 A/S</h2><p>솔직하게 공개합니다. <span class="emph">무료와 유료의 경계</span>를 분명히.</p></div>',
-               '<div class="sec-head"><p class="eyebrow">JIPJINI PROMISE</p><h2>집지니 하자 조율 약속<br><span style="font-size:0.65em;font-weight:500;color:#666;">책임은 기술자가, 조율은 코디가 — 끝까지, 무상으로</span></h2><p>입주 후 12개월 집중 지원 + 이후에도 조율은 계속됩니다. <span class="emph">무료와 유료의 경계</span>도 솔직하게 공개합니다.</p></div>'),
+              ('<p class="eyebrow">AFTER-SERVICE</p><h2>입주 후 12개월 A/S</h2><p>솔직하게 공개합니다. <span class="emph">무료와 유료의 경계</span>를 분명히.</p>',
+               '<p class="eyebrow">JIPJINI PROMISE</p><h2>집지니 하자 조율 약속<br><span style="font-size:0.65em;font-weight:500;color:#666;">책임은 기술자가, 조율은 코디가 — 끝까지, 무상으로</span></h2><p>입주 후 12개월 집중 지원 + 이후에도 조율은 계속됩니다. <span class="emph">무료와 유료의 경계</span>도 솔직하게 공개합니다.</p>'),
           ])
 
           # 3) workflow.html
