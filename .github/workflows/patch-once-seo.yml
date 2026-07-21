@@ -14,6 +14,6 @@ jobs:
       - run: |
           git config user.name "jipjini-bot"
           git config user.email "thecloudstay@gmail.com"
-          git add index.html
-          git commit -m "seo: index title/description 네이버 40/80자 기준 최적화 [skip ci]" || echo "no changes"
+          git add -A
+          git commit -m "site: A안 일괄 패치 — 반셀프 어휘·숫자 통일·request.html 링크·FAQ 스키마 [skip ci]" || echo "no changes"
           git push
