@@ -3,10 +3,26 @@
 <channel>
   <title>집지니 · Direct Coordi — 인테리어 가이드</title>
   <link>https://jipjini.com/</link>
-  <description>중간 마진 0원 인테리어 코디네이팅. 견적·비용·직영 시공 가이드를 공개합니다.</description>
+  <description>중간 마진 0원 반셀프 인테리어 코디. 견적·비용·직영 시공 가이드를 공개합니다.</description>
   <language>ko</language>
-  <lastBuildDate>Mon, 20 Jul 2026 09:00:00 +0900</lastBuildDate>
+  <lastBuildDate>Tue, 21 Jul 2026 22:00:00 +0900</lastBuildDate>
   <atom:link href="https://jipjini.com/rss.xml" rel="self" type="application/rss+xml"/>
+
+  <item>
+    <title>반셀프 인테리어, 혼자 하지 마세요 — 코디가 옆에 붙습니다</title>
+    <link>https://jipjini.com/banself-interior.html</link>
+    <guid>https://jipjini.com/banself-interior.html</guid>
+    <pubDate>Tue, 21 Jul 2026 21:00:00 +0900</pubDate>
+    <description>반셀프 인테리어가 어렵다면 코디를 붙이세요. 자재상·기술자 매칭, 단가 검증, 공정 순서까지 집지니가 대신 잡아드립니다. 마진 0원, 코디비 정찰제.</description>
+  </item>
+
+  <item>
+    <title>김포 인테리어·아파트 올수리 — 마진 0 코디</title>
+    <link>https://jipjini.com/gimpo-interior.html</link>
+    <guid>https://jipjini.com/gimpo-interior.html</guid>
+    <pubDate>Tue, 21 Jul 2026 21:30:00 +0900</pubDate>
+    <description>김포 구축 아파트 올수리·부분 리모델링을 중간 마진 없이. 한강신도시·풍무·사우·장기 등 김포 전역, 자재상·기술자 직거래 코디. 무료 가안 5분.</description>
+  </item>
 
   <item>
     <title>32평 아파트 올수리 비용 (2026) — 방식별 비교</title>
