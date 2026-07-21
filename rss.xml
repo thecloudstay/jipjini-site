@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+<channel>
+  <title>집지니 · Direct Coordi — 인테리어 가이드</title>
+  <link>https://jipjini.com/</link>
+  <description>중간 마진 0원 인테리어 코디네이팅. 견적·비용·직영 시공 가이드를 공개합니다.</description>
+  <language>ko</language>
+  <lastBuildDate>Mon, 20 Jul 2026 09:00:00 +0900</lastBuildDate>
+  <atom:link href="https://jipjini.com/rss.xml" rel="self" type="application/rss+xml"/>
+
+  <item>
+    <title>32평 아파트 올수리 비용 (2026) — 방식별 비교</title>
+    <link>https://jipjini.com/apt-olsuri-cost.html</link>
+    <guid>https://jipjini.com/apt-olsuri-cost.html</guid>
+    <pubDate>Mon, 20 Jul 2026 09:00:00 +0900</pubDate>
+    <description>32평 아파트 전체 인테리어(올수리) 비용을 턴키·코디·직영 방식별로 비교. 공정별 비용 구성과 절약 포인트, 자재 등급에 따른 차이까지 정리했습니다.</description>
+  </item>
+
+  <item>
+    <title>욕실 리모델링 비용 총정리 (2026) — 화장실 공사 가격</title>
+    <link>https://jipjini.com/bathroom-remodel-cost.html</link>
+    <guid>https://jipjini.com/bathroom-remodel-cost.html</guid>
+    <pubDate>Mon, 20 Jul 2026 09:10:00 +0900</pubDate>
+    <description>욕실(화장실) 리모델링 비용을 항목별로 정리. 전체 교체·부분 수리별 가격, 자재 등급 차이, 비용을 줄이는 방법과 주의할 점까지 안내합니다.</description>
+  </item>
+
+  <item>
+    <title>인테리어 견적 30% 마진의 진실 — 견적서에 숨은 돈</title>
+    <link>https://jipjini.com/interior-margin-30.html</link>
+    <guid>https://jipjini.com/interior-margin-30.html</guid>
+    <pubDate>Mon, 20 Jul 2026 09:20:00 +0900</pubDate>
+    <description>인테리어 견적서의 약 30%는 업체 중간 마진입니다. 자재비·인건비 원가 구조를 뜯어보고, 마진을 없애 같은 시공을 20~30% 싸게 하는 방법을 정리했습니다.</description>
+  </item>
+
+  <item>
+    <title>직영 인테리어 하는 법 — 셀프로 마진 30% 아끼기 (2026)</title>
+    <link>https://jipjini.com/jikyoung-interior.html</link>
+    <guid>https://jipjini.com/jikyoung-interior.html</guid>
+    <pubDate>Mon, 20 Jul 2026 09:30:00 +0900</pubDate>
+    <description>직영(셀프) 인테리어로 중간 마진 30%를 아끼는 방법. 공정 순서, 자재 조달, 기술자 섭외, 현장 관리까지 단계별 가이드와 직영이 유리한 경우·불리한 경우를 정리했습니다.</description>
+  </item>
+
+  <item>
+    <title>인테리어 견적서 보는 법 &amp; 비교 요령 — 바가지 피하기</title>
+    <link>https://jipjini.com/interior-estimate-compare.html</link>
+    <guid>https://jipjini.com/interior-estimate-compare.html</guid>
+    <pubDate>Mon, 20 Jul 2026 09:40:00 +0900</pubDate>
+    <description>인테리어 견적서를 제대로 읽고 비교하는 법. 일식 견적의 함정, 반드시 확인할 항목, 여러 업체 견적 비교 체크리스트로 바가지를 피하는 방법을 정리했습니다.</description>
+  </item>
+
+  <item>
+    <title>인천·강화·김포 인테리어 — 마진 0 코디네이팅</title>
+    <link>https://jipjini.com/incheon-interior.html</link>
+    <guid>https://jipjini.com/incheon-interior.html</guid>
+    <pubDate>Mon, 20 Jul 2026 09:50:00 +0900</pubDate>
+    <description>인천·강화·김포 지역 인테리어를 중간 마진 없이. 집지니는 강화 기반 다이렉트 코디로 자재상·기술자와 직거래를 연결합니다. 무료 가안으로 시작하세요.</description>
+  </item>
+
+</channel>
+</rss>
