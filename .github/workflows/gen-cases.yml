@@ -1,0 +1,24 @@
+name: gen-cases
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'gen_cases_deploy.py'
+permissions:
+  contents: write
+jobs:
+  gen:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: generate cases
+        env:
+          JIPJINI_DEPLOY: "1"
+        run: python3 gen_cases_deploy.py
+      - name: commit
+        run: |
+          git config user.name "jipjini-bot"
+          git config user.email "thecloudstay@gmail.com"
+          git add cases sitemap.xml
+          git commit -m "cases: 견적 사례 페이지 자동 생성/갱신 [skip ci]" || echo "no changes"
+          git push
