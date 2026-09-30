@@ -39,13 +39,20 @@ export default async (request) => {
   const timer = setTimeout(() => controller.abort(), 4300);
   const t0 = Date.now();
   try {
-    const r = await fetch(GAS_URL, {
+    // 앱스 스크립트는 POST 결과를 302(script.googleusercontent.com)로 넘긴다. 자동 따라가기(follow)는 엣지에서 4초 넘게 걸려
+    // (진단 결과: 수동 2단계 = 약 3.3초, 자동 = 시간 초과) 직접 두 단계로 처리한다.
+    const r1 = await fetch(GAS_URL, {
       method: "POST",
       headers: { "content-type": "application/json" },
       body,
-      redirect: "follow",
+      redirect: "manual",
       signal: controller.signal
     });
+    let r = r1;
+    const loc = r1.headers.get("location");
+    if (loc && r1.status >= 300 && r1.status < 400) {
+      r = await fetch(loc, { redirect: "follow", signal: controller.signal });
+    }
     const text = await r.text();
     try {
       const data = JSON.parse(text);
