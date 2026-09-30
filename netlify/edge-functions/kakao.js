@@ -17,6 +17,18 @@ const json = (obj, extra) =>
 
 export default async (request) => {
   if (request.method === "GET") {
+    const u = new URL(request.url);
+    if (u.searchParams.get("probe") === "1") {  // 진단: 엣지 → 앱스 스크립트 왕복 시간 측정 (응답 본문은 버림)
+      const t0 = Date.now(); const steps = [];
+      try {
+        const r1 = await fetch(GAS_URL, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ userRequest: { utterance: "[진단] ping", user: { id: "EDGE_PROBE" } } }), redirect: "manual" });
+        steps.push(["post", r1.status, Date.now() - t0, (r1.headers.get("location") || "").slice(0, 40)]);
+        const loc = r1.headers.get("location");
+        if (loc) { const t1 = Date.now(); const r2 = await fetch(loc, { redirect: "follow" }); const tx = await r2.text(); steps.push(["redirect-get", r2.status, Date.now() - t1, tx.slice(0, 40)]); }
+        else { const tx = await r1.text(); steps.push(["body", tx.slice(0, 40)]); }
+      } catch (e) { steps.push(["error", String(e && e.message)]); }
+      return json({ ok: true, totalMs: Date.now() - t0, steps }, { "x-relay": "edge-probe" });
+    }
     return new Response("ok", { status: 200, headers: { "content-type": "text/plain; charset=utf-8", "x-relay": "edge" } });
   }
   if (request.method !== "POST") {
