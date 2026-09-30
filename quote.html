@@ -58,7 +58,7 @@ summary::after{content:'＋';color:var(--gray)}details[open] summary::after{cont
   function fail(){app.innerHTML='<div class="err">견적서를 찾을 수 없습니다.<br>링크가 정확한지 확인해 주시거나<br>카카오톡 채널 <b>@집지니</b>로 문의해 주세요.<a class="cta" href="https://pf.kakao.com/_NjpxhC/chat">카톡 상담하기</a></div>'}
   if(!id){fail();return}
   // 실시간 데이터: 코디 콘솔 시트에서 바로 읽는 조회 웹앱 (「집지니 카톡봇」 프로젝트 quote_api.gs). 비어 있으면 사이트 JSON만 사용.
-  var QUOTE_API='';
+  var QUOTE_API='https://script.google.com/macros/s/AKfycbyTMw196qwKBmpz_TA3erW4OcBsmRFWTYioecO5evjq4poPOEXpyqkSKZZ91eTHWUI-/exec'; // 집지니 카톡봇 웹앱 ?q=토큰 (2026-10-01)
   function getStatic(){return fetch('/q/'+id+'.json',{cache:'no-store'}).then(function(r){if(!r.ok)throw 0;return r.json()})}
   function getLive(){if(!QUOTE_API)return Promise.resolve(null);return fetch(QUOTE_API+'?q='+encodeURIComponent(id),{redirect:'follow'}).then(function(r){return r.json()}).then(function(j){return j&&j.ok?j:null}).catch(function(){return null})}
   Promise.all([getStatic().catch(function(){return null}),getLive()]).then(function(res){
