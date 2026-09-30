@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="robots" content="noindex, nofollow">
-<title>집지니 · 상세 견적서</title>
+<title>집지니 · 견적서</title>
 <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
 <link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@700;800&display=swap" rel="stylesheet">
 <style>
@@ -12,23 +12,33 @@
 --serif:'Nanum Myeongjo',serif;--sans:'Pretendard','Apple SD Gothic Neo',sans-serif}
 *{margin:0;padding:0;box-sizing:border-box}
 body{background:var(--oat-soft);font-family:var(--sans);color:var(--charcoal);-webkit-font-smoothing:antialiased;letter-spacing:-.2px}
-.wrap{max-width:640px;margin:0 auto;padding:36px 16px 72px}
+.wrap{max-width:720px;margin:0 auto;padding:32px 16px 72px}
 .brand{font-family:var(--serif);font-weight:800;font-size:15px;color:var(--clay);letter-spacing:2px}
 h1{font-family:var(--serif);font-weight:800;font-size:26px;line-height:1.4;margin:10px 0 6px}
 .meta{font-size:13px;color:var(--gray);line-height:1.7}
-.card{background:var(--white);border:1px solid var(--line);border-radius:14px;padding:20px 18px;margin-top:16px}
-.card h2{font-family:var(--serif);font-size:16px;margin-bottom:12px}
-.kv{display:flex;justify-content:space-between;gap:12px;padding:7px 0;font-size:14.5px;border-bottom:1px dashed var(--line)}
-.kv:last-child{border-bottom:none}.kv span:first-child{color:var(--gray)}.kv b{font-weight:700;text-align:right}
-.total{background:var(--charcoal);color:var(--oat-soft);border-radius:14px;padding:20px 18px;margin-top:16px}
-.total .kv{border-color:#555}.total .kv span:first-child{color:#cfc9bb}.total .big{font-family:var(--serif);font-size:24px}
+.card{background:var(--white);border:1px solid var(--line);border-radius:14px;padding:18px 16px;margin-top:14px}
+.card h2{font-family:var(--serif);font-size:16px;margin-bottom:10px}
+.kv{display:flex;justify-content:space-between;gap:12px;padding:7px 0;font-size:14px;border-bottom:1px dashed var(--line)}
+.kv:last-child{border-bottom:none}.kv span:first-child{color:var(--gray)}.kv b{font-weight:600;text-align:right}
+.total{background:var(--charcoal);color:var(--oat-soft);border-radius:14px;padding:18px 16px;margin-top:16px}
+.total .kv{border-color:#555}.total .kv span:first-child{color:#cfc9bb}.total .big{font-family:var(--serif);font-size:23px}
 details{border-bottom:1px solid var(--line)}details:last-child{border-bottom:none}
-summary{list-style:none;cursor:pointer;display:flex;justify-content:space-between;padding:12px 0;font-weight:600;font-size:15px}
-summary::-webkit-details-marker{display:none}summary span:last-child{margin-left:auto}summary::after{content:'＋';color:var(--gray);margin-left:8px}
-details[open] summary::after{content:'－'}
-.item{display:flex;justify-content:space-between;gap:12px;font-size:13.5px;color:var(--gray);padding:5px 0 5px 8px}
-.item b{color:var(--charcoal);font-weight:500;white-space:nowrap}
-.note{background:var(--oat);border-radius:12px;padding:14px 16px;margin-top:16px;font-size:13.5px;line-height:1.75}
+summary{list-style:none;cursor:pointer;display:flex;gap:8px;padding:12px 0;font-weight:600;font-size:15px}
+summary::-webkit-details-marker{display:none}summary span:last-child{margin-left:auto}
+summary::after{content:'＋';color:var(--gray)}details[open] summary::after{content:'－'}
+.tbl{width:100%;border-collapse:collapse;font-size:12.5px;margin:4px 0 10px}
+.tbl th{background:var(--oat);font-weight:600;padding:6px 4px;text-align:left;color:var(--gray)}
+.tbl td{padding:6px 4px;border-bottom:1px solid var(--line);vertical-align:top}
+.tbl .r{text-align:right;white-space:nowrap}.tbl .sp{display:block;color:var(--gray);font-size:11.5px}
+.tabs{display:flex;gap:6px;margin-top:16px;position:sticky;top:0;background:var(--oat-soft);padding:8px 0;z-index:5}
+.tab{flex:1;text-align:center;padding:10px 0;border:1px solid var(--line);border-radius:10px;font-size:14px;font-weight:600;color:var(--gray);background:#fff;cursor:pointer}
+.tab.on{background:var(--charcoal);color:var(--oat-soft);border-color:var(--charcoal)}
+.pane{display:none}.pane.on{display:block}
+.ph{display:flex;gap:12px;padding:12px 0;border-bottom:1px dashed var(--line)}.ph:last-child{border-bottom:none}
+.ph .d{min-width:96px;font-size:12.5px;color:var(--clay);font-weight:600;line-height:1.5}
+.ph b{display:block;font-size:14.5px}.ph span{font-size:13px;color:var(--gray)}
+.bar{height:8px;background:var(--oat);border-radius:4px;margin-top:10px;overflow:hidden}.bar i{display:block;height:100%;background:var(--clay)}
+.note{background:var(--oat);border-radius:12px;padding:14px 16px;margin-top:14px;font-size:13.5px;line-height:1.75}
 .note li{margin-left:18px}
 .cta{display:block;text-align:center;margin-top:18px;background:var(--clay);color:#fff;text-decoration:none;font-weight:700;padding:16px;border-radius:12px;font-size:16px}
 .foot{font-size:12px;color:var(--gray);text-align:center;margin-top:28px;line-height:1.8}
@@ -42,27 +52,57 @@ details[open] summary::after{content:'－'}
   var app=document.getElementById('app');
   var id=(new URLSearchParams(location.search).get('id')||'').replace(/[^A-Za-z0-9_-]/g,'');
   function won(n){return Math.round(n).toLocaleString('ko-KR')+'원'}
-  function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+  function num(n){return (Math.round(n*100)/100).toLocaleString('ko-KR')}
+  function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+  function md(d){var p=d.split('-');return (+p[1])+'월 '+(+p[2])+'일'}
   function fail(){app.innerHTML='<div class="err">견적서를 찾을 수 없습니다.<br>링크가 정확한지 확인해 주시거나<br>카카오톡 채널 <b>@집지니</b>로 문의해 주세요.<a class="cta" href="https://pf.kakao.com/_NjpxhC/chat">카톡 상담하기</a></div>'}
   if(!id){fail();return}
   fetch('/q/'+id+'.json',{cache:'no-store'}).then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(d){
-    var t=0,groups='';
-    d.lines.forEach(function(g){var s=0,items='';g.items.forEach(function(it){s+=it[1];items+='<div class="item"><span>'+esc(it[0])+'</span><b>'+won(it[1])+'</b></div>'});t+=s;
-      groups+='<details><summary><span>'+esc(g.trade)+'</span><span>'+won(s)+'</span></summary>'+items+'</details>'});
-    var codi=Math.round(t*d.codiRate),pm=d.pm||0;
-    var h='<div class="brand">JIPJINI · 집지니</div><h1>'+esc(d.name)+' 고객님 상세 견적서</h1>'+
-      '<div class="meta">'+esc(d.site)+'<br>'+esc(d.spec)+'<br>견적일 '+esc(d.date)+(d.revision?' · '+esc(d.revision):'')+'</div>'+
-      '<div class="card"><h2>공종별 내역</h2>'+groups+'</div>'+
-      '<div class="total"><div class="kv"><span>시공비 (자재+인건비, 마진 0%)</span><b>'+won(t)+'</b></div>'+
-      '<div class="kv"><span>코디 운영비 ('+(d.codiRate*100).toFixed(1).replace('.0','')+'%)</span><b>'+won(codi)+'</b></div>'+
-      (pm?'<div class="kv"><span>현장관리 비용 (선택)</span><b>'+won(pm)+'</b></div>':'')+
+    var t=d.total,codi=d.codi,pm=d.pm||0;
+    var sum='<div class="total"><div class="kv"><span>시공비 (자재+인건비, 마진 0%)</span><b>'+won(t)+'</b></div>'+
+      '<div class="kv"><span>코디 운영비 ('+(d.codiRate*100).toFixed(1).replace('.0','')+'%, 정찰제)</span><b>'+won(codi)+'</b></div>'+
+      (pm?'<div class="kv"><span>현장관리(PM) 비용 (선택)</span><b>'+won(pm)+'</b></div>':'')+
       '<div class="kv"><span>예상 합계 (부가세 별도)</span><b class="big">'+won(t+codi+pm)+'</b></div>'+
       (pm?'<div class="kv"><span>현장관리 미선택 시</span><b>'+won(t+codi)+'</b></div>':'')+'</div>';
-    if(d.notes&&d.notes.length){h+='<div class="note"><b>확인해 주세요</b><ul>'+d.notes.map(function(n){return'<li>'+esc(n)+'</li>'}).join('')+'</ul></div>'}
-    h+='<div class="note">시공비는 자재상·기술자분께 직접 결제하시며, 집지니는 코디 운영비만 받습니다. 금액은 예상 견적이며 현장 실측 후 확정됩니다. 조명기구·가전은 고객님이 직접 고르시는 품목입니다.</div>'+
+    var gap='<div class="card"><h2>견적서 갑지 · 공종별 총괄표</h2><table class="tbl"><tr><th>공종</th><th class="r">항목</th><th class="r">금액</th><th class="r">비중</th></tr>';
+    d.sections.forEach(function(s){gap+='<tr><td>'+esc(s.trade)+'</td><td class="r">'+s.lines.length+'</td><td class="r">'+won(s.subtotal)+'</td><td class="r">'+(s.subtotal/t*100).toFixed(1)+'%</td></tr>'});
+    gap+='<tr><td><b>시공 총액</b></td><td></td><td class="r"><b>'+won(t)+'</b></td><td class="r">100%</td></tr></table></div>';
+    var spec='<div class="card"><h2>견적서 명세 · 공종별 세부</h2>';
+    d.sections.forEach(function(s){
+      spec+='<details><summary><span>'+esc(s.trade)+'</span><span>'+won(s.subtotal)+'</span></summary><table class="tbl"><tr><th>품목 · 규격</th><th class="r">수량</th><th class="r">단가</th><th class="r">금액</th></tr>';
+      s.lines.forEach(function(l){spec+='<tr><td>'+esc(l.item)+(l.spec?'<span class="sp">'+esc(l.spec)+'</span>':'')+'</td><td class="r">'+num(l.qty)+' '+esc(l.unit)+'</td><td class="r">'+(l.price?l.price.toLocaleString('ko-KR'):'실측 후')+'</td><td class="r">'+(l.amount?l.amount.toLocaleString('ko-KR'):'-')+'</td></tr>'});
+      spec+='</table></details>'});
+    spec+='</div>';
+    var sch='';
+    if(d.schedule&&d.schedule.length){
+      var f=d.schedule[0].start,l=d.schedule[d.schedule.length-1].end,days=Math.round((new Date(l)-new Date(f))/864e5)+1;
+      var pct=Math.max(0,Math.min(100,Math.round((new Date()-new Date(f))/(new Date(l)-new Date(f)+864e5)*100)));
+      sch='<div class="card"><h2>시공 공정표 · 총 '+days+'일</h2><div class="meta">'+md(f)+' 시작 → '+md(l)+' 완공 예정</div><div class="bar"><i style="width:'+pct+'%"></i></div>';
+      d.schedule.forEach(function(p){sch+='<div class="ph"><div class="d">'+md(p.start)+(p.start!==p.end?' ~ '+md(p.end):'')+'<br>'+p.days+'일</div><div><b>'+esc(p.phase)+'</b><span>'+esc(p.trades)+'</span></div></div>'});
+      sch+='<div class="meta" style="margin-top:10px">공정표는 현장 여건·자재 입고에 따라 조정될 수 있습니다.</div></div>';
+      if(d.techs&&d.techs.length){sch+='<div class="card"><h2>담당 기술자·자재상</h2>';d.techs.forEach(function(x){sch+='<div class="kv"><span>'+esc(x.trade)+'</span><b>'+esc(x.name)+(x.phone?' · <a href="tel:'+esc(x.phone)+'">'+esc(x.phone)+'</a>':'')+'</b></div>'});sch+='</div>'}
+      else{sch+='<div class="note">담당 기술자·자재상 연락처는 계약 후 이 화면에서 공정별로 안내해 드립니다.</div>'}
+    }
+    var info='';
+    if(d.notes&&d.notes.length){info+='<div class="note"><b>확인해 주세요</b><ul>'+d.notes.map(function(n){return'<li>'+esc(n)+'</li>'}).join('')+'</ul></div>'}
+    if(d.buy&&d.buy.length){info+='<div class="note"><b>고객님이 직접 고르시는 품목</b> (시공·설치비만 견적 포함)<ul>'+d.buy.map(function(n){return'<li>'+esc(n)+'</li>'}).join('')+'</ul></div>'}
+    info+='<div class="card"><h2>결제 · 책임 구분</h2>'+
+      '<div class="kv"><span>자재비·인건비</span><b>자재상·기술자에게 직접 결제</b></div>'+
+      '<div class="kv"><span>코디 운영비 (필수)</span><b>시공 전 선불 · 미진행 시 전액 환불</b></div>'+
+      '<div class="kv"><span>현장관리비 (선택)</span><b>작업 전 전액 환불 · 진행분 차감</b></div>'+
+      '<div class="kv"><span>시공 하자 책임</span><b>시공한 기술자·자재상</b></div>'+
+      '<div class="kv"><span>하자 조율</span><b>집지니 코디가 끝까지 무상 지원</b></div></div>';
+    var h='<div class="brand">JIPJINI · 집지니</div><h1>'+esc(d.name)+' 고객님 견적서</h1>'+
+      '<div class="meta">'+esc(d.site)+'<br>'+esc(d.spec)+(d.scope?'<br>공사 범위: '+esc(d.scope):'')+'<br>견적일 '+esc(d.date)+(d.quoteId?' · '+esc(d.quoteId):'')+(d.revision?' · '+esc(d.revision):'')+'</div>'+
+      sum+'<div class="tabs"><div class="tab on" data-p="q">견적서</div>'+(sch?'<div class="tab" data-p="s">공정표</div>':'')+'<div class="tab" data-p="i">안내</div></div>'+
+      '<div class="pane on" id="p-q">'+gap+spec+'</div>'+(sch?'<div class="pane" id="p-s">'+sch+'</div>':'')+'<div class="pane" id="p-i">'+info+'</div>'+
       '<a class="cta" href="https://pf.kakao.com/_NjpxhC/chat">카톡으로 상담하기</a>'+
-      '<div class="foot">집지니 · 박찬영 · 사업자번호 874-10-00088<br>인천 강화군 강화읍 동문로 33 · 카카오톡 @집지니</div>';
+      '<div class="foot">집지니 · 박찬영 · 사업자번호 874-10-00088<br>인천 강화군 강화읍 동문로 33 · 카카오톡 @집지니<br>금액은 예상 견적이며 현장 실측 후 확정됩니다.</div>';
     app.innerHTML=h;document.title='집지니 · '+d.name+' 고객님 견적서';
+    [].forEach.call(document.querySelectorAll('.tab'),function(b){b.onclick=function(){
+      [].forEach.call(document.querySelectorAll('.tab'),function(x){x.classList.remove('on')});
+      [].forEach.call(document.querySelectorAll('.pane'),function(x){x.classList.remove('on')});
+      b.classList.add('on');document.getElementById('p-'+b.dataset.p).classList.add('on');window.scrollTo(0,0)}});
   }).catch(fail);
 })();
 </script>
