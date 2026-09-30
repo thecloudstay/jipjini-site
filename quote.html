@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>집지니 · 상세 견적서</title>
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
+<link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@700;800&display=swap" rel="stylesheet">
+<style>
+:root{--charcoal:#2A2A2A;--gray:#6B6B6B;--line:#E2DCCD;--oat:#F5F1E8;--oat-soft:#FBF8F1;--clay:#9a5a4a;--white:#fff;
+--serif:'Nanum Myeongjo',serif;--sans:'Pretendard','Apple SD Gothic Neo',sans-serif}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--oat-soft);font-family:var(--sans);color:var(--charcoal);-webkit-font-smoothing:antialiased;letter-spacing:-.2px}
+.wrap{max-width:640px;margin:0 auto;padding:36px 16px 72px}
+.brand{font-family:var(--serif);font-weight:800;font-size:15px;color:var(--clay);letter-spacing:2px}
+h1{font-family:var(--serif);font-weight:800;font-size:26px;line-height:1.4;margin:10px 0 6px}
+.meta{font-size:13px;color:var(--gray);line-height:1.7}
+.card{background:var(--white);border:1px solid var(--line);border-radius:14px;padding:20px 18px;margin-top:16px}
+.card h2{font-family:var(--serif);font-size:16px;margin-bottom:12px}
+.kv{display:flex;justify-content:space-between;gap:12px;padding:7px 0;font-size:14.5px;border-bottom:1px dashed var(--line)}
+.kv:last-child{border-bottom:none}.kv span:first-child{color:var(--gray)}.kv b{font-weight:700;text-align:right}
+.total{background:var(--charcoal);color:var(--oat-soft);border-radius:14px;padding:20px 18px;margin-top:16px}
+.total .kv{border-color:#555}.total .kv span:first-child{color:#cfc9bb}.total .big{font-family:var(--serif);font-size:24px}
+details{border-bottom:1px solid var(--line)}details:last-child{border-bottom:none}
+summary{list-style:none;cursor:pointer;display:flex;justify-content:space-between;padding:12px 0;font-weight:600;font-size:15px}
+summary::-webkit-details-marker{display:none}summary span:last-child{margin-left:auto}summary::after{content:'＋';color:var(--gray);margin-left:8px}
+details[open] summary::after{content:'－'}
+.item{display:flex;justify-content:space-between;gap:12px;font-size:13.5px;color:var(--gray);padding:5px 0 5px 8px}
+.item b{color:var(--charcoal);font-weight:500;white-space:nowrap}
+.note{background:var(--oat);border-radius:12px;padding:14px 16px;margin-top:16px;font-size:13.5px;line-height:1.75}
+.note li{margin-left:18px}
+.cta{display:block;text-align:center;margin-top:18px;background:var(--clay);color:#fff;text-decoration:none;font-weight:700;padding:16px;border-radius:12px;font-size:16px}
+.foot{font-size:12px;color:var(--gray);text-align:center;margin-top:28px;line-height:1.8}
+.err{text-align:center;padding:80px 0;color:var(--gray);line-height:1.9}
+</style>
+</head>
+<body>
+<div class="wrap" id="app"><div class="err">견적서를 불러오는 중입니다…</div></div>
+<script>
+(function(){
+  var app=document.getElementById('app');
+  var id=(new URLSearchParams(location.search).get('id')||'').replace(/[^A-Za-z0-9_-]/g,'');
+  function won(n){return Math.round(n).toLocaleString('ko-KR')+'원'}
+  function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+  function fail(){app.innerHTML='<div class="err">견적서를 찾을 수 없습니다.<br>링크가 정확한지 확인해 주시거나<br>카카오톡 채널 <b>@집지니</b>로 문의해 주세요.<a class="cta" href="https://pf.kakao.com/_NjpxhC/chat">카톡 상담하기</a></div>'}
+  if(!id){fail();return}
+  fetch('/q/'+id+'.json',{cache:'no-store'}).then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(d){
+    var t=0,groups='';
+    d.lines.forEach(function(g){var s=0,items='';g.items.forEach(function(it){s+=it[1];items+='<div class="item"><span>'+esc(it[0])+'</span><b>'+won(it[1])+'</b></div>'});t+=s;
+      groups+='<details><summary><span>'+esc(g.trade)+'</span><span>'+won(s)+'</span></summary>'+items+'</details>'});
+    var codi=Math.round(t*d.codiRate),pm=d.pm||0;
+    var h='<div class="brand">JIPJINI · 집지니</div><h1>'+esc(d.name)+' 고객님 상세 견적서</h1>'+
+      '<div class="meta">'+esc(d.site)+'<br>'+esc(d.spec)+'<br>견적일 '+esc(d.date)+(d.revision?' · '+esc(d.revision):'')+'</div>'+
+      '<div class="card"><h2>공종별 내역</h2>'+groups+'</div>'+
+      '<div class="total"><div class="kv"><span>시공비 (자재+인건비, 마진 0%)</span><b>'+won(t)+'</b></div>'+
+      '<div class="kv"><span>코디 운영비 ('+(d.codiRate*100).toFixed(1).replace('.0','')+'%)</span><b>'+won(codi)+'</b></div>'+
+      (pm?'<div class="kv"><span>현장관리 비용 (선택)</span><b>'+won(pm)+'</b></div>':'')+
+      '<div class="kv"><span>예상 합계 (부가세 별도)</span><b class="big">'+won(t+codi+pm)+'</b></div>'+
+      (pm?'<div class="kv"><span>현장관리 미선택 시</span><b>'+won(t+codi)+'</b></div>':'')+'</div>';
+    if(d.notes&&d.notes.length){h+='<div class="note"><b>확인해 주세요</b><ul>'+d.notes.map(function(n){return'<li>'+esc(n)+'</li>'}).join('')+'</ul></div>'}
+    h+='<div class="note">시공비는 자재상·기술자분께 직접 결제하시며, 집지니는 코디 운영비만 받습니다. 금액은 예상 견적이며 현장 실측 후 확정됩니다. 조명기구·가전은 고객님이 직접 고르시는 품목입니다.</div>'+
+      '<a class="cta" href="https://pf.kakao.com/_NjpxhC/chat">카톡으로 상담하기</a>'+
+      '<div class="foot">집지니 · 박찬영 · 사업자번호 874-10-00088<br>인천 강화군 강화읍 동문로 33 · 카카오톡 @집지니</div>';
+    app.innerHTML=h;document.title='집지니 · '+d.name+' 고객님 견적서';
+  }).catch(fail);
+})();
+</script>
+</body>
+</html>
