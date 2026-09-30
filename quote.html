@@ -57,13 +57,24 @@ summary::after{content:'＋';color:var(--gray)}details[open] summary::after{cont
   function md(d){var p=d.split('-');return (+p[1])+'월 '+(+p[2])+'일'}
   function fail(){app.innerHTML='<div class="err">견적서를 찾을 수 없습니다.<br>링크가 정확한지 확인해 주시거나<br>카카오톡 채널 <b>@집지니</b>로 문의해 주세요.<a class="cta" href="https://pf.kakao.com/_NjpxhC/chat">카톡 상담하기</a></div>'}
   if(!id){fail();return}
-  fetch('/q/'+id+'.json',{cache:'no-store'}).then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(d){
+  // 실시간 데이터: 코디 콘솔 시트에서 바로 읽는 조회 웹앱 (「집지니 카톡봇」 프로젝트 quote_api.gs). 비어 있으면 사이트 JSON만 사용.
+  var QUOTE_API='';
+  function getStatic(){return fetch('/q/'+id+'.json',{cache:'no-store'}).then(function(r){if(!r.ok)throw 0;return r.json()})}
+  function getLive(){if(!QUOTE_API)return Promise.resolve(null);return fetch(QUOTE_API+'?q='+encodeURIComponent(id),{redirect:'follow'}).then(function(r){return r.json()}).then(function(j){return j&&j.ok?j:null}).catch(function(){return null})}
+  Promise.all([getStatic().catch(function(){return null}),getLive()]).then(function(res){
+    var s=res[0],l=res[1];
+    if(!s&&!l)throw 0;
+    var d=s||{};
+    if(l){['name','quoteId','date','pm','total','codiRate','codi','sections','schedule','techs','alternatives'].forEach(function(k){if(l[k]!=null&&(!(l[k] instanceof Array)||l[k].length))d[k]=l[k]});d.live=true}
+    return d;
+  }).then(function(d){
     var t=d.total,codi=d.codi,pm=d.pm||0;
     var sum='<div class="total"><div class="kv"><span>시공비 (자재+인건비, 마진 0%)</span><b>'+won(t)+'</b></div>'+
       '<div class="kv"><span>코디 운영비 ('+(d.codiRate*100).toFixed(1).replace('.0','')+'%, 정찰제)</span><b>'+won(codi)+'</b></div>'+
       (pm?'<div class="kv"><span>현장관리(PM) 비용 (선택)</span><b>'+won(pm)+'</b></div>':'')+
       '<div class="kv"><span>예상 합계 (부가세 별도)</span><b class="big">'+won(t+codi+pm)+'</b></div>'+
-      (pm?'<div class="kv"><span>현장관리 미선택 시</span><b>'+won(t+codi)+'</b></div>':'')+'</div>';
+      (pm?'<div class="kv"><span>현장관리 미선택 시</span><b>'+won(t+codi)+'</b></div>':'')+
+      ((d.alternatives||[]).map(function(a){return'<div class="kv"><span>'+esc(a.label)+' (시공 '+won(a.total)+')</span><b>'+won(a.total+a.codi)+'</b></div>'}).join(''))+'</div>';
     var gap='<div class="card"><h2>견적서 갑지 · 공종별 총괄표</h2><table class="tbl"><tr><th>공종</th><th class="r">항목</th><th class="r">금액</th><th class="r">비중</th></tr>';
     d.sections.forEach(function(s){gap+='<tr><td>'+esc(s.trade)+'</td><td class="r">'+s.lines.length+'</td><td class="r">'+won(s.subtotal)+'</td><td class="r">'+(s.subtotal/t*100).toFixed(1)+'%</td></tr>'});
     gap+='<tr><td><b>시공 총액</b></td><td></td><td class="r"><b>'+won(t)+'</b></td><td class="r">100%</td></tr></table></div>';
