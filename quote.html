@@ -112,11 +112,12 @@ summary::after{content:'＋';color:var(--gray)}details[open] summary::after{cont
       spec+='</table></details>'});
     spec+='</div>';
     var sch='';
-    if(d.schedule&&d.schedule.length){
-      var f=d.schedule[0].start,l=d.schedule[d.schedule.length-1].end,days=Math.round((new Date(l)-new Date(f))/864e5)+1;
+    if(d.schedule&&d.schedule.filter(function(p){return p.start}).length){
+      var ss=d.schedule.filter(function(p){return p.start}).sort(function(a,b){return a.start<b.start?-1:1});d.schedule=ss;
+      var f=(ss[0]||{}).start,l=ss.reduce(function(m,p){var e=p.end||p.start;return e>m?e:m},f||''),days=Math.round((new Date(l)-new Date(f))/864e5)+1;
       var pct=Math.max(0,Math.min(100,Math.round((new Date()-new Date(f))/(new Date(l)-new Date(f)+864e5)*100)));
       sch='<div class="card"><h2>시공 공정표 · 총 '+days+'일</h2><div class="meta">'+md(f)+' 시작 → '+md(l)+' 완공 예정</div><div class="bar"><i style="width:'+pct+'%"></i></div>';
-      d.schedule.forEach(function(p){sch+='<div class="ph"><div class="d">'+md(p.start)+(p.start!==p.end?' ~ '+md(p.end):'')+'<br>'+p.days+'일</div><div><b>'+esc(p.phase)+'</b><span>'+esc(p.trades)+'</span></div></div>'});
+      d.schedule.forEach(function(p){if(!p.start)return;var nm=String(p.phase||'').replace(/^Phase\s*\d+\s*[·\-:]\s*/i,'');var dd=p.days||(p.end?Math.round((new Date(p.end+'T00:00:00')-new Date(p.start+'T00:00:00'))/864e5)+1:1);sch+='<div class="ph"><div class="d">'+md(p.start)+(p.end&&p.start!==p.end?' ~ '+md(p.end):'')+'<br>'+dd+'일</div><div><b>'+esc(nm)+'</b><span>'+esc(p.trades)+'</span></div></div>'});
       sch+='<div class="meta" style="margin-top:10px">공정표는 현장 여건·자재 입고에 따라 조정될 수 있습니다.</div></div>';
       if(d.techs&&d.techs.length){sch+='<div class="card"><h2>담당 기술자·자재상</h2>';d.techs.forEach(function(x){sch+='<div class="kv"><span>'+esc(x.trade)+'</span><b>'+esc(x.name)+(x.phone?' · <a href="tel:'+esc(x.phone)+'">'+esc(x.phone)+'</a>':'')+'</b></div>'});sch+='</div>'}
       else{sch+='<div class="note">담당 기술자·자재상 연락처는 계약 후 이 화면에서 공정별로 안내해 드립니다.</div>'}
@@ -130,7 +131,7 @@ summary::after{content:'＋';color:var(--gray)}details[open] summary::after{cont
       '<div class="kv"><span>현장관리비 (선택)</span><b>작업 전 전액 환불 · 진행분 차감</b></div>'+
       '<div class="kv"><span>시공 하자 책임</span><b>시공한 기술자·자재상</b></div>'+
       '<div class="kv"><span>하자 조율</span><b>집지니 코디가 끝까지 무상 지원</b></div></div>';
-    var h='<div class="brand">JIPJINI · 집지니</div><h1>'+esc(d.name)+' 고객님 견적서</h1>'+
+    var h='<div class="brand">집지니 · 견적서</div><h1>'+esc(d.name)+' 고객님 견적서</h1>'+
       '<div class="meta">'+esc(d.site)+'<br>'+esc(d.spec)+(d.scope?'<br>공사 범위: '+esc(d.scope):'')+'<br>견적일 '+esc(d.date)+(d.quoteId?' · '+esc(d.quoteId):'')+(d.revision?' · '+esc(d.revision):'')+'</div>'+
       sum+'<div class="tabs"><div class="tab on" data-p="q">견적서</div>'+(sch?'<div class="tab" data-p="s">공정표</div>':'')+'<div class="tab" data-p="i">안내</div></div>'+
       '<div class="pane on" id="p-q">'+gap+spec+'</div>'+(sch?'<div class="pane" id="p-s">'+sch+'</div>':'')+'<div class="pane" id="p-i">'+info+'</div>'+

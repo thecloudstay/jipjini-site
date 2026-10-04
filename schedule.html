@@ -54,7 +54,7 @@ h1{font-family:var(--serif);font-weight:800;font-size:25px;line-height:1.4;margi
   var API='https://script.google.com/macros/s/AKfycbyTMw196qwKBmpz_TA3erW4OcBsmRFWTYioecO5evjq4poPOEXpyqkSKZZ91eTHWUI-/exec';
   function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
   var WD=['일','월','화','수','목','금','토'];
-  function md(d){if(!d)return'';var x=new Date(d+'T00:00:00');return (x.getMonth()+1)+'/'+x.getDate()+'('+WD[x.getDay()]+')'}
+  function md(d){if(!d)return'';var x=new Date(d+'T00:00:00');return (x.getFullYear()!==new Date().getFullYear()?x.getFullYear()+'년 ':'')+(x.getMonth()+1)+'/'+x.getDate()+'('+WD[x.getDay()]+')'}
   function days(s,e){return Math.round((new Date(e+'T00:00:00')-new Date(s+'T00:00:00'))/864e5)+1}
   function toast(t){var el=document.getElementById('toast');el.textContent=t;el.style.display='block';setTimeout(function(){el.style.display='none'},2200)}
   function fail(){app.innerHTML='<div class="err">공정표를 찾을 수 없습니다.<br>링크가 정확한지 확인해 주시거나<br>카카오톡 채널 <b>@집지니</b>로 문의해 주세요.<a class="cta" href="https://pf.kakao.com/_NjpxhC/chat">카톡 문의하기</a></div>'}
@@ -71,7 +71,7 @@ h1{font-family:var(--serif);font-weight:800;font-size:25px;line-height:1.4;margi
     var rows=ph.map(function(p){var st=state(p),l=Math.max(0,(new Date(p.start+'T00:00:00').getTime()-s0)/span*100),w=Math.max(2,days(p.start,p.end)*864e5/span*100);
       return '<div class="ph '+st[0]+'"><div class="d">'+md(p.start)+(p.end&&p.end!==p.start?'<br>~ '+md(p.end):'')+'<small>'+days(p.start,p.end)+'일</small></div><div><b>'+esc(p.label)+'</b><span class="st '+st[0]+'">'+st[1]+'</span>'+
         (p.trades&&p.trades!==p.label?'<div class="t">'+esc(p.trades)+'</div>':'')+(p.worker?'<div class="t">담당 '+esc(p.worker)+'</div>':'')+'<div class="gantt"><i style="left:'+l.toFixed(1)+'%;width:'+w.toFixed(1)+'%"></i></div></div></div>'}).join('');
-    app.innerHTML='<div class="brand">JIPJINI · 시공 공정표</div><h1>'+esc(d.name||'')+' 고객님 공정표</h1><div class="meta">'+(d.area?esc(d.area)+' · ':'')+md(d.start)+' ~ '+md(d.end)+'<br>마지막 반영 '+esc(d.updated||'')+'</div>'+
+    app.innerHTML='<div class="brand">집지니 · 시공 공정표</div><h1>'+esc(d.name||'')+' 고객님 공정표</h1><div class="meta">'+(d.area?esc(d.area)+' · ':'')+md(d.start)+' ~ '+md(d.end)+'<br>마지막 반영 '+esc(d.updated||'')+'</div>'+
       '<div class="sum"><div><span>지금</span><b>'+headline+'</b></div><div><span>전체 기간</span><b>'+total+'일</b></div><div><span>진행</span><b>'+doneN+' / '+ph.length+'</b></div></div><div class="prog"><i style="width:'+pct+'%"></i></div>'+
       '<div class="card">'+rows+'</div>'+
       '<div class="share"><button class="kk" onclick="shareIt()">카카오톡으로 보내기</button><button onclick="copyIt()">링크 복사</button><button onclick="window.print()">인쇄</button></div>'+
