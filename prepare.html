@@ -137,7 +137,7 @@
 </section>
 
 <div class="prep-toolbar no-print">
-  <button class="btn-print" onclick="window.print()"><i class="ti ti-printer"></i> A4 인쇄 / PDF 저장</button>
+  <button class="btn-print" onclick="(function(){var ua=navigator.userAgent;if(/KAKAOTALK/i.test(ua)){location.href='kakaotalk://web/openExternal?url='+encodeURIComponent(location.href);return}if(/NAVER\(inapp|Instagram|FBAN|FBAV|Line\//i.test(ua)){alert('앱 안 브라우저에서는 인쇄가 되지 않습니다. 오른쪽 위 메뉴에서 「다른 브라우저로 열기」를 눌러 주세요.');return}window.print()})()"><i class="ti ti-printer"></i> A4 인쇄 / PDF 저장</button>
   <div class="hint-print">크롬·엣지에서 인쇄 화면 → "PDF로 저장" 선택 시 PDF 1~2장으로 저장됩니다.</div>
 </div>
 

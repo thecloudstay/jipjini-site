@@ -43,6 +43,7 @@ summary::after{content:'＋';color:var(--gray)}details[open] summary::after{cont
 .cta{display:block;text-align:center;margin-top:18px;background:var(--clay);color:#fff;text-decoration:none;font-weight:700;padding:16px;border-radius:12px;font-size:16px}
 .foot{font-size:12px;color:var(--gray);text-align:center;margin-top:28px;line-height:1.8}
 .err{text-align:center;padding:80px 0;color:var(--gray);line-height:1.9}
+.tip{margin-top:8px;font-size:12px;color:#7B5E00;background:#FFF8E1;border:1px solid #FFD966;border-radius:8px;padding:8px 10px;line-height:1.6}
 .tools{display:flex;gap:8px;margin-top:12px}.tools a,.tools button{flex:1;font:inherit;font-size:13.5px;font-weight:600;color:var(--charcoal);background:#fff;border:1px solid var(--line);border-radius:10px;padding:11px 8px;text-align:center;text-decoration:none;cursor:pointer}
 @media print{body{background:#fff}.wrap{max-width:none;padding:0}.tabs,.tools,.cta{display:none}.pane{display:block !important}.pane+.pane{margin-top:18px}details{break-inside:avoid}details:not([open])>*:not(summary){display:block}summary::after{content:''}.total{-webkit-print-color-adjust:exact;print-color-adjust:exact}.card{break-inside:avoid}}
 </style>
@@ -57,6 +58,27 @@ summary::after{content:'＋';color:var(--gray)}details[open] summary::after{cont
   function num(n){return (Math.round(n*100)/100).toLocaleString('ko-KR')}
   function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
   function md(d){var p=d.split('-');return (+p[1])+'월 '+(+p[2])+'일'}
+  // 2026-10-04 카톡·네이버·인스타 등 앱 안 브라우저는 window.print() 가 동작하지 않는다 → PDF 열기 / 바깥 브라우저로 열기
+  var CUR_PDF='';
+  function inApp(){return /KAKAOTALK|NAVER\(inapp|Instagram|FBAN|FBAV|Line\/|DaumApps|everytimeApp/i.test(navigator.userAgent)}
+  function openExternal(u){
+    if(/KAKAOTALK/i.test(navigator.userAgent)){location.href='kakaotalk://web/openExternal?url='+encodeURIComponent(u);return true}
+    if(/Line\//i.test(navigator.userAgent)){location.href=u+(u.indexOf('?')>=0?'&':'?')+'openExternalBrowser=1';return true}
+    return false
+  }
+  function openPdf(u){
+    u=u||CUR_PDF;if(!u)return false;
+    if(inApp()&&openExternal(u))return false;
+    var a=document.createElement('a');a.href=u;a.target='_blank';a.rel='noopener';document.body.appendChild(a);a.click();setTimeout(function(){a.remove()},500);return false
+  }
+  function printQuote(){
+    if(inApp()){
+      if(CUR_PDF){openPdf(CUR_PDF);return}
+      if(openExternal(location.href))return;
+      alert('앱 안 브라우저에서는 인쇄가 되지 않습니다. 오른쪽 위 메뉴에서 「다른 브라우저로 열기」를 눌러 주세요.');return
+    }
+    try{window.print()}catch(e){if(CUR_PDF)openPdf(CUR_PDF)}
+  }
   function fail(){app.innerHTML='<div class="err">견적서를 찾을 수 없습니다.<br>링크가 정확한지 확인해 주시거나<br>카카오톡 채널 <b>@집지니</b>로 문의해 주세요.<a class="cta" href="https://pf.kakao.com/_NjpxhC/chat">카톡 상담하기</a></div>'}
   if(!id){fail();return}
   // 실시간 데이터: 코디 콘솔 시트에서 바로 읽는 조회 웹앱 (「집지니 카톡봇」 프로젝트 quote_api.gs). 비어 있으면 사이트 JSON만 사용.
@@ -112,9 +134,11 @@ summary::after{content:'＋';color:var(--gray)}details[open] summary::after{cont
       '<div class="meta">'+esc(d.site)+'<br>'+esc(d.spec)+(d.scope?'<br>공사 범위: '+esc(d.scope):'')+'<br>견적일 '+esc(d.date)+(d.quoteId?' · '+esc(d.quoteId):'')+(d.revision?' · '+esc(d.revision):'')+'</div>'+
       sum+'<div class="tabs"><div class="tab on" data-p="q">견적서</div>'+(sch?'<div class="tab" data-p="s">공정표</div>':'')+'<div class="tab" data-p="i">안내</div></div>'+
       '<div class="pane on" id="p-q">'+gap+spec+'</div>'+(sch?'<div class="pane" id="p-s">'+sch+'</div>':'')+'<div class="pane" id="p-i">'+info+'</div>'+
-      '<div class="tools"><button type="button" onclick="window.print()">인쇄 · PDF로 저장</button>'+(d.pdfUrl?'<a href="'+esc(d.pdfUrl)+'" target="_blank" rel="noopener">PDF 내려받기</a>':'')+'</div>'+
+      '<div class="tools">'+(d.pdfUrl?'<a href="'+esc(d.pdfUrl)+'" target="_blank" rel="noopener" onclick="return openPdf(this.href)">📄 PDF 저장 · 내려받기</a>':'')+'<button type="button" onclick="printQuote()">'+(d.pdfUrl?'인쇄':'인쇄 · PDF로 저장')+'</button></div>'+
+      (inApp()?'<div class="tip">카카오톡 안에서 보고 계십니다 — 인쇄는 되지 않으니 「PDF 저장」을 누르시거나, 오른쪽 위 메뉴에서 「다른 브라우저로 열기」 뒤 인쇄해 주세요.</div>':'')+
       '<a class="cta" href="https://pf.kakao.com/_NjpxhC/chat">카톡으로 상담하기</a>'+
       '<div class="foot">집지니 · 박찬영 · 사업자번호 874-10-00088<br>인천 강화군 강화읍 동문로 33 · 카카오톡 @집지니<br>금액은 예상 견적이며 현장 실측 후 확정됩니다.</div>';
+    CUR_PDF=d.pdfUrl||'';
     app.innerHTML=h;document.title='집지니 · '+d.name+' 고객님 견적서';
     [].forEach.call(document.querySelectorAll('.tab'),function(b){b.onclick=function(){
       [].forEach.call(document.querySelectorAll('.tab'),function(x){x.classList.remove('on')});
