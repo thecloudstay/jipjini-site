@@ -125,12 +125,12 @@ body{font-family:'Pretendard',sans-serif;background:var(--jp-oatmeal);color:var(
       <div class="field"><label>시공 완료일 (예상)</label><input type="date" id="endDate"></div>
     </div>
     <div class="field-row">
-      <div class="field"><label>총 시공 견적액 (공급가액, 원)</label><input type="number" id="totalAmount" step="10000"><div class="field-hint">자재비·인건비 포함 추정 — 실제 직거래 금액에 따라 변동. VAT 별도.</div></div>
-      <div class="field"><label>코디 비용 (공급가액, 원)</label><input type="number" id="coordiFee" step="10000"><div class="field-hint">정찰제 · 집지니의 코디(Codi)만 받는 금액 · VAT 별도</div></div>
+      <div class="field"><label>총 시공 견적액 (공급가액, 원)</label><input type="number" id="totalAmount" step="10000"><div class="field-hint">자재비·인건비 포함 추정 — 실제 직거래 금액에 따라 변동 (자재상·기술자에게 직접 결제).</div></div>
+      <div class="field"><label>코디 비용 (공급가액, 원)</label><input type="number" id="coordiFee" step="10000"><div class="field-hint">정찰제 · 공급가액으로 입력 — 계약서에는 부가세 10%를 더한 금액으로 나갑니다</div></div>
     </div>
     <div class="field-row">
       <div class="field"><label>PM 비용 (선택 시, 원)</label><input type="number" id="pmFee" step="10000"></div>
-      <div class="field"><label>A/S 기간 (개월)</label><select id="asMonths"><option value="6" selected>6개월 (기본)</option><option value="12">12개월 (프리미엄 옵션)</option></select></div>
+      <div class="field"><label>A/S 기간 (개월)</label><select id="asMonths"><option value="12" selected>12개월 (기본)</option></select></div>
     </div>
     <div class="field"><label>결제 조건</label><textarea id="paymentTerms" rows="2">코디비 · PM비 모두 시공 시작 전 100% 선불 결제. 자재비·인건비는 자재상·기술자에게 건축주가 직접 결제 (집지니 통과 X).</textarea></div>
     <div class="field"><label>특약 사항 (선택)</label><textarea id="specialNote" rows="3" placeholder="추가 합의 사항이 있으면 입력하세요."></textarea></div>
