@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>집지니 · 시공 공정표</title>
+<meta property="og:title" content="집지니 · 시공 공정표">
+<meta property="og:description" content="공정별 일정과 진행 상황을 한눈에 확인하세요. 일정이 바뀌면 이 링크에 바로 반영됩니다.">
+<meta property="og:image" content="https://jipjini.com/og-cover.png">
+<meta property="og:type" content="website">
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
+<link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@700;800&display=swap" rel="stylesheet">
+<style>
+:root{--charcoal:#2A2A2A;--gray:#6B6B6B;--line:#E2DCCD;--oat:#F5F1E8;--oat-soft:#FBF8F1;--clay:#9a5a4a;--green:#1f6b4a;--white:#fff;
+--serif:'Nanum Myeongjo',serif;--sans:'Pretendard','Apple SD Gothic Neo',sans-serif}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--oat-soft);font-family:var(--sans);color:var(--charcoal);-webkit-font-smoothing:antialiased;letter-spacing:-.2px}
+.wrap{max-width:720px;margin:0 auto;padding:30px 16px 72px}
+.brand{font-family:var(--serif);font-weight:800;font-size:15px;color:var(--clay);letter-spacing:2px}
+h1{font-family:var(--serif);font-weight:800;font-size:25px;line-height:1.4;margin:10px 0 6px}
+.meta{font-size:13px;color:var(--gray);line-height:1.7}
+.sum{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:16px}
+.sum div{background:var(--white);border:1px solid var(--line);border-radius:12px;padding:12px 10px;text-align:center}
+.sum b{display:block;font-family:var(--serif);font-size:16px;margin-top:3px;white-space:nowrap}.sum span{font-size:11.5px;color:var(--gray)}
+.prog{height:8px;background:var(--oat);border-radius:4px;margin-top:14px;overflow:hidden}.prog i{display:block;height:100%;background:var(--green)}
+.card{background:var(--white);border:1px solid var(--line);border-radius:14px;padding:6px 14px;margin-top:14px}
+.ph{display:grid;grid-template-columns:86px 1fr;gap:10px;padding:13px 0;border-bottom:1px dashed var(--line)}.ph:last-child{border-bottom:none}
+.ph .d{font-size:12.5px;color:var(--clay);font-weight:700;line-height:1.5}.ph .d small{display:block;color:var(--gray);font-weight:500;font-size:11px}
+.ph b{font-size:15px}.ph .t{font-size:12.5px;color:var(--gray);margin-top:2px;line-height:1.5}
+.st{display:inline-block;font-size:11px;font-weight:700;border-radius:999px;padding:2px 8px;margin-left:6px;vertical-align:1px}
+.st.done{background:#e3f1e9;color:var(--green)}.st.now{background:#fde9d9;color:#b4521f}.st.plan{background:var(--oat);color:var(--gray)}.st.hold{background:#eee;color:#888}
+.ph.now{background:linear-gradient(90deg,#fff7f0,transparent);margin:0 -14px;padding:13px 14px}
+.gantt{margin-top:8px;position:relative;height:6px;background:var(--oat);border-radius:3px}.gantt i{position:absolute;top:0;height:100%;border-radius:3px;background:var(--clay);opacity:.75}.ph.done .gantt i{background:var(--green)}
+.share{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:18px}
+.share button,.share a{font:inherit;font-size:14px;font-weight:700;border-radius:12px;padding:14px 8px;text-align:center;text-decoration:none;cursor:pointer;border:1px solid var(--line);background:#fff;color:var(--charcoal)}
+.share .kk{background:#FEE500;border-color:#FEE500;color:#191919;grid-column:1/-1;font-size:15.5px}
+.cta{display:block;text-align:center;margin-top:10px;background:var(--clay);color:#fff;text-decoration:none;font-weight:700;padding:15px;border-radius:12px;font-size:15px}
+.note{background:var(--oat);border-radius:12px;padding:13px 15px;margin-top:14px;font-size:13px;line-height:1.75;color:#444}
+.foot{font-size:12px;color:var(--gray);text-align:center;margin-top:26px;line-height:1.8}
+.err{text-align:center;padding:80px 0;color:var(--gray);line-height:1.9}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--charcoal);color:#fff;padding:10px 16px;border-radius:10px;font-size:13px;display:none;z-index:9}
+@media print{.share,.cta,.note{display:none}body{background:#fff}}
+</style>
+</head>
+<body>
+<div class="wrap" id="app"><div class="err">공정표를 불러오는 중…</div></div>
+<div class="toast" id="toast"></div>
+<script>
+(function(){
+  var app=document.getElementById('app');
+  var id=(new URLSearchParams(location.search).get('id')||'').replace(/[^A-Za-z0-9_-]/g,'');
+  // 집지니 카톡봇 웹앱 (?w=공정표ID) — 콘솔 「공정표」 시트를 바로 읽는다(1분 캐시)
+  var API='https://script.google.com/macros/s/AKfycbyTMw196qwKBmpz_TA3erW4OcBsmRFWTYioecO5evjq4poPOEXpyqkSKZZ91eTHWUI-/exec';
+  function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+  var WD=['일','월','화','수','목','금','토'];
+  function md(d){if(!d)return'';var x=new Date(d+'T00:00:00');return (x.getMonth()+1)+'/'+x.getDate()+'('+WD[x.getDay()]+')'}
+  function days(s,e){return Math.round((new Date(e+'T00:00:00')-new Date(s+'T00:00:00'))/864e5)+1}
+  function toast(t){var el=document.getElementById('toast');el.textContent=t;el.style.display='block';setTimeout(function(){el.style.display='none'},2200)}
+  function fail(){app.innerHTML='<div class="err">공정표를 찾을 수 없습니다.<br>링크가 정확한지 확인해 주시거나<br>카카오톡 채널 <b>@집지니</b>로 문의해 주세요.<a class="cta" href="https://pf.kakao.com/_NjpxhC/chat">카톡 문의하기</a></div>'}
+  if(!id){fail();return}
+  var today=new Date();today=today.getFullYear()+'-'+String(today.getMonth()+1).padStart(2,'0')+'-'+String(today.getDate()).padStart(2,'0');
+  function state(p){if(/완료/.test(p.status))return['done','완료'];if(/중단|보류/.test(p.status))return['hold',p.status];if(/진행/.test(p.status)||(p.start<=today&&p.end>=today))return['now','진행 중'];if(p.end&&p.end<today)return['done','완료'];return['plan','예정']}
+  function render(d){
+    var total=days(d.start,d.end),ph=d.phases||[];
+    var doneN=ph.filter(function(p){return state(p)[0]==='done'}).length;
+    var pct=ph.length?Math.round(doneN*100/ph.length):0;
+    var dd=Math.round((new Date(d.start+'T00:00:00')-new Date(today+'T00:00:00'))/864e5);
+    var headline=d.start>today?'착공까지 '+dd+'일':(d.end<today?'공사 완료':'공사 '+(Math.round((new Date(today+'T00:00:00')-new Date(d.start+'T00:00:00'))/864e5)+1)+'일째');
+    var s0=new Date(d.start+'T00:00:00').getTime(),span=Math.max(1,new Date(d.end+'T00:00:00').getTime()-s0+864e5);
+    var rows=ph.map(function(p){var st=state(p),l=Math.max(0,(new Date(p.start+'T00:00:00').getTime()-s0)/span*100),w=Math.max(2,days(p.start,p.end)*864e5/span*100);
+      return '<div class="ph '+st[0]+'"><div class="d">'+md(p.start)+(p.end&&p.end!==p.start?'<br>~ '+md(p.end):'')+'<small>'+days(p.start,p.end)+'일</small></div><div><b>'+esc(p.label)+'</b><span class="st '+st[0]+'">'+st[1]+'</span>'+
+        (p.trades&&p.trades!==p.label?'<div class="t">'+esc(p.trades)+'</div>':'')+(p.worker?'<div class="t">담당 '+esc(p.worker)+'</div>':'')+'<div class="gantt"><i style="left:'+l.toFixed(1)+'%;width:'+w.toFixed(1)+'%"></i></div></div></div>'}).join('');
+    app.innerHTML='<div class="brand">JIPJINI · 시공 공정표</div><h1>'+esc(d.name||'')+' 고객님 공정표</h1><div class="meta">'+(d.area?esc(d.area)+' · ':'')+md(d.start)+' ~ '+md(d.end)+'<br>마지막 반영 '+esc(d.updated||'')+'</div>'+
+      '<div class="sum"><div><span>지금</span><b>'+headline+'</b></div><div><span>전체 기간</span><b>'+total+'일</b></div><div><span>진행</span><b>'+doneN+' / '+ph.length+'</b></div></div><div class="prog"><i style="width:'+pct+'%"></i></div>'+
+      '<div class="card">'+rows+'</div>'+
+      '<div class="share"><button class="kk" onclick="shareIt()">카카오톡으로 보내기</button><button onclick="copyIt()">링크 복사</button><button onclick="window.print()">인쇄</button></div>'+
+      '<a class="cta" href="'+esc(d.kakao||'https://pf.kakao.com/_NjpxhC/chat')+'">일정 문의 · 카톡 상담</a>'+
+      '<div class="note">· 공정마다 시작 전날 준비사항을 따로 안내드립니다.<br>· 현장 사정으로 일정이 바뀌면 이 링크에 바로 반영되고, 바뀐 내용은 따로 알려 드립니다.<br>· 소음 작업은 평일 오전 9시 ~ 오후 6시에만 진행합니다.</div>'+
+      '<div class="foot">집지니 · 코디 '+esc(d.codiPhone||'')+' · 카카오톡 @집지니</div>';
+    document.title='집지니 · '+(d.name||'')+' 고객님 공정표';
+  }
+  window.shareIt=function(){
+    var data={title:document.title,text:document.title+' — 공정별 일정 확인',url:location.href};
+    if(navigator.share){navigator.share(data).catch(function(){});return}
+    copyIt();toast('링크를 복사했습니다 — 카카오톡 대화창에 붙여 넣어 주세요');
+  };
+  window.copyIt=function(){
+    var u=location.href;
+    if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(u).then(function(){toast('링크를 복사했습니다')},function(){prompt('아래 링크를 복사해 주세요',u)});}
+    else prompt('아래 링크를 복사해 주세요',u);
+  };
+  fetch(API+'?w='+encodeURIComponent(id),{redirect:'follow'}).then(function(r){return r.json()}).then(function(j){if(j&&j.ok&&j.phases&&j.phases.length)render(j);else fail()}).catch(fail);
+})();
+</script>
+</body>
+</html>
