@@ -88,7 +88,7 @@ summary::after{content:'＋';color:var(--gray)}details[open] summary::after{cont
   // 2026-10-01: 사이트 JSON을 먼저 그리고(0.3초), 콘솔 실시간 데이터가 오면 다시 그림 — 조회 웹앱이 느려도(첫 호출 수 초) 빈 화면이 없다
   function merge(s,l){
     var d=s||{};
-    if(l){['name','quoteId','date','pm','total','codiRate','codi','sections','schedule','techs','alternatives','pdfUrl'].forEach(function(k){if(l[k]!=null&&(!(l[k] instanceof Array)||l[k].length))d[k]=l[k]});d.live=true}
+    if(l){['name','quoteId','date','pm','total','codiRate','codi','sections','schedule','techs','alternatives','pdfUrl','pdfDownload'].forEach(function(k){if(l[k]!=null&&(!(l[k] instanceof Array)||l[k].length))d[k]=l[k]});d.live=true}
     return d;
   }
   var rendered=false;
@@ -134,11 +134,11 @@ summary::after{content:'＋';color:var(--gray)}details[open] summary::after{cont
       '<div class="meta">'+esc(d.site)+'<br>'+esc(d.spec)+(d.scope?'<br>공사 범위: '+esc(d.scope):'')+'<br>견적일 '+esc(d.date)+(d.quoteId?' · '+esc(d.quoteId):'')+(d.revision?' · '+esc(d.revision):'')+'</div>'+
       sum+'<div class="tabs"><div class="tab on" data-p="q">견적서</div>'+(sch?'<div class="tab" data-p="s">공정표</div>':'')+'<div class="tab" data-p="i">안내</div></div>'+
       '<div class="pane on" id="p-q">'+gap+spec+'</div>'+(sch?'<div class="pane" id="p-s">'+sch+'</div>':'')+'<div class="pane" id="p-i">'+info+'</div>'+
-      '<div class="tools">'+(d.pdfUrl?'<a href="'+esc(d.pdfUrl)+'" target="_blank" rel="noopener" onclick="return openPdf(this.href)">📄 PDF 저장 · 내려받기</a>':'')+'<button type="button" onclick="printQuote()">'+(d.pdfUrl?'인쇄':'인쇄 · PDF로 저장')+'</button></div>'+
+      '<div class="tools">'+(d.pdfUrl?'<a href="'+esc(d.pdfDownload||d.pdfUrl)+'" target="_blank" rel="noopener" onclick="return openPdf(this.href)">📄 PDF 저장 · 내려받기</a>':'')+'<button type="button" onclick="printQuote()">'+(d.pdfUrl?'인쇄':'인쇄 · PDF로 저장')+'</button></div>'+
       (inApp()?'<div class="tip">카카오톡 안에서 보고 계십니다 — 인쇄는 되지 않으니 「PDF 저장」을 누르시거나, 오른쪽 위 메뉴에서 「다른 브라우저로 열기」 뒤 인쇄해 주세요.</div>':'')+
       '<a class="cta" href="https://pf.kakao.com/_NjpxhC/chat">카톡으로 상담하기</a>'+
       '<div class="foot">집지니 · 박찬영 · 사업자번호 874-10-00088<br>인천 강화군 강화읍 동문로 33 · 카카오톡 @집지니<br>금액은 예상 견적이며 현장 실측 후 확정됩니다.</div>';
-    CUR_PDF=d.pdfUrl||'';
+    CUR_PDF=d.pdfDownload||d.pdfUrl||'';
     app.innerHTML=h;document.title='집지니 · '+d.name+' 고객님 견적서';
     [].forEach.call(document.querySelectorAll('.tab'),function(b){b.onclick=function(){
       [].forEach.call(document.querySelectorAll('.tab'),function(x){x.classList.remove('on')});
