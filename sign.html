@@ -187,7 +187,7 @@ canvas { display: block; width: 100%; height: 200px; background: #fafaf5; border
   $('customer-address').textContent = params.get('addr') || '—';
   if (params.get('tn')) $('work-title').textContent = params.get('tn');
   if (params.get('per')) $('work-period').textContent = params.get('per');
-  function setLabel(id, html) { const el = $(id); if (el && el.parentNode) { el.parentNode.innerHTML = ''; el.checked = false; el.parentNode.appendChild(el); el.insertAdjacentHTML('afterend', ' ' + html); } }
+  function setLabel(id, html) { const el = $(id), lab = el && el.parentNode; if (!lab) return; lab.innerHTML = ''; el.checked = false; lab.appendChild(el); el.insertAdjacentHTML('afterend', ' ' + html); }
   function applyMode(lump) {
     $('resp-text').innerHTML = lump
       ? '이번 공사는 <strong>집지니가 공사 금액을 받아</strong> 자재상·기술자 지급까지 맡습니다. 따로 결제하실 곳은 없고, 완공 후 12개월 동안 시공 하자는 집지니가 책임지고 보수합니다.'
