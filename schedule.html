@@ -20,10 +20,10 @@ body{background:var(--oat-soft);font-family:var(--sans);color:var(--charcoal);-w
 .brand{font-family:var(--serif);font-weight:800;font-size:15px;color:var(--clay);letter-spacing:2px}
 h1{font-family:var(--serif);font-weight:800;font-size:25px;line-height:1.4;margin:10px 0 6px}
 .meta{font-size:13px;color:var(--gray);line-height:1.7}
-.sum{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:16px}
+.sum{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:16px}@media(max-width:420px){.sum{grid-template-columns:repeat(2,1fr)}}
 .sum div{background:var(--white);border:1px solid var(--line);border-radius:12px;padding:12px 10px;text-align:center}
 .sum b{display:block;font-family:var(--serif);font-size:16px;margin-top:3px;white-space:nowrap}.sum span{font-size:11.5px;color:var(--gray)}
-.prog{height:8px;background:var(--oat);border-radius:4px;margin-top:14px;overflow:hidden}.prog i{display:block;height:100%;background:var(--green)}
+.prog{height:8px;background:var(--oat);border-radius:4px;margin-top:14px;overflow:hidden;position:relative}.prog em{position:absolute;top:-2px;bottom:-2px;width:2px;background:var(--charcoal,#333);opacity:.55}.pmeta{font-size:12px;color:#777;margin-top:6px}.prog i{display:block;height:100%;background:var(--green)}
 .card{background:var(--white);border:1px solid var(--line);border-radius:14px;padding:6px 14px;margin-top:14px}
 .ph{display:grid;grid-template-columns:86px 1fr;gap:10px;padding:13px 0;border-bottom:1px dashed var(--line)}.ph:last-child{border-bottom:none}
 .ph .d{font-size:12.5px;color:var(--clay);font-weight:700;line-height:1.5}.ph .d small{display:block;color:var(--gray);font-weight:500;font-size:11px}
@@ -69,7 +69,9 @@ h1{font-family:var(--serif);font-weight:800;font-size:25px;line-height:1.4;margi
   function render(d){
     var total=days(d.start,d.end),ph=d.phases||[];
     var doneN=ph.filter(function(p){return state(p)[0]==='done'}).length;
-    var pct=ph.length?Math.round(doneN*100/ph.length):0;
+    // 2026-10-06 공정률: 공정 기간(일)으로 가중 — 완료 100%, 진행 중은 지난 날만큼(최대 90%), 예정 0%. 계획 공정률은 오늘 날짜 기준
+    var wSum=0,wDone=0,wPlan=0;ph.forEach(function(p){var n=days(p.start,p.end)||1,st=state(p)[0],gone=p.start>today?0:Math.min(n,days(p.start,today<p.end?today:p.end));wSum+=n;wPlan+=gone;wDone+=st==='done'?n:(st==='now'?Math.min(n*0.9,Math.max(0,gone-1)+0.5):0)});
+    var pct=wSum?Math.round(wDone*100/wSum):0,plan=wSum?Math.round(wPlan*100/wSum):0;
     var dd=Math.round((new Date(d.start+'T00:00:00')-new Date(today+'T00:00:00'))/864e5);
     var headline=d.start>today?'착공까지 '+dd+'일':(ph.length&&doneN===ph.length?'공사 완료':d.end<today?'마무리 확인 중':'공사 '+(Math.round((new Date(today+'T00:00:00')-new Date(d.start+'T00:00:00'))/864e5)+1)+'일째');
     var s0=new Date(d.start+'T00:00:00').getTime(),span=Math.max(1,new Date(d.end+'T00:00:00').getTime()-s0+864e5);
@@ -77,7 +79,7 @@ h1{font-family:var(--serif);font-weight:800;font-size:25px;line-height:1.4;margi
       return '<div class="ph '+st[0]+'"><div class="d">'+md(p.start)+(p.end&&p.end!==p.start?'<br>~ '+md(p.end):'')+'<small>'+days(p.start,p.end)+'일</small></div><div><b>'+esc(p.label)+'</b><span class="st '+st[0]+'">'+st[1]+'</span>'+
         (p.trades&&p.trades!==p.label?'<div class="t">'+esc(p.trades)+'</div>':'')+(p.worker?'<div class="t">담당 '+esc(p.worker)+'</div>':'')+'<div class="gantt"><i style="left:'+l.toFixed(1)+'%;width:'+w.toFixed(1)+'%"></i></div></div></div>'}).join('');
     app.innerHTML='<div class="brand">집지니 · 시공 공정표</div><h1>'+esc(d.name||'')+' 고객님 공정표</h1><div class="meta">'+(d.area?esc(d.area)+' · ':'')+md(d.start)+' ~ '+md(d.end)+'<br>마지막 반영 '+esc(d.updated||'')+'</div>'+
-      '<div class="sum"><div><span>지금</span><b>'+headline+'</b></div><div><span>전체 기간</span><b>'+total+'일</b></div><div><span>진행</span><b>'+doneN+' / '+ph.length+'</b></div></div><div class="prog"><i style="width:'+pct+'%"></i></div>'+
+      '<div class="sum"><div><span>지금</span><b>'+headline+'</b></div><div><span>공정률</span><b>'+pct+'%</b></div><div><span>완료 공정</span><b>'+doneN+' / '+ph.length+'</b></div><div><span>전체 기간</span><b>'+total+'일</b></div></div><div class="prog" title="계획 '+plan+'%"><i style="width:'+pct+'%"></i><em style="left:'+plan+'%"></em></div><div class="pmeta">공정률 '+pct+'% · 오늘 계획 '+plan+'%'+(d.start<=today&&pct+10<plan?' · 일정보다 늦어지고 있습니다':'')+'</div>'+
       '<div class="card">'+rows+'</div>'+
       '<div class="share"><button class="kk" onclick="shareIt()">카카오톡으로 보내기</button><button onclick="copyIt()">링크 복사</button><button onclick="window.print()">인쇄</button></div>'+
       '<a class="cta" href="'+esc(d.kakao||'https://pf.kakao.com/_NjpxhC/chat')+'">일정 문의 · 카톡 상담</a>'+
