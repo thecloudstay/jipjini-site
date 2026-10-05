@@ -99,10 +99,9 @@ summary::after{content:'＋';color:var(--gray)}details[open] summary::after{cont
     var sum=d.lump?   // 2026-10-05 일괄(집지니 수납): 공사 총액 한 줄
       '<div class="total"><div class="kv"><span>자재 + 인건비</span><b>'+won(t)+'</b></div>'+
       '<div class="kv"><span>코디·현장 조율</span><b>'+won((d.codi||0)+(d.pm||0))+'</b></div>'+
-      '<div class="kv"><span>공사 금액 (부가세 별도)</span><b>'+won(t+(d.codi||0)+(d.pm||0))+'</b></div>'+
-      '<div class="kv"><span>부가세 (10%)</span><b>'+won(Math.round((t+(d.codi||0)+(d.pm||0))*0.1))+'</b></div>'+
-      '<div class="kv"><span>합계 (부가세 포함 · 집지니에 한 번에)</span><b class="big">'+won(Math.round((t+(d.codi||0)+(d.pm||0))*1.1))+'</b></div>'+
-      (d.plan&&d.plan.length?d.plan.map(function(x,i){return'<div class="kv"><span>결제 '+(i+1)+'회(부가세 포함) · '+esc(x['시점'])+'</span><b>'+won(x['금액'])+'</b></div>'}).join(''):'<div class="kv"><span>결제</span><b>착공 전 50% · 완공 확인 후 50%</b></div>')+'</div>'
+      '<div class="kv"><span>공사 금액 (부가가치세 별도 · 집지니에 한 번에)</span><b class="big">'+won(t+(d.codi||0)+(d.pm||0))+'</b></div>'+
+      '<div class="kv"><span>※ 부가가치세액 10%는 별도입니다.</span><b></b></div>'+
+      (d.plan&&d.plan.length?d.plan.map(function(x,i){return'<div class="kv"><span>대금 '+(i+1)+'회 · '+esc(x['시점'])+'</span><b>'+won(Math.round(x['금액']/1.1))+'</b></div>'}).join(''):'<div class="kv"><span>결제</span><b>착공 전 50% · 완공 확인 후 50%</b></div>')+'</div>'
     :'<div class="total"><div class="kv"><span>시공비 (자재+인건비, 마진 0%)</span><b>'+won(t)+'</b></div>'+
       '<div class="kv"><span>코디 운영비 ('+(d.codiRate*100).toFixed(1).replace('.0','')+'%, 정찰제, 부가세 포함)</span><b>'+won(codi)+'</b></div>'+
       (pm?'<div class="kv"><span>현장관리(PM 파견, 부가세 포함)</span><b>'+won(pm)+'</b></div>':'')+

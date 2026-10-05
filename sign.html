@@ -202,8 +202,8 @@ canvas { display: block; width: 100%; height: 200px; background: #fafaf5; border
     if (!m) return;
     $('money-tbl').innerHTML = m.일괄
       ? '<tr><td>자재 + 인건비</td><td class="r">' + won(m.자재인건비) + '</td></tr><tr><td>코디·현장 조율</td><td class="r">' + won(m.코디) + '</td></tr>' +
-        '<tr><td><b>공사 금액 (부가세 별도)</b></td><td class="r"><b>' + won(m.공급가) + '</b></td></tr><tr><td>부가세 (10%)</td><td class="r">' + won(m.부가세) + '</td></tr>' +
-        '<tr class="tot"><td>합계 (부가세 포함)</td><td class="r">' + won(m.합계) + '</td></tr>'
+        '<tr class="tot"><td>공사 금액 <span class="muted" style="font-weight:400;">(부가가치세 별도)</span></td><td class="r">' + won(m.공급가) + '</td></tr>' +
+        '<tr><td colspan="2" class="muted">※ 부가가치세액 10%는 별도입니다.</td></tr>'
       : '<tr><td>자재 + 인건비 <span class="muted">(자재상·기술자에게 직접 결제)</span></td><td class="r">' + won(m.자재인건비) + '</td></tr>' +
         '<tr><td>집지니 코디비' + (m.현장관리 ? '·현장관리비' : '') + ' <span class="muted">(부가세 포함)</span></td><td class="r">' + won(m.집지니청구) + '</td></tr>' +
         '<tr class="tot"><td>고객 총 지출 (예상)</td><td class="r">' + won(m.합계) + '</td></tr>';
@@ -213,9 +213,9 @@ canvas { display: block; width: 100%; height: 200px; background: #fafaf5; border
     if (!plan || !plan.length) return;
     const due = {}; (pay || []).forEach((x) => { due[x.when] = x.due; });
     let tot = 0;
-    $('plan-tbl').innerHTML = plan.map((x, i) => { tot += Number(x.금액) || 0; const d = due[x.시점]; return '<tr><td><b>' + (i + 1) + '회</b> · ' + esc(x.시점) + (d ? ' <span class="muted">(' + md(d) + '까지)</span>' : '') + '</td><td class="r">' + won(x.금액) + '</td></tr>'; }).join('') +
-      '<tr class="tot"><td>합계 (부가세 포함)</td><td class="r">' + won(tot) + '</td></tr>';
-    $('plan-note').textContent = '집지니 명의 계좌로 입금(기본) · 카드는 집지니 네이버 스마트스토어 안전결제 · 현금영수증·세금계산서 발행';
+    $('plan-tbl').innerHTML = plan.map((x, i) => { const sup = Math.round((Number(x.금액) || 0) / 1.1); tot += sup; const d = due[x.시점]; return '<tr><td><b>' + (i + 1) + '회</b> · ' + esc(x.시점) + (d ? ' <span class="muted">(' + md(d) + '까지)</span>' : '') + '</td><td class="r">' + won(sup) + '</td></tr>'; }).join('') +
+      '<tr class="tot"><td>합계 <span class="muted" style="font-weight:400;">(부가가치세 별도)</span></td><td class="r">' + won(tot) + '</td></tr>';
+    $('plan-note').textContent = '※ 부가가치세액 10%는 별도입니다. 각 회차 금액에 10%를 더해 집지니 명의 계좌로 입금(기본) · 카드는 집지니 네이버 스마트스토어 안전결제 · 세금계산서·현금영수증 발행';
     $('sec-plan').style.display = '';
   }
   function renderLines(secs) {
@@ -238,7 +238,7 @@ canvas { display: block; width: 100%; height: 200px; background: #fafaf5; border
   applyMode(lumpP);
   (function () {
     const cost = Number(params.get('total') || 0), sup = Number(params.get('sup') || 0);
-    if (lumpP && sup) renderMoney({ 일괄: true, 자재인건비: cost, 코디: sup - cost, 공급가: sup, 부가세: Number(params.get('vat') || Math.round(sup * 0.1)), 합계: Number(params.get('g') || sup + Math.round(sup * 0.1)) });
+    if (lumpP && sup) renderMoney({ 일괄: true, 자재인건비: cost, 코디: sup - cost, 공급가: sup });
     else if (!lumpP && cost) renderMoney({ 일괄: false, 자재인건비: cost, 집지니청구: Number(params.get('codi') || 0), 합계: cost + Number(params.get('codi') || 0) });
   })();
   const getJ = (u) => fetch(u).then((r) => r.json());
@@ -376,7 +376,9 @@ canvas { display: block; width: 100%; height: 200px; background: #fafaf5; border
       document.getElementById('submit-btn').style.display = 'none';
       const when = new Date(); const ws = when.getFullYear() + '. ' + (when.getMonth() + 1) + '. ' + when.getDate() + '. ' + String(when.getHours()).padStart(2, '0') + ':' + String(when.getMinutes()).padStart(2, '0');
       document.getElementById('main-form').insertAdjacentHTML('beforeend', '<div class="signed" id="signed-block"><h2>✍ 서명 완료</h2><dl class="kv"><dt>계약 번호</dt><dd>' + realContractId + '</dd><dt>서명 일시</dt><dd>' + ws + '</dd><dt>서명인</dt><dd>' + (params.get('name') || '') + '</dd></dl><img src="' + signaturePng + '" alt="서명"><div class="muted">위 계약 내용(공사명·기간·내용·금액·대금 지급)과 동의 사항 5가지에 동의하고 서명했습니다. · 집지니 874-10-00088</div></div>');
-      const pb = document.getElementById('pdf-btn'); if (pb && pb.style.display !== 'none') { const dl = document.getElementById('pdf-dl'); dl.href = pb.href; dl.style.display = ''; }
+      const dl = document.getElementById('pdf-dl'), pb = document.getElementById('pdf-btn');
+      if (d.signedPdf) { dl.href = d.signedPdfDownload || d.signedPdf; dl.textContent = '📄 서명된 계약서(PDF) 내려받기'; dl.style.display = ''; if (pb) { pb.href = d.signedPdf; pb.textContent = '📄 서명된 계약서(PDF) 보기'; } }
+      else if (pb && pb.style.display !== 'none') { dl.href = pb.href; dl.style.display = ''; }
       const succ = document.getElementById('success'); document.querySelector('.wrap').insertBefore(succ, document.getElementById('main-form'));
       document.getElementById('success').classList.add('show');
       document.getElementById('contract-id').textContent = '계약ID: ' + realContractId;
