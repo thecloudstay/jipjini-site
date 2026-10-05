@@ -88,7 +88,7 @@ summary::after{content:'＋';color:var(--gray)}details[open] summary::after{cont
   // 2026-10-01: 사이트 JSON을 먼저 그리고(0.3초), 콘솔 실시간 데이터가 오면 다시 그림 — 조회 웹앱이 느려도(첫 호출 수 초) 빈 화면이 없다
   function merge(s,l){
     var d=s||{};
-    if(l){['name','quoteId','date','pm','total','codiRate','codi','sections','schedule','techs','alternatives','pdfUrl','pdfDownload','lump'].forEach(function(k){if(l[k]!=null&&(!(l[k] instanceof Array)||l[k].length))d[k]=l[k]});d.live=true}
+    if(l){['name','quoteId','date','pm','total','codiRate','codi','sections','schedule','techs','alternatives','pdfUrl','pdfDownload','lump','plan'].forEach(function(k){if(l[k]!=null&&(!(l[k] instanceof Array)||l[k].length))d[k]=l[k]});d.live=true}
     return d;
   }
   var rendered=false;
@@ -100,7 +100,7 @@ summary::after{content:'＋';color:var(--gray)}details[open] summary::after{cont
       '<div class="total"><div class="kv"><span>자재 + 인건비</span><b>'+won(t)+'</b></div>'+
       '<div class="kv"><span>코디·현장 조율 (부가세 포함)</span><b>'+won(codi+pm)+'</b></div>'+
       '<div class="kv"><span>공사 총액 (부가세 포함 · 집지니에 한 번에)</span><b class="big">'+won(t+codi+pm)+'</b></div>'+
-      '<div class="kv"><span>결제</span><b>착공 전 50% · 완공 확인 후 50%</b></div></div>'
+      (d.plan&&d.plan.length?d.plan.map(function(x,i){return'<div class="kv"><span>결제 '+(i+1)+'회 · '+esc(x['시점'])+'</span><b>'+won(x['금액'])+'</b></div>'}).join(''):'<div class="kv"><span>결제</span><b>착공 전 50% · 완공 확인 후 50%</b></div>')+'</div>'
     :'<div class="total"><div class="kv"><span>시공비 (자재+인건비, 마진 0%)</span><b>'+won(t)+'</b></div>'+
       '<div class="kv"><span>코디 운영비 ('+(d.codiRate*100).toFixed(1).replace('.0','')+'%, 정찰제, 부가세 포함)</span><b>'+won(codi)+'</b></div>'+
       (pm?'<div class="kv"><span>현장관리(PM 파견, 부가세 포함)</span><b>'+won(pm)+'</b></div>':'')+

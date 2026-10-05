@@ -156,7 +156,7 @@ canvas { display: block; width: 100%; height: 200px; background: #fafaf5; border
     const lb = function (id, html) { const el = document.getElementById(id); if (el && el.parentNode) el.parentNode.innerHTML = el.outerHTML.replace(/>$/, '>') + ' ' + html; };
     lb('ag2', '[필수] 집지니의 역할(자재·기술자 섭외와 지급, 공정 조율, 하자 보수)을 이해했습니다.');
     lb('ag3', '[필수] 자재·노무비는 <strong>집지니가 대신 지급</strong>하며, 저는 집지니에만 결제합니다.');
-    lb('ag4', '[필수] 공사 총액을 <strong>착공 전 50%, 완공 확인 후 50%</strong> 집지니에 입금하는 데 동의합니다.');
+    lb('ag4', '[필수] 공사 총액을 <strong>계약서에 적힌 결제 일정대로</strong> 집지니에 나눠 입금하는 데 동의합니다.');
   }
 
   const canvas = document.getElementById('signature-canvas');
