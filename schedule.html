@@ -57,7 +57,12 @@ h1{font-family:var(--serif);font-weight:800;font-size:25px;line-height:1.4;margi
   function md(d){if(!d)return'';var x=new Date(d+'T00:00:00');return (x.getFullYear()!==new Date().getFullYear()?x.getFullYear()+'년 ':'')+(x.getMonth()+1)+'/'+x.getDate()+'('+WD[x.getDay()]+')'}
   function days(s,e){return Math.round((new Date(e+'T00:00:00')-new Date(s+'T00:00:00'))/864e5)+1}
   function toast(t){var el=document.getElementById('toast');el.textContent=t;el.style.display='block';setTimeout(function(){el.style.display='none'},2200)}
-  function fail(){app.innerHTML='<div class="err">공정표를 찾을 수 없습니다.<br>링크가 정확한지 확인해 주시거나<br>카카오톡 채널 <b>@집지니</b>로 문의해 주세요.<a class="cta" href="https://pf.kakao.com/_NjpxhC/chat">카톡 문의하기</a></div>'}
+  // 2026-10-05 「없음」과 「연결 지연」을 나눠 보여 주고, 공정표 번호를 같이 보여 준다(문의 때 바로 찾게)
+  function fail(kind){
+    var net=kind==='net';
+    app.innerHTML='<div class="err">'+(net?'공정표를 불러오지 못했습니다.<br>인터넷 연결이 느리거나 잠시 지연되고 있습니다.<br><a class="cta" href="javascript:location.reload()" style="background:#2A2A2A">다시 불러오기</a>':'공정표를 찾을 수 없습니다.<br>링크가 정확한지 확인해 주시거나<br>카카오톡 채널 <b>@집지니</b>로 문의해 주세요.')+
+      (id?'<div style="font-size:12px;color:#999;margin-top:14px">공정표 번호 '+esc(id)+'</div>':'')+'<a class="cta" href="https://pf.kakao.com/_NjpxhC/chat">카톡 문의하기</a></div>';
+  }
   if(!id){fail();return}
   var today=new Date();today=today.getFullYear()+'-'+String(today.getMonth()+1).padStart(2,'0')+'-'+String(today.getDate()).padStart(2,'0');
   function state(p){if(/완료/.test(p.status))return['done','완료'];if(/중단|보류/.test(p.status))return['hold',p.status];if(/진행/.test(p.status)||(p.start<=today&&p.end>=today))return['now','진행 중'];if(p.end&&p.end<today)return['done','완료'];return['plan','예정']}
@@ -90,7 +95,17 @@ h1{font-family:var(--serif);font-weight:800;font-size:25px;line-height:1.4;margi
     if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(u).then(function(){toast('링크를 복사했습니다')},function(){prompt('아래 링크를 복사해 주세요',u)});}
     else prompt('아래 링크를 복사해 주세요',u);
   };
-  fetch(API+'?w='+encodeURIComponent(id),{redirect:'follow'}).then(function(r){return r.json()}).then(function(j){if(j&&j.ok&&j.phases&&j.phases.length)render(j);else fail()}).catch(fail);
+  // 시험 문자(W-TEST)·예시(DEMO) 링크는 예시 공정표로
+  if(/^(W-TEST|DEMO)$/i.test(id)){var t0=new Date();var ad=function(n){var x=new Date(t0.getTime()+n*864e5);return x.getFullYear()+'-'+String(x.getMonth()+1).padStart(2,'0')+'-'+String(x.getDate()).padStart(2,'0')};
+    render({ok:true,name:'예*고객',area:'예시 현장',start:ad(-3),end:ad(30),updated:'예시 화면 — 실제 공정표가 아닙니다',codiPhone:'010-9806-0422',phases:[{label:'사전준비',trades:'관리사무소 신고·보양',start:ad(-3),end:ad(-3),status:'완료'},{label:'철거',trades:'철거공사',start:ad(-2),end:ad(0),status:'진행중',worker:'김**'},{label:'설비·전기·창호',trades:'수전·배관, 조명공사, 창호공사',start:ad(3),end:ad(9),status:'예정'},{label:'목공',trades:'목공공사',start:ad(10),end:ad(16),status:'예정'},{label:'타일·도장',trades:'타일공사, 도장공사',start:ad(17),end:ad(23),status:'예정'},{label:'도배·바닥',trades:'도배공사, 바닥공사',start:ad(24),end:ad(28),status:'예정'},{label:'가구·마감',trades:'싱크·가구',start:ad(29),end:ad(30),status:'예정'}]});return}
+  // 웹앱이 처음 깨어날 때 느릴 수 있어 한 번 더 시도
+  function load(n){
+    var ctl=window.AbortController?new AbortController():null, tm=setTimeout(function(){if(ctl)ctl.abort()},15000);
+    fetch(API+'?w='+encodeURIComponent(id),{redirect:'follow',signal:ctl?ctl.signal:undefined}).then(function(r){return r.text()}).then(function(t){clearTimeout(tm);var j=null;try{j=JSON.parse(t)}catch(e){}
+      if(j&&j.ok&&j.phases&&j.phases.length)render(j);else if(j&&(j.err==='not found'||j.err==='bad id'))fail('none');else if(n<1)load(n+1);else fail('net')})
+    .catch(function(){clearTimeout(tm);if(n<1)load(n+1);else fail('net')});
+  }
+  load(0);
 })();
 </script>
 </body>
