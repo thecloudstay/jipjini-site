@@ -12,12 +12,13 @@
 
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>집지니 · 의뢰서 자체 서명</title>
-<meta name="description" content="집지니 코디 서비스 의뢰서에 동의 서명합니다. HTML5 Canvas 자체 서명.">
+<title>집지니 · 공사 계약 서명</title>
+<meta name="description" content="집지니 공사 계약 내용(공사명·기간·내용·금액·대금 지급)을 확인하고 서명합니다.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@300;400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.34.0/dist/tabler-icons.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" defer></script>
 <style>
 :root { --jp-dark:#1a472a; --jp-oatmeal:#F5F1E8; --jp-line:#C8C4BC; --jp-gray:#6B6B6B; --jp-red:#E74C3C; }
 * { box-sizing: border-box; }
@@ -52,7 +53,29 @@ canvas { display: block; width: 100%; height: 200px; background: #fafaf5; border
 .success-icon { font-size: 48px; color: var(--jp-dark); margin-bottom: 12px; }
 .success h2 { font-size: 22px; color: var(--jp-dark); }
 .contract-id { font-family: monospace; background: var(--jp-oatmeal); padding: 6px 12px; border-radius: 6px; display: inline-block; margin: 8px 0; }
+.sec { background:#fff; border:1px solid var(--jp-line); border-radius:12px; padding:20px 22px; margin-bottom:16px; }
+.sec h2 { font-size:16px; color:var(--jp-dark); margin:0 0 12px; border-left:4px solid var(--jp-dark); padding-left:10px; }
+.kv { display:grid; grid-template-columns:110px 1fr; gap:6px 12px; font-size:14px; line-height:1.55; }
+.kv dt { color:var(--jp-gray); } .kv dd { margin:0; font-weight:500; }
+.lines { width:100%; border-collapse:collapse; font-size:13px; }
+.lines th, .lines td { padding:7px 6px; border-bottom:1px solid #eee8dc; text-align:left; vertical-align:top; }
+.lines th { color:var(--jp-gray); font-weight:500; font-size:12px; } .lines .r { text-align:right; white-space:nowrap; }
+.lines tr.grp td { background:#f7f3ea; font-weight:700; color:var(--jp-dark); }
+.money { width:100%; border-collapse:collapse; font-size:14px; }
+.money td { padding:8px 4px; border-bottom:1px dashed #e4ddd0; } .money td.r { text-align:right; font-weight:600; white-space:nowrap; }
+.money tr.tot td { border-top:2px solid var(--jp-dark); border-bottom:none; font-size:16px; font-weight:800; color:var(--jp-dark); }
+.ph { display:flex; justify-content:space-between; gap:10px; font-size:13.5px; padding:7px 0; border-bottom:1px dashed #e4ddd0; } .ph:last-child { border-bottom:none; } .ph span { color:var(--jp-gray); white-space:nowrap; }
+.pdfbtn { display:block; text-align:center; padding:12px; border:1.5px solid var(--jp-dark); color:var(--jp-dark); border-radius:10px; font-weight:700; text-decoration:none; margin-bottom:16px; background:#fff; }
+.muted { color:var(--jp-gray); font-size:12.5px; }
+.signed { background:#fff; border:2px solid var(--jp-dark); border-radius:12px; padding:18px 22px; margin-bottom:16px; }
+.signed h2 { font-size:16px; color:var(--jp-dark); margin:0 0 10px; }
+.signed img { display:block; max-width:260px; width:100%; height:auto; border-bottom:1px solid #333; margin:6px 0 8px; }
+.savebar { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin:14px 0 4px; }
+.savebar button, .savebar a { padding:13px; border-radius:10px; font-weight:700; font-size:14px; border:1.5px solid var(--jp-dark); background:#fff; color:var(--jp-dark); text-align:center; text-decoration:none; cursor:pointer; }
+.savebar .main { background:var(--jp-dark); color:#fff; grid-column:1 / -1; }
+@media print { .savebar, .hero, #success .kk, .btn-clear { display:none !important; } body { background:#fff; padding:0; } }
 @media (max-width: 480px) {
+  .kv { grid-template-columns:90px 1fr; }
   canvas { height: 160px; }
   h1 { font-size: 22px; }
   .summary { padding: 18px; }
@@ -62,9 +85,9 @@ canvas { display: block; width: 100%; height: 200px; background: #fafaf5; border
 <body>
 <div class="wrap">
   <div class="hero">
-    <p class="eyebrow">DIGITAL SIGNATURE</p>
-    <h1>의뢰서 자체 서명</h1>
-    <p style="color: var(--jp-gray);">집지니 코디네이션 서비스 의뢰서 내용에 동의 서명해 주세요.</p>
+    <p class="eyebrow">집지니 · 전자 서명</p>
+    <h1>공사 계약 서명</h1>
+    <p style="color: var(--jp-gray);">공사명·기간·내용·금액·대금 지급 일정을 확인하고 서명해 주세요.</p>
   </div>
 
   <div id="error-box" class="error-box">
@@ -75,26 +98,29 @@ canvas { display: block; width: 100%; height: 200px; background: #fafaf5; border
   </div>
 
   <div id="main-form">
-    <div class="summary">
-      <h2>의뢰서 요약</h2>
-      <table>
-        <tr><th>의뢰서ID</th><td id="proposal-id">—</td></tr>
-        <tr><th>의뢰인</th><td id="customer-name">—</td></tr>
-        <tr><th>시공 주소</th><td id="customer-address">—</td></tr>
-        <tr><th>평수</th><td id="customer-area">—</td></tr>
-        <tr><th>시공 총액 (예상)</th><td id="quote-total">—</td></tr>
-        <tr><th>코디 운영비</th><td id="codi-fee">—</td></tr>
-      </table>
+    <div class="sec">
+      <h2>계약 개요</h2>
+      <dl class="kv">
+        <dt>계약자</dt><dd id="customer-name">—</dd>
+        <dt>현장</dt><dd id="customer-address">—</dd>
+        <dt>공사명</dt><dd id="work-title">—</dd>
+        <dt>공사 기간</dt><dd id="work-period">공정표 확정 후 안내</dd>
+        <dt>공사 범위</dt><dd id="work-scope">—</dd>
+        <dt>계약 번호</dt><dd id="proposal-id" class="muted">—</dd>
+      </dl>
     </div>
-
-    <div class="notice">
-      <strong>📋 책임 분리 안내</strong><br>
-      집지니의 역할은 <strong>코디네이션</strong> (자재상·기술자 매칭, 단가 검증, 공정 조율)이며, 실제 시공·하자 보증 책임은 자재상·기술자에게 있습니다. 자재·노무비는 의뢰인이 직접 결제하며, 집지니는 마진 0 정찰제 코디비만 받습니다.
+    <div class="sec" id="sec-phases" style="display:none;"><h2>공정 일정 <span id="ph-rate" class="muted" style="font-weight:500;"></span></h2><div id="ph-list"></div></div>
+    <div class="sec" id="sec-lines" style="display:none;"><h2>공사 내용</h2><table class="lines"><thead><tr><th>품목 · 규격</th><th class="r">수량</th><th class="r">금액</th></tr></thead><tbody id="lines-body"></tbody></table></div>
+    <div class="sec"><h2>공사 금액</h2><table class="money" id="money-tbl"><tr><td>불러오는 중…</td></tr></table></div>
+    <div class="sec" id="sec-plan" style="display:none;"><h2>대금 지급 방식</h2><table class="money" id="plan-tbl"></table><p class="muted" id="plan-note" style="margin:8px 0 0;"></p></div>
+    <a class="pdfbtn" id="pdf-btn" href="#" target="_blank" rel="noopener" style="display:none;">📄 계약서 전문(PDF) 보기</a>
+    <div class="notice" id="resp-notice">
+      <strong>📋 결제·책임 안내</strong><br><span id="resp-text">불러오는 중…</span>
     </div>
 
     <div class="agree-box">
       <h2 style="font-size: 16px; color: var(--jp-dark); margin: 0 0 12px;">동의 사항</h2>
-      <label><input type="checkbox" id="ag1" required> [필수] 의뢰서 내용을 모두 확인했으며 동의합니다.</label>
+      <label><input type="checkbox" id="ag1" required> [필수] 위 공사명·기간·내용·금액을 모두 확인했으며 동의합니다.</label>
       <label><input type="checkbox" id="ag2" required> [필수] 집지니의 코디 범위 + <strong>시공 책임 분리</strong> 내용을 이해했습니다.</label>
       <label><input type="checkbox" id="ag3" required> [필수] 자재·노무비는 자재상·기술자에게 <strong>직접 결제</strong>합니다.</label>
       <label><input type="checkbox" id="ag4" required> [필수] 코디비·PM비 <strong>시공 시작 전 100% 선불</strong> 결제 (정찰제·마진 0)에 동의합니다.</label>
@@ -112,20 +138,26 @@ canvas { display: block; width: 100%; height: 200px; background: #fafaf5; border
     </div>
 
     <button type="button" class="submit-btn" id="submit-btn" onclick="submitSignature()">
-      <i class="ti ti-signature"></i> 서명 제출 + 의뢰서 효력 발생
+      <i class="ti ti-signature"></i> 서명하고 계약하기
     </button>
   </div>
 
   <div class="success" id="success">
     <div class="success-icon"><i class="ti ti-check-circle"></i></div>
-    <h2>의뢰서 서명 완료</h2>
+    <h2>계약 서명 완료</h2>
     <p style="color: var(--jp-gray); margin: 12px 0;">서명이 정상 접수되었습니다. 담당 코디가 확인한 뒤 입금 안내와 착공 일정을 카톡·문자로 보내 드립니다.</p>
     <div class="contract-id" id="contract-id">계약ID: —</div>
+    <div class="savebar">
+      <button type="button" class="main" onclick="saveImage()">📷 계약 확인서 이미지로 저장</button>
+      <button type="button" onclick="window.print()">🖨 인쇄 · PDF 저장</button>
+      <a id="pdf-dl" href="#" target="_blank" rel="noopener" style="display:none;">📄 계약서 전문(PDF)</a>
+    </div>
+    <p class="muted" id="save-hint" style="margin:6px 0 0;">아래 계약 내용과 서명이 함께 저장됩니다. 저장이 안 되면 화면을 캡처해 두셔도 됩니다.</p>
     <p style="font-size: 13px; color: var(--jp-gray); line-height: 1.7;">
-      집지니의 코디(Codi)가 카톡으로 다음 단계 (코디비·PM비 선불 결제·시공 일정·자재상 매칭) 안내드립니다.<br>
+      담당 코디가 카톡·문자로 입금 안내와 착공 일정을 보내 드립니다.<br>
       문의: <strong>카카오톡 채널 @집지니</strong>
     </p>
-    <a href="https://pf.kakao.com/_NjpxhC/chat" target="_blank" rel="noopener" style="display: inline-block; margin-top: 16px; padding: 12px 22px; background: #FAE100; color: #3C1E1E; border-radius: 8px; font-weight: 700; text-decoration: none;">
+    <a class="kk" href="https://pf.kakao.com/_NjpxhC/chat" target="_blank" rel="noopener" style="display: inline-block; margin-top: 16px; padding: 12px 22px; background: #FAE100; color: #3C1E1E; border-radius: 8px; font-weight: 700; text-decoration: none;">
       <i class="ti ti-message-circle"></i> 카톡 채널 @집지니 추가
     </a>
   </div>
@@ -142,21 +174,86 @@ canvas { display: block; width: 100%; height: 200px; background: #fafaf5; border
   const reqId = params.get('r') || '';
   const wfId = params.get('w') || '';
 
-  document.getElementById('proposal-id').textContent = proposalId;
-  document.getElementById('customer-name').textContent = params.get('name') || '—';
-  document.getElementById('customer-address').textContent = params.get('addr') || '—';
-  document.getElementById('customer-area').textContent = (params.get('py') || '—') + '평';
-  document.getElementById('quote-total').textContent = (Number(params.get('total') || 0)).toLocaleString('ko-KR') + '원';
-  document.getElementById('codi-fee').textContent = (Number(params.get('codi') || 0)).toLocaleString('ko-KR') + '원';
-  if (params.get('lump') === '1') {   // 2026-10-05 일괄(집지니 수납): 공사대금을 집지니가 받아 대신 지급
-    const tot = Number(params.get('total') || 0) + Number(params.get('codi') || 0);
-    document.getElementById('quote-total').textContent = tot.toLocaleString('ko-KR') + '원 (공사 총액, 부가세 포함)';
-    document.getElementById('codi-fee').textContent = (Number(params.get('codi') || 0)).toLocaleString('ko-KR') + '원 (총액에 포함)';
-    const nt = document.querySelector('.notice'); if (nt) nt.innerHTML = '<strong>📋 결제·책임 안내</strong><br>이번 공사는 <strong>집지니가 공사 총액을 받아</strong> 자재상·기술자 지급까지 맡습니다. 따로 결제하실 곳은 없고, 완공 후 12개월 동안 시공 하자는 집지니가 책임지고 보수합니다.';
-    const lb = function (id, html) { const el = document.getElementById(id); if (el && el.parentNode) el.parentNode.innerHTML = el.outerHTML.replace(/>$/, '>') + ' ' + html; };
-    lb('ag2', '[필수] 집지니의 역할(자재·기술자 섭외와 지급, 공정 조율, 하자 보수)을 이해했습니다.');
-    lb('ag3', '[필수] 자재·노무비는 <strong>집지니가 대신 지급</strong>하며, 저는 집지니에만 결제합니다.');
-    lb('ag4', '[필수] 공사 총액을 <strong>계약서에 적힌 결제 일정대로</strong> 집지니에 나눠 입금하는 데 동의합니다.');
+  // 2026-10-06 전면 개편: 카톡봇 웹앱에서 계약 요약(공사 내용·금액·결제 일정)과 공정표를 받아 채운다. 실패하면 링크에 담긴 값으로.
+  const BOT = 'https://script.google.com/macros/s/AKfycbyTMw196qwKBmpz_TA3erW4OcBsmRFWTYioecO5evjq4poPOEXpyqkSKZZ91eTHWUI-/exec';
+  const $ = (id) => document.getElementById(id);
+  const won = (n) => Math.round(Number(n) || 0).toLocaleString('ko-KR') + '원';
+  const esc = (t) => String(t == null ? '' : t).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const md = (d) => { if (!d) return ''; const x = new Date(d + 'T00:00:00'); return (x.getMonth() + 1) + '/' + x.getDate() + '(' + '일월화수목금토'.charAt(x.getDay()) + ')'; };
+  const today = (() => { const t = new Date(); return t.getFullYear() + '-' + String(t.getMonth() + 1).padStart(2, '0') + '-' + String(t.getDate()).padStart(2, '0'); })();
+  const lumpP = params.get('lump') === '1';
+  $('proposal-id').textContent = quoteId || proposalId;
+  $('customer-name').textContent = params.get('name') || '—';
+  $('customer-address').textContent = params.get('addr') || '—';
+  if (params.get('tn')) $('work-title').textContent = params.get('tn');
+  if (params.get('per')) $('work-period').textContent = params.get('per');
+  function setLabel(id, html) { const el = $(id); if (el && el.parentNode) { el.parentNode.innerHTML = ''; el.checked = false; el.parentNode.appendChild(el); el.insertAdjacentHTML('afterend', ' ' + html); } }
+  function applyMode(lump) {
+    $('resp-text').innerHTML = lump
+      ? '이번 공사는 <strong>집지니가 공사 금액을 받아</strong> 자재상·기술자 지급까지 맡습니다. 따로 결제하실 곳은 없고, 완공 후 12개월 동안 시공 하자는 집지니가 책임지고 보수합니다.'
+      : '집지니는 <strong>코디네이션</strong>(자재상·기술자 매칭, 단가 검증, 공정 조율)을 맡고, 자재·노무비는 의뢰인이 자재상·기술자에게 직접 결제합니다. 시공 하자는 시공한 기술자·자재상이 책임지고 집지니가 12개월 동안 무료로 조율합니다.';
+    if (lump) {
+      setLabel('ag2', '[필수] 집지니의 역할(자재·기술자 섭외와 지급, 공정 조율, 하자 보수)을 이해했습니다.');
+      setLabel('ag3', '[필수] 자재·노무비는 <strong>집지니가 대신 지급</strong>하며, 저는 집지니에만 결제합니다.');
+      setLabel('ag4', '[필수] 위 <strong>대금 지급 일정</strong>대로 집지니 계좌에 나눠 입금하는 데 동의합니다.');
+    }
+  }
+  function renderMoney(m) {
+    if (!m) return;
+    $('money-tbl').innerHTML = m.일괄
+      ? '<tr><td>자재 + 인건비</td><td class="r">' + won(m.자재인건비) + '</td></tr><tr><td>코디·현장 조율</td><td class="r">' + won(m.코디) + '</td></tr>' +
+        '<tr><td><b>공사 금액 (부가세 별도)</b></td><td class="r"><b>' + won(m.공급가) + '</b></td></tr><tr><td>부가세 (10%)</td><td class="r">' + won(m.부가세) + '</td></tr>' +
+        '<tr class="tot"><td>합계 (부가세 포함)</td><td class="r">' + won(m.합계) + '</td></tr>'
+      : '<tr><td>자재 + 인건비 <span class="muted">(자재상·기술자에게 직접 결제)</span></td><td class="r">' + won(m.자재인건비) + '</td></tr>' +
+        '<tr><td>집지니 코디비' + (m.현장관리 ? '·현장관리비' : '') + ' <span class="muted">(부가세 포함)</span></td><td class="r">' + won(m.집지니청구) + '</td></tr>' +
+        '<tr class="tot"><td>고객 총 지출 (예상)</td><td class="r">' + won(m.합계) + '</td></tr>';
+  }
+  function renderPlan(plan, lump, pay) {
+    if (!lump) { $('sec-plan').style.display = ''; $('plan-tbl').innerHTML = '<tr><td>코디비' + '' + ' — 시공 시작 전 선불 (미진행 시 전액 환불)</td></tr><tr><td>자재비·인건비 — 자재상·기술자에게 직접 결제</td></tr>'; return; }
+    if (!plan || !plan.length) return;
+    const due = {}; (pay || []).forEach((x) => { due[x.when] = x.due; });
+    let tot = 0;
+    $('plan-tbl').innerHTML = plan.map((x, i) => { tot += Number(x.금액) || 0; const d = due[x.시점]; return '<tr><td><b>' + (i + 1) + '회</b> · ' + esc(x.시점) + (d ? ' <span class="muted">(' + md(d) + '까지)</span>' : '') + '</td><td class="r">' + won(x.금액) + '</td></tr>'; }).join('') +
+      '<tr class="tot"><td>합계 (부가세 포함)</td><td class="r">' + won(tot) + '</td></tr>';
+    $('plan-note').textContent = '집지니 명의 계좌로 입금(기본) · 카드는 집지니 네이버 스마트스토어 안전결제 · 현금영수증·세금계산서 발행';
+    $('sec-plan').style.display = '';
+  }
+  function renderLines(secs) {
+    if (!secs || !secs.length) return;
+    $('lines-body').innerHTML = secs.map((s) => '<tr class="grp"><td colspan="2">' + esc(s.trade) + '</td><td class="r">' + won(s.subtotal) + '</td></tr>' +
+      s.lines.map((l) => '<tr><td>' + esc(l.item) + (l.spec ? '<div class="muted">' + esc(l.spec) + '</div>' : '') + '</td><td class="r">' + (l.qty ? l.qty + ' ' + esc(l.unit) : '') + '</td><td class="r">' + won(l.amount) + '</td></tr>').join('')).join('');
+    $('sec-lines').style.display = '';
+  }
+  function renderPhases(d) {
+    if (!d || !d.phases || !d.phases.length) return;
+    const days = (a, b) => Math.max(1, Math.round((new Date(b + 'T00:00:00') - new Date(a + 'T00:00:00')) / 864e5) + 1);
+    $('work-period').textContent = md(d.start) + ' ~ ' + md(d.end) + ' (' + days(d.start, d.end) + '일)';
+    let sum = 0, done = 0; d.phases.forEach((p) => { const n = days(p.start, p.end || p.start); sum += n; if (/완료/.test(p.status)) done += n; });
+    $('ph-rate').textContent = '· 공정률 ' + (sum ? Math.round(done * 100 / sum) : 0) + '%';
+    $('ph-list').innerHTML = d.phases.map((p) => '<div class="ph"><b>' + esc(p.label) + '</b><span>' + md(p.start) + (p.end && p.end !== p.start ? ' ~ ' + md(p.end) : '') + '</span></div>').join('');
+    $('sec-phases').style.display = '';
+    return d.pay || [];
+  }
+  // 링크 값으로 먼저 (옛 링크도 금액이 보이게)
+  applyMode(lumpP);
+  (function () {
+    const cost = Number(params.get('total') || 0), sup = Number(params.get('sup') || 0);
+    if (lumpP && sup) renderMoney({ 일괄: true, 자재인건비: cost, 코디: sup - cost, 공급가: sup, 부가세: Number(params.get('vat') || Math.round(sup * 0.1)), 합계: Number(params.get('g') || sup + Math.round(sup * 0.1)) });
+    else if (!lumpP && cost) renderMoney({ 일괄: false, 자재인건비: cost, 집지니청구: Number(params.get('codi') || 0), 합계: cost + Number(params.get('codi') || 0) });
+  })();
+  const getJ = (u) => fetch(u).then((r) => r.json());
+  if (quoteId && reqId) {
+    getJ(BOT + '?s=' + encodeURIComponent(quoteId) + '&r=' + encodeURIComponent(reqId)).then((d) => {
+      if (!d || !d.ok) return;
+      if (!params.get('tn') && d.title) $('work-title').textContent = (params.get('name') ? params.get('name') + ' 고객님 ' : '') + d.title.replace(/^.*고객님\s*/, '');
+      if (d.scope) $('work-scope').textContent = d.scope;
+      applyMode(!!(d.money && d.money.일괄));
+      renderMoney(d.money); renderLines(d.sections);
+      if (d.pdf) { $('pdf-btn').href = d.pdf; $('pdf-btn').style.display = ''; }
+      const wf = wfId || d.workflowId;
+      const after = (pay) => renderPlan(d.plan, d.money && d.money.일괄, pay);
+      if (wf) getJ(BOT + '?w=' + encodeURIComponent(wf)).then((w) => after(w && w.ok ? renderPhases(w) : [])).catch(() => after([])); else after([]);
+    }).catch(() => {});
   }
 
   const canvas = document.getElementById('signature-canvas');
@@ -220,6 +317,16 @@ canvas { display: block; width: 100%; height: 200px; background: #fafaf5; border
     document.getElementById('signature-status').style.color = '';
   };
 
+  window.saveImage = function () {
+    const node = document.getElementById('main-form'), hint = document.getElementById('save-hint');
+    if (typeof html2canvas !== 'function') { hint.textContent = '이 휴대폰에서는 이미지 저장이 안 됩니다 — 「인쇄 · PDF 저장」을 누르거나 화면을 캡처해 주세요.'; return; }
+    hint.textContent = '이미지 만드는 중…';
+    html2canvas(node, { scale: 2, backgroundColor: '#F5F1E8', useCORS: true }).then(function (cv) {
+      const url = cv.toDataURL('image/png'), name = '집지니_계약확인서_' + (quoteId || 'sign') + '.png';
+      const a = document.createElement('a'); a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove();
+      hint.innerHTML = '저장했습니다. 아이폰에서 안 받아지면 아래 이미지를 길게 눌러 「사진에 저장」 하세요.<br><img src="' + url + '" style="width:100%;margin-top:8px;border:1px solid #ddd;border-radius:8px;">';
+    }).catch(function () { hint.textContent = '이미지 저장에 실패했습니다 — 「인쇄 · PDF 저장」을 누르거나 화면을 캡처해 주세요.'; });
+  };
   window.submitSignature = function() {
     for (let i = 1; i <= 5; i++) {
       if (!document.getElementById('ag' + i).checked) {
@@ -263,7 +370,14 @@ canvas { display: block; width: 100%; height: 200px; background: #fafaf5; border
     .then(function(d){
       if (!d || d.ok === false || d.err) throw new Error((d && d.err) || '서명 처리 실패');
       const realContractId = d.contractId || d.result?.contractId || (proposalId.replace('P-', 'C-'));
-      document.getElementById('main-form').style.display = 'none';
+      // 2026-10-06 서명 뒤에도 계약 내용을 남겨 두고(동의·서명 칸만 숨김) 서명 이미지와 일시를 붙여 저장·캡처할 수 있게
+      document.querySelector('.agree-box').style.display = 'none';
+      document.querySelector('.canvas-box').style.display = 'none';
+      document.getElementById('submit-btn').style.display = 'none';
+      const when = new Date(); const ws = when.getFullYear() + '. ' + (when.getMonth() + 1) + '. ' + when.getDate() + '. ' + String(when.getHours()).padStart(2, '0') + ':' + String(when.getMinutes()).padStart(2, '0');
+      document.getElementById('main-form').insertAdjacentHTML('beforeend', '<div class="signed" id="signed-block"><h2>✍ 서명 완료</h2><dl class="kv"><dt>계약 번호</dt><dd>' + realContractId + '</dd><dt>서명 일시</dt><dd>' + ws + '</dd><dt>서명인</dt><dd>' + (params.get('name') || '') + '</dd></dl><img src="' + signaturePng + '" alt="서명"><div class="muted">위 계약 내용(공사명·기간·내용·금액·대금 지급)과 동의 사항 5가지에 동의하고 서명했습니다. · 집지니 874-10-00088</div></div>');
+      const pb = document.getElementById('pdf-btn'); if (pb && pb.style.display !== 'none') { const dl = document.getElementById('pdf-dl'); dl.href = pb.href; dl.style.display = ''; }
+      const succ = document.getElementById('success'); document.querySelector('.wrap').insertBefore(succ, document.getElementById('main-form'));
       document.getElementById('success').classList.add('show');
       document.getElementById('contract-id').textContent = '계약ID: ' + realContractId;
       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -273,7 +387,7 @@ canvas { display: block; width: 100%; height: 200px; background: #fafaf5; border
       document.getElementById('error-msg').textContent = err.message || '네트워크 오류 — 집지니 카톡 @집지니로 문의해 주세요.';
       document.getElementById('error-box').classList.add('show');
       document.getElementById('submit-btn').disabled = false;
-      document.getElementById('submit-btn').innerHTML = '<i class="ti ti-signature"></i> 서명 제출 + 의뢰서 효력 발생';
+      document.getElementById('submit-btn').innerHTML = '<i class="ti ti-signature"></i> 서명하고 계약하기';
       document.getElementById('error-box').scrollIntoView({ behavior: 'smooth', block: 'center' });
     });
   };
