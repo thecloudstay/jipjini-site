@@ -148,6 +148,16 @@ canvas { display: block; width: 100%; height: 200px; background: #fafaf5; border
   document.getElementById('customer-area').textContent = (params.get('py') || '—') + '평';
   document.getElementById('quote-total').textContent = (Number(params.get('total') || 0)).toLocaleString('ko-KR') + '원';
   document.getElementById('codi-fee').textContent = (Number(params.get('codi') || 0)).toLocaleString('ko-KR') + '원';
+  if (params.get('lump') === '1') {   // 2026-10-05 일괄(집지니 수납): 공사대금을 집지니가 받아 대신 지급
+    const tot = Number(params.get('total') || 0) + Number(params.get('codi') || 0);
+    document.getElementById('quote-total').textContent = tot.toLocaleString('ko-KR') + '원 (공사 총액, 부가세 포함)';
+    document.getElementById('codi-fee').textContent = (Number(params.get('codi') || 0)).toLocaleString('ko-KR') + '원 (총액에 포함)';
+    const nt = document.querySelector('.notice'); if (nt) nt.innerHTML = '<strong>📋 결제·책임 안내</strong><br>이번 공사는 <strong>집지니가 공사 총액을 받아</strong> 자재상·기술자 지급까지 맡습니다. 따로 결제하실 곳은 없고, 완공 후 12개월 동안 시공 하자는 집지니가 책임지고 보수합니다.';
+    const lb = function (id, html) { const el = document.getElementById(id); if (el && el.parentNode) el.parentNode.innerHTML = el.outerHTML.replace(/>$/, '>') + ' ' + html; };
+    lb('ag2', '[필수] 집지니의 역할(자재·기술자 섭외와 지급, 공정 조율, 하자 보수)을 이해했습니다.');
+    lb('ag3', '[필수] 자재·노무비는 <strong>집지니가 대신 지급</strong>하며, 저는 집지니에만 결제합니다.');
+    lb('ag4', '[필수] 공사 총액을 <strong>착공 전 50%, 완공 확인 후 50%</strong> 집지니에 입금하는 데 동의합니다.');
+  }
 
   const canvas = document.getElementById('signature-canvas');
   const ctx = canvas.getContext('2d');

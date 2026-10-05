@@ -88,7 +88,7 @@ summary::after{content:'＋';color:var(--gray)}details[open] summary::after{cont
   // 2026-10-01: 사이트 JSON을 먼저 그리고(0.3초), 콘솔 실시간 데이터가 오면 다시 그림 — 조회 웹앱이 느려도(첫 호출 수 초) 빈 화면이 없다
   function merge(s,l){
     var d=s||{};
-    if(l){['name','quoteId','date','pm','total','codiRate','codi','sections','schedule','techs','alternatives','pdfUrl','pdfDownload'].forEach(function(k){if(l[k]!=null&&(!(l[k] instanceof Array)||l[k].length))d[k]=l[k]});d.live=true}
+    if(l){['name','quoteId','date','pm','total','codiRate','codi','sections','schedule','techs','alternatives','pdfUrl','pdfDownload','lump'].forEach(function(k){if(l[k]!=null&&(!(l[k] instanceof Array)||l[k].length))d[k]=l[k]});d.live=true}
     return d;
   }
   var rendered=false;
@@ -96,7 +96,12 @@ summary::after{content:'＋';color:var(--gray)}details[open] summary::after{cont
     rendered=true;
     var keep=(document.querySelector('.tab.on')||{}).dataset;keep=keep&&keep.p;
     var t=d.total,codi=Math.round((d.codi||0)*1.1),pm=Math.round((d.pm||0)*1.1);   // 2026-10-04 집지니 운영비는 부가세 포함 금액으로 표시
-    var sum='<div class="total"><div class="kv"><span>시공비 (자재+인건비, 마진 0%)</span><b>'+won(t)+'</b></div>'+
+    var sum=d.lump?   // 2026-10-05 일괄(집지니 수납): 공사 총액 한 줄
+      '<div class="total"><div class="kv"><span>자재 + 인건비</span><b>'+won(t)+'</b></div>'+
+      '<div class="kv"><span>코디·현장 조율 (부가세 포함)</span><b>'+won(codi+pm)+'</b></div>'+
+      '<div class="kv"><span>공사 총액 (부가세 포함 · 집지니에 한 번에)</span><b class="big">'+won(t+codi+pm)+'</b></div>'+
+      '<div class="kv"><span>결제</span><b>착공 전 50% · 완공 확인 후 50%</b></div></div>'
+    :'<div class="total"><div class="kv"><span>시공비 (자재+인건비, 마진 0%)</span><b>'+won(t)+'</b></div>'+
       '<div class="kv"><span>코디 운영비 ('+(d.codiRate*100).toFixed(1).replace('.0','')+'%, 정찰제, 부가세 포함)</span><b>'+won(codi)+'</b></div>'+
       (pm?'<div class="kv"><span>현장관리(PM 파견, 부가세 포함)</span><b>'+won(pm)+'</b></div>':'')+
       '<div class="kv"><span>예상 합계</span><b class="big">'+won(t+codi+pm)+'</b></div>'+
@@ -126,10 +131,10 @@ summary::after{content:'＋';color:var(--gray)}details[open] summary::after{cont
     if(d.notes&&d.notes.length){info+='<div class="note"><b>확인해 주세요</b><ul>'+d.notes.map(function(n){return'<li>'+esc(n)+'</li>'}).join('')+'</ul></div>'}
     if(d.buy&&d.buy.length){info+='<div class="note"><b>고객님이 직접 고르시는 품목</b> (시공·설치비만 견적 포함)<ul>'+d.buy.map(function(n){return'<li>'+esc(n)+'</li>'}).join('')+'</ul></div>'}
     info+='<div class="card"><h2>결제 · 책임 구분</h2>'+
-      '<div class="kv"><span>자재비·인건비</span><b>자재상·기술자에게 직접 결제</b></div>'+
+      (d.lump?'<div class="kv"><span>자재비·인건비</span><b>집지니가 대신 지급 (따로 결제하실 곳 없음)</b></div>':'<div class="kv"><span>자재비·인건비</span><b>자재상·기술자에게 직접 결제</b></div>')+
       '<div class="kv"><span>코디 운영비 (필수)</span><b>시공 전 선불 · 미진행 시 전액 환불</b></div>'+
       '<div class="kv"><span>현장관리비 (선택)</span><b>작업 전 전액 환불 · 진행분 차감</b></div>'+
-      '<div class="kv"><span>시공 하자 책임</span><b>시공한 기술자·자재상</b></div>'+
+      (d.lump?'<div class="kv"><span>시공 하자 책임</span><b>완공 후 12개월 집지니가 책임 보수</b></div>':'<div class="kv"><span>시공 하자 책임</span><b>시공한 기술자·자재상</b></div>')+
       '<div class="kv"><span>하자 조율</span><b>완공 후 12개월 집지니 코디 무상 지원</b></div>'+
       '<div class="kv"><span>운영비 결제·증빙</span><b>계좌 입금 또는 카드(스마트스토어) · 현금영수증·세금계산서 발행</b></div></div>';
     var h='<div class="brand">집지니 · 견적서</div><h1>'+esc(d.name)+' 고객님 견적서</h1>'+
