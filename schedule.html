@@ -65,13 +65,13 @@ h1{font-family:var(--serif);font-weight:800;font-size:25px;line-height:1.4;margi
   }
   if(!id){fail();return}
   var today=new Date();today=today.getFullYear()+'-'+String(today.getMonth()+1).padStart(2,'0')+'-'+String(today.getDate()).padStart(2,'0');
-  function state(p){if(/완료/.test(p.status))return['done','완료'];if(/중단|보류/.test(p.status))return['hold',p.status];if(/진행/.test(p.status)||(p.start<=today&&p.end>=today))return['now','진행 중'];if(p.end&&p.end<today)return['done','완료'];return['plan','예정']}
+  function state(p){if(/완료/.test(p.status))return['done','완료'];if(/중단|보류/.test(p.status))return['hold',p.status];if(/진행/.test(p.status)||(p.start<=today&&p.end>=today))return['now','진행 중'];if(p.end&&p.end<today)return['hold','일정 지남'];return['plan','예정']}   // 2026-10-05 날짜만 지났다고 「완료」로 보이지 않게 — 코디가 완료 처리한 공정만 완료
   function render(d){
     var total=days(d.start,d.end),ph=d.phases||[];
     var doneN=ph.filter(function(p){return state(p)[0]==='done'}).length;
     var pct=ph.length?Math.round(doneN*100/ph.length):0;
     var dd=Math.round((new Date(d.start+'T00:00:00')-new Date(today+'T00:00:00'))/864e5);
-    var headline=d.start>today?'착공까지 '+dd+'일':(d.end<today?'공사 완료':'공사 '+(Math.round((new Date(today+'T00:00:00')-new Date(d.start+'T00:00:00'))/864e5)+1)+'일째');
+    var headline=d.start>today?'착공까지 '+dd+'일':(ph.length&&doneN===ph.length?'공사 완료':d.end<today?'마무리 확인 중':'공사 '+(Math.round((new Date(today+'T00:00:00')-new Date(d.start+'T00:00:00'))/864e5)+1)+'일째');
     var s0=new Date(d.start+'T00:00:00').getTime(),span=Math.max(1,new Date(d.end+'T00:00:00').getTime()-s0+864e5);
     var rows=ph.map(function(p){var st=state(p),l=Math.max(0,(new Date(p.start+'T00:00:00').getTime()-s0)/span*100),w=Math.max(2,days(p.start,p.end)*864e5/span*100);
       return '<div class="ph '+st[0]+'"><div class="d">'+md(p.start)+(p.end&&p.end!==p.start?'<br>~ '+md(p.end):'')+'<small>'+days(p.start,p.end)+'일</small></div><div><b>'+esc(p.label)+'</b><span class="st '+st[0]+'">'+st[1]+'</span>'+
