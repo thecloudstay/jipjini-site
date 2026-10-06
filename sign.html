@@ -231,7 +231,7 @@ canvas { display: block; width: 100%; height: 200px; background: #fafaf5; border
     if (!window.__termPeriod) $('work-period').textContent = md(d.start) + ' ~ ' + md(d.end) + ' (' + days(d.start, d.end) + '일)';
     let sum = 0, done = 0; d.phases.forEach((p) => { const n = days(p.start, p.end || p.start); sum += n; if (/완료/.test(p.status)) done += n; });
     $('ph-rate').textContent = '· 공정률 ' + (sum ? Math.round(done * 100 / sum) : 0) + '%';
-    $('ph-list').innerHTML = d.phases.map((p) => '<div class="ph"><b>' + esc(p.label) + '</b><span>' + md(p.start) + (p.end && p.end !== p.start ? ' ~ ' + md(p.end) : '') + '</span></div>').join('');
+    $('ph-list').innerHTML = d.phases.map((p) => '<div class="ph"><b>' + esc(p.label) + '</b><span>' + md(p.start) + (p.end && p.end !== p.start ? ' ~ ' + md(p.end) : '') + '</span></div>' + (p.memo ? '<div class="muted" style="font-size:12px;margin:-2px 0 6px;white-space:pre-wrap;">📌 ' + esc(p.memo) + '</div>' : '')).join('');
     $('sec-phases').style.display = '';
     return d.pay || [];
   }
