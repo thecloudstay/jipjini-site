@@ -112,6 +112,7 @@ canvas { display: block; width: 100%; height: 200px; background: #fafaf5; border
     <div class="sec" id="sec-phases" style="display:none;"><h2>공정 일정 <span id="ph-rate" class="muted" style="font-weight:500;"></span></h2><div id="ph-list"></div></div>
     <div class="sec" id="sec-lines" style="display:none;"><h2>공사 내용</h2><table class="lines"><thead><tr><th>품목 · 규격</th><th class="r">수량</th><th class="r">금액</th></tr></thead><tbody id="lines-body"></tbody></table></div>
     <div class="sec"><h2>공사 금액</h2><table class="money" id="money-tbl"><tr><td>불러오는 중…</td></tr></table></div>
+    <div class="sec" id="sec-memo" style="display:none;"><h2>특이사항 · 특약</h2><div id="memo-body" style="font-size:13.5px;line-height:1.75;"></div></div>
     <div class="sec" id="sec-plan" style="display:none;"><h2>대금 지급 방식</h2><table class="money" id="plan-tbl"></table><p class="muted" id="plan-note" style="margin:8px 0 0;"></p></div>
     <a class="pdfbtn" id="pdf-btn" href="#" target="_blank" rel="noopener" style="display:none;">📄 계약서 전문(PDF) 보기</a>
     <div class="notice" id="resp-notice">
@@ -227,7 +228,7 @@ canvas { display: block; width: 100%; height: 200px; background: #fafaf5; border
   function renderPhases(d) {
     if (!d || !d.phases || !d.phases.length) return;
     const days = (a, b) => Math.max(1, Math.round((new Date(b + 'T00:00:00') - new Date(a + 'T00:00:00')) / 864e5) + 1);
-    $('work-period').textContent = md(d.start) + ' ~ ' + md(d.end) + ' (' + days(d.start, d.end) + '일)';
+    if (!window.__termPeriod) $('work-period').textContent = md(d.start) + ' ~ ' + md(d.end) + ' (' + days(d.start, d.end) + '일)';
     let sum = 0, done = 0; d.phases.forEach((p) => { const n = days(p.start, p.end || p.start); sum += n; if (/완료/.test(p.status)) done += n; });
     $('ph-rate').textContent = '· 공정률 ' + (sum ? Math.round(done * 100 / sum) : 0) + '%';
     $('ph-list').innerHTML = d.phases.map((p) => '<div class="ph"><b>' + esc(p.label) + '</b><span>' + md(p.start) + (p.end && p.end !== p.start ? ' ~ ' + md(p.end) : '') + '</span></div>').join('');
@@ -247,6 +248,13 @@ canvas { display: block; width: 100%; height: 200px; background: #fafaf5; border
       if (!d || !d.ok) return;
       if (!params.get('tn') && d.title) $('work-title').textContent = (params.get('name') ? params.get('name') + ' 고객님 ' : '') + d.title.replace(/^.*고객님\s*/, '');
       if (d.scope) $('work-scope').textContent = d.scope;
+      const tm = d.terms || {}; let mh = '';
+      if (d.memo) mh += '<div><b>견적 특이사항</b><div class="muted" style="color:#333;">' + esc(d.memo).replace(/\n/g, '<br>') + '</div></div>';
+      if (tm.특약) mh += '<div style="margin-top:8px;"><b>계약 특약</b><div style="color:#333;">' + esc(tm.특약).replace(/\n/g, '<br>') + '</div></div>';
+      if (tm.결제조건) mh += '<div style="margin-top:8px;"><b>결제 조건</b><div style="color:#333;">' + esc(tm.결제조건) + '</div></div>';
+      if (tm.하자개월 && tm.하자개월 !== 12) mh += '<div style="margin-top:8px;"><b>하자 보수 기간</b> 완공 후 ' + esc(tm.하자개월) + '개월</div>';
+      if (mh) { $('memo-body').innerHTML = mh; $('sec-memo').style.display = ''; }
+      if (tm.시작 && tm.완공) { window.__termPeriod = true; $('work-period').textContent = md(tm.시작) + ' ~ ' + md(tm.완공); }
       applyMode(!!(d.money && d.money.일괄));
       renderMoney(d.money); renderLines(d.sections);
       if (d.pdf) { $('pdf-btn').href = d.pdf; $('pdf-btn').style.display = ''; }
