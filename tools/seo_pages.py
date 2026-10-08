@@ -113,7 +113,7 @@ def region_pages(real, synth):
 {HOW}
 {faq_html(qas)}
 <h2>함께 보기</h2>
-<ul class="rel"><li><a href="../interior-price-table.html">실견적 시세표 — 지역·평형·공종별 평균</a></li><li><a href="../trade/">공종별 비용 (도배·바닥·욕실·창호…)</a></li>{('<li>평형별: ' + size_links + '</li>') if sizes else ''}{'<li><a href="../gimpo-interior.html">김포 인테리어 안내</a></li>' if '김포' in region else ''}{'<li><a href="../incheon-interior.html">인천·강화 인테리어 안내</a></li>' if sido == '인천' else ''}</ul>
+<ul class="rel"><li><a href="../interior-price-table.html">실견적 시세표 — 지역·평형·공종별 평균</a></li><li><a href="../trade/">공종별 비용 (도배·바닥·욕실·창호…)</a></li>{('<li>평형별: ' + size_links + '</li>') if sizes else ''}{'<li><a href="../gimpo-interior.html">김포 인테리어 안내</a></li>' if '김포' in region else ''}{'<li><a href="../incheon-interior.html">인천·강화 인테리어 안내</a></li>' if sido == '인천' else ''}{'<li><a href="../ganghwa-interior.html">강화 인테리어 안내 — 강화 사무실 기반</a></li>' if '강화' in region else ''}</ul>
 {CTA.format(t=esc(region) + ' 우리 집 견적, 줄마다 공개로 받아 보세요')}
 {FOOT_NOTE}"""
         write(f"region/{slug}.html", page(url, title, desc, ld, f"{esc(region)} 인테리어 비용<br>— 실견적 {len(rs)}건 · 산출 사례 {len(ss)}건", "지역별 비용", esc(region), body, "JIPJINI · 지역별 비용"))

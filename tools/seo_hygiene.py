@@ -18,7 +18,7 @@ START, END = "<!--SITENAV-->", "<!--/SITENAV-->"
 def nav_block(depth):
     r = "../" * depth
     links = [("interior-price-table.html", "실견적 시세표"), ("region/", "지역별 비용"), ("py/", "평형별 비용"), ("trade/", "공종별 비용"),
-             ("cases/", "견적 사례"), ("pricing.html", "가격·코디비"), ("workflow.html", "진행 방식"), ("request.html", "무료 견적 신청")]
+             ("cases/", "견적 사례"), ("ganghwa-interior.html", "강화 인테리어"), ("interior-coordinator.html", "코디네이터란"), ("pricing.html", "가격·코디비"), ("workflow.html", "진행 방식"), ("request.html", "무료 견적 신청")]
     a = "".join(f'<a href="{r}{h}" style="display:inline-block;margin:4px 6px;padding:6px 12px;background:rgba(0,0,0,.05);border-radius:14px;color:inherit;text-decoration:none;font-size:13px">{t}</a>' for h, t in links)
     return (f'{START}<div style="max-width:780px;margin:28px auto 0;padding:18px 16px 26px;text-align:center;font-family:\'Apple SD Gothic Neo\',\'Noto Sans KR\',sans-serif;color:#555;border-top:1px solid rgba(0,0,0,.08)">'
             f'<div style="font-size:12px;letter-spacing:2px;color:#999;margin-bottom:8px">집지니 · 마진 0 인테리어 코디</div>{a}'
