@@ -199,18 +199,25 @@ canvas { display: block; width: 100%; height: 200px; background: #fafaf5; border
       setLabel('ag4', '[필수] 위 <strong>대금 지급 일정</strong>대로 집지니 계좌에 나눠 입금하는 데 동의합니다.');
     }
   }
+  let PMSEL = false;   // 2026-10-08 현장관리(PM)를 고르면 PM이 자재·노무비를 대신 지급
+  function applyPm() {
+    if (PMSEL) return; PMSEL = true;
+    $('resp-text').innerHTML = '집지니는 <strong>코디네이션</strong>(자재상·기술자 매칭, 단가 검증, 공정 조율)을 맡고, 고르신 <strong>현장관리(PM)가 현장을 대신 관리하며 자재·노무비도 대신 지급</strong>합니다. 자재·노무비는 집지니 대금 지급 계좌에 맡기시면 PM이 공정·자재 입고를 확인한 뒤 자재상·기술자에게 보내고, 지급 내역을 공정마다 알려 드립니다(마진 0, 영수증은 고객님 명의). 시공 하자는 시공한 기술자·자재상이 책임지고 집지니가 12개월 동안 무료로 조율합니다.';
+    setLabel('ag3', '[필수] 자재·노무비는 집지니 대금 지급 계좌에 맡기고, <strong>PM이 공정 확인 후 대신 지급</strong>하는 데 동의합니다.');
+  }
   function renderMoney(m) {
+    if (m && !m.일괄 && Number(m.현장관리) > 0) applyPm();
     if (!m) return;
     $('money-tbl').innerHTML = m.일괄
       ? '<tr><td>자재 + 인건비</td><td class="r">' + won(m.자재인건비) + '</td></tr><tr><td>코디·현장 조율</td><td class="r">' + won(m.코디) + '</td></tr>' +
         '<tr class="tot"><td>공사 금액 <span class="muted" style="font-weight:400;">(부가가치세 별도)</span></td><td class="r">' + won(m.공급가) + '</td></tr>' +
         '<tr><td colspan="2" class="muted">※ 부가가치세액 10%는 별도입니다.</td></tr>'
-      : '<tr><td>자재 + 인건비 <span class="muted">(자재상·기술자에게 직접 결제)</span></td><td class="r">' + won(m.자재인건비) + '</td></tr>' +
+      : '<tr><td>자재 + 인건비 <span class="muted">(' + (PMSEL ? 'PM이 대신 지급' : '자재상·기술자에게 직접 결제') + ')</span></td><td class="r">' + won(m.자재인건비) + '</td></tr>' +
         '<tr><td>집지니 코디비' + (m.현장관리 ? '·현장관리비' : '') + ' <span class="muted">(부가세 포함)</span></td><td class="r">' + won(m.집지니청구) + '</td></tr>' +
         '<tr class="tot"><td>고객 총 지출 (예상)</td><td class="r">' + won(m.합계) + '</td></tr>';
   }
   function renderPlan(plan, lump, pay) {
-    if (!lump) { $('sec-plan').style.display = ''; $('plan-tbl').innerHTML = '<tr><td>코디비' + '' + ' — 시공 시작 전 선불 (미진행 시 전액 환불)</td></tr><tr><td>자재비·인건비 — 자재상·기술자에게 직접 결제</td></tr>'; return; }
+    if (!lump) { $('sec-plan').style.display = ''; $('plan-tbl').innerHTML = '<tr><td>코디비' + '' + ' — 시공 시작 전 선불 (미진행 시 전액 환불)</td></tr><tr><td>자재비·인건비 — ' + (PMSEL ? '집지니 대금 지급 계좌에 맡기면 PM이 공정 확인 후 대신 지급' : '자재상·기술자에게 직접 결제') + '</td></tr>'; return; }
     if (!plan || !plan.length) return;
     const due = {}; (pay || []).forEach((x) => { due[x.when] = x.due; });
     let tot = 0;

@@ -133,7 +133,7 @@ summary::after{content:'＋';color:var(--gray)}details[open] summary::after{cont
     if(d.notes&&d.notes.length){info+='<div class="note"><b>확인해 주세요</b><ul>'+d.notes.map(function(n){return'<li>'+esc(n)+'</li>'}).join('')+'</ul></div>'}
     if(d.buy&&d.buy.length){info+='<div class="note"><b>고객님이 직접 고르시는 품목</b> (시공·설치비만 견적 포함)<ul>'+d.buy.map(function(n){return'<li>'+esc(n)+'</li>'}).join('')+'</ul></div>'}
     info+='<div class="card"><h2>결제 · 책임 구분</h2>'+
-      (d.lump?'<div class="kv"><span>자재비·인건비</span><b>집지니가 대신 지급 (따로 결제하실 곳 없음)</b></div>':'<div class="kv"><span>자재비·인건비</span><b>자재상·기술자에게 직접 결제</b></div>')+
+      (d.lump?'<div class="kv"><span>자재비·인건비</span><b>집지니가 대신 지급 (따로 결제하실 곳 없음)</b></div>':(d.pm>0?'<div class="kv"><span>자재비·인건비</span><b>PM이 대신 지급 (집지니 대금 지급 계좌에 맡기시면 공정 확인 후 지급 · 마진 0 · 영수증은 고객님 명의)</b></div>':'<div class="kv"><span>자재비·인건비</span><b>자재상·기술자에게 직접 결제</b></div>'))+
       '<div class="kv"><span>코디 운영비 (필수)</span><b>시공 전 선불 · 미진행 시 전액 환불</b></div>'+
       '<div class="kv"><span>현장관리비 (선택)</span><b>작업 전 전액 환불 · 진행분 차감</b></div>'+
       (d.lump?'<div class="kv"><span>시공 하자 책임</span><b>완공 후 12개월 집지니가 책임 보수</b></div>':'<div class="kv"><span>시공 하자 책임</span><b>시공한 기술자·자재상</b></div>')+
