@@ -1,4 +1,4 @@
-name: 실견적 공개 자동 생성
+name: 사이트 자동화 (실견적 공개 · 검색 쪽 · 카드 · 사이트 지도 · IndexNow)
 on:
   schedule:
     - cron: "17 21 * * *"   # 매일 한국시간 06:17
@@ -13,14 +13,28 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: 실견적 쪽·시세표 생성
+        with:
+          fetch-depth: 0
+      - name: 준비 (한글 글꼴 · 그림 라이브러리)
         run: |
-          set -o pipefail
-          python3 tools/gen_real_quotes.py 2>&1 | tee tools/real_quotes_last.log || echo "생성 실패 — 기록 남김" >> tools/real_quotes_last.log
+          sudo apt-get update -qq && sudo apt-get install -y -qq fonts-noto-cjk >/dev/null
+          python3 -m pip install -q pillow
+      - name: 실견적 쪽·시세표
+        run: python3 tools/gen_real_quotes.py 2>&1 | tee tools/real_quotes_last.log
+      - name: 지역·평형·공종 쪽
+        run: python3 tools/seo_pages.py
+      - name: 카드 그림
+        run: python3 tools/cards.py
+      - name: 검색 위생 (og 그림 · 공통 안내 띠)
+        run: python3 tools/seo_hygiene.py
+      - name: 사이트 지도
+        run: python3 tools/sitemap_build.py
+      - name: IndexNow 제출 (네이버·빙)
+        run: python3 tools/indexnow.py || echo "IndexNow 실패 — 다음 날 다시"
       - name: 반영
         run: |
           git config user.name "jipjini-bot"
           git config user.email "thecloudstay@gmail.com"
           git add -A
-          git commit -m "실견적 공개 자동 갱신" || echo "바뀐 것 없음"
+          git commit -m "사이트 자동 갱신 (실견적·검색 쪽·카드·지도)" || echo "바뀐 것 없음"
           git push

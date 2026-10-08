@@ -54,6 +54,12 @@ def slug(c):
     rs = [x for x in rs if x] or [ROMA.get(parts[0], "") or "etc"]
     return f"q-{c['ymd']}-{'-'.join(rs)}" + (f"-{int(c['py'])}py" if c.get('py') else "")
 
+def region_slug(r):
+    parts = r.split()
+    rs = [ROMA.get(p, "") for p in parts]
+    rs = [x for x in rs if x]
+    return "-".join(rs) if rs else "etc"
+
 def py_band(py):
     py = int(py or 0)
     return "10평대 이하" if py < 20 else f"{py // 10 * 10}평대" if py < 50 else "50평 이상"
@@ -110,6 +116,7 @@ def head(url, title, desc, ld):
 <title>{esc(title)}</title>
 <meta name="description" content="{esc(desc)}">
 <meta property="og:type" content="article"><meta property="og:site_name" content="집지니">
+<meta property="og:image" content="https://jipjini.com/og-cover.png"><meta name="twitter:card" content="summary_large_image">
 <meta property="og:title" content="{esc(title)}"><meta property="og:description" content="{esc(desc)}"><meta property="og:url" content="{url}">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@500;600;700&display=swap" rel="stylesheet">
 <style>{CSS}</style>
@@ -170,6 +177,7 @@ def case_page(c, fname, others):
     rp = REGION_PAGE.get(c["region"].split()[-1]) or REGION_PAGE.get(c["region"].split()[0])
     rel = "".join(f'<li><a href="{o[0]}">{esc(o[1])}</a></li>' for o in others[:5])
     region_link = f'<li><a href="../{rp[0]}">{rp[1]} 인테리어 안내 — 마진 0 코디</a></li>' if rp else ""
+    region_link += f'<li><a href="../region/{region_slug(c["region"])}.html">{esc(c["region"])} 인테리어 비용 — 실견적·사례 모음</a></li>'
     status = "계약 진행" if c.get("contracted") else "견적 발송"
     return head(url, title, desc, ld) + f"""
 <body><div class="wrap">
@@ -348,6 +356,11 @@ def main():
             if o not in others: others.append(o)
         open(os.path.join(ROOT, "cases", f), "w", encoding="utf-8").write(case_page(c, f, others))
     open(os.path.join(ROOT, "interior-price-table.html"), "w", encoding="utf-8").write(table_page(cases, files))
+    # 공개 자료(이미 가린 것): 지역·평형·공종별 통계용 + 외부 공개 자료
+    os.makedirs(os.path.join(ROOT, "data"), exist_ok=True)
+    json.dump({"updated": TODAY.isoformat(), "count": len(cases), "note": "집지니 실견적 공개 자료 — 개인정보 제거, 금액은 공급가액(원)",
+               "cases": [dict(c, file="cases/" + f) for c, f in zip(cases, files)]},
+              open(os.path.join(ROOT, "data", "real-quotes.json"), "w", encoding="utf-8"), ensure_ascii=False, indent=1)
 
     # 사례 목록
     lis = "\n".join(f'<li><a href="{f}">{esc(t)}</a></li>' for f, t in zip(files, titles))
