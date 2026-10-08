@@ -292,8 +292,16 @@ def main():
     if len(sys.argv) > 1:
         data = json.load(open(sys.argv[1], encoding="utf-8"))
     else:
-        req = urllib.request.Request(BOT, headers={"User-Agent": "jipjini-site-bot"})
-        data = json.loads(urllib.request.urlopen(req, timeout=120).read().decode("utf-8"))
+        import time
+        data, last = None, ""
+        for i in range(4):
+            try:
+                req = urllib.request.Request(BOT, headers={"User-Agent": "jipjini-site-bot"})
+                raw = urllib.request.urlopen(req, timeout=180).read().decode("utf-8")
+                data = json.loads(raw); break
+            except Exception as e:
+                last = f"{type(e).__name__}: {e} / {raw[:300] if 'raw' in dir() else ''}"; time.sleep(20)
+        if data is None: print("자료 읽기 실패 — 변경 안 함:", last); return
     if not data.get("ok") or not isinstance(data.get("cases"), list):
         print("자료 없음 — 변경 안 함", str(data)[:200]); return
     cases = [c for c in data["cases"] if c.get("total") and c.get("sections")]
