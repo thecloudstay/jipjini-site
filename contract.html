@@ -125,7 +125,7 @@ body{font-family:'Pretendard',sans-serif;background:var(--jp-oatmeal);color:var(
       <div class="field"><label>시공 완료일 (예상)</label><input type="date" id="endDate"></div>
     </div>
     <div class="field-row">
-      <div class="field"><label>총 시공 견적액 (공급가액, 원)</label><input type="number" id="totalAmount" step="10000"><div class="field-hint">자재비·인건비 포함 추정 — 실제 직거래 금액에 따라 변동 (자재상·기술자에게 직접 결제).</div></div>
+      <div class="field"><label>총 시공 견적액 (공급가액, 원)</label><input type="number" id="totalAmount" step="10000"><div class="field-hint">자재비·인건비 포함 추정 — 실제 직거래 금액에 따라 변동 (자재상·기술자에게 직접 결제 · PM 선택 시 PM이 대신 지급).</div></div>
       <div class="field"><label>코디 비용 (공급가액, 원)</label><input type="number" id="coordiFee" step="10000"><div class="field-hint">정찰제 · 공급가액으로 입력 — 계약서에는 부가세 10%를 더한 금액으로 나갑니다</div></div>
     </div>
     <div class="field-row">
@@ -180,6 +180,11 @@ async function saveDraft(){if(!currentQuote){toast('견적서 먼저 불러오�
 async function submitContract(){if(!currentQuote){toast('견적서 먼저 불러오세요','error');return;}if(!canvases.customer.isDrawn()){toast('건축주 서명을 입력하세요','error');return;}if(!canvases.codinator.isDrawn()){toast('코디 서명을 입력하세요','error');return;}if(!confirm('계약을 확정하고 관리대장에 등록합니다. 계속하시겠어요?'))return;$('submitBtn').disabled=true;toast('계약서 생성 중... 15초 정도 걸립니다');try{const t=buildTerms();t.signaturePngs={customer:canvases.customer.toDataURL(),codinator:canvases.codinator.toDataURL()};const f=new URLSearchParams();f.append('type','build_contract');f.append('t',ownerT());f.append('quoteId',currentQuote['견적서ID']);f.append('termsJson',JSON.stringify(t));const r=await fetch(APPS_SCRIPT_URL,{method:'POST',body:f});const d=await r.json();if(!d.ok)throw new Error(d.err||'계약 생성 실패');$('successContractId').textContent=d.contractId;$('successPdfLink').href=d.contractPdfUrl;document.querySelectorAll('.lookup-card,.preview-card,.terms-card,.sign-section,.submit-section').forEach(el=>el.style.display='none');$('successScreen').classList.add('show');$('successScreen').scrollIntoView({behavior:'smooth'});toast('계약 확정 완료','success');}catch(e){toast('오류: '+e.message,'error');$('submitBtn').disabled=false;}}
 function buildTerms(){return{startDate:$('startDate').value,endDate:$('endDate').value,constructionTotal:Number($('totalAmount').value)||0,coordiFee:Number($('coordiFee').value)||0,pmFee:Number($('pmFee').value)||0,asMonths:Number($('asMonths').value)||6,paymentTerms:$('paymentTerms').value,specialNote:$('specialNote').value};}
 (function(){const p=new URLSearchParams(location.search);const q=p.get('quoteId');if(q){$('quoteIdInput').value=q;setTimeout(lookupQuote,300);}})();
+</script>
+<script>
+// 2026-10-08 PM 비용이 있으면 결제 조건 기본 문구를 「PM 대리 지급」으로 바꾼다 (코디가 직접 고친 문구는 건드리지 않음)
+(function(){var D1='코디비 · PM비 모두 시공 시작 전 100% 선불 결제. 자재비·인건비는 자재상·기술자에게 건축주가 직접 결제 (집지니 통과 X).',D2='코디비 · PM비 모두 시공 시작 전 100% 선불 결제. 자재비·인건비는 집지니 대금 지급 계좌에 공정 일정에 맞춰 맡기고, PM이 공정·자재 입고를 확인한 뒤 자재상·기술자에게 대신 지급 (수수료·마진 0, 영수증 건축주 명의, 지급 내역 공개, 남는 돈 7일 이내 반환).';function sync(){var f=document.getElementById('pmFee'),t=document.getElementById('paymentTerms');if(!f||!t)return;var pm=Number(f.value||0)>0;if(t.value===D1||t.value===D2)t.value=pm?D2:D1;}
+document.addEventListener('input',function(e){if(e.target&&e.target.id==='pmFee')sync();});setInterval(sync,1500);})();
 </script>
 </body>
 </html>
