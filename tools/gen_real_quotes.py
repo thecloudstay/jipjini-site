@@ -17,8 +17,28 @@ TODAY = datetime.date.today()
 
 ROMA = {"김포시":"gimpo","인천":"incheon","강화군":"ganghwa","서구":"seogu","연수구":"yeonsu","부평구":"bupyeong","남동구":"namdong","미추홀구":"michuhol","계양구":"gyeyang","중구":"junggu","동구":"donggu",
         "강서구":"gangseo","노원구":"nowon","은평구":"eunpyeong","송파구":"songpa","마포구":"mapo","강남구":"gangnam","서초구":"seocho","양천구":"yangcheon","영등포구":"yeongdeungpo","관악구":"gwanak","구로구":"guro","동작구":"dongjak","성북구":"seongbuk","강동구":"gangdong","광진구":"gwangjin","도봉구":"dobong","중랑구":"jungnang","용산구":"yongsan","성동구":"seongdong","종로구":"jongno","금천구":"geumcheon","서대문구":"seodaemun","동대문구":"dongdaemun","강북구":"gangbuk",
-        "고양시":"goyang","용인시":"yongin","성남시":"seongnam","부천시":"bucheon","수원시":"suwon","파주시":"paju","시흥시":"siheung","안산시":"ansan","화성시":"hwaseong","남양주시":"namyangju","하남시":"hanam","광명시":"gwangmyeong","김포":"gimpo","서울":"seoul","경기":"gg"}
+        "고양시":"goyang","용인시":"yongin","성남시":"seongnam","부천시":"bucheon","수원시":"suwon","파주시":"paju","시흥시":"siheung","안산시":"ansan","화성시":"hwaseong","남양주시":"namyangju","하남시":"hanam","광명시":"gwangmyeong","김포":"gimpo","서울":"seoul","경기":"gg","안양시":"anyang","동안구":"dongan","만안구":"manan","청주시":"cheongju","청원구":"cheongwon","수지구":"suji","기흥구":"giheung","처인구":"cheoin","분당구":"bundang","일산동구":"ilsandong","일산서구":"ilsanseo","덕양구":"deogyang","의정부시":"uijeongbu","평택시":"pyeongtaek","군포시":"gunpo","의왕시":"uiwang","오산시":"osan","이천시":"icheon","구리시":"guri","양주시":"yangju","광주시":"gwangju","과천시":"gwacheon"}
 REGION_PAGE = {"김포시": ("gimpo-interior.html", "김포"), "인천": ("incheon-interior.html", "인천"), "강화군": ("incheon-interior.html", "인천·강화")}
+
+GG = "수원 성남 고양 용인 부천 안산 안양 남양주 화성 평택 의정부 시흥 파주 김포 광명 광주 군포 하남 오산 이천 양주 구리 안성 포천 의왕 여주 동두천 과천 양평 가평 연천".split()
+SIDO_CITY = {"청주": "충북", "충주": "충북", "천안": "충남", "아산": "충남", "춘천": "강원", "원주": "강원", "대전": "대전", "세종": "세종"}
+SEOUL_GU = "강남 강동 강북 강서 관악 광진 구로 금천 노원 도봉 동대문 동작 마포 서대문 서초 성동 성북 송파 양천 영등포 용산 은평 종로 중랑".split()
+
+def norm_region(r):
+    t = [x for x in str(r or "").split() if x]
+    if not t: return "수도권"
+    a = re.sub(r"(특별시|광역시|특별자치시|시)$", "", t[0]) if re.match(r"^(서울|인천|부산|대구|광주|대전|울산|세종)", t[0]) else t[0]
+    a = {"경기도": "경기", "강원도": "강원", "충청북도": "충북", "충청남도": "충남"}.get(a, a)
+    rest = t[1:]
+    if a in SEOUL_GU or (a.endswith("구") and a[:-1] in SEOUL_GU):
+        return "서울 " + (a if a.endswith("구") else a + "구")
+    base = re.sub(r"(시|군)$", "", a)
+    if base in GG: return " ".join(["경기", base + "시"] + rest)
+    if base in SIDO_CITY: return " ".join([SIDO_CITY[base], base + "시"] + rest)
+    if a == "서울" and rest and not rest[0].endswith("구") and rest[0] in SEOUL_GU: rest[0] += "구"
+    if a == "인천" and rest and not re.search(r"(구|군)$", rest[0]): rest[0] += "구"
+    if a == "경기" and rest and not re.search(r"(시|군)$", rest[0]): rest[0] += "시"
+    return " ".join([a] + rest)
 
 def won(n): return f"{int(round(n)):,}원"
 def man(n):
@@ -30,9 +50,9 @@ def rfc(d, h=20):
 
 def slug(c):
     parts = c["region"].split()
-    rs = [ROMA.get(p, "") for p in parts[1:]] or [ROMA.get(parts[0], "sudogwon")]
-    rs = [x for x in rs if x] or [ROMA.get(parts[0], "sudogwon")]
-    return f"q-{c['ymd']}-{'-'.join(rs)}-{int(c['py'] or 0)}py"
+    rs = [ROMA.get(p, "") for p in parts[1:]]
+    rs = [x for x in rs if x] or [ROMA.get(parts[0], "") or "etc"]
+    return f"q-{c['ymd']}-{'-'.join(rs)}" + (f"-{int(c['py'])}py" if c.get('py') else "")
 
 def py_band(py):
     py = int(py or 0)
@@ -103,7 +123,9 @@ def crumb_ld(items): return {"@type": "BreadcrumbList", "itemListElement": [{"@t
 def case_title(c):
     trades = [s["trade"] for s in c["sections"]]
     scope = "올수리" if len(trades) >= 8 else "·".join(trades[:3]) + (" 등" if len(trades) > 3 else "")
-    return f"{c['region']} {int(c['py'])}평 {c['type'] or '아파트'} {scope} 실견적 — 시공총액 {man(c['total'])}"
+    return f"{c['region']} {pyt(c)}{c['type'] or '아파트'} {scope} 실견적 — 시공총액 {man(c['total'])}"
+
+def pyt(c): return f"{int(c['py'])}평 " if c.get("py") else ""
 
 def case_page(c, fname, others):
     url = SITE + "cases/" + fname
@@ -116,11 +138,11 @@ def case_page(c, fname, others):
     extra = c["codi"] + (c["pm"] or 0)
     grand = c["total"] + extra
     title = case_title(c) + " · 집지니"
-    desc = (f"{c['region']} {int(py)}평 {c['type'] or '아파트'} 실제 견적서를 개인정보만 가리고 공개합니다. "
+    desc = (f"{c['region']} {pyt(c)}{c['type'] or '아파트'} 실제 견적서를 개인정보만 가리고 공개합니다. "
             f"{len(trades)}개 공종 {nlines}줄, 시공총액 {won(c['total'])}" + (f"(평당 {man(per_py)})" if per_py else "") +
             f", 코디비 포함 {won(grand)}(공급가액). 상표·규격·수량·단가 전부 공개.")
     qas = [
-        (f"{short_region(c['region'])} {int(py)}평 인테리어 비용은 얼마인가요?",
+        (f"{short_region(c['region'])} {pyt(c)}인테리어 비용은 얼마인가요?",
          f"{d.year}년 {d.month}월 집지니 실견적 기준 시공총액(자재+인건비)은 {won(c['total'])}" + (f", 평당 약 {man(per_py)}" if per_py else "") +
          f"입니다. 집지니 코디비" + (" ·현장관리비" if c['pm'] else "") + f"를 더한 총액은 {won(grand)}(부가세 별도)입니다."),
         ("어떤 공사가 포함됐나요?", f"{', '.join(trades)} — 총 {len(trades)}개 공종, {nlines}줄입니다. 공종마다 자재(상표·규격)와 인건비를 나눠 적었습니다."),
@@ -132,7 +154,7 @@ def case_page(c, fname, others):
         {"@type": "Article", "headline": case_title(c), "description": desc, "datePublished": d.isoformat(), "dateModified": TODAY.isoformat(),
          "author": {"@type": "Organization", "name": "집지니", "url": SITE}, "publisher": {"@type": "Organization", "name": "집지니", "url": SITE},
          "mainEntityOfPage": url, "about": f"{c['region']} 인테리어 비용"},
-        crumb_ld([("집지니", SITE), ("견적 사례", SITE + "cases/"), (f"{c['region']} {int(py)}평 실견적", url)]),
+        crumb_ld([("집지니", SITE), ("견적 사례", SITE + "cases/"), (f"{c['region']} {pyt(c)}실견적", url)]),
         faq_ld(qas)]}
     rows = "\n".join(f'<tr><td>{esc(s["trade"])}</td><td class="r">{won(s["subtotal"])}</td></tr>' for s in secs)
     det = []
@@ -141,7 +163,7 @@ def case_page(c, fname, others):
                        f'</td><td class="r">{l["qty"]:g} {esc(l["unit"])}</td><td class="r">{won(l["price"])}</td><td class="r">{won(l["amount"])}</td></tr>' for l in s["lines"])
         det.append(f'<details><summary>{esc(s["trade"])} <span style="color:#6B6B6B;font-weight:400;font-size:12px">{len(s["lines"])}줄</span><span class="sum">{won(s["subtotal"])}</span></summary>'
                    f'<table class="dl"><tr><th>품목 · 상표·규격</th><th class="r">수량</th><th class="r">단가</th><th class="r">금액</th></tr>{lr}</table></details>')
-    meta = [("작성", f"{d.year}년 {d.month}월"), ("지역", c["region"]), ("평형", f"{int(py)}평 {esc(c['type'] or '')}"),
+    meta = [("작성", f"{d.year}년 {d.month}월"), ("지역", c["region"]), ("평형", (f"{int(py)}평 " if py else "") + esc(c['type'] or '')),
             ("구조", (f"방 {int(c['rooms'])} · 욕실 {int(c['baths'])}" if c.get("rooms") else "실측 기준")), ("준공", (c["built"] + "년") if c.get("built") else "구축"),
             ("공사 방식", c["method"]), ("공정", f"약 {c['days']}일" if c.get("days") else "착공 후 확정"), ("평당 시공비", man(per_py) if per_py else "-")]
     kv = "".join(f"<div>{k}<b>{v}</b></div>" for k, v in meta)
@@ -151,8 +173,8 @@ def case_page(c, fname, others):
     status = "계약 진행" if c.get("contracted") else "견적 발송"
     return head(url, title, desc, ld) + f"""
 <body><div class="wrap">
-<header><div class="eb">JIPJINI · 실견적 공개</div><h1>{esc(c['region'])} {int(py)}평 {esc(c['type'] or '아파트')}<br>— 시공총액 {man(c['total'])} · {len(trades)}개 공종 {nlines}줄</h1></header>
-<nav class="bc"><a href="../">집지니</a> › <a href="./">견적 사례</a> › {esc(c['region'])} {int(py)}평</nav>
+<header><div class="eb">JIPJINI · 실견적 공개</div><h1>{esc(c['region'])} {pyt(c)}{esc(c['type'] or '아파트')}<br>— 시공총액 {man(c['total'])} · {len(trades)}개 공종 {nlines}줄</h1></header>
+<nav class="bc"><a href="../">집지니</a> › <a href="./">견적 사례</a> › {esc(c['region'])} {pyt(c)}</nav>
 <main>
 <p>{d.year}년 {d.month}월 {esc(c['name'] or '')} 고객님께 실제로 보낸 견적서({status})를 개인정보만 가리고 그대로 공개합니다.
 이름은 성만 남겼고, 단지명·동호수·연락처는 별표(***)로 가렸습니다. 금액은 모두 공급가액(부가세 별도)이며 수량은 실측 후 정산합니다.</p>
@@ -220,7 +242,7 @@ def table_page(cases, files):
         crumb_ld([("집지니", SITE), ("실견적 시세표", url)]), faq_ld(qas)]}
     t1 = "\n".join(f'<tr><td>{esc(t)}</td><td class="r">{s[3]}건</td><td class="r">{man(s[0])}</td><td class="r">{man(s[1])} ~ {man(s[2])}</td></tr>' for t, s in trows)
     t2 = "\n".join(f'<tr><td>{esc(k[0])}</td><td>{k[1]}</td><td class="r">{len(v)}건</td><td class="r">{man(sum(x["total"] for x in v) / len(v))}</td><td class="r">{man(sum(x["total"] / x["py"] for x in v) / len(v))}</td></tr>' for k, v in rrows)
-    t3 = "\n".join(f'<tr><td><a href="cases/{f}">{esc(c["region"])} {int(c["py"] or 0)}평</a></td><td>{c["ymd"][:4]}.{c["ymd"][4:6]}</td><td class="r">{len(c["sections"])}</td><td class="r">{man(c["total"])}</td><td class="r">{man(c["total"] / c["py"]) if c.get("py") else "-"}</td></tr>' for c, f in zip(cases, files))
+    t3 = "\n".join(f'<tr><td><a href="cases/{f}">{esc(c["region"])} {pyt(c)}</a></td><td>{c["ymd"][:4]}.{c["ymd"][4:6]}</td><td class="r">{len(c["sections"])}</td><td class="r">{man(c["total"])}</td><td class="r">{man(c["total"] / c["py"]) if c.get("py") else "-"}</td></tr>' for c, f in zip(cases, files))
     return head(url, title, desc, ld) + f"""
 <body><div class="wrap">
 <header><div class="eb">JIPJINI · 실견적 시세표</div><h1>실견적 인테리어 시세표<br>— 실제 견적 {n}건, 줄마다 공개</h1></header>
@@ -276,12 +298,39 @@ def main():
         print("자료 없음 — 변경 안 함", str(data)[:200]); return
     cases = [c for c in data["cases"] if c.get("total") and c.get("sections")]
     if not cases: print("공개할 실견적 0건 — 변경 안 함"); return
+    for c in cases: c["region"] = norm_region(c["region"])
+    # 같은 고객이 다시 접수한 중복(같은 가린 이름·같은 시·7일 안)은 계약 건 > 최근 건 하나만
+    keep = []
+    for c in sorted(cases, key=lambda c: (not c.get("contracted"), -int(c["ymd"]))):
+        d = datetime.datetime.strptime(c["ymd"], "%Y%m%d")
+        dup = [k for k in keep if k.get("name") and k["name"] == c.get("name") and k["region"].split()[:2] == c["region"].split()[:2]
+               and abs((datetime.datetime.strptime(k["ymd"], "%Y%m%d") - d).days) <= 7]
+        if not dup: keep.append(c)
+    cases = sorted(keep, key=lambda c: c["ymd"], reverse=True)
     files, used = [], set()
     for c in cases:
         f = slug(c)
         if f in used: f += "-" + c["key"][:4]
         used.add(f); files.append(f + ".html")
     os.makedirs(os.path.join(ROOT, "cases"), exist_ok=True)
+    # 쪽 이름 기록(열쇠 → 파일). 이름이 바뀌었거나 빠진 견적의 옛 쪽은 지운다 (자료가 갑자기 반 넘게 줄면 지우지 않음)
+    mp = os.path.join(ROOT, "tools", "real_quotes_map.json")
+    old = json.load(open(mp, encoding="utf-8")) if os.path.exists(mp) else {}
+    new = {c["key"]: f for c, f in zip(cases, files)}
+    gone = [f for k, f in old.items() if new.get(k) != f and f not in new.values()]
+    import glob
+    if not old: gone = [os.path.basename(x) for x in glob.glob(os.path.join(ROOT, "cases", "q-*.html")) if os.path.basename(x) not in new.values()]
+    if len(cases) >= len(old) * 0.5:
+        for f in gone:
+            fp = os.path.join(ROOT, "cases", f)
+            if os.path.exists(fp): os.remove(fp)
+        sp0 = os.path.join(ROOT, "sitemap.xml"); s0 = open(sp0, encoding="utf-8").read()
+        rp0 = os.path.join(ROOT, "rss.xml"); r0 = open(rp0, encoding="utf-8").read()
+        for f in gone:
+            s0 = re.sub(r"\s*<url><loc>" + re.escape(SITE + "cases/" + f) + r"</loc>.*?</url>", "", s0)
+            r0 = re.sub(r"\s*<item>\s*<title>[^<]*</title>\s*<link>" + re.escape(SITE + "cases/" + f) + r"</link>.*?</item>", "", r0, flags=re.S)
+        open(sp0, "w", encoding="utf-8").write(s0); open(rp0, "w", encoding="utf-8").write(r0)
+    json.dump(new, open(mp, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
     titles = [case_title(c) for c in cases]
     for i, (c, f) in enumerate(zip(cases, files)):
         same = [(files[j], titles[j]) for j in range(len(cases)) if j != i and cases[j]["region"].split()[:2] == c["region"].split()[:2]]
@@ -326,7 +375,7 @@ def main():
     <link>{loc}</link>
     <guid>{loc}</guid>
     <pubDate>{rfc(d)}</pubDate>
-    <description>{esc(c['region'])} {int(c['py'] or 0)}평 실제 견적서 공개 — {len(c['sections'])}개 공종, 시공총액 {won(c['total'])}. 상표·규격·수량·단가 전부 공개.</description>
+    <description>{esc(c['region'])} {pyt(c)}실제 견적서 공개 — {len(c['sections'])}개 공종, 시공총액 {won(c['total'])}. 상표·규격·수량·단가 전부 공개.</description>
   </item>
 """
     if SITE + "interior-price-table.html" not in r:

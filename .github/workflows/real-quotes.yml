@@ -19,6 +19,6 @@ jobs:
         run: |
           git config user.name "jipjini-bot"
           git config user.email "thecloudstay@gmail.com"
-          git add cases interior-price-table.html sitemap.xml rss.xml gimpo-interior.html incheon-interior.html
+          git add -A cases tools/real_quotes_map.json interior-price-table.html sitemap.xml rss.xml gimpo-interior.html incheon-interior.html
           git commit -m "실견적 공개 자동 갱신" || echo "바뀐 것 없음"
           git push
