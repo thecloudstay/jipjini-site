@@ -43,7 +43,7 @@ export default {
     if (request.method !== "POST") return new Response("Method Not Allowed", { status: 405, headers: { allow: "GET, POST" } });
     const body = await request.text();
     const ctl = new AbortController();
-    const timer = setTimeout(() => ctl.abort(), 3500);
+    const timer = setTimeout(() => ctl.abort(), CORS["access-control-allow-origin"] ? 10000 : 3500);   // 카카오는 5초 제한이라 3.5초, 사이트 대화창은 10초까지 기다림
     const t0 = Date.now();
     try {
       const r = await gasCall(body, ctl.signal);

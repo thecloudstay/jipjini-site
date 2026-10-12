@@ -78,7 +78,7 @@
     text = String(text || '').trim(); if (!text || busy) return;
     if (text === '내 견적 확인하기') { say('me', text); say('bot', '의뢰하실 때 적으신 성함과 휴대폰 번호를 함께 보내 주세요.\n(예: 홍길동 010-1234-5678)\n견적서가 준비돼 있으면 바로 링크를 드립니다.'); return; }
     busy = true; say('me', text); var t = say('bot', '답변을 찾는 중…'); t.classList.add('jjc-typing');
-    var ctl = window.AbortController ? new AbortController() : null, tm = setTimeout(function () { if (ctl) ctl.abort(); }, 9000);
+    var ctl = window.AbortController ? new AbortController() : null, tm = setTimeout(function () { if (ctl) ctl.abort(); }, 15000);
     fetch(API, { method: 'POST', headers: { 'content-type': 'application/json' }, signal: ctl ? ctl.signal : undefined,
       body: JSON.stringify({ intent: { name: '사이트 상담' }, userRequest: { utterance: text, user: { id: uid } }, action: { params: { 출처: 'site', 쪽: location.pathname } } }) })
       .then(function (r) { return r.json(); })
