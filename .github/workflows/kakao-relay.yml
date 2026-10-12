@@ -1,0 +1,30 @@
+# 2026-10-12 카톡 중계(넷리파이 엣지 함수) 자동 배포
+# netlify/** 가 바뀌어 올라오면 넷리파이 jipjini 사이트에 바로 올린다. (넷리파이 저장소 연결·드래그 올리기 대신)
+# 필요한 비밀값 1개: NETLIFY_AUTH_TOKEN (대표가 넷리파이 → 사용자 설정 → 액세스 토큰에서 만들어 저장소 Settings → Secrets 에 저장)
+name: kakao-relay
+on:
+  push:
+    branches: [main]
+    paths: ["netlify/**", "netlify.toml", ".github/workflows/kakao-relay.yml"]
+  workflow_dispatch: {}
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: 토큰 확인
+        env: { T: "${{ secrets.NETLIFY_AUTH_TOKEN }}" }
+        run: |
+          if [ -z "$T" ]; then echo "NETLIFY_AUTH_TOKEN 비밀값이 없습니다 — 저장소 설정에서 넣어 주세요."; exit 1; fi
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - name: 넷리파이에 올리기 (사이트 jipjini)
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: 951b2849-3e1c-4698-879d-504bae9a0330
+        run: |
+          npx -y netlify-cli@17 deploy --prod --dir . --no-build --message "카톡 중계 자동 배포 ${GITHUB_SHA::7}"
+      - name: 확인
+        run: |
+          sleep 5
+          curl -s "https://jipjini.netlify.app/kakao?probe=1" | head -c 300
