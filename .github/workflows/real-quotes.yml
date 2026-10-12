@@ -23,6 +23,8 @@ jobs:
         run: python3 tools/gen_real_quotes.py 2>&1 | tee tools/real_quotes_last.log
       - name: 지역·평형·공종 쪽
         run: python3 tools/seo_pages.py
+      - name: 자주 묻는 질문 쪽 (챗봇과 같은 답)
+        run: python3 tools/faq_page.py
       - name: 카드 그림
         run: python3 tools/cards.py
       - name: 검색 위생 (og 그림 · 공통 안내 띠)
