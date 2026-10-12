@@ -46,6 +46,10 @@ def main():
         else:
             i = s.rfind("</body>")
             if i > 0: s = s[:i] + block + "\n" + s[i:]
+        # 2026-10-12 사이트 상담 도우미(카톡봇과 같은 두뇌) — 모든 공개 쪽에
+        if "assets/chatbot.js" not in s:
+            i2 = s.rfind("</body>")
+            if i2 > 0: s = s[:i2] + f'<script src="{"../" * depth}assets/chatbot.js" defer></script>\n' + s[i2:]
         for img in re.findall(r"<img\b[^>]*>", s):
             if not re.search(r'\balt=', img): noalt.append(rel); break
         if s != o: open(f, "w", encoding="utf-8").write(s); changed += 1

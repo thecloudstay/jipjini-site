@@ -11,7 +11,10 @@ const FALLBACK = {
       buttons: [{ action: "operator", label: "상담직원과 채팅하기" }, { action: "phone", label: "전화하기", phoneNumber: "010-9806-0422" }] } }
   ] }
 };
-const json = (obj, extra) => new Response(JSON.stringify(obj), { status: 200, headers: Object.assign({ "content-type": "application/json; charset=utf-8" }, extra || {}) });
+// 2026-10-12 사이트 대화창(jipjini.com)도 같은 두뇌를 쓴다 → 브라우저 호출 허용(CORS)
+const ALLOW = /^https:\/\/(www\.)?jipjini\.com$|^https:\/\/thecloudstay\.github\.io$|^http:\/\/localhost(:\d+)?$/;
+let CORS = {};
+const json = (obj, extra) => new Response(JSON.stringify(obj), { status: 200, headers: Object.assign({ "content-type": "application/json; charset=utf-8" }, CORS, extra || {}) });
 
 async function gasCall(body, signal) {
   const r1 = await fetch(GAS_URL, { method: "POST", headers: { "content-type": "application/json" }, body, redirect: "manual", signal });
@@ -23,6 +26,9 @@ async function gasCall(body, signal) {
 export default {
   async fetch(request) {
     const u = new URL(request.url);
+    const origin = request.headers.get("origin") || "";
+    CORS = ALLOW.test(origin) ? { "access-control-allow-origin": origin, "access-control-allow-methods": "POST, GET, OPTIONS", "access-control-allow-headers": "content-type", "vary": "origin" } : {};
+    if (request.method === "OPTIONS") return new Response(null, { status: 204, headers: CORS });
     if (request.method === "GET") {
       if (u.searchParams.get("probe") === "1") {
         const t0 = Date.now();
