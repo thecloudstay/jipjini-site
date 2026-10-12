@@ -36,7 +36,8 @@ export default async (request) => {
   }
   const body = await request.text();
   const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), 4300);
+  // 2026-10-12 4.3초 → 3.5초: 엣지 첫 기동 시간까지 더해 카카오 5초 제한을 넘기면 「스킬 서버 연결 오류」가 떴다 → 늦으면 일찍 끊고 안내 문구로 답한다
+  const timer = setTimeout(() => controller.abort(), 3500);
   const t0 = Date.now();
   try {
     // 앱스 스크립트는 POST 결과를 302(script.googleusercontent.com)로 넘긴다. 자동 따라가기(follow)는 엣지에서 4초 넘게 걸려
