@@ -108,6 +108,7 @@ summary::after{content:'＋';color:var(--gray)}details[open] summary::after{cont
       '<div class="kv"><span>예상 합계 (부가가치세 별도)</span><b class="big">'+won(t+codi+pm)+'</b></div>'+
       (pm?'<div class="kv"><span>현장관리 미선택 시</span><b>'+won(t+codi)+'</b></div>':'')+
       ((d.alternatives||[]).map(function(a){return'<div class="kv"><span>'+esc(a.label)+' (시공 '+won(a.total)+')</span><b>'+won(a.total+Math.round(a.codi||0))+'</b></div>'}).join(''))+'</div>';
+    sum+='<div class="card" style="border:1.5px solid #9a5a4a"><h2>정확한 금액은 현장에서</h2><p style="font-size:14px;line-height:1.8;color:#3d3d3d">이 견적은 의뢰서 숫자로 낸 예상 금액입니다. 코디가 직접 방문해 실측·집 상태 점검·샘플 선택까지 하고 48시간 안에 수정 견적을 드립니다.</p><a href="visit.html" style="display:block;text-align:center;margin-top:12px;background:#2a2a2a;color:#fbf8f1;padding:14px;border-radius:10px;text-decoration:none;font-weight:700">실측·방문 상담 신청 (3만 원, 네이버 결제) →</a></div>';   // 2026-10-14 유료 실측·방문 상담
     var gap='<div class="card"><h2>견적서 갑지 · 공종별 총괄표</h2><table class="tbl"><tr><th>공종</th><th class="r">항목</th><th class="r">금액</th><th class="r">비중</th></tr>';
     d.sections.forEach(function(s){gap+='<tr><td>'+esc(s.trade)+'</td><td class="r">'+s.lines.length+'</td><td class="r">'+won(s.subtotal)+'</td><td class="r">'+(s.subtotal/t*100).toFixed(1)+'%</td></tr>'});
     gap+='<tr><td><b>시공 총액</b></td><td></td><td class="r"><b>'+won(t)+'</b></td><td class="r">100%</td></tr></table></div>';

@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>집지니 · 실측·방문 상담</title>
+<meta name="description" content="집지니 코디가 현장에 가서 실측하고 집 상태를 점검한 뒤, 정확한 견적으로 다시 맞춰 드립니다. 출장·상담비 3만 원, 네이버 안전결제.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-35EM7T3M9W"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-35EM7T3M9W');
+</script>
+<style>
+  :root{
+    --charcoal:#2A2A2A;--charcoal-soft:#3D3D3D;--gray:#6B6B6B;--gray-soft:#9A9A9A;
+    --line:#C8C4BC;--oatmeal:#F5F1E8;--oatmeal-soft:#FBF8F1;--oatmeal-deep:#EBE5D5;
+    --clay:#9a5a4a;--clay-deep:#7c4438;--forest:#4a6a45;--white:#fff;
+    --serif:'Nanum Myeongjo',serif;--latin:'Cormorant Garamond',serif;--sans:'Pretendard','Apple SD Gothic Neo',sans-serif;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:var(--oatmeal-soft);font-family:var(--sans);color:var(--charcoal);-webkit-font-smoothing:antialiased;letter-spacing:-.2px}
+  .wrap{max-width:600px;margin:0 auto;padding:0 20px 72px}
+  .eyebrow{font-family:var(--latin);font-size:17px;font-weight:600;letter-spacing:5px;color:var(--clay);text-transform:uppercase;text-align:center}
+  .rule{width:34px;height:1px;background:var(--clay);margin:14px auto 0}
+  .hero{text-align:center;padding:60px 0 40px}
+  .hero h1{font-family:var(--serif);font-weight:800;font-size:38px;line-height:1.4;letter-spacing:-1px;margin-top:24px}
+  .hero h1 em{font-style:normal;color:var(--clay)}
+  .hero .sub{font-size:15px;color:var(--gray);line-height:1.85;margin-top:18px}
+  .card{background:var(--white);border:1px solid var(--oatmeal-deep);border-radius:16px;padding:30px 26px}
+  .lab{font-family:var(--serif);font-weight:700;font-size:16px;margin-bottom:14px}
+  .amount-box{position:relative}
+  .amount-box input{width:100%;font-family:var(--serif);font-size:30px;font-weight:800;text-align:right;padding:16px 50px 16px 18px;border:1.5px solid var(--line);border-radius:12px;outline:none;background:var(--oatmeal-soft);color:var(--charcoal);transition:border-color .15s}
+  .amount-box input:focus{border-color:var(--clay)}
+  .amount-box .won{position:absolute;right:18px;top:50%;transform:translateY(-50%);font-size:18px;font-weight:700;color:var(--gray)}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+  .chip{border:1px solid var(--line);background:var(--white);border-radius:999px;padding:8px 15px;font-size:13.5px;font-weight:500;color:var(--charcoal-soft);cursor:pointer;transition:.12s}
+  .chip:hover{border-color:var(--clay);color:var(--clay)}
+  .result{margin-top:20px;background:var(--oatmeal);border:1px dashed var(--line);border-radius:12px;padding:18px;text-align:center}
+  .result .q{font-size:14px;color:var(--gray)}
+  .result .q b{font-family:var(--serif);font-size:32px;color:var(--clay);display:block;margin:4px 0;letter-spacing:-.5px}
+  .result small{color:var(--gray);font-size:12.5px}
+  .cta{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;text-align:center;margin-top:20px;background:var(--charcoal);color:var(--oatmeal-soft);font-size:17px;font-weight:700;padding:18px;border:none;border-radius:12px;cursor:pointer;text-decoration:none;transition:.14s;font-family:var(--serif)}
+  .cta:hover{background:var(--clay-deep)}
+  .pay-icons{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:16px}
+  .pay-icons span{font-size:12px;color:var(--gray);background:var(--white);border:1px solid var(--oatmeal-deep);border-radius:6px;padding:4px 10px;font-weight:500}
+  .note{font-size:12.5px;color:var(--gray);margin-top:14px;line-height:1.7;text-align:center}
+  .note b{color:var(--clay-deep)}
+  .sec{padding:54px 0 0}
+  .sec-h{font-family:var(--serif);font-weight:700;font-size:20px;text-align:center;margin-bottom:26px}
+  .steps{display:flex;border-top:1px solid var(--line)}
+  .stp{flex:1;padding:24px 12px 22px;text-align:center}
+  .stp + .stp{border-left:1px solid var(--line)}
+  .stp .i{font-family:var(--latin);font-size:26px;font-weight:500;color:var(--clay)}
+  .stp .t{font-size:13px;color:var(--charcoal-soft);line-height:1.55;margin-top:12px}
+  .stp .t b{font-weight:700}
+  .foot{margin-top:60px;border-top:1px solid var(--line);padding-top:26px;text-align:center}
+  .foot .lg{font-family:var(--latin);font-size:18px;letter-spacing:5px;color:var(--clay);text-transform:uppercase}
+  .foot p{font-size:12px;color:var(--gray);line-height:2;margin-top:10px}
+  .foot a{color:var(--gray)}
+</style>
+<style>
+  .list{margin-top:6px}
+  .list li{list-style:none;padding:12px 0;border-bottom:1px solid var(--oatmeal-deep);font-size:14.5px;line-height:1.7;color:var(--charcoal-soft)}
+  .list li b{color:var(--charcoal)}
+  .price{font-family:var(--serif);font-weight:800;font-size:40px;text-align:center;color:var(--clay);margin:6px 0 2px}
+  .price small{font-size:15px;color:var(--gray);font-weight:400}
+</style>
+<link rel="canonical" href="https://jipjini.com/visit.html">
+<meta property="og:title" content="집지니 · 실측·방문 상담 3만 원">
+<meta property="og:description" content="코디가 현장에 가서 실측·상태 점검 후 정확한 견적으로 다시 맞춰 드립니다. 네이버 안전결제.">
+<meta property="og:url" content="https://jipjini.com/visit.html">
+<meta property="og:image" content="https://jipjini.com/og-cover.png">
+<meta name="twitter:card" content="summary_large_image">
+</head>
+<body>
+<div class="wrap">
+  <div class="hero">
+    <div class="eyebrow">Site Visit</div>
+    <div class="rule"></div>
+    <h1>웹 견적을<br><em>현장 견적</em>으로</h1>
+    <div class="sub">받으신 견적은 의뢰서 숫자로 낸 예상 금액입니다.<br>코디가 직접 가서 재고, 집 상태를 보고, 확정에 가까운 견적으로 다시 맞춰 드립니다.</div>
+  </div>
+  <div class="card">
+    <div class="lab">실측·방문 상담</div>
+    <div class="price">30,000<small> 원 · 출장비·상담 포함</small></div>
+    <ul class="list">
+      <li><b>정밀 실측</b> — 방·주방·욕실·발코니 크기, 천장 높이, 창·문 개수를 레이저로 재서 물량을 바로잡습니다</li>
+      <li><b>집 상태 점검</b> — 바닥 들뜸·수평, 욕실 타일·방수, 곰팡이·결로 원인, 샷시·배관·전기 상태를 사진으로 남깁니다</li>
+      <li><b>살릴 것과 바꿀 것</b> — 예산 안에서 체감이 큰 곳에 돈을 모으도록 현장에서 같이 정합니다</li>
+      <li><b>자재 샘플</b> — 바닥·벽지·필름·타일 샘플을 들고 가 색과 등급을 함께 고릅니다</li>
+      <li><b>수정 견적</b> — 방문 후 48시간 안에 실측 반영 견적과 공정표를 보내 드립니다(추가될 수 있는 비용까지 미리 안내)</li>
+    </ul>
+    <a class="cta" id="payBtn" href="https://smartstore.naver.com/zipjini/products/13613705245" target="_blank" rel="noopener">네이버 안전결제 (수량 30 입력) →</a>
+    <div class="pay-icons"><span>네이버페이</span><span>신용·체크카드</span><span>계좌이체</span></div>
+    <p class="note">스토어 상품 단가는 1,000원입니다. <b>수량란에 30</b>을 넣으면 3만 원이 됩니다.<br>서울·경기·인천 수도권 방문(그 밖의 지역은 카톡으로 먼저 문의해 주세요)</p>
+  </div>
+  <div class="sec">
+    <div class="sec-h">신청 방법 (1분)</div>
+    <div class="steps">
+      <div class="stp"><div class="i">01</div><div class="t">네이버에서<br><b>3만 원 결제</b></div></div>
+      <div class="stp"><div class="i">02</div><div class="t">카톡 <b>@집지니</b>로<br>성함·희망 날짜 2개</div></div>
+      <div class="stp"><div class="i">03</div><div class="t">코디가<br><b>방문 시간 확정</b></div></div>
+      <div class="stp"><div class="i">04</div><div class="t">48시간 안<br><b>수정 견적</b></div></div>
+    </div>
+    <a class="cta" href="https://pf.kakao.com/_NjpxhC/chat" target="_blank" rel="noopener" style="background:var(--clay)">카톡으로 방문 날짜 알려 주기 →</a>
+    <p class="note">방문 전날까지 취소하시면 전액 돌려 드립니다.</p>
+  </div>
+<div class="foot">
+    <div class="lg">Jipjini</div>
+    <p>집지니 · 대표 박찬영 · 사업자등록번호 874-10-00088<br>카카오톡 @집지니 · <a href="mailto:thecloudstay@gmail.com">thecloudstay@gmail.com</a> · <a href="https://jipjini.com">jipjini.com</a></p>
+  </div>
+</div>
+<script>
+  document.getElementById('payBtn').addEventListener('click',function(e){
+    if(typeof gtag==='function'){gtag('event','visit_pay_start',{value:30000,currency:'KRW'});}
+    e.preventDefault();alert('스마트스토어 결제 화면에서\n수량란에 [ 30 ]을 입력하세요 (3만 원).\n결제 후 카톡 @집지니로 성함과 희망 날짜를 보내 주세요.');window.open('https://smartstore.naver.com/zipjini/products/13613705245','_blank');
+  });
+</script>
+<!--SITENAV--><div style="max-width:780px;margin:28px auto 0;padding:18px 16px 26px;text-align:center;font-family:'Apple SD Gothic Neo','Noto Sans KR',sans-serif;color:#555;border-top:1px solid rgba(0,0,0,.08)"><div style="font-size:12px;letter-spacing:2px;color:#999;margin-bottom:8px">집지니 · 마진 0 인테리어 코디</div><a href="interior-price-table.html" style="display:inline-block;margin:4px 6px;padding:6px 12px;background:rgba(0,0,0,.05);border-radius:14px;color:inherit;text-decoration:none;font-size:13px">실견적 시세표</a><a href="region/" style="display:inline-block;margin:4px 6px;padding:6px 12px;background:rgba(0,0,0,.05);border-radius:14px;color:inherit;text-decoration:none;font-size:13px">지역별 비용</a><a href="py/" style="display:inline-block;margin:4px 6px;padding:6px 12px;background:rgba(0,0,0,.05);border-radius:14px;color:inherit;text-decoration:none;font-size:13px">평형별 비용</a><a href="trade/" style="display:inline-block;margin:4px 6px;padding:6px 12px;background:rgba(0,0,0,.05);border-radius:14px;color:inherit;text-decoration:none;font-size:13px">공종별 비용</a><a href="cases/" style="display:inline-block;margin:4px 6px;padding:6px 12px;background:rgba(0,0,0,.05);border-radius:14px;color:inherit;text-decoration:none;font-size:13px">견적 사례</a><a href="faq.html" style="display:inline-block;margin:4px 6px;padding:6px 12px;background:rgba(0,0,0,.05);border-radius:14px;color:inherit;text-decoration:none;font-size:13px">자주 묻는 질문</a><a href="ganghwa-interior.html" style="display:inline-block;margin:4px 6px;padding:6px 12px;background:rgba(0,0,0,.05);border-radius:14px;color:inherit;text-decoration:none;font-size:13px">강화 인테리어</a><a href="interior-coordinator.html" style="display:inline-block;margin:4px 6px;padding:6px 12px;background:rgba(0,0,0,.05);border-radius:14px;color:inherit;text-decoration:none;font-size:13px">코디네이터란</a><a href="pricing.html" style="display:inline-block;margin:4px 6px;padding:6px 12px;background:rgba(0,0,0,.05);border-radius:14px;color:inherit;text-decoration:none;font-size:13px">가격·코디비</a><a href="workflow.html" style="display:inline-block;margin:4px 6px;padding:6px 12px;background:rgba(0,0,0,.05);border-radius:14px;color:inherit;text-decoration:none;font-size:13px">진행 방식</a><a href="request.html" style="display:inline-block;margin:4px 6px;padding:6px 12px;background:rgba(0,0,0,.05);border-radius:14px;color:inherit;text-decoration:none;font-size:13px">무료 견적 신청</a><div style="font-size:12px;color:#999;margin-top:10px">서울·경기·인천 수도권 전역 · 자재상·기술자 직거래 · 정찰제 코디비</div></div><!--/SITENAV-->
+<script src="assets/chatbot.js" defer></script>
+</body>
+</html>
