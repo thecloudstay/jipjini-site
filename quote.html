@@ -95,7 +95,7 @@ summary::after{content:'＋';color:var(--gray)}details[open] summary::after{cont
   function render(d){
     rendered=true;
     var keep=(document.querySelector('.tab.on')||{}).dataset;keep=keep&&keep.p;
-    var t=d.total,codi=Math.round((d.codi||0)*1.1),pm=Math.round((d.pm||0)*1.1);   // 2026-10-04 집지니 운영비는 부가세 포함 금액으로 표시
+    var t=d.total,codi=Math.round(d.codi||0),pm=Math.round(d.pm||0);   // 2026-10-14 대표 결정: 모든 금액 부가가치세 별도 표시
     var sum=d.lump?   // 2026-10-05 일괄(집지니 수납): 공사 총액 한 줄
       '<div class="total"><div class="kv"><span>자재 + 인건비</span><b>'+won(t)+'</b></div>'+
       '<div class="kv"><span>코디·현장 조율</span><b>'+won((d.codi||0)+(d.pm||0))+'</b></div>'+
@@ -103,11 +103,11 @@ summary::after{content:'＋';color:var(--gray)}details[open] summary::after{cont
       '<div class="kv"><span>※ 부가가치세액 10%는 별도입니다.</span><b></b></div>'+
       (d.plan&&d.plan.length?d.plan.map(function(x,i){return'<div class="kv"><span>대금 '+(i+1)+'회 · '+esc(x['시점'])+'</span><b>'+won(Math.round(x['금액']/1.1))+'</b></div>'}).join(''):'<div class="kv"><span>결제</span><b>착공 전 50% · 완공 확인 후 50%</b></div>')+'</div>'
     :'<div class="total"><div class="kv"><span>시공비 (자재+인건비, 마진 0%)</span><b>'+won(t)+'</b></div>'+
-      '<div class="kv"><span>코디 운영비 ('+(d.codiRate*100).toFixed(1).replace('.0','')+'%, 정찰제, 부가세 포함)</span><b>'+won(codi)+'</b></div>'+
-      (pm?'<div class="kv"><span>현장관리(PM 파견, 부가세 포함)</span><b>'+won(pm)+'</b></div>':'')+
-      '<div class="kv"><span>예상 합계</span><b class="big">'+won(t+codi+pm)+'</b></div>'+
+      '<div class="kv"><span>코디 운영비 ('+(d.codiRate*100).toFixed(1).replace('.0','')+'%, 정찰제)</span><b>'+won(codi)+'</b></div>'+
+      (pm?'<div class="kv"><span>현장관리(PM 파견)</span><b>'+won(pm)+'</b></div>':'')+
+      '<div class="kv"><span>예상 합계 (부가가치세 별도)</span><b class="big">'+won(t+codi+pm)+'</b></div>'+
       (pm?'<div class="kv"><span>현장관리 미선택 시</span><b>'+won(t+codi)+'</b></div>':'')+
-      ((d.alternatives||[]).map(function(a){return'<div class="kv"><span>'+esc(a.label)+' (시공 '+won(a.total)+')</span><b>'+won(a.total+Math.round(a.codi*1.1))+'</b></div>'}).join(''))+'</div>';
+      ((d.alternatives||[]).map(function(a){return'<div class="kv"><span>'+esc(a.label)+' (시공 '+won(a.total)+')</span><b>'+won(a.total+Math.round(a.codi||0))+'</b></div>'}).join(''))+'</div>';
     var gap='<div class="card"><h2>견적서 갑지 · 공종별 총괄표</h2><table class="tbl"><tr><th>공종</th><th class="r">항목</th><th class="r">금액</th><th class="r">비중</th></tr>';
     d.sections.forEach(function(s){gap+='<tr><td>'+esc(s.trade)+'</td><td class="r">'+s.lines.length+'</td><td class="r">'+won(s.subtotal)+'</td><td class="r">'+(s.subtotal/t*100).toFixed(1)+'%</td></tr>'});
     gap+='<tr><td><b>시공 총액</b></td><td></td><td class="r"><b>'+won(t)+'</b></td><td class="r">100%</td></tr></table></div>';
