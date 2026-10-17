@@ -70,7 +70,7 @@ h1{font-family:var(--serif);font-weight:800;font-size:28px;letter-spacing:10px;t
 <script>
 (function(){
   var API='https://script.google.com/macros/s/AKfycbzxm4mmZs1yVJPa3T-wb0cdJbEUMPYl6dDKtQNSNmJy4nEsCholrEnPAN8e0JfAtOV99A/exec';
-  var q=new URLSearchParams(location.search), id=(q.get('id')||'').replace(/[^A-Za-z0-9-]/g,''), k=(q.get('k')||'').replace(/[^A-Za-z0-9]/g,''), DEMO=q.get('demo')==='1';
+  var q=new URLSearchParams(location.search), id=(q.get('id')||'').replace(/[^A-Za-z0-9-]/g,''), k=(q.get('k')||'').replace(/[^A-Za-z0-9]/g,''), DEMO=q.get('demo')==='1', PREVIEW=q.get('preview')==='1';
   var app=document.getElementById('app'), D=null;
   function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
   function won(n){return Math.round(n||0).toLocaleString('ko-KR')+'원'}
@@ -126,7 +126,7 @@ h1{font-family:var(--serif);font-weight:800;font-size:28px;letter-spacing:10px;t
       if(DEMO){if(!inApp())window.print();else toast('예시 화면 — 실제 발주서에서 PDF 파일이 내려받아집니다.');return}
       var b=this;b.disabled=true;toast('PDF를 만드는 중입니다…');
       get('po_pdf').then(function(j){b.disabled=false;if(!j.ok)throw new Error(j.err);var bin=atob(j.data),u8=new Uint8Array(bin.length);for(var i=0;i<bin.length;i++)u8[i]=bin.charCodeAt(i);
-        var url=URL.createObjectURL(new Blob([u8],{type:'application/pdf'})),a=document.createElement('a');a.href=url;a.download=j.이름||'발주서.pdf';document.body.appendChild(a);a.click();setTimeout(function(){a.remove();URL.revokeObjectURL(url)},4000)})
+        var url=URL.createObjectURL(new Blob([u8],{type:'application/pdf'})),a=document.createElement('a');a.href=url;a.download=j.이름||'발주서.pdf';document.body.appendChild(a);a.click();setTimeout(function(){a.remove();URL.revokeObjectURL(url)},4000);if(inApp())toast('내려받기가 안 보이면 오른쪽 위 메뉴에서 「다른 브라우저로 열기」를 눌러 주세요.')})
       .catch(function(e){b.disabled=false;toast('PDF 실패: '+(e.message||'다시 눌러 주세요'))})};
     document.getElementById('bReply').onclick=function(){
       var P=prices(),L=D.줄||[],s=0;P.forEach(function(p,j){s+=p*(Number(L[j].수량)||1)});
@@ -140,12 +140,13 @@ h1{font-family:var(--serif);font-weight:800;font-size:28px;letter-spacing:10px;t
       var now=new Date(),stamp=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0')+' '+String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
       if(DEMO){(D.올린파일=D.올린파일||[]).push({종류:kind,이름:f.name,시각:stamp});render();toast('예시 — 실제로는 집지니 구글 드라이브에 보관됩니다.');return}
       var b=this;b.disabled=true;toast('올리는 중입니다…');var rd=new FileReader();
-      rd.onload=function(){post('po_file',{종류:kind,이름:f.name,mime:f.type||(/\.pdf$/i.test(f.name)?'application/pdf':''),data:rd.result}).then(function(j){if(!j.ok)throw new Error(j.err);(D.올린파일=D.올린파일||[]).push({종류:kind,이름:f.name,시각:stamp});render();toast('올렸습니다 — 집지니에 바로 전달됩니다.')}).catch(function(e){b.disabled=false;toast('올리지 못했습니다: '+(e.message||''))})};
+      var EXT={pdf:'application/pdf',jpg:'image/jpeg',jpeg:'image/jpeg',png:'image/png',heic:'image/heic',xlsx:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',xls:'application/vnd.ms-excel'},ext=(f.name.match(/\.([A-Za-z0-9]+)$/)||[])[1];
+      rd.onload=function(){post('po_file',{종류:kind,이름:f.name,mime:EXT[String(ext||'').toLowerCase()]||f.type||'',data:rd.result}).then(function(j){if(!j.ok)throw new Error(j.err);(D.올린파일=D.올린파일||[]).push({종류:kind,이름:f.name,시각:stamp});render();toast('올렸습니다 — 집지니에 바로 전달됩니다.')}).catch(function(e){b.disabled=false;toast('올리지 못했습니다: '+(e.message||''))})};
       rd.readAsDataURL(f)};
   }
   if(DEMO){D=SAMPLE;render();return}
   if(!id||!k){fail();return}
-  get('po').then(function(j){if(!j||!j.ok){fail(j&&j.err);return}D=j;render()}).catch(function(){fail('잠시 연결이 원활하지 않습니다. 새로 고침해 주세요.')});
+  get('po', PREVIEW?'&preview=1':'').then(function(j){if(!j||!j.ok){fail(j&&j.err);return}D=j;render()}).catch(function(){fail('잠시 연결이 원활하지 않습니다. 새로 고침해 주세요.')});
 })();
 </script>
 </body>
