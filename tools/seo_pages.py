@@ -41,7 +41,7 @@ CTA = '''<div class="cta"><div style="font-size:17px;font-weight:600">{t}</div>
 <a href="https://jipjini.com/request.html">무료 견적 신청 (5분)</a><a href="https://pf.kakao.com/_NjpxhC/chat">카톡 문의</a></div>'''
 HOW = '''<h2>진행 방법</h2>
 <p>① 홈페이지 의뢰서(5분) → ② 코디가 자재·단가·공정이 줄마다 적힌 견적서를 보내 드립니다(무료) → ③ 진행을 정하시면 계약 후 자재상·기술자와 직거래로 시공합니다. 집지니는 자재·인건비에 마진을 붙이지 않고 정찰제 코디비만 받습니다.</p>'''
-FOOT_NOTE = '<p class="note">※ 실견적은 집지니가 고객에게 실제로 보낸 견적서(개인정보 제거), 산출 사례는 같은 단가표로 평형·범위별로 계산한 표준 견적입니다. 금액은 공급가액(부가세 별도)이며 실측 후 달라질 수 있습니다.</p>'
+FOOT_NOTE = '<p class="note">※ 실견적은 집지니가 고객에게 실제로 보낸 견적서(개인정보 제거), 산출 사례는 같은 단가표로 평형·범위별로 계산한 표준 견적입니다. 금액은 공급가액(부가세 10% 별도)이며 실측 후 달라질 수 있습니다.</p>'
 
 def faq_html(qas): return '<h2>자주 묻는 질문</h2><div class="faq">' + "".join(f'<div class="q">{esc(q)}</div><div class="a">{esc(a)}</div>' for q, a in qas) + "</div>"
 

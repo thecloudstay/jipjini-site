@@ -151,7 +151,7 @@ def case_page(c, fname, others):
     qas = [
         (f"{short_region(c['region'])} {pyt(c)}인테리어 비용은 얼마인가요?",
          f"{d.year}년 {d.month}월 집지니 실견적 기준 시공총액(자재+인건비)은 {won(c['total'])}" + (f", 평당 약 {man(per_py)}" if per_py else "") +
-         f"입니다. 집지니 코디비" + (" ·현장관리비" if c['pm'] else "") + f"를 더한 총액은 {won(grand)}(부가세 별도)입니다."),
+         f"입니다. 집지니 코디비" + (" ·현장관리비" if c['pm'] else "") + f"를 더한 총액은 {won(grand)}(부가세 10% 별도)입니다."),
         ("어떤 공사가 포함됐나요?", f"{', '.join(trades)} — 총 {len(trades)}개 공종, {nlines}줄입니다. 공종마다 자재(상표·규격)와 인건비를 나눠 적었습니다."),
         ("일반 인테리어 업체보다 왜 싼가요?", "집지니는 자재상·기술자와 직접 거래하고 자재·인건비에 마진을 붙이지 않습니다. 정찰제 코디비만 받기 때문에 같은 범위라도 업체 이윤·관리비(보통 15~20%)만큼 낮아집니다."),
     ]
@@ -185,7 +185,7 @@ def case_page(c, fname, others):
 <nav class="bc"><a href="../">집지니</a> › <a href="./">견적 사례</a> › {esc(c['region'])} {pyt(c)}</nav>
 <main>
 <p>{d.year}년 {d.month}월 {esc(c['name'] or '')} 고객님께 실제로 보낸 견적서({status})를 개인정보만 가리고 그대로 공개합니다.
-이름은 성만 남겼고, 단지명·동호수·연락처는 별표(***)로 가렸습니다. 금액은 모두 공급가액(부가세 별도)이며 수량은 실측 후 정산합니다.</p>
+이름은 성만 남겼고, 단지명·동호수·연락처는 별표(***)로 가렸습니다. 금액은 모두 공급가액(부가세 10% 별도)이며 수량은 실측 후 정산합니다.</p>
 <div class="kv">{kv}</div>
 
 <h2>공종별 금액</h2>
@@ -194,7 +194,7 @@ def case_page(c, fname, others):
 <tr class="tot"><td>시공총액 (자재+인건비 · 마진 0)</td><td class="r">{won(c['total'])}</td></tr>
 <tr><td>집지니 코디비</td><td class="r">{won(c['codi'])}</td></tr>
 {f'<tr><td>현장관리(PM 파견)</td><td class="r">{won(c["pm"])}</td></tr>' if c.get('pm') else ''}
-<tr class="tot"><td>총 예상액 (공급가액 · 부가세 별도)</td><td class="r">{won(grand)}</td></tr></table>
+<tr class="tot"><td>총 예상액 (공급가액 · 부가세 10% 별도)</td><td class="r">{won(grand)}</td></tr></table>
 
 <h2>상세 명세 — 상표·규격·수량·단가</h2>
 <p>공종을 누르면 줄마다 자재 상표와 규격, 수량, 단가가 펼쳐집니다.</p>

@@ -339,7 +339,7 @@ main{max-width:1100px;margin:0 auto;padding:14px 16px calc(40px + env(safe-area-
     var list = Q.filter(function (x) { return !q || [x['견적서ID'], x['고객명'], x['의뢰ID'], x['상태']].join(' ').toLowerCase().indexOf(q) >= 0; });
     var dateKey = function (x) { return x['작성일'] || x['견적일'] || x['생성일'] || ''; };
     var body = '<div class="search"><input id="qQ" placeholder="견적번호·이름·상태 찾기" value="' + esc(qQ) + '"></div>' + (list.length ? '<div class="wrap"><table class="tbl"><tr><th>견적</th><th>고객</th><th>상태</th><th>시공</th></tr>' + list.map(function (x) { return '<tr><td>' + esc(x['견적서ID']) + '<div style="font-size:11px;color:var(--sub)">' + esc(String(dateKey(x)).slice(0, 10)) + '</div></td><td><b>' + esc(x['고객명'] || '-') + '</b></td><td><span class="tag ' + (/중복|취소/.test(x['상태'] || '') ? 'gray' : '') + '">' + esc(x['상태'] || '-') + '</span></td><td>' + (x['시공총액'] ? won(x['시공총액']) : '-') + '</td></tr>'; }).join('') + '</table></div>' : '<div class="empty">없음</div>');
-    $('p-quote').innerHTML = sec('견적', 'doc', list.length + '건', body + '<div class="note">금액은 부가가치세 별도입니다. 견적 고치기·발송은 전체 콘솔에서 합니다.</div>');
+    $('p-quote').innerHTML = sec('견적', 'doc', list.length + '건', body + '<div class="note">금액은 부가세 10% 별도입니다. 견적 고치기·발송은 전체 콘솔에서 합니다.</div>');
     var qi = $('qQ'); qi.oninput = function () { qQ = this.value; var pos = this.selectionStart; renderQuotes(); var n = $('qQ'); n.focus(); try { n.setSelectionRange(pos, pos); } catch (e) {} };
   }
 })();

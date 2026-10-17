@@ -211,11 +211,11 @@ canvas { display: block; width: 100%; height: 200px; background: #fafaf5; border
     if (!m) return;
     $('money-tbl').innerHTML = m.일괄
       ? '<tr><td>자재 + 인건비</td><td class="r">' + won(m.자재인건비) + '</td></tr><tr><td>코디·현장 조율</td><td class="r">' + won(m.코디) + '</td></tr>' +
-        '<tr class="tot"><td>공사 금액 <span class="muted" style="font-weight:400;">(부가가치세 별도)</span></td><td class="r">' + won(m.공급가) + '</td></tr>' +
-        '<tr><td colspan="2" class="muted">※ 부가가치세액 10%는 별도입니다.</td></tr>'
+        '<tr class="tot"><td>공사 금액 <span class="muted" style="font-weight:400;">(부가세 10% 별도)</span></td><td class="r">' + won(m.공급가) + '</td></tr>' +
+        ''
       : '<tr><td>자재 + 인건비 <span class="muted">(' + (PMSEL ? 'PM이 대신 지급' : '자재상·기술자에게 직접 결제') + ')</span></td><td class="r">' + won(m.자재인건비) + '</td></tr>' +
-        '<tr><td>집지니 코디비' + (m.현장관리 ? '·현장관리비' : '') + ' <span class="muted">(부가세 포함)</span></td><td class="r">' + won(m.집지니청구) + '</td></tr>' +
-        '<tr class="tot"><td>고객 총 지출 (예상)</td><td class="r">' + won(m.합계) + '</td></tr>';
+        '<tr><td>집지니 코디비' + (m.현장관리 ? '·현장관리비' : '') + ' <span class="muted">(부가세 10% 별도)</span></td><td class="r">' + won(m.집지니청구) + '</td></tr>' +
+        '<tr class="tot"><td>고객 총 지출 (예상, 부가세 10% 별도)</td><td class="r">' + won(m.합계) + '</td></tr>';
   }
   function renderPlan(plan, lump, pay) {
     if (!lump) { $('sec-plan').style.display = ''; $('plan-tbl').innerHTML = '<tr><td>코디비' + '' + ' — 시공 시작 전 선불 (미진행 시 전액 환불)</td></tr><tr><td>자재비·인건비 — ' + (PMSEL ? '집지니 대금 지급 계좌에 맡기면 PM이 공정 확인 후 대신 지급' : '자재상·기술자에게 직접 결제') + '</td></tr>'; return; }
@@ -223,7 +223,7 @@ canvas { display: block; width: 100%; height: 200px; background: #fafaf5; border
     const due = {}; (pay || []).forEach((x) => { due[x.when] = x.due; });
     let tot = 0;
     $('plan-tbl').innerHTML = plan.map((x, i) => { const sup = Math.round((Number(x.금액) || 0) / 1.1); tot += sup; const d = due[x.시점]; return '<tr><td><b>' + (i + 1) + '회</b> · ' + esc(x.시점) + (d ? ' <span class="muted">(' + md(d) + '까지)</span>' : '') + '</td><td class="r">' + won(sup) + '</td></tr>'; }).join('') +
-      '<tr class="tot"><td>합계 <span class="muted" style="font-weight:400;">(부가가치세 별도)</span></td><td class="r">' + won(tot) + '</td></tr>';
+      '<tr class="tot"><td>합계 <span class="muted" style="font-weight:400;">(부가세 10% 별도)</span></td><td class="r">' + won(tot) + '</td></tr>';
     $('plan-note').textContent = '※ 부가가치세액 10%는 별도입니다. 각 회차 금액에 10%를 더해 집지니 명의 계좌로 입금(기본) · 카드는 집지니 네이버 스마트스토어 안전결제 · 세금계산서·현금영수증 발행';
     $('sec-plan').style.display = '';
   }

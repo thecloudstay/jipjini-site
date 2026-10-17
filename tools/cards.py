@@ -51,7 +51,7 @@ def card(c):
         d.text((988 - tw, y + 12), t, font=font(30, True), fill=INK)
         y += 86
     extra = c["codi"] + (c.get("pm") or 0)
-    d.text((72, 1190), f"코디비{'·현장관리비' if c.get('pm') else ''} {man(extra)} 별도 · 부가세 별도", font=font(28), fill=SUB)
+    d.text((72, 1190), f"코디비{'·현장관리비' if c.get('pm') else ''} {man(extra)} 별도 · 부가세 10% 별도", font=font(28), fill=SUB)
     d.rectangle([0, 1260, W, H], fill=INK)
     d.text((72, 1288), "줄마다 상표·수량·단가 공개 → jipjini.com", font=font(32, True), fill="#F5F1E8")
     return im
