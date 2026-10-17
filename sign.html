@@ -172,6 +172,7 @@ canvas { display: block; width: 100%; height: 200px; background: #fafaf5; border
   const params = new URLSearchParams(location.search);
   const proposalId = params.get('p') || 'P-' + Date.now().toString(36).toUpperCase();
   const quoteId = params.get('q') || '';
+  const signTok = params.get('st') || '';   // 2026-10-17 서명 링크 확인용
   const reqId = params.get('r') || '';
   const wfId = params.get('w') || '';
 
@@ -367,6 +368,7 @@ canvas { display: block; width: 100%; height: 200px; background: #fafaf5; border
     formData.set('공정표ID', wfId);
     formData.set('서명_base64', signaturePng);
     formData.set('서명일시', new Date().toISOString());
+    formData.set('st', signTok);
     formData.set('동의_의뢰서', '동의');
     formData.set('동의_책임분리', '동의');
     formData.set('동의_직접결제', '동의');
