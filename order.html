@@ -87,9 +87,9 @@ h1{font-family:var(--serif);font-weight:800;font-size:28px;letter-spacing:10px;t
   function size(l){var a=[l.가로,l.세로].filter(function(x){return x!==''&&x!=null});return a.length?a.join(' × ')+' mm':''}
   function spec(l){return [l.열림,l.사양,l.색상?'색상 '+l.색상:'',l.손잡이?'손잡이 '+l.손잡이:'',l.문틀,l.메모].filter(Boolean).join(' · ')}
   function render(){
-    var L=D.줄||[], R=D.회신||{}, P=R.단가||[], replied=D.상태==='회신';
+    var L=D.줄||[];
     var h='<div class="brand">JIPJINI</div><h1>발 주 서</h1><div class="sub">'+esc(D.제목)+'</div>';
-    if(DEMO)h+='<div class="demo noprint">예시 화면입니다 — 실제 발주서에서는 회신·파일 올리기가 집지니로 바로 들어갑니다.</div>';
+    if(DEMO)h+='<div class="demo noprint">예시 화면입니다 — 실제 발주서에서는 올린 서류가 집지니로 바로 들어갑니다.</div>';
     h+='<div class="card"><table class="hd">'+
       '<tr><th>발주번호</th><td>'+esc(D.발주ID)+'</td></tr><tr><th>발주일</th><td>'+esc(D.발주일)+'</td></tr>'+
       '<tr><th>받는 곳</th><td>'+esc(D.업체||'')+' 귀하</td></tr>'+
@@ -97,30 +97,20 @@ h1{font-family:var(--serif);font-weight:800;font-size:28px;letter-spacing:10px;t
       '<tr><th>현장</th><td>'+esc(D.현장||'(추후 안내)')+'</td></tr><tr><th>납품 희망일</th><td>'+esc(D.납기||'협의')+'</td></tr>'+
       (D.요청?'<tr><th>요청 사항</th><td>'+esc(D.요청)+'</td></tr>':'')+'</table></div>';
     // 품목 — 넓은 화면: 표 / 휴대폰: 카드
-    h+='<div class="card"><h2>'+ico('list')+'품목 '+L.length+'줄</h2><div class="desk"><table class="items"><tr><th>번호</th><th>공간 · 품목</th><th class="n">가로 × 세로</th><th class="n">문틀폭</th><th class="n">수량</th><th class="n">단가(원)</th></tr>'+
-      L.map(function(l,i){return '<tr><td>'+(i+1)+'</td><td><b>'+esc([l.공간,l.종류].filter(Boolean).join(' '))+'</b><span class="sp">'+esc(spec(l))+'</span></td><td class="n">'+esc(size(l))+'</td><td class="n">'+esc(l.두께?l.두께+' mm':'')+'</td><td class="n">'+esc(l.수량||1)+'</td><td class="n"><input inputmode="numeric" data-i="'+i+'" class="pr" value="'+(P[i]?P[i].toLocaleString('ko-KR'):'')+'" placeholder="0"></td></tr>'}).join('')+'</table></div>'+
-      '<div class="mob">'+L.map(function(l,i){return '<div class="it"><div class="t"><b>'+(i+1)+'. '+esc([l.공간,l.종류].filter(Boolean).join(' '))+'</b><span>'+esc(l.수량||1)+'개</span></div><div class="sz">'+esc(size(l))+(l.두께?' · 문틀폭 '+esc(l.두께)+' mm':'')+'</div><div class="sp">'+esc(spec(l))+'</div><label>단가(원)<input inputmode="numeric" data-i="'+i+'" class="pr" value="'+(P[i]?P[i].toLocaleString('ko-KR'):'')+'" placeholder="0"></label></div>'}).join('')+'</div>'+
-      '<div class="note">치수는 현장 실측값(mm)입니다. 제작 전 현장 확인이 필요하면 코디에게 연락해 주세요. 모든 금액은 부가세 10% 별도입니다.</div></div>';
+    h+='<div class="card"><h2>'+ico('list')+'품목 '+L.length+'줄</h2><div class="desk"><table class="items"><tr><th>번호</th><th>공간 · 품목</th><th class="n">가로 × 세로</th><th class="n">문틀폭</th><th class="n">수량</th></tr>'+
+      L.map(function(l,i){return '<tr><td>'+(i+1)+'</td><td><b>'+esc([l.공간,l.종류].filter(Boolean).join(' '))+'</b><span class="sp">'+esc(spec(l))+'</span></td><td class="n">'+esc(size(l))+'</td><td class="n">'+esc(l.두께?l.두께+' mm':'')+'</td><td class="n">'+esc(l.수량||1)+'</td></tr>'}).join('')+'</table></div>'+
+      '<div class="mob">'+L.map(function(l,i){return '<div class="it"><div class="t"><b>'+(i+1)+'. '+esc([l.공간,l.종류].filter(Boolean).join(' '))+'</b><span>'+esc(l.수량||1)+'개</span></div><div class="sz">'+esc(size(l))+(l.두께?' · 문틀폭 '+esc(l.두께)+' mm':'')+'</div><div class="sp">'+esc(spec(l))+'</div></div>'}).join('')+'</div>'+
+      '<div class="note">치수는 현장 실측값(mm)입니다. 위 내용대로 주문 부탁드립니다. 제작 전 현장 확인이 필요하면 코디에게 연락해 주세요.</div></div>';
     h+='<div class="tools noprint"><button class="btn" id="bPdf">'+ico('down')+'PDF 내려받기</button><button class="btn" id="bPrint">'+ico('print')+'인쇄</button></div>';
-    // 회신
-    h+='<div class="card noprint"><h2>'+ico('send')+'단가·납기 회신</h2><div class="sum"><span>합계 <small>(부가세 10% 별도)</small></span><b id="sumV">0원</b></div>'+
-      '<div class="f"><label>납품 가능일<input type="date" id="rDue" value="'+esc(R.납기||'')+'"></label><label>담당자<input id="rWho" placeholder="이름" value="'+esc(R.담당||'')+'"></label>'+
-      '<label class="w">전달 사항<textarea id="rMemo" rows="3" placeholder="예: 문틀 포함 단가, 설치비 별도 1식">'+esc(R.메모||'')+'</textarea></label></div>'+
-      '<button class="btn main" id="bReply" style="width:100%;margin-top:12px;">'+ico('send')+(replied?'회신 고치기':'회신 보내기')+'</button>'+
-      (replied?'<div class="done">회신이 집지니에 전달되었습니다. 고칠 내용이 있으면 다시 보내 주세요.</div>':'')+'</div>';
     // 서류 올리기
-    h+='<div class="card noprint"><h2>'+ico('up')+'견적서·거래명세서 올리기</h2><div class="f"><label>서류 종류<select id="uKind"><option>견적서</option><option>거래명세서</option><option>세금계산서</option><option>기타</option></select></label>'+
+    h+='<div class="card noprint"><h2>'+ico('up')+'거래명세서·견적서 올리기 <span style="font-weight:400;font-size:12px;color:var(--gray)">(필요할 때만)</span></h2><div class="f"><label>서류 종류<select id="uKind"><option>견적서</option><option>거래명세서</option><option>세금계산서</option><option>기타</option></select></label>'+
       '<label>파일 (PDF·사진·엑셀, 10MB 이하)<input type="file" id="uFile" accept=".pdf,.jpg,.jpeg,.png,.heic,.xlsx,.xls,application/pdf,image/*"></label></div>'+
       '<button class="btn" id="bUp" style="width:100%;margin-top:10px;">'+ico('up')+'올리기</button>'+
       '<ul class="fl" id="fl">'+(D.올린파일||[]).map(function(f){return '<li>'+ico('file')+'<span>'+esc(f.종류)+' · '+esc(f.이름)+'</span><span>'+esc(f.시각)+'</span></li>'}).join('')+'</ul></div>';
     h+='<div class="foot noprint">'+ico('phone')+' 문의: 집지니 코디 <a href="tel:'+esc(D.코디연락처)+'">'+esc(D.코디연락처)+'</a><br>이 링크는 받으신 업체만 사용해 주세요.</div>';
     app.innerHTML=h; wire();
   }
-  function prices(){var L=D.줄||[],v=[];document.querySelectorAll('.pr').forEach(function(e){var i=+e.dataset.i;if(e.offsetParent!==null||v[i]==null)v[i]=Number(String(e.value).replace(/[^0-9]/g,''))||0});return L.map(function(_,i){return v[i]||0})}
-  function sync(src){var i=src.dataset.i,n=Number(String(src.value).replace(/[^0-9]/g,''))||0;document.querySelectorAll('.pr[data-i="'+i+'"]').forEach(function(e){if(e!==src)e.value=n?n.toLocaleString('ko-KR'):''});var L=D.줄||[],P=prices(),s=0;P.forEach(function(p,j){s+=p*(Number(L[j].수량)||1)});document.getElementById('sumV').textContent=won(s);return s}
   function wire(){
-    document.querySelectorAll('.pr').forEach(function(e){e.addEventListener('input',function(){sync(e)});e.addEventListener('blur',function(){var n=Number(String(e.value).replace(/[^0-9]/g,''))||0;e.value=n?n.toLocaleString('ko-KR'):''})});
-    var first=document.querySelector('.pr');if(first)sync(first);
     document.getElementById('bPrint').onclick=function(){if(inApp()){toast('카톡 안에서는 인쇄가 안 됩니다 — 「PDF 내려받기」를 눌러 주세요.');return}window.print()};
     document.getElementById('bPdf').onclick=function(){
       if(DEMO){if(!inApp())window.print();else toast('예시 화면 — 실제 발주서에서 PDF 파일이 내려받아집니다.');return}
@@ -128,12 +118,6 @@ h1{font-family:var(--serif);font-weight:800;font-size:28px;letter-spacing:10px;t
       get('po_pdf').then(function(j){b.disabled=false;if(!j.ok)throw new Error(j.err);var bin=atob(j.data),u8=new Uint8Array(bin.length);for(var i=0;i<bin.length;i++)u8[i]=bin.charCodeAt(i);
         var url=URL.createObjectURL(new Blob([u8],{type:'application/pdf'})),a=document.createElement('a');a.href=url;a.download=j.이름||'발주서.pdf';document.body.appendChild(a);a.click();setTimeout(function(){a.remove();URL.revokeObjectURL(url)},4000);if(inApp())toast('내려받기가 안 보이면 오른쪽 위 메뉴에서 「다른 브라우저로 열기」를 눌러 주세요.')})
       .catch(function(e){b.disabled=false;toast('PDF 실패: '+(e.message||'다시 눌러 주세요'))})};
-    document.getElementById('bReply').onclick=function(){
-      var P=prices(),L=D.줄||[],s=0;P.forEach(function(p,j){s+=p*(Number(L[j].수량)||1)});
-      if(!s&&!document.getElementById('rMemo').value.trim()){toast('단가나 전달 사항을 적어 주세요.');return}
-      var o={단가:P.join(','),합계:s,납기:document.getElementById('rDue').value,담당:document.getElementById('rWho').value,메모:document.getElementById('rMemo').value};
-      if(DEMO){D.상태='회신';D.회신={단가:P,합계:s,납기:o.납기,담당:o.담당,메모:o.메모};render();toast('예시 — 회신이 전달된 모습입니다.');return}
-      var b=this;b.disabled=true;post('po_reply',o).then(function(j){if(!j.ok)throw new Error(j.err);D.상태='회신';D.회신=j.회신;render();toast('회신을 보냈습니다. 감사합니다.')}).catch(function(e){b.disabled=false;toast('보내지 못했습니다: '+(e.message||''))})};
     document.getElementById('bUp').onclick=function(){
       var f=document.getElementById('uFile').files[0],kind=document.getElementById('uKind').value;if(!f){toast('파일을 골라 주세요.');return}
       if(f.size>10*1024*1024){toast('10MB 이하 파일만 올릴 수 있습니다.');return}
