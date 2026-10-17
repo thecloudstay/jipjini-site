@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>집지니 · 발주서</title>
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
+<link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@700;800&display=swap" rel="stylesheet">
+<style>
+:root{--charcoal:#2A2A2A;--gray:#6B6B6B;--line:#E2DCCD;--oat:#F5F1E8;--oat-soft:#FBF8F1;--clay:#9a5a4a;--white:#fff;--ok:#2f7a4f;
+--serif:'Nanum Myeongjo',serif;--sans:'Pretendard','Apple SD Gothic Neo',sans-serif}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--oat-soft);font-family:var(--sans);color:var(--charcoal);-webkit-font-smoothing:antialiased;letter-spacing:-.2px}
+.wrap{max-width:760px;margin:0 auto;padding:28px 16px 72px}
+.brand{font-family:var(--serif);font-weight:800;font-size:15px;color:var(--clay);letter-spacing:2px}
+h1{font-family:var(--serif);font-weight:800;font-size:28px;letter-spacing:10px;text-align:center;margin:14px 0 4px}
+.sub{text-align:center;font-size:13px;color:var(--gray)}
+.card{background:var(--white);border:1px solid var(--line);border-radius:14px;padding:16px;margin-top:14px}
+.card h2{font-family:var(--serif);font-size:16px;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.ico{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.hd{width:100%;border-collapse:collapse;font-size:13.5px}
+.hd th{width:92px;background:var(--oat);color:var(--gray);font-weight:600;text-align:left;padding:9px 10px;border:1px solid var(--line);vertical-align:top}
+.hd td{padding:9px 10px;border:1px solid var(--line);word-break:keep-all}
+.items{width:100%;border-collapse:collapse;font-size:13px}
+.items th{background:var(--charcoal);color:var(--oat-soft);font-weight:600;padding:8px 6px;text-align:left;white-space:nowrap}
+.items td{padding:9px 6px;border-bottom:1px solid var(--line);vertical-align:top}
+.items .n{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
+.items .sp{display:block;color:var(--gray);font-size:12px;margin-top:3px;line-height:1.5}
+.items input{width:96px;padding:7px 8px;border:1px solid var(--line);border-radius:8px;font:inherit;text-align:right}
+.mob{display:none}
+.it{border-bottom:1px dashed var(--line);padding:12px 0}.it:last-child{border-bottom:none}
+.it .t{display:flex;gap:8px;align-items:baseline}.it .t b{font-size:15px}.it .t span{margin-left:auto;font-size:13px;color:var(--gray)}
+.it .sz{font-size:15px;margin-top:4px;font-variant-numeric:tabular-nums}.it .sp{font-size:12.5px;color:var(--gray);margin-top:4px;line-height:1.55}
+.it label{display:flex;align-items:center;gap:8px;margin-top:8px;font-size:13px;color:var(--gray)}
+.it input{flex:1;padding:9px 10px;border:1px solid var(--line);border-radius:8px;font:inherit;text-align:right}
+@media(max-width:600px){.desk{display:none}.mob{display:block}}
+.note{background:var(--oat);border-radius:12px;padding:12px 14px;margin-top:12px;font-size:13px;line-height:1.7;color:#4a4a4a}
+.tools{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px}
+.btn{display:flex;align-items:center;justify-content:center;gap:6px;font:inherit;font-size:14px;font-weight:600;color:var(--charcoal);background:#fff;border:1px solid var(--line);border-radius:10px;padding:12px;cursor:pointer;text-decoration:none}
+.btn.main{background:var(--clay);border-color:var(--clay);color:#fff}
+.btn:disabled{opacity:.55}
+.f{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.f label{display:flex;flex-direction:column;gap:4px;font-size:12.5px;color:var(--gray)}
+.f input,.f select,.f textarea{padding:10px;border:1px solid var(--line);border-radius:8px;font:inherit;font-size:14px;color:var(--charcoal);background:#fff;width:100%}
+.f .w{grid-column:1/-1}
+.sum{display:flex;justify-content:space-between;align-items:baseline;background:var(--charcoal);color:var(--oat-soft);border-radius:12px;padding:14px 16px;margin:12px 0}
+.sum b{font-family:var(--serif);font-size:21px}.sum small{font-size:12px;color:#cfc9bb}
+.done{background:#eef6f0;border:1px solid #cfe5d6;color:var(--ok);border-radius:10px;padding:10px 12px;font-size:13px;margin-top:10px;line-height:1.6}
+.fl{list-style:none;margin-top:10px;font-size:13px}.fl li{display:flex;gap:8px;padding:7px 0;border-bottom:1px dashed var(--line)}.fl li span:last-child{margin-left:auto;color:var(--gray);font-size:12px}
+.demo{background:#FFF8E1;border:1px solid #FFD966;color:#7B5E00;border-radius:10px;padding:9px 12px;font-size:12.5px;margin-top:12px;text-align:center}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--charcoal);color:#fff;padding:11px 16px;border-radius:10px;font-size:13.5px;opacity:0;transition:.25s;pointer-events:none;max-width:90%;text-align:center;z-index:20}.toast.on{opacity:1}
+.err{text-align:center;padding:80px 0;color:var(--gray);line-height:1.9}
+.foot{font-size:12px;color:var(--gray);text-align:center;margin-top:26px;line-height:1.8}
+@media print{body{background:#fff}.wrap{max-width:none;padding:0}.noprint{display:none !important}.desk{display:block !important}.mob{display:none !important}.card{border:none;padding:8px 0}.items input{border:none;width:auto}}
+</style>
+</head>
+<body>
+<svg style="display:none" aria-hidden="true">
+<symbol id="i-file" viewBox="0 0 24 24"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9zM14 3v6h6"/></symbol>
+<symbol id="i-down" viewBox="0 0 24 24"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></symbol>
+<symbol id="i-print" viewBox="0 0 24 24"><path d="M7 9V3h10v6M7 17H4v-7h16v7h-3M7 14h10v7H7z"/></symbol>
+<symbol id="i-send" viewBox="0 0 24 24"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4z"/></symbol>
+<symbol id="i-up" viewBox="0 0 24 24"><path d="M12 20V9M7 14l5-5 5 5M5 4h14"/></symbol>
+<symbol id="i-list" viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></symbol>
+<symbol id="i-phone" viewBox="0 0 24 24"><path d="M5 3h4l2 5-2.5 1.5a11 11 0 0 0 6 6L16 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 5a2 2 0 0 1 2-2z"/></symbol>
+</svg>
+<div class="wrap" id="app"><div class="err">발주서를 불러오는 중입니다…</div></div>
+<div class="toast" id="toast"></div>
+<script>
+(function(){
+  var API='https://script.google.com/macros/s/AKfycbzxm4mmZs1yVJPa3T-wb0cdJbEUMPYl6dDKtQNSNmJy4nEsCholrEnPAN8e0JfAtOV99A/exec';
+  var q=new URLSearchParams(location.search), id=(q.get('id')||'').replace(/[^A-Za-z0-9-]/g,''), k=(q.get('k')||'').replace(/[^A-Za-z0-9]/g,''), DEMO=q.get('demo')==='1';
+  var app=document.getElementById('app'), D=null;
+  function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+  function won(n){return Math.round(n||0).toLocaleString('ko-KR')+'원'}
+  function ico(n){return '<svg class="ico" aria-hidden="true"><use href="#i-'+n+'"/></svg>'}
+  function toast(t){var e=document.getElementById('toast');e.textContent=t;e.classList.add('on');clearTimeout(e._t);e._t=setTimeout(function(){e.classList.remove('on')},2600)}
+  function inApp(){return /KAKAOTALK|NAVER\(inapp|Instagram|FBAN|FBAV|Line\/|DaumApps/i.test(navigator.userAgent)}
+  function get(type,extra){var u=API+'?type='+type+'&id='+encodeURIComponent(id)+'&k='+encodeURIComponent(k)+(extra||'');return fetch(u,{redirect:'follow'}).then(function(r){return r.json()})}
+  function post(type,obj){var b=new URLSearchParams();b.set('type',type);b.set('id',id);b.set('k',k);Object.keys(obj).forEach(function(x){b.set(x,obj[x])});return fetch(API,{method:'POST',body:b,redirect:'follow'}).then(function(r){return r.json()})}
+  var SAMPLE={발주ID:'PO-261017-230500',발주일:'2026-10-17',업체:'한솔도어',현장:'서울 강서구 등촌3동 698-1 세신종합상가',납기:'2026-10-24',요청:'문틀 포함, 현장 설치까지 견적 부탁드립니다.',제목:'방문 외 2건',코디연락처:'010-9806-0422',상태:'열람',회신:{},올린파일:[],
+    줄:[{공간:'거실',종류:'방문',가로:900,세로:2100,두께:140,수량:1,열림:'여닫이 · 왼쪽 열림',사양:'ABS 도어',색상:'화이트',손잡이:'레버형 실버',문틀:'문틀 교체',메모:''},
+        {공간:'욕실',종류:'욕실문',가로:750,세로:2050,두께:120,수량:1,열림:'여닫이 · 오른쪽 열림',사양:'ABS 방수',색상:'화이트',손잡이:'욕실용 잠금',문틀:'문틀 교체',메모:'하부 루버'},
+        {공간:'작은방',종류:'중문',가로:1200,세로:2300,두께:'',수량:1,열림:'3연동',사양:'슬림 프레임 · 투명 유리',색상:'블랙',손잡이:'',문틀:'',메모:'천장 레일 고정'}]};
+  function fail(m){app.innerHTML='<div class="err">'+esc(m||'발주서를 찾을 수 없습니다.')+'<br>링크가 정확한지 확인해 주시거나 집지니 코디에게 연락해 주세요.</div>'}
+  function size(l){var a=[l.가로,l.세로].filter(function(x){return x!==''&&x!=null});return a.length?a.join(' × ')+' mm':''}
+  function spec(l){return [l.열림,l.사양,l.색상?'색상 '+l.색상:'',l.손잡이?'손잡이 '+l.손잡이:'',l.문틀,l.메모].filter(Boolean).join(' · ')}
+  function render(){
+    var L=D.줄||[], R=D.회신||{}, P=R.단가||[], replied=D.상태==='회신';
+    var h='<div class="brand">JIPJINI</div><h1>발 주 서</h1><div class="sub">'+esc(D.제목)+'</div>';
+    if(DEMO)h+='<div class="demo noprint">예시 화면입니다 — 실제 발주서에서는 회신·파일 올리기가 집지니로 바로 들어갑니다.</div>';
+    h+='<div class="card"><table class="hd">'+
+      '<tr><th>발주번호</th><td>'+esc(D.발주ID)+'</td></tr><tr><th>발주일</th><td>'+esc(D.발주일)+'</td></tr>'+
+      '<tr><th>받는 곳</th><td>'+esc(D.업체||'')+' 귀하</td></tr>'+
+      '<tr><th>발주처</th><td>집지니 · 코디 <a href="tel:'+esc(D.코디연락처)+'">'+esc(D.코디연락처)+'</a></td></tr>'+
+      '<tr><th>현장</th><td>'+esc(D.현장||'(추후 안내)')+'</td></tr><tr><th>납품 희망일</th><td>'+esc(D.납기||'협의')+'</td></tr>'+
+      (D.요청?'<tr><th>요청 사항</th><td>'+esc(D.요청)+'</td></tr>':'')+'</table></div>';
+    // 품목 — 넓은 화면: 표 / 휴대폰: 카드
+    h+='<div class="card"><h2>'+ico('list')+'품목 '+L.length+'줄</h2><div class="desk"><table class="items"><tr><th>번호</th><th>공간 · 품목</th><th class="n">가로 × 세로</th><th class="n">문틀폭</th><th class="n">수량</th><th class="n">단가(원)</th></tr>'+
+      L.map(function(l,i){return '<tr><td>'+(i+1)+'</td><td><b>'+esc([l.공간,l.종류].filter(Boolean).join(' '))+'</b><span class="sp">'+esc(spec(l))+'</span></td><td class="n">'+esc(size(l))+'</td><td class="n">'+esc(l.두께?l.두께+' mm':'')+'</td><td class="n">'+esc(l.수량||1)+'</td><td class="n"><input inputmode="numeric" data-i="'+i+'" class="pr" value="'+(P[i]?P[i].toLocaleString('ko-KR'):'')+'" placeholder="0"></td></tr>'}).join('')+'</table></div>'+
+      '<div class="mob">'+L.map(function(l,i){return '<div class="it"><div class="t"><b>'+(i+1)+'. '+esc([l.공간,l.종류].filter(Boolean).join(' '))+'</b><span>'+esc(l.수량||1)+'개</span></div><div class="sz">'+esc(size(l))+(l.두께?' · 문틀폭 '+esc(l.두께)+' mm':'')+'</div><div class="sp">'+esc(spec(l))+'</div><label>단가(원)<input inputmode="numeric" data-i="'+i+'" class="pr" value="'+(P[i]?P[i].toLocaleString('ko-KR'):'')+'" placeholder="0"></label></div>'}).join('')+'</div>'+
+      '<div class="note">치수는 현장 실측값(mm)입니다. 제작 전 현장 확인이 필요하면 코디에게 연락해 주세요. 모든 금액은 부가세 10% 별도입니다.</div></div>';
+    h+='<div class="tools noprint"><button class="btn" id="bPdf">'+ico('down')+'PDF 내려받기</button><button class="btn" id="bPrint">'+ico('print')+'인쇄</button></div>';
+    // 회신
+    h+='<div class="card noprint"><h2>'+ico('send')+'단가·납기 회신</h2><div class="sum"><span>합계 <small>(부가세 10% 별도)</small></span><b id="sumV">0원</b></div>'+
+      '<div class="f"><label>납품 가능일<input type="date" id="rDue" value="'+esc(R.납기||'')+'"></label><label>담당자<input id="rWho" placeholder="이름" value="'+esc(R.담당||'')+'"></label>'+
+      '<label class="w">전달 사항<textarea id="rMemo" rows="3" placeholder="예: 문틀 포함 단가, 설치비 별도 1식">'+esc(R.메모||'')+'</textarea></label></div>'+
+      '<button class="btn main" id="bReply" style="width:100%;margin-top:12px;">'+ico('send')+(replied?'회신 고치기':'회신 보내기')+'</button>'+
+      (replied?'<div class="done">회신이 집지니에 전달되었습니다. 고칠 내용이 있으면 다시 보내 주세요.</div>':'')+'</div>';
+    // 서류 올리기
+    h+='<div class="card noprint"><h2>'+ico('up')+'견적서·거래명세서 올리기</h2><div class="f"><label>서류 종류<select id="uKind"><option>견적서</option><option>거래명세서</option><option>세금계산서</option><option>기타</option></select></label>'+
+      '<label>파일 (PDF·사진·엑셀, 10MB 이하)<input type="file" id="uFile" accept=".pdf,.jpg,.jpeg,.png,.heic,.xlsx,.xls,application/pdf,image/*"></label></div>'+
+      '<button class="btn" id="bUp" style="width:100%;margin-top:10px;">'+ico('up')+'올리기</button>'+
+      '<ul class="fl" id="fl">'+(D.올린파일||[]).map(function(f){return '<li>'+ico('file')+'<span>'+esc(f.종류)+' · '+esc(f.이름)+'</span><span>'+esc(f.시각)+'</span></li>'}).join('')+'</ul></div>';
+    h+='<div class="foot noprint">'+ico('phone')+' 문의: 집지니 코디 <a href="tel:'+esc(D.코디연락처)+'">'+esc(D.코디연락처)+'</a><br>이 링크는 받으신 업체만 사용해 주세요.</div>';
+    app.innerHTML=h; wire();
+  }
+  function prices(){var L=D.줄||[],v=[];document.querySelectorAll('.pr').forEach(function(e){var i=+e.dataset.i;if(e.offsetParent!==null||v[i]==null)v[i]=Number(String(e.value).replace(/[^0-9]/g,''))||0});return L.map(function(_,i){return v[i]||0})}
+  function sync(src){var i=src.dataset.i,n=Number(String(src.value).replace(/[^0-9]/g,''))||0;document.querySelectorAll('.pr[data-i="'+i+'"]').forEach(function(e){if(e!==src)e.value=n?n.toLocaleString('ko-KR'):''});var L=D.줄||[],P=prices(),s=0;P.forEach(function(p,j){s+=p*(Number(L[j].수량)||1)});document.getElementById('sumV').textContent=won(s);return s}
+  function wire(){
+    document.querySelectorAll('.pr').forEach(function(e){e.addEventListener('input',function(){sync(e)});e.addEventListener('blur',function(){var n=Number(String(e.value).replace(/[^0-9]/g,''))||0;e.value=n?n.toLocaleString('ko-KR'):''})});
+    var first=document.querySelector('.pr');if(first)sync(first);
+    document.getElementById('bPrint').onclick=function(){if(inApp()){toast('카톡 안에서는 인쇄가 안 됩니다 — 「PDF 내려받기」를 눌러 주세요.');return}window.print()};
+    document.getElementById('bPdf').onclick=function(){
+      if(DEMO){if(!inApp())window.print();else toast('예시 화면 — 실제 발주서에서 PDF 파일이 내려받아집니다.');return}
+      var b=this;b.disabled=true;toast('PDF를 만드는 중입니다…');
+      get('po_pdf').then(function(j){b.disabled=false;if(!j.ok)throw new Error(j.err);var bin=atob(j.data),u8=new Uint8Array(bin.length);for(var i=0;i<bin.length;i++)u8[i]=bin.charCodeAt(i);
+        var url=URL.createObjectURL(new Blob([u8],{type:'application/pdf'})),a=document.createElement('a');a.href=url;a.download=j.이름||'발주서.pdf';document.body.appendChild(a);a.click();setTimeout(function(){a.remove();URL.revokeObjectURL(url)},4000)})
+      .catch(function(e){b.disabled=false;toast('PDF 실패: '+(e.message||'다시 눌러 주세요'))})};
+    document.getElementById('bReply').onclick=function(){
+      var P=prices(),L=D.줄||[],s=0;P.forEach(function(p,j){s+=p*(Number(L[j].수량)||1)});
+      if(!s&&!document.getElementById('rMemo').value.trim()){toast('단가나 전달 사항을 적어 주세요.');return}
+      var o={단가:P.join(','),합계:s,납기:document.getElementById('rDue').value,담당:document.getElementById('rWho').value,메모:document.getElementById('rMemo').value};
+      if(DEMO){D.상태='회신';D.회신={단가:P,합계:s,납기:o.납기,담당:o.담당,메모:o.메모};render();toast('예시 — 회신이 전달된 모습입니다.');return}
+      var b=this;b.disabled=true;post('po_reply',o).then(function(j){if(!j.ok)throw new Error(j.err);D.상태='회신';D.회신=j.회신;render();toast('회신을 보냈습니다. 감사합니다.')}).catch(function(e){b.disabled=false;toast('보내지 못했습니다: '+(e.message||''))})};
+    document.getElementById('bUp').onclick=function(){
+      var f=document.getElementById('uFile').files[0],kind=document.getElementById('uKind').value;if(!f){toast('파일을 골라 주세요.');return}
+      if(f.size>10*1024*1024){toast('10MB 이하 파일만 올릴 수 있습니다.');return}
+      var now=new Date(),stamp=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0')+' '+String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
+      if(DEMO){(D.올린파일=D.올린파일||[]).push({종류:kind,이름:f.name,시각:stamp});render();toast('예시 — 실제로는 집지니 구글 드라이브에 보관됩니다.');return}
+      var b=this;b.disabled=true;toast('올리는 중입니다…');var rd=new FileReader();
+      rd.onload=function(){post('po_file',{종류:kind,이름:f.name,mime:f.type||(/\.pdf$/i.test(f.name)?'application/pdf':''),data:rd.result}).then(function(j){if(!j.ok)throw new Error(j.err);(D.올린파일=D.올린파일||[]).push({종류:kind,이름:f.name,시각:stamp});render();toast('올렸습니다 — 집지니에 바로 전달됩니다.')}).catch(function(e){b.disabled=false;toast('올리지 못했습니다: '+(e.message||''))})};
+      rd.readAsDataURL(f)};
+  }
+  if(DEMO){D=SAMPLE;render();return}
+  if(!id||!k){fail();return}
+  get('po').then(function(j){if(!j||!j.ok){fail(j&&j.err);return}D=j;render()}).catch(function(){fail('잠시 연결이 원활하지 않습니다. 새로 고침해 주세요.')});
+})();
+</script>
+</body>
