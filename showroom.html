@@ -194,7 +194,7 @@ button{font:inherit;cursor:pointer;color:inherit}
   cart=load('jj_sr_cart',{}); var home=load('jj_sr_home',null); if(home){$('hPy').value=home.py;$('hRoom').value=home.room;$('hBath').value=home.bath}
   function H(){return{py:Number($('hPy').value)||0,room:Number($('hRoom').value)||0,bath:Number($('hBath').value)||0}}
   function estQty(x){var h=H(),r=String(x.수량기준||'1').trim();
-    if(r==='방')return h.room+1; if(r==='욕실')return Math.max(1,h.bath)*25; if(r.charAt(0)==='=')return Number(r.slice(1))||1;
+    if(r==='방')return h.room+1; if(r==='욕실')return Math.max(1,h.bath)*25; if(r.charAt(0)==='='||r.indexOf('고정')===0)return Number(r.replace(/[^0-9.]/g,''))||1; if(/^[0-9.]+$/.test(r)&&(/주방|중문|문/.test(x.분류||'')||/^(m|틀|식|세트|개|짝)$/.test(x.단위||'')))return Number(r)||1;
     var n=Number(r);return n?Math.max(1,Math.round(n*h.py*10)/10):1}
   function swatch(x,cls){return '<div class="'+cls+(x.사진?'':' pat-'+esc(x.무늬||'plain'))+'" style="background-color:'+esc(x.색||'#e8e4dc')+(x.사진?';background:url('+esc(x.사진)+') center/cover':'')+'"'}
   function byId(id){return (D.목록||[]).filter(function(x){return x.id===id})[0]}
