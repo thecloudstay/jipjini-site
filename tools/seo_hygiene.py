@@ -24,7 +24,7 @@ def nav_block(depth):
     return (f'{START}<div style="max-width:780px;margin:28px auto 0;padding:18px 16px 26px;text-align:center;font-family:\'Apple SD Gothic Neo\',\'Noto Sans KR\',sans-serif;color:#555;border-top:1px solid rgba(0,0,0,.08)">'
             f'<div style="font-size:12px;letter-spacing:2px;color:#999;margin-bottom:8px">집지니 · 마진 0 인테리어 코디</div>{a}'
             f'<div style="font-size:12px;color:#999;margin-top:10px">서울·경기·인천 수도권 전역 · 자재상·기술자 직거래 · 정찰제 코디비</div>'
-            f'<div style="font-size:12px;color:#999;margin-top:4px">샘플실: <a href="{r}showroom.html" style="color:inherit">서울 강서구 공항대로41길 66 세신종합상가 지하 1층 B156호</a> · 예약 방문</div></div>{END}')
+            f'<div style="font-size:12px;color:#999;margin-top:4px">샘플실: <a href="{r}showroom.html" style="color:inherit">서울 강서구 공항대로41길 66 세신종합상가 지하 1층 B156호</a> · 예약 상담</div></div>{END}')
 
 def main():
     files = []
