@@ -7,7 +7,7 @@
   if (window.__jjChat) return; window.__jjChat = 1;
   var API = 'https://jipjini-kakao.thecloudstay.workers.dev/';
   var KAKAO = 'https://pf.kakao.com/_NjpxhC/chat', TEL = '010-9806-0422';
-  var CHIPS = ['평당 비용이 얼마인가요', '진행 방식이 어떻게 되나요', '일반 업체와 차이', '코디비는 얼마인가요', '하자 보수 기간', '내 견적 확인하기', '상담원 연결'];
+  var CHIPS = ['평당 비용이 얼마인가요', '샘플실 위치', '진행 방식이 어떻게 되나요', '일반 업체와 차이', '코디비는 얼마인가요', '하자 보수 기간', '내 견적 확인하기', '상담원 연결'];
   var uid = '';
   try { uid = localStorage.getItem('jj_chat_uid') || ''; if (!uid) { uid = 'WEB' + Math.random().toString(36).slice(2, 11); localStorage.setItem('jj_chat_uid', uid); } } catch (e) { uid = 'WEB' + Math.random().toString(36).slice(2, 11); }
 
