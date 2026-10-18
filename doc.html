@@ -32,22 +32,31 @@ h1{font-size:22px;margin:10px 0 4px}
 <script>
 (function(){
   var API='https://script.google.com/macros/s/AKfycbzxm4mmZs1yVJPa3T-wb0cdJbEUMPYl6dDKtQNSNmJy4nEsCholrEnPAN8e0JfAtOV99A/exec';
-  var t=(new URLSearchParams(location.search).get('t')||'').replace(/[^A-Za-z0-9]/g,''), app=document.getElementById('app');
+  var qs=new URLSearchParams(location.search), t=(qs.get('t')||'').replace(/[^A-Za-z0-9]/g,''), SHARE=qs.get('share')==='1', app=document.getElementById('app'), FILES=[];
   function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
-  function get(kind){return fetch(API+'?type=bizdoc&t='+encodeURIComponent(t)+(kind?'&kind='+encodeURIComponent(kind):''),{redirect:'follow'}).then(function(r){return r.json()})}
+  function get(kind){return fetch(API+'?type=bizdoc&t='+encodeURIComponent(t)+(kind?'&kind='+encodeURIComponent(kind):'')+(SHARE?'&share=1':''),{redirect:'follow'}).then(function(r){return r.json()})}
   function fail(m){app.innerHTML='<div class="err">'+esc(m||'링크가 올바르지 않습니다.')+'<br>집지니 코디에게 다시 요청해 주세요.</div>'}
   function blobOf(j){var b=atob(j.data),u=new Uint8Array(b.length);for(var i=0;i<b.length;i++)u[i]=b.charCodeAt(i);return new Blob([u],{type:j.mime||'application/octet-stream'})}
   if(t.length!==16){fail();return}
   get('').then(function(d){
     if(!d||!d.ok){fail(d&&d.err);return}
-    var h='<div class="brand">JIPJINI</div><h1>요청하신 서류</h1><div class="sub">'+(d.고객명?esc(d.고객명)+' 고객님, ':'')+'집지니 서류를 확인하시고 필요하면 내려받아 주세요.<br>이 링크는 '+esc(d.만료)+'까지 열립니다.</div>';
+    var custUrl=location.origin+location.pathname+'?t='+t;
+    var h=SHARE?'<div class="card" style="border-color:var(--clay)"><h2>카톡으로 보내기</h2><div class="sub">아래 단추를 누르고 공유 창에서 카카오톡 → 고객 대화방을 고르세요.</div><button class="btn" id="shF" disabled>서류 파일 그대로 보내기 (준비 중…)</button><button class="btn" id="shL" style="background:#fff;color:var(--clay);border:1px solid var(--clay)">서류 보기 링크로 보내기 (3일)</button><button class="btn" id="shC" style="background:#fff;color:var(--charcoal);border:1px solid var(--line)">링크 복사</button></div>':'';
+    h+='<div class="brand">JIPJINI</div><h1>요청하신 서류</h1><div class="sub">'+(d.고객명?esc(d.고객명)+' 고객님, ':'')+'집지니 서류를 확인하시고 필요하면 내려받아 주세요.<br>이 링크는 '+esc(d.만료)+'까지 열립니다.</div>';
     (d.종류||[]).forEach(function(k,i){h+='<div class="card"><h2>'+esc(k)+'</h2><div id="v'+i+'" class="load">불러오는 중…</div><button class="btn" id="b'+i+'" disabled><svg class="ico"><use href="#i-down"/></svg>내려받기</button></div>'});
     h+='<div class="note">계약서 작성·세금계산서 발행·거래명세서 확인 용도로만 사용해 주시고, 다른 곳에 공유는 삼가 주세요.<br>문의: 집지니 코디 <a href="tel:'+esc(d.코디연락처)+'">'+esc(d.코디연락처)+'</a></div>';
     app.innerHTML=h;
+    if(SHARE){
+      var msg='[집지니] 요청하신 서류('+(d.종류||[]).join('·')+')입니다. 계약·세금계산서 용도로만 써 주세요. 집지니 코디 '+(d.코디연락처||'');
+      document.getElementById('shL').onclick=function(){if(navigator.share)navigator.share({title:'집지니 서류',text:msg,url:custUrl}).catch(function(){});else{navigator.clipboard&&navigator.clipboard.writeText(msg+'\n'+custUrl);alert('링크를 복사했습니다. 카톡에 붙여 넣어 보내 주세요.')}};
+      document.getElementById('shC').onclick=function(){var tx=msg+'\n'+custUrl;if(navigator.clipboard)navigator.clipboard.writeText(tx).then(function(){alert('복사했습니다. 카톡에 붙여 넣어 보내 주세요.')});else prompt('복사해 주세요',tx)};
+      document.getElementById('shF').onclick=function(){if(navigator.canShare&&navigator.canShare({files:FILES}))navigator.share({files:FILES,title:'집지니 서류',text:msg}).catch(function(){});else alert('이 휴대폰은 파일 공유를 지원하지 않습니다. 「서류 보기 링크로 보내기」를 써 주세요.')};
+    }
     (d.종류||[]).forEach(function(k,i){
       get(k).then(function(j){
         if(!j||!j.ok)throw new Error(j&&j.err);
-        var bl=blobOf(j),url=URL.createObjectURL(bl),v=document.getElementById('v'+i),b=document.getElementById('b'+i);
+        var bl=blobOf(j);FILES.push(new File([bl],j.이름||k,{type:j.mime||'application/octet-stream'}));if(SHARE&&FILES.length===(d.종류||[]).length){var sf=document.getElementById('shF');sf.disabled=false;sf.textContent='서류 파일 그대로 보내기'}
+        var url=URL.createObjectURL(bl),v=document.getElementById('v'+i),b=document.getElementById('b'+i);
         v.innerHTML=/^image\//.test(j.mime)?'<img src="'+url+'" alt="'+esc(k)+'">':'<div class="load">'+esc(j.이름)+' (문서 파일)</div>';
         b.disabled=false;b.onclick=function(){var a=document.createElement('a');a.href=url;a.download=j.이름||k;document.body.appendChild(a);a.click();setTimeout(function(){a.remove()},1000)};
       }).catch(function(e){document.getElementById('v'+i).textContent='불러오지 못했습니다: '+(e.message||'')});
