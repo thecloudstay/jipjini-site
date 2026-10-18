@@ -4,10 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>온라인 샘플실 — 집지니</title>
-<meta name="description" content="도배·바닥·주방·욕실 타일·도어·조명 견본을 사진으로 보고 골라 담으면, 고른 자재 그대로 견적서가 만들어집니다. 집지니 온라인 샘플실.">
+<meta name="description" content="도배·바닥·주방·욕실 타일·도어·조명 견본을 사진과 대략 금액으로 미리 보고, 관심 있는 견본을 담아 매장 방문을 신청하세요. 코디가 실물을 함께 보여 드립니다. 집지니 온라인 샘플실.">
 <link rel="canonical" href="https://jipjini.com/showroom.html">
-<meta property="og:title" content="집지니 온라인 샘플실 — 고르면 견적서에 바로">
-<meta property="og:description" content="도배·바닥·주방·욕실·도어·조명 견본을 보고 장바구니에 담아 의뢰하세요.">
+<meta property="og:title" content="집지니 온라인 샘플실 — 미리 보고, 매장에서 실물로">
+<meta property="og:description" content="견본을 미리 보고 관심 목록에 담아 매장 방문을 신청하세요.">
 <meta property="og:image" content="https://jipjini.com/og-cover.png">
 <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@500;700&display=swap" rel="stylesheet">
@@ -148,14 +148,14 @@ button{font:inherit;cursor:pointer;color:inherit}
 
 <header class="top"><div class="top-in">
   <a class="logo" href="index.html"><b>집</b>집지니</a>
-  <a class="req" href="index.html#quote-form">글로 의뢰하기</a>
+  <a class="req" href="index.html#quote-form">견적 의뢰하기</a>
 </div></header>
 
 <section class="hero">
   <div class="k">ONLINE SAMPLE ROOM</div>
-  <h1>보고 고르면,<br>그대로 견적서가 됩니다</h1>
-  <p>도배·바닥·주방·욕실 타일·도어·조명 견본을 둘러보고 마음에 드는 것을 담아 주세요. 의뢰하시면 고른 자재 그대로 견적서를 만들어 코디가 확인 후 보내 드립니다.</p>
-  <div class="steps"><span><i>1</i>견본 둘러보기</span><span><i>2</i>장바구니에 담기</span><span><i>3</i>의뢰하기</span><span><i>4</i>견적서 받기</span></div>
+  <h1>미리 보고,<br>매장에서 실물로 고르세요</h1>
+  <p>도배·바닥·주방·욕실 타일·도어·조명 견본을 사진과 대략 금액으로 먼저 살펴보세요. 마음에 드는 것을 관심 목록에 담아 매장 방문을 신청하시면, 코디가 그 견본을 미리 챙겨 실물로 보여 드립니다. 최종 선택은 실물을 보신 뒤에 합니다.</p>
+  <div class="steps"><span><i>1</i>견본 둘러보기</span><span><i>2</i>관심 견본 담기</span><span><i>3</i>매장 방문 신청</span><span><i>4</i>실물 보고 확정</span></div>
 </section>
 
 <section class="home"><div class="home-in">
@@ -163,16 +163,16 @@ button{font:inherit;cursor:pointer;color:inherit}
   <label>전용 <input id="hPy" inputmode="decimal" value="24"> 평</label>
   <label>방 <input id="hRoom" inputmode="numeric" value="3"> 개</label>
   <label>욕실 <input id="hBath" inputmode="numeric" value="2"> 개</label>
-  <span class="n">넣어 주시면 견본마다 필요한 양과 예상 자재비를 계산해 드립니다. 실제 수량은 실측 뒤 코디가 맞춥니다.</span>
+  <span class="n">넣어 주시면 견본마다 대략 필요한 양과 참고 금액을 보여 드립니다. 정확한 수량·금액은 실측 뒤 견적서로 드립니다.</span>
 </div></section>
 
 <nav class="tabs"><div class="tabs-in" id="tabs"></div></nav>
 <main class="wrap" id="main"><div class="empty-c">견본을 불러오는 중입니다…</div></main>
-<div class="foot">표시 금액은 자재 예상 단가이며 부가세 10% 별도입니다. 시공비·코디비는 견적서에서 함께 계산됩니다. 사진과 실제 색은 화면에 따라 조금 다를 수 있어, 원하시면 실측 때 실물 견본을 보여 드립니다.</div>
+<div class="foot">표시 금액은 참고용 자재 예상 단가이며 부가세 10% 별도입니다. 시공비·코디비는 견적서에서 함께 계산됩니다. 사진과 실제 색·질감은 다를 수 있어 매장에서 실물로 확인하신 뒤 확정합니다.</div>
 
 <div class="bar empty" id="bar"><div class="bar-in">
-  <div class="l"><b id="barN">장바구니가 비어 있습니다</b><span id="barT">마음에 드는 견본을 담아 주세요</span></div>
-  <button id="barBtn"><svg class="ico"><use href="#i-bag"/></svg>장바구니 보기</button>
+  <div class="l"><b id="barN">관심 목록이 비어 있습니다</b><span id="barT">매장에서 보고 싶은 견본을 담아 주세요</span></div>
+  <button id="barBtn"><svg class="ico"><use href="#i-bag"/></svg>관심 목록 보기</button>
 </div></div>
 
 <div class="sheet-bg" id="bg"></div>
@@ -182,7 +182,7 @@ button{font:inherit;cursor:pointer;color:inherit}
 <script>
 (function(){
   var API='https://script.google.com/macros/s/AKfycbzxm4mmZs1yVJPa3T-wb0cdJbEUMPYl6dDKtQNSNmJy4nEsCholrEnPAN8e0JfAtOV99A/exec';
-  var ONE=['도배','바닥','주방','욕실·타일'];   // 집 전체에 하나만 고르는 분류 (다시 고르면 바뀜)
+  var ONE=[];   // 2026-10-18 매장에서 비교해 보도록 분류마다 여러 개 담기 허용
   // 견적 계산기가 알아듣는 공종 말 (sku_bundle_extended.gs _SCOPE_TO_PREFIX)
   var SCOPE={'도배':['도배'],'바닥':['바닥'],'주방':['가구'],'욕실·타일':['타일','도기'],'도어·중문':['목공','도어'],'조명':['조명'],'필름·도장':['필름']};
   var D=null, cat='', grade='전체', cart={}, $=function(id){return document.getElementById(id)};
@@ -201,8 +201,8 @@ button{font:inherit;cursor:pointer;color:inherit}
   function cartList(){return Object.keys(cart).map(function(id){var x=byId(id);return x?{x:x,q:cart[id].q}:null}).filter(Boolean)}
   function total(){return cartList().reduce(function(a,c){return a+c.x.단가*c.q},0)}
   function renderBar(){var L=cartList();$('bar').classList.toggle('empty',!L.length);
-    $('barN').textContent=L.length?'장바구니 '+L.length+'개':'장바구니가 비어 있습니다';
-    $('barT').textContent=L.length?'예상 자재비 약 '+won(total())+' · 부가세 10% 별도':'마음에 드는 견본을 담아 주세요';
+    $('barN').textContent=L.length?'관심 견본 '+L.length+'개':'관심 목록이 비어 있습니다';
+    $('barT').textContent=L.length?'매장 방문 때 실물로 보여 드립니다':'매장에서 보고 싶은 견본을 담아 주세요';
     renderTabs()}
   function renderTabs(){var cnt={};cartList().forEach(function(c){cnt[c.x.분류]=1});
     $('tabs').innerHTML=(D.분류||[]).map(function(c){var n=(D.목록||[]).filter(function(x){return x.분류===c}).length;if(!n)return'';
@@ -210,46 +210,46 @@ button{font:inherit;cursor:pointer;color:inherit}
   function renderMain(){
     var L=(D.목록||[]).filter(function(x){return x.분류===cat&&(grade==='전체'||x.등급===grade)});
     var one=ONE.indexOf(cat)>=0;
-    var h='<div class="sec-h"><h2>'+esc(cat)+'</h2><p>'+(one?'집 전체에 하나를 고릅니다 · 다시 고르면 바뀝니다':'여러 개 담을 수 있습니다')+'</p></div>'+
+    var h='<div class="sec-h"><h2>'+esc(cat)+'</h2><p>'+'비교해 보고 싶은 것을 여러 개 담으세요 · 매장에서 실물로 보여 드립니다'+'</p></div>'+
       '<div class="grade">'+['전체','기본','추천','고급'].map(function(g){return '<button data-g="'+g+'" class="'+(g===grade?'on':'')+'">'+g+'</button>'}).join('')+'</div><div class="grid">';
     h+=L.map(function(x){var inn=!!cart[x.id],q=estQty(x);
       return '<div class="card'+(inn?' in':'')+'">'+swatch(x,'sw')+' data-open="'+esc(x.id)+'"><span class="badge b'+esc(x.등급)+'">'+esc(x.등급)+'</span><span class="chk"><svg class="ico" style="width:15px;height:15px"><use href="#i-check"/></svg></span></div>'+
         '<div class="cb"><b>'+esc(x.이름)+'</b><span class="s">'+esc([x.브랜드,x.무늬설명].filter(Boolean).join(' · '))+'</span>'+
-        '<span class="p">'+won(x.단가)+' <span>/ '+esc(x.단위)+'</span></span><span class="est">우리 집 약 '+q+esc(x.단위)+' · '+won(x.단가*q)+'</span>'+
-        '<div class="add"><button data-add="'+esc(x.id)+'">'+(inn?'담김':'담기')+'</button></div></div></div>'}).join('');
+        '<span class="p">'+won(x.단가)+' <span>/ '+esc(x.단위)+'</span></span><span class="est">우리 집 대략 '+won(x.단가*q)+' 참고</span>'+
+        '<div class="add"><button data-add="'+esc(x.id)+'">'+(inn?'담김':'관심 담기')+'</button></div></div></div>'}).join('');
     h+='</div>'; if(!L.length)h='<div class="empty-c">이 등급의 견본이 아직 없습니다.</div>';
     $('main').innerHTML=h}
   function toggle(id){var x=byId(id);if(!x)return;
     if(cart[id]){delete cart[id];toast('뺐습니다')}
     else{ if(ONE.indexOf(x.분류)>=0)Object.keys(cart).forEach(function(k){var y=byId(k);if(y&&y.분류===x.분류)delete cart[k]});
-      cart[id]={q:estQty(x)};toast(x.이름+' 담았습니다');gtag('event','showroom_add',{item:x.id})}
+      cart[id]={q:estQty(x)};toast(x.이름+' 관심 목록에 담았습니다');gtag('event','showroom_add',{item:x.id})}
     save('jj_sr_cart',cart);renderMain();renderBar()}
   function open(t,html){$('shT').textContent=t;$('shB').innerHTML=html;$('bg').classList.add('on');$('sheet').classList.add('on');$('sheet').scrollTop=0}
   function close(){$('bg').classList.remove('on');$('sheet').classList.remove('on')}
   function detail(id){var x=byId(id);if(!x)return;var q=estQty(x),inn=!!cart[id];
     open(x.분류,swatch(x,'big')+'></div><div class="dt"><h4>'+esc(x.이름)+'</h4><div class="s">'+esc(x.설명||'')+'</div></div>'+
-      '<dl class="kv"><dt>브랜드</dt><dd>'+esc(x.브랜드||'-')+'</dd><dt>색상·무늬</dt><dd>'+esc(x.무늬설명||'-')+'</dd><dt>등급</dt><dd>'+esc(x.등급)+'</dd><dt>자재 단가</dt><dd><b>'+won(x.단가)+'</b> / '+esc(x.단위)+' <span style="color:var(--hint);font-size:12px">부가세 10% 별도</span></dd><dt>우리 집</dt><dd>약 '+q+esc(x.단위)+' · 예상 '+won(x.단가*q)+'</dd></dl>'+
-      (x.링크?'<a class="cta ghost" style="margin-top:10px" href="'+esc(x.링크)+'" target="_blank" rel="noopener">제조사 제품 페이지에서 더 보기</a>':'')+''+(x.링크?'<a class="cta ghost" style="text-decoration:none" href="'+esc(x.링크)+'" target="_blank" rel="noopener">제조사 페이지에서 더 보기</a>':'')+'<button class="cta'+(inn?' ghost':'')+'" id="dAdd">'+(inn?'장바구니에서 빼기':'장바구니에 담기')+'</button><div class="note">시공비(인건비)는 견적서에서 함께 계산됩니다. 사진 색은 화면마다 조금 다를 수 있습니다.</div>');
+      '<dl class="kv"><dt>브랜드</dt><dd>'+esc(x.브랜드||'-')+'</dd><dt>색상·무늬</dt><dd>'+esc(x.무늬설명||'-')+'</dd><dt>등급</dt><dd>'+esc(x.등급)+'</dd><dt>자재 단가</dt><dd><b>'+won(x.단가)+'</b> / '+esc(x.단위)+' <span style="color:var(--hint);font-size:12px">부가세 10% 별도</span></dd><dt>우리 집 참고</dt><dd>약 '+q+esc(x.단위)+' · 대략 '+won(x.단가*q)+'</dd></dl>'+
+      (x.링크?'<a class="cta ghost" style="text-decoration:none" href="'+esc(x.링크)+'" target="_blank" rel="noopener">제조사 페이지에서 더 보기</a>':'')+'<button class="cta'+(inn?' ghost':'')+'" id="dAdd">'+(inn?'관심 목록에서 빼기':'관심 목록에 담기 (매장에서 보기)')+'</button><div class="note">금액은 참고용입니다. 사진 색·질감은 실물과 다를 수 있어 매장에서 직접 보고 고르시는 것을 권합니다.</div>');
     $('dAdd').onclick=function(){toggle(id);close()}}
   function cartView(){var L=cartList();
-    if(!L.length){open('장바구니','<div class="empty-c">아직 담은 견본이 없습니다.<br>분류를 눌러 둘러보세요.</div>');return}
-    var h=L.map(function(c){var x=c.x;return '<div class="ci">'+swatch(x,'th')+'></div><div class="m"><b>'+esc(x.이름)+'</b><span>'+esc(x.분류)+' · '+won(x.단가)+'/'+esc(x.단위)+'</span><div class="qty"><input inputmode="decimal" data-q="'+esc(x.id)+'" value="'+c.q+'"><em>'+esc(x.단위)+'</em></div></div><div class="r"><b>'+won(x.단가*c.q)+'</b><br><button class="rm" data-rm="'+esc(x.id)+'">빼기</button></div></div>'}).join('');
-    h+='<div class="tot"><span>예상 자재비 (부가세 10% 별도)</span><b id="cTot">'+won(total())+'</b></div><div class="note">수량은 「우리 집」 정보로 어림한 값입니다. 실측 뒤 코디가 정확히 맞춥니다. 시공비·코디비는 견적서에 함께 나옵니다.</div>'+
-      '<button class="cta" id="goReq">이대로 의뢰하기 <svg class="ico"><use href="#i-arrow"/></svg></button><button class="cta ghost" id="more">더 둘러보기</button>';
-    open('장바구니 '+L.length+'개',h);
+    if(!L.length){open('관심 목록','<div class="empty-c">아직 담은 견본이 없습니다.<br>분류를 눌러 둘러보세요.</div>');return}
+    var h=L.map(function(c){var x=c.x;return '<div class="ci">'+swatch(x,'th')+'></div><div class="m"><b>'+esc(x.이름)+'</b><span>'+esc(x.분류)+' · '+won(x.단가)+'/'+esc(x.단위)+'</span></div><div class="r"><span style="font-size:12px;color:var(--hint)">대략 '+won(x.단가*c.q)+'</span><br><button class="rm" data-rm="'+esc(x.id)+'">빼기</button></div></div>'}).join('');
+    h+='<div class="note">담으신 견본은 매장 방문 때 코디가 미리 챙겨 실물로 보여 드립니다. 금액은 대략적인 참고값(부가세 10% 별도)이고, 실물을 보고 고르신 뒤 실측과 함께 정확한 견적서를 드립니다.</div>'+
+      '<button class="cta" id="goReq">매장 방문 신청하기 <svg class="ico"><use href="#i-arrow"/></svg></button><button class="cta ghost" id="more">더 둘러보기</button>';
+    open('관심 견본 '+L.length+'개',h);
     $('more').onclick=close;$('goReq').onclick=reqView;
     Array.prototype.forEach.call(document.querySelectorAll('[data-q]'),function(el){el.oninput=function(){var v=Number(el.value)||0;if(cart[el.dataset.q]){cart[el.dataset.q].q=v;save('jj_sr_cart',cart);var t=$('cTot');if(t)t.textContent=won(total());renderBar()}}});
     Array.prototype.forEach.call(document.querySelectorAll('[data-rm]'),function(el){el.onclick=function(){delete cart[el.dataset.rm];save('jj_sr_cart',cart);renderMain();renderBar();cartView()}})}
   function reqView(){var h0=H(),me=load('jj_sr_me',{});
-    open('의뢰하기','<div class="note" style="margin:0 0 10px">고른 견본 '+cartList().length+'개와 아래 정보로 견적서를 만듭니다. 보통 하루 안에 코디가 확인해 문자로 보내 드립니다.</div>'+
+    open('매장 방문 신청','<div class="note" style="margin:0 0 10px">관심 견본 '+cartList().length+'개를 코디가 미리 챙겨 둡니다. 원하시는 날짜를 남겨 주시면 매장(또는 자재상)과 시간을 맞춰 문자로 확정해 드립니다.</div>'+
       '<div class="f"><label>성함<input id="rN" autocomplete="name" value="'+esc(me.n||'')+'"></label><label>휴대폰<input id="rP" inputmode="tel" autocomplete="tel" placeholder="010-0000-0000" value="'+esc(me.p||'')+'"></label>'+
       '<label class="w">공사할 집 주소 (동·호수는 빼셔도 됩니다)<input id="rA" autocomplete="street-address" placeholder="예: 인천 서구 청라동 ○○아파트" value="'+esc(me.a||'')+'"></label>'+
-      '<label>전용 평수<input id="rPy" inputmode="decimal" value="'+h0.py+'"></label><label>공사 시작 희망<input id="rD" type="month"></label>'+
+      '<label>방문 희망일<input id="rV" type="date"></label><label>시간대<select id="rT"><option>오전</option><option>오후</option><option>상관없음</option></select></label>'+'<label>전용 평수<input id="rPy" inputmode="decimal" value="'+h0.py+'"></label><label>공사 시작 희망<input id="rD" type="month"></label>'+
       '<label>방 개수<input id="rR" inputmode="numeric" value="'+h0.room+'"></label><label>욕실 개수<input id="rB" inputmode="numeric" value="'+h0.bath+'"></label>'+
       '<label class="w">진행 방식<select id="rM"><option value="직영">직접 진행 (코디가 업체·일정 연결)</option><option value="PM 파견">현장관리(PM)까지 맡기기</option><option value="">아직 모르겠어요 — 상담 후 결정</option></select></label>'+
       '<label class="w">더 알려 주실 것 (선택)<textarea id="rMemo" rows="3" placeholder="예: 거실만 마루, 방은 장판 / 욕실 1곳만 / 입주 날짜 등"></textarea></label></div>'+
-      '<label class="agree"><input type="checkbox" id="rAg"><span>견적 안내를 위해 성함·휴대폰·주소를 받는 것에 동의합니다. 견적·상담 외에는 쓰지 않습니다.</span></label>'+
-      '<button class="cta" id="rGo">견적서 받기</button><button class="cta ghost" id="rBack">장바구니로</button>');
+      '<label class="agree"><input type="checkbox" id="rAg"><span>방문 일정·견적 안내를 위해 성함·휴대폰·주소를 받는 것에 동의합니다. 상담 외에는 쓰지 않습니다.</span></label>'+
+      '<button class="cta" id="rGo">방문 신청하기</button><button class="cta ghost" id="rBack">관심 목록으로</button>');
     $('rBack').onclick=cartView;$('rGo').onclick=submit}
   function submit(){
     var n=$('rN').value.trim(),p=$('rP').value.replace(/[^0-9]/g,''),a=$('rA').value.trim(),py=Number($('rPy').value)||0;
@@ -257,9 +257,9 @@ button{font:inherit;cursor:pointer;color:inherit}
     if(!a){toast('주소를 적어 주세요');return} if(!py){toast('평수를 적어 주세요');return} if(!$('rAg').checked){toast('동의에 체크해 주세요');return}
     var L=cartList(),scope=[];L.forEach(function(c){(SCOPE[c.x.분류]||[c.x.분류]).forEach(function(s){if(scope.indexOf(s)<0)scope.push(s)})});
     if(L.some(function(c){return /바닥|주방|욕실/.test(c.x.분류)})&&scope.indexOf('철거')<0)scope.push('철거');   // 바꾸는 자리는 기존 것 철거 포함
-    var memo='[온라인 샘플실] '+L.map(function(c){return c.x.분류+': '+c.x.이름+' 약 '+c.q+c.x.단위}).join(' / ')+($('rMemo').value.trim()?'\n'+$('rMemo').value.trim():'');
+    var memo='[샘플실 · 매장 방문 신청] 희망 '+($('rV').value||'날짜 미정')+' '+$('rT').value+'\n매장에서 보여 드릴 견본: '+L.map(function(c){return c.x.분류+' '+c.x.이름+(c.x.브랜드?'('+c.x.브랜드+')':'')}).join(' / ')+($('rMemo').value.trim()?'\n'+$('rMemo').value.trim():'');
     var b=new URLSearchParams();
-    var f={type:'request','고객명':n,'연락처':p,'주소':a,'평수':py,'방개수':$('rR').value,'욕실개수':$('rB').value,'시공시작일':$('rD').value,'공사방식':$('rM').value,'공종범위':JSON.stringify(scope),'메모':memo,'유입':'온라인 샘플실',
+    var f={type:'request','고객명':n,'연락처':p,'주소':a,'평수':py,'방개수':$('rR').value,'욕실개수':$('rB').value,'시공시작일':$('rD').value,'공사방식':$('rM').value,'공종범위':JSON.stringify(scope),'메모':memo,'유입':'온라인 샘플실 · 매장 방문','샘플용도':'방문','방문희망':($('rV').value||'')+' '+$('rT').value,
       '샘플선택(JSON)':JSON.stringify(L.map(function(c){return{id:c.x.id,이름:c.x.이름,수량:c.q}}))};
     Object.keys(f).forEach(function(k){b.set(k,f[k])});
     save('jj_sr_me',{n:n,p:$('rP').value,a:a});
@@ -268,9 +268,9 @@ button{font:inherit;cursor:pointer;color:inherit}
       if(j&&j.ok===false)throw new Error(j.err||'접수 실패');
       gtag('event','showroom_request',{items:L.length});
       cart={};save('jj_sr_cart',cart);renderMain();renderBar();
-      open('접수 완료','<div class="done"><svg class="ico" style="width:42px;height:42px;color:var(--ok)"><use href="#i-check"/></svg><h4>의뢰가 접수됐습니다</h4><p>고르신 견본 그대로 견적서를 만들고 있습니다.<br>코디가 확인한 뒤 <b>'+esc($('rP').value)+'</b> 로 문자 드립니다.<br>궁금한 점은 카카오톡 채널 「집지니」로 편하게 물어봐 주세요.</p></div><button class="cta ghost" id="okX">닫기</button>');
+      open('접수 완료','<div class="done"><svg class="ico" style="width:42px;height:42px;color:var(--ok)"><use href="#i-check"/></svg><h4>방문 신청이 접수됐습니다</h4><p>담으신 견본을 미리 챙겨 두겠습니다.<br>코디가 매장 일정을 맞춘 뒤 <b>'+esc($('rP').value)+'</b> 로 문자 드립니다.<br>궁금한 점은 카카오톡 채널 「집지니」로 편하게 물어봐 주세요.</p></div><button class="cta ghost" id="okX">닫기</button>');
       $('okX').onclick=close;
-    }).catch(function(e){btn.disabled=false;btn.textContent='견적서 받기';toast('보내지 못했습니다 — 잠시 뒤 다시 눌러 주세요 ('+(e.message||'')+')')})}
+    }).catch(function(e){btn.disabled=false;btn.textContent='방문 신청하기';toast('보내지 못했습니다 — 잠시 뒤 다시 눌러 주세요 ('+(e.message||'')+')')})}
   // 이벤트
   document.addEventListener('click',function(e){var t=e.target.closest('[data-c],[data-g],[data-add],[data-open]');if(!t)return;
     if(t.dataset.c){cat=t.dataset.c;grade='전체';renderTabs();renderMain();window.scrollTo({top:document.querySelector('.tabs').offsetTop-52,behavior:'smooth'})}
