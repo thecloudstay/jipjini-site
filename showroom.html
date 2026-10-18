@@ -194,7 +194,7 @@ button{font:inherit;cursor:pointer;color:inherit}
   cart=load('jj_sr_cart',{}); var home=load('jj_sr_home',null); if(home){$('hPy').value=home.py;$('hRoom').value=home.room;$('hBath').value=home.bath}
   function H(){return{py:Number($('hPy').value)||0,room:Number($('hRoom').value)||0,bath:Number($('hBath').value)||0}}
   function estQty(x){var h=H(),r=String(x.수량기준||'1').trim();
-    if(r==='방')return h.room+Math.max(1,h.bath)+1;   /* 2026-10-18 문 개수는 방문+욕실문+다용도실문 */ if(r==='욕실')return Math.max(1,h.bath)*25; if(r.charAt(0)==='='||r.indexOf('고정')===0)return Number(r.replace(/[^0-9.]/g,''))||1; if(/^[0-9.]+$/.test(r)&&(/주방|중문|문/.test(x.분류||'')||/^(m|틀|식|세트|개|짝)$/.test(x.단위||'')))return Number(r)||1;
+    if(r==='방')return h.room+Math.max(1,h.bath)+1;   /* 2026-10-18 문 개수는 방문+욕실문+다용도실문 */ if(r==='욕실')return Math.max(1,h.bath)*25; if(r.charAt(0)==='='||r.indexOf('고정')===0)return Number(r.replace(/[^0-9.]/g,''))||1; if(/^[0-9.]+$/.test(r)&&(/주방|중문|문/.test(x.분류||'')||/^(m|틀|식|세트|짝)$/.test(x.단위||'')))return Number(r)||1;
     var n=Number(r);return n?Math.max(1,Math.round(n*h.py*10)/10):1}
   function swatch(x,cls){return '<div class="'+cls+(x.사진?'':' pat-'+esc(x.무늬||'plain'))+'" style="background-color:'+esc(x.색||'#e8e4dc')+(x.사진?';background:url('+esc(x.사진)+') center/cover':'')+'"'}
   function byId(id){return (D.목록||[]).filter(function(x){return x.id===id})[0]}
@@ -215,7 +215,7 @@ button{font:inherit;cursor:pointer;color:inherit}
     h+=L.map(function(x){var inn=!!cart[x.id],q=estQty(x);
       return '<div class="card'+(inn?' in':'')+'">'+swatch(x,'sw')+' data-open="'+esc(x.id)+'"><span class="badge b'+esc(x.등급)+'">'+esc(x.등급)+'</span><span class="chk"><svg class="ico" style="width:15px;height:15px"><use href="#i-check"/></svg></span></div>'+
         '<div class="cb"><b>'+esc(x.이름)+'</b><span class="s">'+esc([x.브랜드,x.무늬설명].filter(Boolean).join(' · '))+'</span>'+
-        '<span class="p">'+won(x.단가)+' <span>/ '+esc(x.단위)+'</span></span><span class="est">우리 집 대략 '+won(x.단가*q)+' 참고</span>'+
+        '<span class="p">'+won(x.단가)+' <span>/ '+esc(x.단위)+'</span></span><span class="est">우리 집 대략 '+won(x.단가*q)+' 참고 · 부가세 10% 별도</span>'+
         '<div class="add"><button data-add="'+esc(x.id)+'">'+(inn?'담김':'관심 담기')+'</button></div></div></div>'}).join('');
     h+='</div>'; if(!L.length)h='<div class="empty-c">이 등급의 견본이 아직 없습니다.</div>';
     $('main').innerHTML=h}
@@ -281,10 +281,11 @@ button{font:inherit;cursor:pointer;color:inherit}
     Object.keys(cart).forEach(function(k){var x=byId(k);if(x)cart[k].q=estQty(x)});save('jj_sr_cart',cart);if(D){renderMain();renderBar()}})});
   $('barBtn').onclick=cartView;$('bg').onclick=close;$('shX').onclick=close;
   document.addEventListener('keydown',function(e){if(e.key==='Escape')close()});
-  function start(d){D=d;cat=(D.분류||[])[0]||'';Object.keys(cart).forEach(function(k){if(!byId(k))delete cart[k]});renderTabs();renderMain();renderBar()}
-  var fb=function(){return fetch('data/showroom.json',{cache:'no-store'}).then(function(r){return r.json()})};
+  function start(d){D=d;cat=(D.분류||[])[0]||'';if(!D.__fb)Object.keys(cart).forEach(function(k){if(!byId(k))delete cart[k]});   /* 2026-10-18 예비 목록일 땐 담은 견본을 지우지 않음 */
+  renderTabs();renderMain();renderBar()}
+  var fb=function(){return fetch('data/showroom.json',{cache:'no-store'}).then(function(r){return r.json()}).then(function(j){j.__fb=1;return j})};
   Promise.race([fetch(API+'?type=showroom',{redirect:'follow'}).then(function(r){return r.json()}).then(function(j){if(!j||!j.ok||!(j.목록||[]).length)throw 0;return j}),
-    new Promise(function(_,rej){setTimeout(rej,6000)})]).catch(fb).then(start).catch(function(){$('main').innerHTML='<div class="empty-c">견본을 불러오지 못했습니다. 새로 고침해 주세요.</div>'});
+    new Promise(function(_,rej){setTimeout(rej,12000)})]).catch(fb).then(start).catch(function(){$('main').innerHTML='<div class="empty-c">견본을 불러오지 못했습니다. 새로 고침해 주세요.</div>'});
 })();
 </script>
 </body>
