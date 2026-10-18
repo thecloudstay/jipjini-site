@@ -229,7 +229,7 @@ button{font:inherit;cursor:pointer;color:inherit}
   function detail(id){var x=byId(id);if(!x)return;var q=estQty(x),inn=!!cart[id];
     open(x.분류,swatch(x,'big')+'></div><div class="dt"><h4>'+esc(x.이름)+'</h4><div class="s">'+esc(x.설명||'')+'</div></div>'+
       '<dl class="kv"><dt>브랜드</dt><dd>'+esc(x.브랜드||'-')+'</dd><dt>색상·무늬</dt><dd>'+esc(x.무늬설명||'-')+'</dd><dt>등급</dt><dd>'+esc(x.등급)+'</dd><dt>자재 단가</dt><dd><b>'+won(x.단가)+'</b> / '+esc(x.단위)+' <span style="color:var(--hint);font-size:12px">부가세 10% 별도</span></dd><dt>우리 집</dt><dd>약 '+q+esc(x.단위)+' · 예상 '+won(x.단가*q)+'</dd></dl>'+
-      (x.링크?'<a class="cta ghost" style="margin-top:10px" href="'+esc(x.링크)+'" target="_blank" rel="noopener">제조사 제품 페이지에서 더 보기</a>':'')+'<button class="cta'+(inn?' ghost':'')+'" id="dAdd">'+(inn?'장바구니에서 빼기':'장바구니에 담기')+'</button><div class="note">시공비(인건비)는 견적서에서 함께 계산됩니다. 사진 색은 화면마다 조금 다를 수 있습니다.</div>');
+      (x.링크?'<a class="cta ghost" style="margin-top:10px" href="'+esc(x.링크)+'" target="_blank" rel="noopener">제조사 제품 페이지에서 더 보기</a>':'')+''+(x.링크?'<a class="cta ghost" style="text-decoration:none" href="'+esc(x.링크)+'" target="_blank" rel="noopener">제조사 페이지에서 더 보기</a>':'')+'<button class="cta'+(inn?' ghost':'')+'" id="dAdd">'+(inn?'장바구니에서 빼기':'장바구니에 담기')+'</button><div class="note">시공비(인건비)는 견적서에서 함께 계산됩니다. 사진 색은 화면마다 조금 다를 수 있습니다.</div>');
     $('dAdd').onclick=function(){toggle(id);close()}}
   function cartView(){var L=cartList();
     if(!L.length){open('장바구니','<div class="empty-c">아직 담은 견본이 없습니다.<br>분류를 눌러 둘러보세요.</div>');return}
