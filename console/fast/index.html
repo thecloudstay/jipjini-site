@@ -141,6 +141,16 @@ main{max-width:1100px;margin:0 auto;padding:14px 16px calc(40px + env(safe-area-
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.js"></script>
 <script>
+// 2026-10-20 슈퍼베이스 영어 오류 → 한국어
+function koErr(m) { m = String(m || ''); var w = m.match(/after (\d+) seconds?/i);
+  if (w) return '이미 링크를 보냈습니다 — 메일함을 먼저 확인하세요. 다시 받으려면 ' + w[1] + '초 뒤에 누르세요.';
+  if (/rate limit/i.test(m)) return '잠시 뒤에 다시 해 주세요 (짧은 시간에 너무 많이 요청함).';
+  if (/expired|invalid.*(token|link)|otp/i.test(m)) return '링크가 만료됐거나 이미 썼습니다 — 새 링크를 받아 주세요.';
+  if (/not allowed|signups? not allowed|not found/i.test(m)) return '등록되지 않은 메일입니다 — 대표에게 등록을 요청하세요.';
+  if (/network|fetch/i.test(m)) return '인터넷 연결을 확인해 주세요.';
+  if (/JWT|permission|policy/i.test(m)) return '권한이 없습니다 — 다시 로그인해 주세요.';
+  return '문제가 생겼습니다 (' + m.slice(0, 80) + ')'; }
+
 (function () {
   var GAS = 'https://script.google.com/macros/s/AKfycbzxm4mmZs1yVJPa3T-wb0cdJbEUMPYl6dDKtQNSNmJy4nEsCholrEnPAN8e0JfAtOV99A/exec';
   var T0 = performance.now();
@@ -183,7 +193,7 @@ main{max-width:1100px;margin:0 auto;padding:14px 16px calc(40px + env(safe-area-
     var em = $('loginEmail').value.trim(); if (!em || !sb) return;
     $('loginMsg').textContent = '보내는 중…';
     sb.auth.signInWithOtp({ email: em, options: { emailRedirectTo: location.origin + location.pathname, shouldCreateUser: true } }).then(function (r) {
-      $('loginMsg').textContent = r.error ? '실패: ' + r.error.message : '메일을 확인해 주세요. 링크를 누르면 바로 열립니다.';
+      $('loginMsg').textContent = r.error ? koErr(r.error.message) : '메일을 확인해 주세요. 링크를 누르면 바로 열립니다.';
     });
   };
 
@@ -191,7 +201,7 @@ main{max-width:1100px;margin:0 auto;padding:14px 16px calc(40px + env(safe-area-
   function loadViews() {
     var t = performance.now();
     return sb.from('console_views').select('key,data,updated_at').eq('org_id', ORG).then(function (r) {
-      if (r.error) { $('stamp').textContent = '읽기 실패: ' + r.error.message; return; }
+      if (r.error) { $('stamp').textContent = '읽기 실패: ' + koErr(r.error.message); return; }
       if (!r.data || !r.data.length) { $('stamp').textContent = '등록되지 않은 계정이거나 자료가 아직 없습니다'; return; }
       var nv = {}; r.data.forEach(function (row) { nv[row.key] = row.data; if (row.key === 'meta') META = Object.assign({}, row.data, { at: row.updated_at }); });
       V = nv; V._ms = Math.round(performance.now() - t); V._total = Math.round(performance.now() - T0);
@@ -217,7 +227,7 @@ main{max-width:1100px;margin:0 auto;padding:14px 16px calc(40px + env(safe-area-
     sb.auth.getUser().then(function (u) {
       return sb.from('console_refresh').insert({ org_id: ORG, asked_by: (u.data.user && u.data.user.email) || '' });
     }).then(function (r) {
-      if (r && r.error) { $('refreshIco').classList.remove('spin'); $('stamp').textContent = '요청 실패: ' + r.error.message; return; }
+      if (r && r.error) { $('refreshIco').classList.remove('spin'); $('stamp').textContent = '요청 실패: ' + koErr(r.error.message); return; }
       var n = 0, iv = setInterval(function () {
         n++; loadViews().then(function () {
           if ((META && META.at !== before) || n > 24) { clearInterval(iv); $('refreshIco').classList.remove('spin'); }
