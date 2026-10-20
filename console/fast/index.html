@@ -158,9 +158,9 @@ function koErr(m) { m = String(m || ''); var w = m.match(/after (\d+) seconds?/i
   var esc = function (v) { return String(v == null ? '' : v).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
   var won = function (n) { n = Number(n) || 0; return n.toLocaleString('ko-KR') + '원'; };
   var ls = { get: function (k) { try { return JSON.parse(localStorage.getItem(k)); } catch (e) { return null; } }, set: function (k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} } };
-  $('oldLink').href = '/console/app/'; $('oldLink1').href = '/console/app/';   // 2026-10-20 전체 콘솔도 jipjini.com 에서 바로
+  $('oldLink').href = '/console/'; $('oldLink1').href = '/console/';   // 2026-10-20 전체 콘솔도 jipjini.com 에서 바로
   try { if (/[?&]next=app\b/.test(location.search)) localStorage.setItem('jjf_next', 'app'); } catch (_n) {}
-  function goNext() { try { if (localStorage.getItem('jjf_next') === 'app') { localStorage.removeItem('jjf_next'); location.replace('/console/app/'); return true; } } catch (_n) {} return false; }
+  function goNext() { try { var nx = localStorage.getItem('jjf_next'); if (nx === 'app' || nx === 'console') { localStorage.removeItem('jjf_next'); location.replace('/console/'); return true; } } catch (_n) {} return false; }
 
   var V = {}, META = null, sb = null, ORG = 'jipjini', curTab = 'home', calYm = null, calSel = null;
 
