@@ -131,7 +131,7 @@ button.ghost{background:transparent;color:var(--sub);border:1px solid var(--line
         return fetch(cfg.gas + '?type=rpc', { method: 'POST', redirect: 'follow', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ fn: fn, args: args, tok: tok }) });
       }).then(function (r) { return r.json(); }).then(function (j) {
         if (j && j.ok) { if (ok) ok(j.v, uo); } else { var e = new Error((j && j.e) || '서버 응답 없음'); if (bad) bad(e, uo); else console.error('[rpc]', fn, e); }
-      }).catch(function (e) { var er = new Error(/Failed to fetch|NetworkError/i.test(String(e && e.message)) ? '인터넷 연결을 확인해 주세요.' : String(e && e.message || e)); if (bad) bad(er, uo); else console.error('[rpc]', fn, er); });
+      }).catch(function (e) { var er = new Error(/Failed to fetch|NetworkError/i.test(String(e && e.message)) ? (navigator.onLine === false ? '인터넷 연결을 확인해 주세요.' : '서버 응답을 받지 못했습니다 — 저장은 됐을 수 있으니 화면을 다시 확인해 주세요.') : String(e && e.message || e)); if (bad) bad(er, uo); else console.error('[rpc]', fn, er); });
     }
     function runner(ok, bad, uo) {
       return new Proxy({}, { get: function (t, k) {
