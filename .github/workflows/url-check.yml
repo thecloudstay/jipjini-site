@@ -5,6 +5,8 @@ on:
     inputs:
       url: { description: "확인할 주소", required: true }
       ua: { description: "기기 이름(User-Agent)", required: false, default: "facebookexternalhit/1.1" }
+permissions:
+  contents: write
 jobs:
   check:
     runs-on: ubuntu-latest
