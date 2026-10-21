@@ -15,7 +15,7 @@ jobs:
         env: { U: "${{ github.event.inputs.url }}", A: "${{ github.event.inputs.ua }}" }
         run: |
           mkdir out
-          curl -s -o out/body.html -D out/head.txt -w "코드 %{http_code} · 걸린초 %{time_total} · 최종주소 %{url_effective}\n" -A "$A" "$U" > out/meta.txt || true
-          curl -s -o out/body2.html -w "두번째 코드 %{http_code} · 걸린초 %{time_total}\n" -A "$A" "$U" >> out/meta.txt || true
+          curl -sL -o out/body.html -D out/head.txt -w "코드 %{http_code} · 걸린초 %{time_total} · 최종주소 %{url_effective}\n" -A "$A" "$U" > out/meta.txt || true
+          curl -sL -o out/body2.html -w "두번째 코드 %{http_code} · 걸린초 %{time_total}\n" -A "$A" "$U" >> out/meta.txt || true
           head -c 3000 out/body.html > out/body_head.html
           cd out && git init -q -b check && git config user.name jipjini-bot && git config user.email thecloudstay@gmail.com && git add meta.txt head.txt body_head.html && git commit -qm "점검 $(date -u +%FT%TZ)" && git push -qf "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" check
