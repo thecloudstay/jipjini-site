@@ -235,7 +235,7 @@ footer{text-align:center;font-size:12px;color:var(--mute);margin-top:26px;line-h
 
   function load() {
     if (!/^[A-Za-z0-9_-]{12,64}$/.test(k)) { state('링크가 올바르지 않습니다', '받으신 문자의 링크를 다시 눌러 주시거나 담당 코디에게 문의해 주세요.'); return; }
-    fetch(EXEC + '?type=progress&k=' + encodeURIComponent(k), { redirect: 'follow', cache: 'no-store' })
+    fetch(EXEC + '?type=progress&k=' + encodeURIComponent(k) + (/[?&]pv=1/.test(location.search) ? '&pv=1' : ''), { redirect: 'follow', cache: 'no-store' })
       .then(function (r) { return r.json(); })
       .then(function (j) {
         if (j && j.ok) { loadedOnce = true; render(j); return; }
