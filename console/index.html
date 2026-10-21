@@ -126,19 +126,31 @@ button.ghost{background:transparent;color:var(--sub);border:1px solid var(--line
         .then(function (r) { return r.json(); }).then(function (n) { refreshing = null; if (!n || !n.access_token) throw new Error('로그인이 만료됐습니다 — 빠른 콘솔에서 다시 로그인해 주세요.'); var keep = Object.assign({}, s, n); if (!keep.expires_at && n.expires_in) keep.expires_at = Math.floor(Date.now() / 1000) + n.expires_in; localStorage.setItem(KEY, JSON.stringify(keep)); return n.access_token; }, function (e) { refreshing = null; throw e; });
       return refreshing;
     }
-    function call(fn, args, ok, bad, uo) {
+    function call(fn, args, ok, bad, uo, ck) {
+      // 2026-10-21 보기 화면: 슈퍼베이스에 남은 지난 결과를 먼저 그리고(meta.cached), 구글 서버의 새 결과가 다르면 다시 그린다
+      var live = false, shown = null;
       token().then(function (tok) {
-        return fetch(cfg.gas + '?type=rpc', { method: 'POST', redirect: 'follow', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ fn: fn, args: args, tok: tok }) });
+        if (ck && ok) {
+          fetch(cfg.url + '/rest/v1/console_views?select=data,updated_at&org_id=eq.' + encodeURIComponent(cfg.org) + '&key=eq.' + encodeURIComponent('rpc:' + ck), { headers: { apikey: cfg.anon, Authorization: 'Bearer ' + tok } })
+            .then(function (r) { return r.ok ? r.json() : []; }).then(function (rows) {
+              var row = rows && rows[0]; if (!row || live) return;
+              shown = JSON.stringify(row.data); try { ok(row.data, uo, { cached: true, at: row.updated_at }); } catch (e) { console.error('[rpc 미리]', fn, e); }
+            }).catch(function () {});
+        }
+        return fetch(cfg.gas + '?type=rpc', { method: 'POST', redirect: 'follow', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ fn: fn, args: args, tok: tok, ck: ck || '' }) });
       }).then(function (r) { return r.json(); }).then(function (j) {
-        if (j && j.ok) { if (ok) ok(j.v, uo); } else { var e = new Error((j && j.e) || '서버 응답 없음'); if (bad) bad(e, uo); else console.error('[rpc]', fn, e); }
-      }).catch(function (e) { var er = new Error(/Failed to fetch|NetworkError/i.test(String(e && e.message)) ? (navigator.onLine === false ? '인터넷 연결을 확인해 주세요.' : '서버 응답을 받지 못했습니다 — 저장은 됐을 수 있으니 화면을 다시 확인해 주세요.') : String(e && e.message || e)); if (bad) bad(er, uo); else console.error('[rpc]', fn, er); });
+        live = true;
+        if (j && j.ok) { if (ok && !(shown !== null && shown === JSON.stringify(j.v))) ok(j.v, uo, { cached: false }); else if (shown !== null) document.dispatchEvent(new CustomEvent('jj-rpc-same', { detail: { fn: fn, ck: ck } })); }
+        else { var e = new Error((j && j.e) || '서버 응답 없음'); if (bad && shown === null) bad(e, uo); else console.error('[rpc]', fn, e); }
+      }).catch(function (e) { live = true; var er = new Error(/Failed to fetch|NetworkError/i.test(String(e && e.message)) ? (navigator.onLine === false ? '인터넷 연결을 확인해 주세요.' : '서버 응답을 받지 못했습니다 — 저장은 됐을 수 있으니 화면을 다시 확인해 주세요.') : String(e && e.message || e)); if (bad && shown === null) bad(er, uo); else console.error('[rpc]', fn, er); });
     }
-    function runner(ok, bad, uo) {
+    function runner(ok, bad, uo, ck) {
       return new Proxy({}, { get: function (t, k) {
-        if (k === 'withSuccessHandler') return function (h) { return runner(h, bad, uo); };
-        if (k === 'withFailureHandler') return function (h) { return runner(ok, h, uo); };
-        if (k === 'withUserObject') return function (o) { return runner(ok, bad, o); };
-        return function () { call(String(k), Array.prototype.slice.call(arguments), ok, bad, uo); };
+        if (k === 'withSuccessHandler') return function (h) { return runner(h, bad, uo, ck); };
+        if (k === 'withFailureHandler') return function (h) { return runner(ok, h, uo, ck); };
+        if (k === 'withUserObject') return function (o) { return runner(ok, bad, o, ck); };
+        if (k === 'withCache') return function (key) { return runner(ok, bad, uo, key); };
+        return function () { var a = Array.prototype.slice.call(arguments); call(String(k), a, ok, bad, uo, ck === true ? String(k) + ':' + JSON.stringify(a) : ck); };
       } });
     }
     window.google = window.google || {}; window.google.script = { run: runner(null, null, undefined), host: { close: function () {}, editor: {} }, url: { getLocation: function (cb) { cb({ parameter: {}, parameters: {}, hash: '' }); } } };
@@ -146,7 +158,7 @@ button.ghost{background:transparent;color:var(--sub);border:1px solid var(--line
   }
 
   function start(html, snap, c) {
-    var cfg = { url: c.url, anon: c.anon, gas: GAS };
+    var cfg = { url: c.url, anon: c.anon, gas: GAS, org: c.org || 'jipjini' };
     var js = JSON.stringify(snap).replace(/</g, '\\u003c').replace(/\u2028/g, '\\u2028').replace(/\u2029/g, '\\u2029');
     html = html.replace(/(<script type="application\/json" id="jjSnap">)[\s\S]*?(<\/script>)/, function (m, a, b) { return a + js + b; });
     var head = '<meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex,nofollow"><link rel="icon" href="/console/icons/icon-192.png">' +
