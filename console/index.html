@@ -108,6 +108,7 @@ button.ghost{background:transparent;color:var(--sub);border:1px solid var(--line
       }).then(function (html) {
         return snapP.then(function (sn) {
           var snap = {}; ((sn && sn.data) || []).forEach(function (r) { snap[r.key] = { t: Date.parse(r.updated_at) || Date.now(), d: r.data }; });
+          try { sb.auth.stopAutoRefresh && sb.auth.stopAutoRefresh(); } catch (_ar) {}   // 2026-10-21 점검: 로그인 갱신은 화면 안 연결부 한 곳에서만 (같은 갱신 열쇠를 두 번 쓰면 로그아웃될 수 있음)
           start(html, snap, c);
         });
       });
