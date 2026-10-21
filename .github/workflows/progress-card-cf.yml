@@ -16,17 +16,6 @@ jobs:
       - name: 토큰 확인
         env: { T: "${{ secrets.CLOUDFLARE_API_TOKEN }}" }
         run: if [ -z "$T" ]; then echo "CLOUDFLARE_API_TOKEN 비밀값이 없습니다"; exit 1; fi
-      - name: 저장소(KV) 준비
-        working-directory: cloudflare/progress-card
-        env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-        run: |
-          A="$CLOUDFLARE_ACCOUNT_ID"; H="Authorization: Bearer $CLOUDFLARE_API_TOKEN"
-          ID=$(curl -s -H "$H" "https://api.cloudflare.com/client/v4/accounts/$A/storage/kv/namespaces?per_page=100" | jq -r '.result[]?|select(.title=="jipjini-progress-card")|.id' | head -1)
-          if [ -z "$ID" ]; then ID=$(curl -s -X POST -H "$H" -H 'content-type: application/json' -d '{"title":"jipjini-progress-card"}' "https://api.cloudflare.com/client/v4/accounts/$A/storage/kv/namespaces" | jq -r '.result.id'); fi
-          if [ -z "$ID" ] || [ "$ID" = null ]; then echo "::error::KV 저장소를 만들 수 없음 (토큰에 Workers KV 편집 권한 필요)"; exit 1; fi
-          printf '\n[[kv_namespaces]]\nbinding = "CARD"\nid = "%s"\n' "$ID" >> wrangler.toml; echo "::notice::KV $ID"
       - name: 워커 올리기
         working-directory: cloudflare/progress-card
         env:
