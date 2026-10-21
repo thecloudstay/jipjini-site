@@ -169,6 +169,18 @@ button.ghost{background:transparent;color:var(--sub);border:1px solid var(--line
       }).catch(function () {});
     }
     setTimeout(function () { newVerCheck(); setInterval(newVerCheck, 180000); }, 180000);
+    // 2026-10-22 휴대폰 홈 화면 앱은 뒤에 열린 채로 남아 새 화면을 안 받는다 → 다시 앞으로 오면 새 화면인지 보고, 적고 있는 글이 없으면 바로 새로 연다
+    function autoFresh() {
+      if (document.visibilityState !== 'visible') return;
+      token().then(function (tok) { return fetch(cfg.url + '/rest/v1/console_views?select=data&org_id=eq.' + encodeURIComponent(cfg.org) + '&key=eq.app_ver', { headers: { apikey: cfg.anon, Authorization: 'Bearer ' + tok } }); })
+        .then(function (r) { return r.ok ? r.json() : []; }).then(function (rows) {
+          var v = rows && rows[0] && rows[0].data && rows[0].data.ver; if (!v || v === cfg.ver) return;
+          var a = document.activeElement, typing = a && /INPUT|TEXTAREA|SELECT/.test(a.tagName) && String(a.value || '').length > 0;
+          if (typing) { newVerCheck(); return; }
+          location.reload();
+        }).catch(function () {});
+    }
+    document.addEventListener('visibilitychange', autoFresh); window.addEventListener('pageshow', function (e) { if (e.persisted) autoFresh(); }); window.addEventListener('focus', autoFresh);
   }
 
   function start(html, snap, c) {
