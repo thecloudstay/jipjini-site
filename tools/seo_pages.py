@@ -129,7 +129,11 @@ def region_pages(real, synth):
 
 # ───────── 평형 쪽 ─────────
 def py_pages(real, synth):
-    sizes = sorted(set(int(c["py"]) for c in real + synth if c.get("py")))
+    sizes = set(int(c["py"]) for c in real + synth if c.get("py"))
+    # 자료가 빠진 평형도 이미 있는 쪽은 다시 만든다 — 옛 쪽에 내려간 실견적 링크가 남지 않게 (2026-10-22, py/26py.html)
+    d = os.path.join(ROOT, "py")
+    if os.path.isdir(d): sizes |= {int(m.group(1)) for f in os.listdir(d) for m in [re.fullmatch(r"(\d+)py\.html", f)] if m}
+    sizes = sorted(sizes)
     made = []
     for p in sizes:
         rs = sorted([c for c in real if int(c.get("py") or 0) == p], key=lambda c: c["ymd"], reverse=True)
