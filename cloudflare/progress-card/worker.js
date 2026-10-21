@@ -2,27 +2,29 @@
 //   /p/<토큰>     카드(og 태그) + 곧바로 jipjini.com/progress/?k=<토큰> 으로 넘김
 //   /warm/<토큰>  링크를 만들 때 콘솔(앱스 스크립트)이 부른다 — 바로 답하고 뒤에서 카드 자료를 미리 받아 둔다 (카톡은 몇 초 안에 못 받으면 미리보기를 포기함)
 //   /i/<토큰>     카드 사진 (구글 드라이브 미리보기 그림을 이 주소로 대신 줌 — 카톡이 바로 읽게)
-//   자료는 앱스 스크립트 progress(pv=1, 열람 수 안 셈)에서 받아 하루 보관, 10분 지나면 뒤에서 새로 받는다.
+//   자료·사진은 앱스 스크립트 progress(pv=1, 열람 수 안 셈)에서 받아 KV(CARD)에 30일 보관 (workers.dev 주소에선 캐시가 안 먹어서 KV 사용), 10분 지나면 뒤에서 새로 받는다.
 const EXEC = 'https://script.google.com/macros/s/AKfycbzxm4mmZs1yVJPa3T-wb0cdJbEUMPYl6dDKtQNSNmJy4nEsCholrEnPAN8e0JfAtOV99A/exec';
 const FALLBACK_IMG = 'https://jipjini.com/og-cover.png';
 const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
-const dataKey = k => new Request('https://card.cache/data/' + k);
 async function loadFresh(k) {
   const r = await fetch(EXEC + '?type=progress&pv=1&k=' + encodeURIComponent(k), { redirect: 'follow' });
   const j = await r.json(); if (!j || j.ok === false) return null;
   const d = j.data || j;
   const slim = { 고객: d.고객, 현장: d.현장, 단계: d.단계, 진행률: d.진행률, 다음: d.다음, 사진: d.사진 && d.사진[0] ? String(d.사진[0].썸네일 || '') : '', t: Date.now() };
-  await caches.default.put(dataKey(k), new Response(JSON.stringify(slim), { headers: { 'content-type': 'application/json', 'cache-control': 'public, max-age=86400' } }));
+  await KV.put('d:' + k, JSON.stringify(slim), { expirationTtl: 2592000 });
+  if (slim.사진) { try { const ir = await fetch(slim.사진.replace(/sz=w\d+/, 'sz=w800'), { redirect: 'follow' }); const ct = ir.headers.get('content-type') || ''; if (ir.ok && /^image\//.test(ct)) await KV.put('i:' + k, await ir.arrayBuffer(), { expirationTtl: 2592000, metadata: { ct } }); } catch (_e) {} }
   return slim;
 }
+let KV;
 async function getData(k, ctx, waitMs) {
-  const hit = await caches.default.match(dataKey(k));
-  if (hit) { const d = await hit.json(); if (Date.now() - (d.t || 0) > 600000) ctx.waitUntil(loadFresh(k).catch(() => {})); return d; }
+  const d = await KV.get('d:' + k, 'json');
+  if (d) { if (Date.now() - (d.t || 0) > 600000) ctx.waitUntil(loadFresh(k).catch(() => {})); return d; }
   const p = loadFresh(k).catch(() => null); ctx.waitUntil(p);
   return await Promise.race([p, new Promise(r => setTimeout(() => r(null), waitMs))]);
 }
 export default {
   async fetch(req, env, ctx) {
+    KV = env.CARD;
     const u = new URL(req.url);
     if (u.searchParams.get('probe')) return new Response('ok');
     const m = u.pathname.match(/^\/(p|warm|i)\/([A-Za-z0-9_-]{16,64})\/?$/);
@@ -30,8 +32,10 @@ export default {
     const kind = m[1], k = m[2], dest = 'https://jipjini.com/progress/?k=' + encodeURIComponent(k);
     if (kind === 'warm') { ctx.waitUntil(loadFresh(k).catch(() => {})); return new Response('ok', { status: 202 }); }
     if (kind === 'i') {
+      const hit = await KV.getWithMetadata('i:' + k, 'arrayBuffer');
+      if (hit && hit.value) return new Response(hit.value, { headers: { 'content-type': (hit.metadata && hit.metadata.ct) || 'image/jpeg', 'cache-control': 'public, max-age=86400' } });
       const d = await getData(k, ctx, 3000); const src = d && d.사진 ? d.사진.replace(/sz=w\d+/, 'sz=w800') : FALLBACK_IMG;
-      try { const ir = await fetch(src, { redirect: 'follow', cf: { cacheTtl: 86400, cacheEverything: true } }); if (ir.ok && /^image\//.test(ir.headers.get('content-type') || '')) return new Response(ir.body, { headers: { 'content-type': ir.headers.get('content-type'), 'cache-control': 'public, max-age=86400' } }); } catch (_e) {}
+      try { const ir = await fetch(src, { redirect: 'follow' }); if (ir.ok && /^image\//.test(ir.headers.get('content-type') || '')) return new Response(ir.body, { headers: { 'content-type': ir.headers.get('content-type'), 'cache-control': 'public, max-age=86400' } }); } catch (_e) {}
       return Response.redirect(FALLBACK_IMG, 302);
     }
     const d = await getData(k, ctx, 2500);
