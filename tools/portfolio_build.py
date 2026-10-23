@@ -50,10 +50,23 @@ def save_img(src, dest_big, dest_small):
         return False
 
 
+def clean_works(g):
+    out = []
+    for w in g.get("공정") or []:
+        w = re.sub(r"\s*\(.*?\)", "", str(w)).strip()
+        if not w or (re.search(r"준비|입고|보양|청소|착공|준공|입주|점검|완공", w) and not re.search(r"시공|부착|코팅|도장|설치|교체|철거|공사", w)):
+            continue
+        if w not in out:
+            out.append(w)
+    return out
+
+
 def title_of(g):
-    works = [w for w in (g.get("공정") or []) if w and not re.search(r"착공|준공|청소|입주|완공|점검", w)]
+    works = clean_works(g)
     head = g.get("지역") or "집지니"
-    return head + " " + ("·".join(works[:3]) + " 시공" if works else "시공 현장")
+    if not works:
+        return head + " 시공 현장"
+    return head + " " + works[0] + (f" 외 {len(works) - 1}공정" if len(works) > 1 else "")
 
 
 def head(title, desc, canon, img):
@@ -116,7 +129,7 @@ def build(data):
             if save_img(p["주소"], big, small):
                 kept.append(dict(p, big=f"img/{num}/{key}.jpg", small=f"img/{num}/{key}_s.jpg"))
         if kept:
-            sites.append(dict(g, 번호=num, 사진=kept))
+            sites.append(dict(g, 번호=num, 사진=kept, 공정=clean_works(g)))
     if not sites:
         print("현장 없음 — 쪽을 바꾸지 않음"); return 0
     os.makedirs(OUT, exist_ok=True)
