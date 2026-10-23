@@ -61,6 +61,15 @@ def clean_works(g):
     return out
 
 
+def ahash(path):
+    try:
+        from PIL import Image
+        im = Image.open(path).convert("L").resize((16, 16)); px = list(im.getdata()); avg = sum(px) / len(px)
+        return sum(1 << i for i, v in enumerate(px) if v > avg)
+    except Exception:
+        return None
+
+
 def title_of(g):
     works = clean_works(g)
     head = g.get("지역") or "집지니"
@@ -127,7 +136,10 @@ def build(data):
             key = hashlib.md5(p["주소"].split("?")[0].encode()).hexdigest()[:10]
             big = os.path.join(OUT, "img", num, key + ".jpg"); small = os.path.join(OUT, "img", num, key + "_s.jpg")
             if save_img(p["주소"], big, small):
-                kept.append(dict(p, big=f"img/{num}/{key}.jpg", small=f"img/{num}/{key}_s.jpg"))
+                h = ahash(small)
+                if h is not None and any(bin(h ^ k["_h"]).count("1") <= 4 for k in kept if k.get("_h") is not None):
+                    continue   # 같은 사진을 두 번 올린 것 — 한 번만
+                kept.append(dict(p, big=f"img/{num}/{key}.jpg", small=f"img/{num}/{key}_s.jpg", _h=h))
         if kept:
             sites.append(dict(g, 번호=num, 사진=kept, 공정=clean_works(g)))
     if not sites:
@@ -155,7 +167,8 @@ def build(data):
             if not ps: continue
             h.append(f'<div class="sec">{CAM}{e(label)} <small>{len(ps)}장</small></div><div class="photos">')
             for p in ps:
-                cap = " · ".join([x for x in [p.get("공간", ""), p.get("단계", "") if p.get("단계") not in ("기타", "") else "", p.get("설명", ""), p.get("날짜", "")] if x])
+                d = p.get("설명", ""); d = "" if re.match(r"^현장 일보 \d{4}-\d{2}-\d{2}$", d) else d
+                cap = " · ".join([x for x in [p.get("공간", ""), re.sub(r"\s*\(.*?\)", "", p.get("단계", "")) if p.get("단계") not in ("기타", "") else "", d, p.get("날짜", "")] if x])
                 alt = f'{t} {p.get("공간", "")} {label}'.strip()
                 h.append(f'<figure onclick="lb({n})"><img loading="lazy" src="{e(p["small"])}" alt="{e(alt)}"><figcaption>{e(cap)}</figcaption></figure>')
                 js.append([p["big"], cap]); n += 1
@@ -184,7 +197,8 @@ def build(data):
     for s in sites:
         t = title_of(s); st = STAGE_KO.get(s.get("상태", ""), "")
         tags = "|".join(sorted({p["공간"] for p in s["사진"] if p.get("공간")} | set(s.get("공정") or [])))
-        cover = next((p for p in reversed(s["사진"]) if p.get("전후") == "후"), s["사진"][-1])
+        main = (s.get("공정") or [""])[0]
+        cover = next((p for p in reversed(s["사진"]) if p.get("전후") == "후"), None) or next((p for p in reversed(s["사진"]) if main and main in p.get("단계", "")), s["사진"][-1])
         h.append(f'<a class="card" href="{e(s["번호"])}.html" data-t="{e(tags)}"><img loading="lazy" src="{e(cover["small"])}" alt="{e(t)}"><div class="b"><h2>{e(t)}{"<span class=st>" + e(st) + "</span>" if st else ""}</h2>'
                  f'<div class="meta">{e(s.get("지역", ""))} · 사진 {len(s["사진"])}장{" · " + e(s.get("최근", "")) if s.get("최근") else ""}</div>'
                  + "".join(f'<span class="tag">{e(w)}</span>' for w in (s.get("공정") or [])[:5]) + "</div></a>")
@@ -192,6 +206,11 @@ def build(data):
     h.append("<script>document.querySelectorAll('.chip').forEach(function(c){c.onclick=function(){document.querySelectorAll('.chip').forEach(function(x){x.classList.remove('on')});c.classList.add('on');var f=c.dataset.f,n=0;document.querySelectorAll('.card').forEach(function(k){var ok=!f||('|'+k.dataset.t+'|').indexOf('|'+f+'|')>=0;k.style.display=ok?'':'none';if(ok)n++});document.getElementById('none').style.display=n?'none':''}})</script>")
     h.append(CTA + FOOT)
     open(os.path.join(OUT, "index.html"), "w", encoding="utf-8").write("".join(h))
+    used = {p[k] for s in sites for p in s["사진"] for k in ("big", "small")}
+    for d, _, fs in os.walk(os.path.join(OUT, "img")):
+        for f in fs:
+            rel = os.path.relpath(os.path.join(d, f), OUT).replace(os.sep, "/")
+            if rel not in used: os.remove(os.path.join(d, f))   # 겹친 사진·내려간 사진 정리
     print(f"포트폴리오: 현장 {len(sites)}곳 · 사진 {total}장")
     return len(sites)
 
