@@ -202,6 +202,15 @@ footer{text-align:center;font-size:12px;color:var(--mute);margin-top:26px;line-h
       h.push('</table>' + (pay.다음기한 ? '<p class="vat">다음 입금 기한: ' + md(pay.다음기한) + '</p>' : '') + '<p class="vat">부가세 10% 별도 · 자재비·시공비는 각 업체에 직접 입금하시는 금액이라 여기에 포함되지 않습니다.</p></section>');
     }
 
+    // 추가 공사·감액 (2026-10-24) — 계약 뒤 바뀐 금액을 고객도 같이 본다
+    var ao = d.추가공사 || [];
+    if (ao.length) {
+      var net = 0; ao.forEach(function (x) { net += (x.구분 === '감액' ? -1 : 1) * (Number(x.공급가) || 0); });
+      h.push('<section class="card"><h2>추가 공사 · 감액</h2><table class="pay">');
+      ao.forEach(function (x) { h.push('<tr><td>' + (x.구분 === '감액' ? '감액 · ' : '') + esc(x.내용) + '<small>' + md(x.날짜) + '</small></td><td class="r">' + (x.구분 === '감액' ? '− ' : '+ ') + won(x.공급가) + '</td></tr>'); });
+      h.push('</table><p class="vat">합계 ' + (net < 0 ? '− ' : '+ ') + won(Math.abs(net)) + ' · 부가세 10% 별도 · 받을 금액은 위 입금 현황에 함께 들어 있습니다.</p></section>');
+    }
+
     // 연락처
     var tel = String(d.연락처 || '').replace(/[^\d+]/g, '');
     var kakao = safeUrl(d.카톡주소) || KAKAO_URL;
