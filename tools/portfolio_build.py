@@ -15,7 +15,7 @@ SRC = "https://pnqyysuyrovgnmrchrrg.supabase.co/storage/v1/object/public/marketi
 OUT = os.path.join(ROOT, "portfolio")
 SITE = "https://jipjini.com/portfolio/"
 GA = """<script async src="https://www.googletagmanager.com/gtag/js?id=G-35EM7T3M9W"></script>
-<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-35EM7T3M9W');</script>"""
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());(function(){try{if(/[?&]jj_staff=1/.test(location.search))localStorage.setItem('jj_staff','1');if(/[?&]jj_staff=0/.test(location.search))localStorage.removeItem('jj_staff');if(localStorage.getItem('jj_staff'))window['ga-disable-G-35EM7T3M9W']=true}catch(e){}})();gtag('config','G-35EM7T3M9W');</script>"""
 BA_ORDER = {"전": 0, "중": 1, "후": 2, "": 1}
 STAGE_KO = {"시공중": "시공 중", "완공": "완공", "계약": "착공 준비"}
 e = lambda s: html.escape(str(s if s is not None else ""), quote=True)
