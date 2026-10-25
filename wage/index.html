@@ -62,7 +62,7 @@ input,select{width:100%;font:inherit;font-size:16px;padding:11px 12px;border:1px
 <script>
 (function () {
   var EXEC = 'https://script.google.com/macros/s/AKfycbzxm4mmZs1yVJPa3T-wb0cdJbEUMPYl6dDKtQNSNmJy4nEsCholrEnPAN8e0JfAtOV99A/exec';
-  var q = location.search, k = (q.match(/[?&]k=([A-Za-z0-9]+)/) || [])[1] || '', st = (q.match(/[?&]s=([A-Za-z0-9]+)/) || [])[1] || '';
+  var q = location.search, k = (q.match(/[?&]k=([A-Za-z0-9]+)/) || [])[1] || '', st = (q.match(/[?&]s=([A-Za-z0-9]+)/) || [])[1] || '', ct = (q.match(/[?&]c=([A-Za-z0-9]+)/) || [])[1] || '';
   var SITE = !!st, D = null, P = [], $ = function (id) { return document.getElementById(id); };
   var esc = function (s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
   var won = function (n) { return Number(n || 0).toLocaleString('ko-KR') + '원'; };
@@ -72,11 +72,12 @@ input,select{width:100%;font:inherit;font-size:16px;padding:11px 12px;border:1px
   function tax(sum, days) {   // 콘솔(labor_tax.gs)과 같은 계산 — 3.3% 사업소득: 소득세 3% · 지방소득세 0.3% (소득세 1,000원 미만이면 안 뗌)
     var kind = (D && D.소득구분) || '3.3% 사업소득', inc = 0;
     if (kind === '3.3% 사업소득') inc = fl10(sum * 0.03); else if (kind === '일용직') { var d = days || 1; inc = fl10(Math.max(0, sum / d - 150000) * 0.027 * d); }
-    if (inc < 1000) inc = 0; var loc = fl10(inc * 0.1); return { 소득세: inc, 지방소득세: loc, 실지급액: sum - inc - loc };
+    if (inc < 1000) inc = 0; var loc = fl10(inc * 0.1), ei = kind === '일용직' ? fl10(sum * 0.009) : 0; return { 소득세: inc, 지방소득세: loc, 보험공제: ei, 실지급액: sum - inc - loc - ei };
   }
   function taxLabel() { var k = (D && D.소득구분) || '3.3% 사업소득'; return k === '일용직' ? '떼는 세금 (일용직)' : k === '떼지 않음' ? '떼는 세금' : '3.3% 떼는 금액'; }
   function blank(name) { return { 이름: name || '', 연락처: '', 주민번호: '', 일당: '', rows: [{ 날짜: ymd(new Date()), 금액: '' }], 은행: '', 계좌번호: '', 예금주: name || '', photo: '' }; }
   function fail(m) { $('who').textContent = ''; $('app').innerHTML = '<div class="card"><p>' + esc(m) + '</p><p class="small">받은 링크를 그대로 눌러 주세요. 안 되면 코디에게 연락 주세요.</p></div>'; }
+  if (ct) { contract(); return; }
   if (!k && !st) { fail('링크가 올바르지 않습니다.'); return; }
   fetch(EXEC + (SITE ? '?type=wage_site&s=' + encodeURIComponent(st) : '?type=wage&k=' + encodeURIComponent(k)), { redirect: 'follow', cache: 'no-store' }).then(function (r) { return r.json(); }).then(function (d) {
     if (!d || d.ok === false) { fail((d && d.err) || '불러오지 못했습니다.'); return; }
@@ -117,7 +118,7 @@ input,select{width:100%;font:inherit;font-size:16px;padding:11px 12px;border:1px
   function calc(i) {
     var p = P[i], L = lines(p), sum = L.reduce(function (s, r) { return s + num(r.금액); }, 0), t = tax(sum, L.length), el = $('get' + i); if (!el) return;
     el.innerHTML = '<div class="sum"><span class="k">일한 날</span><span class="v">' + L.length + '일</span><span class="k">청구 금액</span><span class="v">' + won(sum) + '</span>' +
-      '<span class="k">' + taxLabel() + '</span><span class="v">− ' + won(t.소득세 + t.지방소득세) + '</span></div><div class="big"><span>실제 받으실 금액</span><span>' + won(t.실지급액) + '</span></div>' +
+      '<span class="k">' + taxLabel() + '</span><span class="v">− ' + won(t.소득세 + t.지방소득세) + '</span>' + (t.보험공제 ? '<span class="k">고용보험 (0.9%)</span><span class="v">− ' + won(t.보험공제) + '</span>' : '') + '</div><div class="big"><span>실제 받으실 금액</span><span>' + won(t.실지급액) + '</span></div>' +
       (t.소득세 ? '<p class="small" style="margin-top:4px">소득세 ' + won(t.소득세) + ' + 지방소득세 ' + won(t.지방소득세) + ' — 나라에 대신 내 드리는 세금입니다.</p>' : '');
   }
   function total() {
@@ -167,8 +168,43 @@ input,select{width:100%;font:inherit;font-size:16px;padding:11px 12px;border:1px
         window.scrollTo(0, 0);
       }).catch(function () { b.disabled = false; b.textContent = '청구 보내기'; m.textContent = '인터넷 연결을 확인하고 다시 눌러 주세요.'; });
   };
+  // ── 도급계약서 보기·서명 (2026-10-25) ──
+  function contract() {
+    document.querySelector('header h1').textContent = '공사 도급계약서';
+    fetch(EXEC + '?type=dg&c=' + encodeURIComponent(ct), { redirect: 'follow', cache: 'no-store' }).then(function (r) { return r.json(); }).then(function (d) {
+      if (!d || d.ok === false) { fail((d && d.err) || '불러오지 못했습니다.'); return; }
+      $('who').textContent = d.이름 + ' 님 · ' + (d.현장 || '') + ' · ' + (d.공종 || '');
+      var body = '<div class="card"><h2>계약 요약</h2><div class="sum"><span class="k">작업</span><span class="v">' + esc(d.작업범위) + '</span><span class="k">기간</span><span class="v">' + esc(d.시작) + ' ~ ' + esc(d.끝) + '</span><span class="k">일괄 금액</span><span class="v">' + won(d.금액) + '</span><span class="k tot">3.3% 떼고 받으실 금액</span><span class="v tot">' + won(d.실지급액) + '</span></div></div>' +
+        '<div class="card"><h2>계약 내용</h2>' + (d.조항 || []).map(function (c) { return '<p style="margin-top:10px"><b>' + esc(c[0]) + '</b><br>' + esc(c[1]).replace(/\n/g, '<br>') + '</p>'; }).join('') +
+        '<p class="small" style="margin-top:12px">도급인(갑): ' + esc(d.갑.상호) + ' · 대표 ' + esc(d.갑.대표) + ' · 사업자 ' + esc(d.갑.사업자번호) + ' · ' + esc(d.갑.주소) + '</p></div>';
+      if (d.상태 === '서명') { $('app').innerHTML = '<div class="card ok"><b>서명이 끝난 계약입니다</b>' + esc(d.서명시각 || '') + '</div>' + (d.청구링크 ? '<a class="btn main full" href="' + esc(d.청구링크) + '">작업 끝나면 — 노무비 청구하기</a>' : '') + body; return; }
+      $('app').innerHTML = body + '<div class="card"><h2>서명</h2><label>본인 이름을 적어 주세요</label><input id="nm" placeholder="' + esc(d.이름) + '">' +
+        '<label>아래 칸에 손가락으로 서명해 주세요</label><canvas id="pad" style="width:100%;height:170px;border:1px dashed var(--line);border-radius:10px;background:#fff;touch-action:none"></canvas><button class="rm" onclick="clr()">지우고 다시</button>' +
+        '<label style="display:flex;gap:8px;align-items:flex-start;margin-top:10px;color:var(--ink);font-size:14px"><input type="checkbox" id="agree" style="width:20px;height:20px;margin-top:2px"> 위 계약 내용을 읽었고 이에 동의합니다.</label><div class="msg" id="msg"></div></div>';
+      $('bar').style.display = ''; $('barsum').innerHTML = '<span>일괄 ' + won(d.금액) + '</span><b>' + won(d.실지급액) + '</b>'; $('send').textContent = '서명하고 계약하기'; $('send').onclick = sign; pad();
+    }).catch(function () { fail('인터넷 연결을 확인하고 다시 열어 주세요.'); });
+  }
+  var drew = false;
+  function pad() {
+    var c = $('pad'), r = c.getBoundingClientRect(), x = c.getContext('2d'), dpr = window.devicePixelRatio || 1; c.width = r.width * dpr; c.height = r.height * dpr; x.scale(dpr, dpr); x.lineWidth = 2.4; x.lineCap = 'round'; x.strokeStyle = '#111';
+    var down = false, pos = function (e) { var b = c.getBoundingClientRect(), t = e.touches ? e.touches[0] : e; return [t.clientX - b.left, t.clientY - b.top]; };
+    var start = function (e) { e.preventDefault(); down = true; var p = pos(e); x.beginPath(); x.moveTo(p[0], p[1]); }, move = function (e) { if (!down) return; e.preventDefault(); var p = pos(e); x.lineTo(p[0], p[1]); x.stroke(); drew = true; }, end = function () { down = false; };
+    c.addEventListener('mousedown', start); c.addEventListener('mousemove', move); window.addEventListener('mouseup', end);
+    c.addEventListener('touchstart', start, { passive: false }); c.addEventListener('touchmove', move, { passive: false }); c.addEventListener('touchend', end);
+  }
+  window.clr = function () { var c = $('pad'); c.getContext('2d').clearRect(0, 0, c.width, c.height); drew = false; };
+  function sign() {
+    var m = $('msg'); m.textContent = '';
+    if (!$('nm').value.trim()) { m.textContent = '이름을 적어 주세요.'; return; } if (!drew) { m.textContent = '서명 칸에 서명해 주세요.'; return; } if (!$('agree').checked) { m.textContent = '동의에 체크해 주세요.'; return; }
+    var b = $('send'); b.disabled = true; b.textContent = '보내는 중…';
+    fetch(EXEC + '?type=dg_sign', { method: 'POST', redirect: 'follow', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ c: ct, 이름확인: $('nm').value.trim(), 서명: $('pad').toDataURL('image/png') }) })
+      .then(function (r) { return r.json(); }).then(function (d) {
+        if (!d || d.ok === false) { b.disabled = false; b.textContent = '서명하고 계약하기'; m.textContent = (d && d.err) || '보내지 못했습니다.'; return; }
+        $('bar').style.display = 'none'; $('app').innerHTML = '<div class="card ok"><b>계약이 끝났습니다</b>' + esc(d.서명시각 || '') + '<br>작업을 마치면 아래 단추로 노무비를 청구해 주세요. 검토 후 24시간 안에 보내 드립니다.</div>' + (d.청구링크 ? '<a class="btn main full" href="' + esc(d.청구링크) + '">작업 끝나면 — 노무비 청구하기</a><p class="small" style="text-align:center">이 화면을 즐겨찾기 해 두세요</p>' : ''); window.scrollTo(0, 0);
+      }).catch(function () { b.disabled = false; b.textContent = '서명하고 계약하기'; m.textContent = '인터넷 연결을 확인하고 다시 눌러 주세요.'; });
+  }
   function doneHtml(list) {
-    return list.map(function (x) { return '<div class="card"><h2>' + esc(x.이름) + '</h2><div class="sum"><span class="k">일한 날</span><span class="v">' + (x.일수 || (x.작업내역 || []).length) + '일</span><span class="k">청구 금액</span><span class="v">' + won(x.청구합계) + '</span><span class="k">3.3% 떼는 금액</span><span class="v">− ' + won((x.소득세 || 0) + (x.지방소득세 || 0)) + '</span><span class="k tot">실제 받으실 금액</span><span class="v tot">' + won(x.실지급액) + '</span></div></div>'; }).join('');
+    return list.map(function (x) { return '<div class="card"><h2>' + esc(x.이름) + '</h2><div class="sum"><span class="k">일한 날</span><span class="v">' + (x.일수 || (x.작업내역 || []).length) + '일</span><span class="k">청구 금액</span><span class="v">' + won(x.청구합계) + '</span><span class="k">' + taxLabel() + '</span><span class="v">− ' + won((x.소득세 || 0) + (x.지방소득세 || 0)) + '</span>' + (x.보험공제 ? '<span class="k">고용보험 (0.9%)</span><span class="v">− ' + won(x.보험공제) + '</span>' : '') + '<span class="k tot">실제 받으실 금액</span><span class="v tot">' + won(x.실지급액) + '</span></div></div>'; }).join('');
   }
 })();
 </script>
