@@ -86,7 +86,14 @@ textarea{width:100%;font:inherit;font-size:16px;padding:11px 12px;border:1px sol
       var g = {}; D.기타.forEach(function (it) { var n = it.공간 || '기타'; (g[n] = g[n] || []).push(it); });
       Object.keys(g).forEach(function (n) { h += '<div class="card"><h2>' + esc(n) + '</h2><div class="items" style="border:0;margin:0;padding:0">' + g[n].map(itemHtml).join('') + '</div></div>'; });
     }
-    if (!(D.공간 || []).length && !(D.기타 || []).length) h += '<div class="card"><p>아직 정리된 실측 내용이 없습니다. 잠시 뒤 다시 열어 주세요.</p></div>';
+    if (D.상담) {
+      var c = D.상담;
+      h += '<div class="card"><h2>상담 때 말씀하신 내용</h2>' +
+        ((c.공정 || []).length ? '<div style="font-size:13px;color:var(--mute);margin-bottom:2px">필요한 공정</div><div class="items" style="border:0;margin:0;padding:0">' + c.공정.map(function (t) { return '<div class="it"><div><div class="n">' + esc(t.공종) + '</div>' + (t.메모 ? '<div class="s">' + esc(t.메모) + '</div>' : '') + '</div></div>'; }).join('') + '</div>' : '') +
+        ((c.요청 || []).length ? '<div style="font-size:13px;color:var(--mute);margin:10px 0 2px">요청·필요 사항</div><div class="items" style="border:0;margin:0;padding:0">' + c.요청.map(function (t) { return '<div class="it"><div><div class="n">' + esc(t.항목) + '</div>' + (t.메모 ? '<div class="s">' + esc(t.메모) + '</div>' : '') + '</div></div>'; }).join('') + '</div>' : '') +
+        (c.메모 ? '<div class="memo" style="color:var(--ink)">' + esc(c.메모) + '</div>' : '') + '</div>';
+    }
+    if (!(D.공간 || []).length && !(D.기타 || []).length && !D.상담) h += '<div class="card"><p>아직 정리된 실측 내용이 없습니다. 잠시 뒤 다시 열어 주세요.</p></div>';
     h += '<div id="ack"></div>';
     $('app').innerHTML = h; ack();
   }
@@ -94,7 +101,7 @@ textarea{width:100%;font:inherit;font-size:16px;padding:11px 12px;border:1px sol
     var a = $('ack');
     if (D.확인 === '확인') { a.innerHTML = '<div class="card ok"><h2>확인해 주셔서 감사합니다</h2><p>' + esc(D.확인시각) + ' 확인 · 이 치수로 정밀 견적서를 만들어 보내 드리겠습니다.</p><p class="small">다시 고칠 곳이 생기면 코디(' + esc(D.코디) + ')에게 연락 주세요.</p></div>'; return; }
     if (D.확인 === '수정요청') { a.innerHTML = '<div class="card ok"><h2>고칠 곳을 받았습니다</h2><p style="white-space:pre-wrap">' + esc(D.메모) + '</p><p class="small">' + esc(D.확인시각) + ' · 확인 후 고쳐서 다시 알려 드리겠습니다.</p></div>'; return; }
-    a.innerHTML = '<div class="card"><h2>실측 내용 확인</h2><p style="font-size:14px">위 치수와 문·창 내용이 맞는지 확인해 주세요.</p>' +
+    a.innerHTML = '<div class="card"><h2>실측 내용 확인</h2><p style="font-size:14px">위 치수·문창과 상담 내용이 맞는지 확인해 주세요.</p>' +
       '<button class="btn main" id="okBtn">확인했습니다</button>' +
       '<button class="btn" style="margin-top:8px" id="fixBtn">고칠 곳이 있어요</button>' +
       '<div id="fixBox" style="display:none"><textarea id="memo" placeholder="예) 작은방 창문은 교체하지 않아요 / 욕실 문 열리는 방향이 반대예요"></textarea><button class="btn main" id="fixSend">고칠 곳 보내기</button></div>' +
