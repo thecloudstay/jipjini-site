@@ -89,7 +89,7 @@ textarea{width:100%;font:inherit;font-size:16px;padding:11px 12px;border:1px sol
     if (D.상담) {
       var c = D.상담;
       h += '<div class="card"><h2>상담 때 말씀하신 내용</h2>' +
-        ((c.공정 || []).length ? '<div style="font-size:13px;color:var(--mute);margin-bottom:2px">필요한 공정</div><div class="items" style="border:0;margin:0;padding:0">' + c.공정.map(function (t) { return '<div class="it"><div><div class="n">' + esc(t.공종) + '</div>' + (t.메모 ? '<div class="s">' + esc(t.메모) + '</div>' : '') + '</div></div>'; }).join('') + '</div>' : '') +
+        ((c.공정 || []).length ? '<div style="font-size:13px;color:var(--mute);margin-bottom:2px">필요한 공정</div><div class="items" style="border:0;margin:0;padding:0">' + c.공정.map(function (t) { return '<div class="it"><div><div class="n">' + esc(t.공종) + '</div>' + ((t.세부 || []).length ? '<div class="s">' + t.세부.map(esc).join(' · ') + '</div>' : '') + (t.메모 ? '<div class="s">' + esc(t.메모) + '</div>' : '') + '</div></div>'; }).join('') + '</div>' : '') +
         ((c.요청 || []).length ? '<div style="font-size:13px;color:var(--mute);margin:10px 0 2px">요청·필요 사항</div><div class="items" style="border:0;margin:0;padding:0">' + c.요청.map(function (t) { return '<div class="it"><div><div class="n">' + esc(t.항목) + '</div>' + (t.메모 ? '<div class="s">' + esc(t.메모) + '</div>' : '') + '</div></div>'; }).join('') + '</div>' : '') +
         (c.메모 ? '<div class="memo" style="color:var(--ink)">' + esc(c.메모) + '</div>' : '') + '</div>';
     }
