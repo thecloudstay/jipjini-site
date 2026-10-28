@@ -55,6 +55,7 @@ textarea{width:100%;font:inherit;font-size:16px;padding:11px 12px;border:1px sol
   function $(id) { return document.getElementById(id); }
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
   function mm(n) { return n ? Number(n).toLocaleString('ko-KR') : '-'; }
+  function m1(n) { return n ? String(Math.round(Number(n)) / 1000) : '-'; }
   function fail(m) { $('who').textContent = ''; $('app').innerHTML = '<div class="card"><p>' + esc(m) + '</p><p class="small">받은 링크를 그대로 눌러 주세요. 안 되면 코디에게 연락 주세요.</p></div>'; }
   if (!k) { fail('링크가 올바르지 않습니다.'); return; }
   fetch(EXEC + '?type=ms&k=' + encodeURIComponent(k), { redirect: 'follow', cache: 'no-store' }).then(function (r) { return r.json(); }).then(function (d) {
@@ -70,13 +71,13 @@ textarea{width:100%;font:inherit;font-size:16px;padding:11px 12px;border:1px sol
   function render() {
     $('who').textContent = D.고객명 + ' 고객님 댁' + (D.실측일 ? ' · 실측 ' + D.실측일 : '');
     var t = D.합계 || {}, h = '';
-    h += '<div class="note">공간별 치수와 문·창 크기입니다. 치수 단위는 <b>mm</b>(1,000mm = 1m)이고, 면적은 ㎡와 평으로 적었습니다. 이 치수로 <b>정밀 견적서</b>를 만듭니다.</div>';
+    h += '<div class="note">공간별 치수와 문·창 크기입니다. 공간 크기는 <b>m</b>, 문·창 크기는 <b>mm</b>(1,000mm = 1m)이고, 면적은 ㎡와 평으로 적었습니다. 이 치수로 <b>정밀 견적서</b>를 만듭니다.</div>';
     h += '<div class="stats"><div class="stat"><b>' + (t.공간수 || 0) + '곳</b><span>공간</span></div><div class="stat"><b>' + (t.바닥 || 0) + '㎡</b><span>바닥 합계</span></div><div class="stat"><b>' + (t.평 || 0) + '평</b><span>바닥 평수</span></div></div>';
     (D.그림 || []).forEach(function (p) { h += '<div class="card pic"><h2>' + esc(p.제목 || '평면 손그림') + '</h2><img alt="실측 평면 손그림" src="' + p.그림 + '"></div>'; });
     (D.공간 || []).forEach(function (r) {
       h += '<div class="card"><h2>' + esc(r.공간 || '공간') + (r.용도 ? ' <small>' + esc(r.용도) + '</small>' : '') + '</h2><div class="dim">' +
-        '<span class="k">가로 × 세로</span><span class="v">' + mm(r.가로) + ' × ' + mm(r.세로) + ' mm</span>' +
-        (r.높이 ? '<span class="k">천장 높이</span><span class="v">' + mm(r.높이) + ' mm</span>' : '') +
+        '<span class="k">가로 × 세로</span><span class="v">' + m1(r.가로) + ' × ' + m1(r.세로) + ' m</span>' +
+        (r.높이 ? '<span class="k">천장 높이</span><span class="v">' + m1(r.높이) + ' m</span>' : '') +
         '<span class="k">바닥 면적</span><span class="v">' + r.바닥 + '㎡ (' + r.평 + '평)</span>' +
         (r.벽 ? '<span class="k">벽 면적</span><span class="v">' + r.벽 + '㎡ <span style="font-weight:400;color:var(--mute);font-size:12.5px">문·창 뺌</span></span>' : '') + '</div>' +
         (r.메모 ? '<div class="memo">' + esc(r.메모) + '</div>' : '') +
