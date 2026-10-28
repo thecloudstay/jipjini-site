@@ -52,14 +52,14 @@ textarea{width:100%;font:inherit;font-size:16px;padding:11px 12px;border:1px sol
 <script>
 (function () {
   var EXEC = 'https://script.google.com/macros/s/AKfycbzxm4mmZs1yVJPa3T-wb0cdJbEUMPYl6dDKtQNSNmJy4nEsCholrEnPAN8e0JfAtOV99A/exec';
-  var k = new URLSearchParams(location.search).get('k') || '', D = null;
+  var Q = new URLSearchParams(location.search), k = Q.get('k') || '', PV = Q.get('pv') === '1', D = null;
   function $(id) { return document.getElementById(id); }
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
   function mm(n) { return n ? Number(n).toLocaleString('ko-KR') : '-'; }
   function m1(n) { return n ? String(Math.round(Number(n)) / 1000) : '-'; }
   function fail(m) { $('who').textContent = ''; $('app').innerHTML = '<div class="card"><p>' + esc(m) + '</p><p class="small">받은 링크를 그대로 눌러 주세요. 안 되면 코디에게 연락 주세요.</p></div>'; }
   if (!k) { fail('링크가 올바르지 않습니다.'); return; }
-  fetch(EXEC + '?type=ms&k=' + encodeURIComponent(k), { redirect: 'follow', cache: 'no-store' }).then(function (r) { return r.json(); }).then(function (d) {
+  fetch(EXEC + '?type=ms&k=' + encodeURIComponent(k) + (PV ? '&pv=1' : ''), { redirect: 'follow', cache: 'no-store' }).then(function (r) { return r.json(); }).then(function (d) {
     if (!d || d.ok === false) { fail((d && d.err) || '불러오지 못했습니다.'); return; }
     D = d; render();
   }).catch(function () { fail('인터넷 연결을 확인하고 다시 열어 주세요.'); });
@@ -98,10 +98,12 @@ textarea{width:100%;font:inherit;font-size:16px;padding:11px 12px;border:1px sol
     }
     if (!(D.공간 || []).length && !(D.기타 || []).length && !D.상담) h += '<div class="card"><p>아직 정리된 실측 내용이 없습니다. 잠시 뒤 다시 열어 주세요.</p></div>';
     h += '<div id="ack"></div>';
+    if (PV) h = '<div class="note" style="background:#fdf1e6;border:1px solid #f0c9a8"><b>미리보기</b> — 고객에게 이렇게 보입니다. 이 화면은 열람으로 세지 않고, 맨 아래 확인 버튼도 눌리지 않습니다.</div>' + h;
     $('app').innerHTML = h; ack();
   }
   function ack() {
     var a = $('ack');
+    if (PV) { a.innerHTML = '<div class="card" style="opacity:.6"><h2>실측 내용 확인</h2><p style="font-size:14px">고객은 여기서 「확인했습니다」 또는 「고칠 곳이 있어요」를 누릅니다. (미리보기에서는 눌리지 않음)</p></div>'; return; }
     if (D.확인 === '확인') { a.innerHTML = '<div class="card ok"><h2>확인해 주셔서 감사합니다</h2><p>' + esc(D.확인시각) + ' 확인 · 이 치수로 정밀 견적서를 만들어 보내 드리겠습니다.</p><p class="small">다시 고칠 곳이 생기면 코디(' + esc(D.코디) + ')에게 연락 주세요.</p></div>'; return; }
     if (D.확인 === '수정요청') { a.innerHTML = '<div class="card ok"><h2>고칠 곳을 받았습니다</h2><p style="white-space:pre-wrap">' + esc(D.메모) + '</p><p class="small">' + esc(D.확인시각) + ' · 확인 후 고쳐서 다시 알려 드리겠습니다.</p></div>'; return; }
     a.innerHTML = '<div class="card"><h2>실측 내용 확인</h2><p style="font-size:14px">위 치수·문창과 상담 내용이 맞는지 확인해 주세요.</p>' +
