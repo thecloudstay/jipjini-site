@@ -182,6 +182,7 @@ button{font:inherit;cursor:pointer;color:inherit}
 .foot{max-width:1080px;margin:20px auto 0;padding:0 16px;font-size:12px;color:var(--hint);line-height:1.8}
 .lib,.tabs,#main,.foot{display:none!important}  /* 2026-11-03 박 대표: 견본 보기 기능 빼고 모두 샘플실에서 직접 */
 .bk-days button.shut{opacity:.35;cursor:not-allowed;text-decoration:line-through}
+.bk-mode{display:flex;gap:6px;margin:0 0 12px}.bk-mode button{flex:1;height:42px;border-radius:10px;border:1px solid var(--line,#ddd);background:#fff;font:inherit;font-weight:600;cursor:pointer;color:var(--hint,#777)}.bk-mode button.on{border-color:var(--brand,#1f5e46);background:var(--brand,#1f5e46);color:#fff}
 </style>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":["LocalBusiness","HomeAndConstructionBusiness"],"@id":"https://jipjini.com/showroom.html#place","name":"집지니 샘플실","description":"벽지·장판·마루·싱크대·타일·도어 실물 견본을 보고 코디와 함께 고르는 집지니 샘플실 (예약 방문제)","url":"https://jipjini.com/showroom.html","telephone":"+82-10-9806-0422","image":"https://jipjini.com/og-cover.png","address":{"@type":"PostalAddress","streetAddress":"공항대로41길 66, 세신종합상가 지하 1층 B156호","addressLocality":"강서구","addressRegion":"서울특별시","postalCode":"07587","addressCountry":"KR"},"parentOrganization":{"@id":"https://jipjini.com/#business"},"areaServed":["서울특별시","경기도","인천광역시"]}</script>
 <meta name="twitter:card" content="summary_large_image"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -317,9 +318,10 @@ button{font:inherit;cursor:pointer;color:inherit}
   var PLACE='서울 강서구 공항대로41길 66 세신종합상가 지하 1층 B156호';
   var TIMES=['10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00','19:00'];
   function ymd(d){var k=new Date(d.getTime()+9*3600e3);return k.toISOString().slice(0,10)}
+  var MODE=/[?&]m=tel/.test(location.search)?'tel':'visit';   /* 2026-11-03 전화 상담 — 고른 시간에 코디가 전화 */
   function reqView(){var me=load('jj_sr_me',{}),L=cartList(),today=ymd(new Date()),days=[];
     for(var i=1;i<=14;i++){var d=new Date(Date.now()+i*86400e3),y=ymd(d);days.push({y:y,w:'일월화수목금토'.charAt(new Date(y+'T12:00:00+09:00').getDay()),m:Number(y.slice(5,7)),d:Number(y.slice(8))})}
-    open('샘플실 상담 예약','<div class="note" style="margin:0 0 12px"><b>'+esc(PLACE)+'</b><br>'+(L.length?'담으신 견본 '+L.length+'개를 미리 꺼내 두겠습니다. ':'')+(TOK?'날짜와 시각을 고르시면 바로 확정 문자를 보내 드립니다.':'원하시는 날짜와 시각을 고르시면 코디가 확인해 문자로 확정해 드립니다.')+'</div>'+
+    open(MODE==='tel'?'전화 상담 예약':'샘플실 상담 예약','<div class="bk-mode" id="bkMode"><button type="button" data-mode="visit" class="'+(MODE==='visit'?'on':'')+'">샘플실 방문 상담</button><button type="button" data-mode="tel" class="'+(MODE==='tel'?'on':'')+'">전화 상담</button></div>'+(MODE==='tel'?'<div class="note" style="margin:0 0 12px"><b>고르신 날짜·시각에 코디가 직접 전화드립니다.</b><br>견적서나 평면도를 옆에 두시면 상담이 빨라집니다. 견본을 실물로 보시려면 「샘플실 방문 상담」을 골라 주세요.</div>':'<div class="note" style="margin:0 0 12px"><b>'+esc(PLACE)+'</b><br>'+(L.length?'담으신 견본 '+L.length+'개를 미리 꺼내 두겠습니다. ':'')+(TOK?'날짜와 시각을 고르시면 바로 확정 문자를 보내 드립니다.':'원하시는 날짜와 시각을 고르시면 코디가 확인해 문자로 확정해 드립니다.')+'</div>')+
       '<div class="bk-l">날짜</div><div class="bk-days" id="bkDays">'+days.map(function(x){return '<button type="button" data-day="'+x.y+'"><em>'+x.w+'</em><b>'+x.d+'</b><span>'+x.m+'월</span></button>'}).join('')+'</div>'+
       '<div class="bk-l">시각 <span id="bkHint" style="font-weight:400;color:var(--hint)">날짜를 먼저 골라 주세요</span></div><div class="bk-times" id="bkTimes">'+TIMES.map(function(t){return '<button type="button" data-tm="'+t+'" disabled>'+t+'</button>'}).join('')+'</div>'+
       (TOK&&TOK.예약&&TOK.예약.날짜?'<div class="note" id="rCur" style="margin:10px 0 0;border-color:var(--brand,#1f5e46)"><b>지금 잡힌 예약: '+esc(TOK.예약.날짜)+'('+esc(TOK.예약.요일||'')+') '+esc(TOK.예약.시각||'')+' · '+(TOK.예약.상태==='확정'?'확정':'확인 중')+'</b><br>다른 날짜·시각을 고르시면 그 시간으로 바뀝니다. <button type="button" id="rCancel" style="margin-top:6px;border:1px solid #c0392b;color:#c0392b;background:#fff;border-radius:8px;padding:6px 12px;cursor:pointer">예약 취소하기</button></div>':'')+(TOK?'<div class="note" style="margin:10px 0 0"><b>'+esc(TOK.이름)+' 고객님 전용 예약</b> — 아래 정보는 이미 등록돼 있습니다. 날짜·시각만 고르시면 바로 확정 문자를 보내 드립니다.<br>· 성함·연락처: 등록됨'+(TOK.주소?'<br>· 공사 주소: '+esc(TOK.주소):'')+(TOK.평수?'<br>· 평수: '+esc(TOK.평수)+'평':'')+'</div><div class="f">':'<div class="f"><label>성함<input id="rN" autocomplete="name" value="'+esc(me.n||'')+'"></label><label>휴대폰<input id="rP" inputmode="tel" autocomplete="tel" placeholder="010-0000-0000" value="'+esc(me.p||'')+'"></label>')+
@@ -330,6 +332,7 @@ button{font:inherit;cursor:pointer;color:inherit}
       (TOK?'<input type="checkbox" id="rAg" checked hidden>':'<label class="agree"><input type="checkbox" id="rAg"><span>상담 예약 안내를 위해 성함·휴대폰을 받는 것에 동의합니다. 상담 외에는 쓰지 않습니다.</span></label>')+
       '<button class="cta" id="rGo">'+(TOK?'이 날짜·시간으로 예약하기':'상담 예약하기')+'</button>'+(L.length?'<button class="cta ghost" id="rBack">보러 갈 견본 보기</button>':''));
     if($('rLook'))$('rLook').onclick=close;
+    $('bkMode').onclick=function(e){var b=e.target.closest('[data-mode]');if(!b||b.dataset.mode===MODE)return;MODE=b.dataset.mode;reqView()};
     var pick={day:'',tm:''};
     fetch(API+'?type=consult_days',{redirect:'follow'}).then(function(r){return r.json()}).catch(function(){return{}}).then(function(j){var X=(j&&j.닫힌날)||[];
       [].forEach.call($('bkDays').children,function(c){if(X.indexOf(c.dataset.day)>=0){c.disabled=true;c.classList.add('shut');c.title='예약을 받지 않는 날';if(pick.day===c.dataset.day){pick.day='';c.classList.remove('on')}}})});
@@ -350,7 +353,7 @@ button{font:inherit;cursor:pointer;color:inherit}
     if(!TOK){if(!n){toast('성함을 적어 주세요');return} if(!/^01\d{8,9}$/.test(p)){toast('휴대폰 번호를 확인해 주세요');return}}
     if(!$('rAg').checked){toast('동의에 체크해 주세요');return}
     var L=cartList(),memo=[$('rMemo').value.trim(),$('rD').value?'공사 시작 희망 '+$('rD').value:''].filter(Boolean).join(' / ');
-    var f={type:'consult','고객명':n,'연락처':p,'희망일':pick.day,'희망시각':pick.tm,'종류':$('rK').value,'주소':$('rA').value.trim(),'평수':$('rPy').value,'메모':memo,
+    var f={type:'consult','고객명':n,'연락처':p,'희망일':pick.day,'희망시각':pick.tm,'종류':MODE==='tel'?'전화 상담':$('rK').value,'주소':$('rA').value.trim(),'평수':$('rPy').value,'메모':memo,
       '견본':L.map(function(c){return c.x.분류+' '+c.x.이름+(c.x.브랜드?'('+c.x.브랜드+')':'')}).join(' / '),'유입':'사이트 샘플실 페이지',website:$('rHp').value};
     if(TOK){f.k=BK;delete f['고객명'];delete f['연락처']}
     var b=new URLSearchParams();Object.keys(f).forEach(function(k){b.set(k,f[k])});
@@ -361,7 +364,7 @@ button{font:inherit;cursor:pointer;color:inherit}
       gtag('event','consult_book',{items:L.length});
       cart={};save('jj_sr_cart',cart);renderMain();renderBar();
       var w='일월화수목금토'.charAt(new Date(pick.day+'T12:00:00+09:00').getDay());
-      open('예약 접수 완료','<div class="done"><svg class="ico" style="width:42px;height:42px;color:var(--ok)"><use href="#i-check"/></svg><h4>'+(j.확정?'예약이 확정됐습니다':'상담 예약이 접수됐습니다')+'</h4><p><b>'+Number(pick.day.slice(5,7))+'월 '+Number(pick.day.slice(8))+'일('+w+') '+pick.tm+'</b><br>'+esc(PLACE)+'<br><br>'+(j.확정?'확정 문자를 보내 드렸습니다. 변경·취소는 코디 010-9806-0422로 연락 주세요.':'코디가 확인한 뒤 '+(TOK?'받으신 번호로':'<b>'+esc($('rP').value)+'</b> 로')+' 확정 문자를 드립니다.')+'<br>평면도나 집 사진이 있으면 가져오시면 상담이 빨라집니다.</p></div><a class="cta ghost" style="text-decoration:none" href="https://map.naver.com/p/search/'+encodeURIComponent('서울 강서구 공항대로41길 66')+'" target="_blank" rel="noopener">길 찾기</a><button class="cta ghost" id="okX">닫기</button>');
+      open('예약 접수 완료','<div class="done"><svg class="ico" style="width:42px;height:42px;color:var(--ok)"><use href="#i-check"/></svg><h4>'+(j.확정?'예약이 확정됐습니다':(MODE==='tel'?'전화 상담 예약이 접수됐습니다':'상담 예약이 접수됐습니다'))+'</h4><p><b>'+Number(pick.day.slice(5,7))+'월 '+Number(pick.day.slice(8))+'일('+w+') '+pick.tm+'</b><br>'+(MODE==='tel'?'이 시간에 코디가 전화드립니다':esc(PLACE))+'<br><br>'+(j.확정?'확정 문자를 보내 드렸습니다. 변경·취소는 코디 010-9806-0422로 연락 주세요.':'코디가 확인한 뒤 '+(TOK?'받으신 번호로':'<b>'+esc($('rP').value)+'</b> 로')+' 확정 문자를 드립니다.')+'<br>평면도나 집 사진이 있으면 가져오시면 상담이 빨라집니다.</p></div><a class="cta ghost" style="text-decoration:none" href="https://map.naver.com/p/search/'+encodeURIComponent('서울 강서구 공항대로41길 66')+'" target="_blank" rel="noopener">길 찾기</a><button class="cta ghost" id="okX">닫기</button>');
       $('okX').onclick=close;
     }).catch(function(e){btn.disabled=false;btn.textContent='상담 예약하기';toast('보내지 못했습니다 — '+(e.message||'잠시 뒤 다시')+' · 전화 010-9806-0422')})}
   // 이벤트
