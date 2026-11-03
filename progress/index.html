@@ -258,6 +258,38 @@ details.sample dd{font-size:13px;color:var(--mute)}
     h.push('<p class="vat">기술자 연락은 담당 코디가 맡습니다. 현장 일정이나 출입 문의는 아래 코디 연락처로 주세요.</p></section>');
     return h.join('');
   }
+  // ── 2026-11-03 방·위치별 자재 고르기 (예: 안방 · 벽지 · LG · 모델명 B) — 코디 콘솔과 같은 표
+  var SEL = null;
+  function selRow(x, i) {
+    var R = (SEL && SEL.방) || [], T = (SEL && SEL.공종) || [], opt = function (L, v) { var o = L.slice(); if (v && o.indexOf(v) < 0) o.unshift(v); return o.map(function (t) { return '<option' + (t === v ? ' selected' : '') + '>' + esc(t) + '</option>'; }).join(''); };
+    return '<div class="selr" data-i="' + i + '"><div class="selg"><select data-f="위치"><option value="">위치(방)</option>' + opt(R, x.위치) + '</select><select data-f="공종"><option value="">무엇을</option>' + opt(T, x.공종) + '</select>' +
+      '<input data-f="브랜드" placeholder="브랜드 (예: LG)" value="' + esc(x.브랜드 || '') + '"><input data-f="모델명" placeholder="모델명·색상 번호" value="' + esc(x.모델명 || '') + '"></div>' +
+      '<div class="selg2"><input data-f="메모" placeholder="메모 (예: 한쪽 벽만 포인트)" value="' + esc(x.메모 || '') + '">' + (x.확인 ? '<span class="selok">코디 확인</span>' : '') + '<button type="button" class="seldel" data-del="' + i + '" aria-label="이 줄 지우기">지우기</button></div></div>';
+  }
+  function selHtml(S) {
+    SEL = { 방: S.방 || [], 공종: S.공종 || [], 목록: (S.목록 || []).slice() };
+    if (!SEL.목록.length) SEL.목록 = [{ 위치: '', 공종: '' }];
+    return '<section class="card" id="sel"><h2>자재 고르기 · 방별</h2><p class="vat" style="margin-top:0">샘플실에서 보신 견본이나 마음에 드는 모델을 방마다 적어 주세요. 코디가 확인하면 「코디 확인」이 붙고, 발주는 이 표대로 합니다.</p>' +
+      '<style>#sel .selr{border:1px solid var(--line,#e6e1d6);border-radius:12px;padding:10px;margin-bottom:8px;background:#fff}#sel .selg{display:grid;grid-template-columns:1fr 1fr;gap:6px}#sel .selg2{display:flex;gap:6px;margin-top:6px;align-items:center}#sel select,#sel input{width:100%;height:40px;border:1px solid var(--line,#e6e1d6);border-radius:9px;padding:0 9px;font:inherit;font-size:14px;background:#fff;min-width:0}#sel .seldel{flex:none;border:0;background:none;color:#c0392b;font:inherit;font-size:13px;cursor:pointer;padding:0 4px}#sel .selok{flex:none;font-size:11.5px;font-weight:700;color:var(--g,#1f5e46);background:#e8f1ec;border-radius:999px;padding:3px 8px}</style>' +
+      '<div id="selRows">' + SEL.목록.map(selRow).join('') + '</div><div class="btns"><button type="button" class="btn" id="selAdd" style="border:1px solid var(--g);color:var(--g)">+ 줄 추가</button><button type="button" class="btn pri" id="selGo">저장</button></div><div class="msg" id="selMsg"></div></section>';
+  }
+  function selRead() { return [].map.call(document.querySelectorAll('#selRows .selr'), function (r) { var o = {}; [].forEach.call(r.querySelectorAll('[data-f]'), function (e) { o[e.getAttribute('data-f')] = e.value.trim(); }); var old = SEL.목록[Number(r.getAttribute('data-i'))] || {}; o.확인 = !!old.확인 && old.위치 === o.위치 && old.공종 === o.공종 && old.브랜드 === o.브랜드 && old.모델명 === o.모델명 && (old.메모 || '') === o.메모; return o; }); }
+  app.addEventListener('click', function (e) {
+    var t = e.target; if (!document.getElementById('sel')) return;
+    if (t.closest('#selAdd')) { var cur = selRead(), last = cur[cur.length - 1] || {}; SEL.목록 = cur.concat([{ 위치: last.위치 || '', 공종: '' }]); document.getElementById('selRows').innerHTML = SEL.목록.map(selRow).join(''); return; }
+    var d = t.closest('[data-del]'); if (d) { var c2 = selRead(); c2.splice(Number(d.getAttribute('data-del')), 1); SEL.목록 = c2.length ? c2 : [{ 위치: '', 공종: '' }]; document.getElementById('selRows').innerHTML = SEL.목록.map(selRow).join(''); document.getElementById('selMsg').textContent = '지웠습니다 — 「저장」을 눌러야 반영됩니다.'; return; }
+    if (t.closest('#selGo')) {
+      var msg = document.getElementById('selMsg'), btn = document.getElementById('selGo'), L = selRead().filter(function (x) { return x.위치 || x.브랜드 || x.모델명 || x.메모; });
+      if (PV) { msg.textContent = '미리보기 화면에서는 저장되지 않습니다.'; return; }
+      if (L.some(function (x) { return !x.위치; })) { msg.textContent = '위치(방)를 골라 주세요.'; return; }
+      btn.disabled = true; msg.textContent = '저장하는 중…';
+      fetch(EXEC + '?type=portal_sel', { method: 'POST', redirect: 'follow', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ k: k, 목록: L }) }).then(function (r) { return r.json(); }).then(function (j) {
+        btn.disabled = false; if (!j || !j.ok) { msg.textContent = (j && j.err) || '저장하지 못했습니다. 잠시 뒤 다시 눌러 주세요.'; return; }
+        SEL.목록 = (j.목록 || []).length ? j.목록 : [{ 위치: '', 공종: '' }]; document.getElementById('selRows').innerHTML = SEL.목록.map(selRow).join('');
+        msg.innerHTML = '<b style="color:var(--g)">저장했습니다 (' + (j.목록 || []).length + '줄)</b> — 코디에게 바로 알림이 갑니다.';
+      }).catch(function () { btn.disabled = false; msg.textContent = '연결이 원활하지 않습니다. 잠시 뒤 다시 눌러 주세요.'; });
+    }
+  });
   function asHtml(P) {
     var h = ['<section class="card" id="as"><h2>하자 접수 · 기술자 연결</h2>'];
     if (!P.AS가능) h.push('<p class="empty">계약 후 이곳에서 바로 접수하실 수 있습니다. 지금은 아래 코디 연락처로 말씀해 주세요.</p>');
@@ -283,6 +315,7 @@ details.sample dd{font-size:13px;color:var(--mute)}
     var P = d.포털 || null; LASTP = P;
     if (P && P.체인) h.push(chainHtml(P.체인, P.계약요약 ? null : P.샘플실));
     if (P && P.샘플실 && P.샘플실.링크 && !P.계약요약) h.push(showroomHtml(P.샘플실));
+    if (P && P.자재선택) h.push(selHtml(P.자재선택));   // 2026-11-03 방별 자재 고르기
     // 진행률
     if (phases.length) h.push('<section class="card' + (P && P.체인 ? '' : ' top') + '"><h2>전체 진행률</h2><div class="pct"><b>' + pct + '%</b><span>' + (phases.length ? '공정 ' + phases.length + '개 중 ' + doneN + '개 완료' : '') + '</span></div>' +
       '<div class="bar"><i id="barfill"></i></div><div class="meta">' +
