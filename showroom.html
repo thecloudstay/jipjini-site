@@ -181,6 +181,7 @@ button{font:inherit;cursor:pointer;color:inherit}
 .toast.on{opacity:1}
 .foot{max-width:1080px;margin:20px auto 0;padding:0 16px;font-size:12px;color:var(--hint);line-height:1.8}
 .lib,.tabs,#main,.foot{display:none!important}  /* 2026-11-03 박 대표: 견본 보기 기능 빼고 모두 샘플실에서 직접 */
+.bk-days button.shut{opacity:.35;cursor:not-allowed;text-decoration:line-through}
 </style>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":["LocalBusiness","HomeAndConstructionBusiness"],"@id":"https://jipjini.com/showroom.html#place","name":"집지니 샘플실","description":"벽지·장판·마루·싱크대·타일·도어 실물 견본을 보고 코디와 함께 고르는 집지니 샘플실 (예약 방문제)","url":"https://jipjini.com/showroom.html","telephone":"+82-10-9806-0422","image":"https://jipjini.com/og-cover.png","address":{"@type":"PostalAddress","streetAddress":"공항대로41길 66, 세신종합상가 지하 1층 B156호","addressLocality":"강서구","addressRegion":"서울특별시","postalCode":"07587","addressCountry":"KR"},"parentOrganization":{"@id":"https://jipjini.com/#business"},"areaServed":["서울특별시","경기도","인천광역시"]}</script>
 <meta name="twitter:card" content="summary_large_image"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -330,7 +331,9 @@ button{font:inherit;cursor:pointer;color:inherit}
       '<button class="cta" id="rGo">'+(TOK?'이 날짜·시간으로 예약하기':'상담 예약하기')+'</button>'+(L.length?'<button class="cta ghost" id="rBack">보러 갈 견본 보기</button>':''));
     if($('rLook'))$('rLook').onclick=close;
     var pick={day:'',tm:''};
-    document.getElementById('bkDays').onclick=function(e){var b=e.target.closest('[data-day]');if(!b)return;pick.day=b.dataset.day;pick.tm='';
+    fetch(API+'?type=consult_days',{redirect:'follow'}).then(function(r){return r.json()}).catch(function(){return{}}).then(function(j){var X=(j&&j.닫힌날)||[];
+      [].forEach.call($('bkDays').children,function(c){if(X.indexOf(c.dataset.day)>=0){c.disabled=true;c.classList.add('shut');c.title='예약을 받지 않는 날';if(pick.day===c.dataset.day){pick.day='';c.classList.remove('on')}}})});
+    document.getElementById('bkDays').onclick=function(e){var b=e.target.closest('[data-day]');if(!b||b.disabled)return;pick.day=b.dataset.day;pick.tm='';
       [].forEach.call(this.children,function(c){c.classList.toggle('on',c===b)});$('bkHint').textContent='불러오는 중…';
       var tb=$('bkTimes');[].forEach.call(tb.children,function(c){c.disabled=true;c.classList.remove('on','full')});
       fetch(API+'?type=consult_slots&날짜='+encodeURIComponent(pick.day),{redirect:'follow'}).then(function(r){return r.json()}).catch(function(){return{}}).then(function(j){
