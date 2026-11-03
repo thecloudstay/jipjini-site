@@ -151,6 +151,7 @@ details.sample dd{font-size:13px;color:var(--mute)}
 .asl div:first-of-type{border-top:0}
 .asl b{font-size:12px;color:var(--g);margin-right:6px}
 .pvbar{background:#fff4d6;color:#6b4e00;font-size:13px;text-align:center;padding:8px 12px;font-weight:600}
+#pvm h3{font-size:17px;color:var(--g);margin-bottom:10px}#pvm h3 small{display:block;font-size:12px;color:var(--mute);font-weight:400;margin-top:2px}
 </style>
 <meta property="og:image" content="https://jipjini.com/og-cover.png"><meta name="twitter:card" content="summary_large_image">
 </head>
@@ -195,6 +196,7 @@ details.sample dd{font-size:13px;color:var(--mute)}
 
   var CLS = { '완료': 's-done', '진행 중': 's-now', '지연': 's-late', '예정': 's-wait' };
   var PV = /[?&]pv=1/.test(location.search);
+  var LASTP = null;
   function ico(p) { return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' + p + '</svg>'; }
   var DOC_ICO = {
     request: ico('<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h5"/>'),
@@ -231,7 +233,8 @@ details.sample dd{font-size:13px;color:var(--mute)}
   function docsHtml(P) {
     var h = ['<section class="card"><h2>내 서류함</h2><div class="docs">'];
     (P.서류 || []).forEach(function (d) {
-      h.push('<button type="button" class="doc" data-doc="' + esc(d.키) + '"' + (d.있음 && !(d.키 === 'contract' && d.예시) ? '' : ' disabled') + '><span class="ic">' + (DOC_ICO[d.키] || DOC_ICO.request) + '</span><span class="tt"><b>' + esc(d.이름) + '</b><small>' + esc(d.설명) + '</small></span><span class="go">' + (d.있음 && !(d.키 === 'contract' && d.예시) ? '열기' : (d.키 === 'contract' ? '아래 참고' : '준비 중')) + '</span></button>');
+      var on = d.미리보기 || (d.있음 && !(d.키 === 'contract' && d.예시));
+      h.push('<button type="button" class="doc" data-doc="' + esc(d.키) + '"' + (d.미리보기 ? ' data-pv="' + esc(d.미리보기) + '"' : '') + (on ? '' : ' disabled') + '><span class="ic">' + (DOC_ICO[d.키] || DOC_ICO.request) + '</span><span class="tt"><b>' + esc(d.이름) + '</b><small>' + esc(d.설명) + '</small></span><span class="go">' + (d.미리보기 ? '미리보기' : on ? '열기' : (d.키 === 'contract' ? '아래 참고' : '준비 중')) + '</span></button>');
     });
     h.push('</div>');
     var cs = P.계약요약;
@@ -277,7 +280,7 @@ details.sample dd{font-size:13px;color:var(--mute)}
     var phases = d.공정 || [];
     var doneN = phases.filter(function (p) { return p.상태 === '완료'; }).length;
 
-    var P = d.포털 || null;
+    var P = d.포털 || null; LASTP = P;
     if (P && P.체인) h.push(chainHtml(P.체인, P.계약요약 ? null : P.샘플실));
     if (P && P.샘플실 && P.샘플실.링크 && !P.계약요약) h.push(showroomHtml(P.샘플실));
     // 진행률
@@ -381,12 +384,36 @@ details.sample dd{font-size:13px;color:var(--mute)}
   app.addEventListener('click', function (e) { var b = e.target.closest('[data-i]'); if (b) lbShow(Number(b.getAttribute('data-i'))); });
   app.addEventListener('click', function (e) {
     var b = e.target.closest('[data-doc]'); if (!b || b.disabled) return;
+    if (b.getAttribute('data-pv')) { pvOpen(b.getAttribute('data-pv')); return; }
     var w = window.open('about:blank', '_blank'), go = b.querySelector('.go'), was = go.textContent; go.textContent = '여는 중…';
     fetch(EXEC + '?type=portal_doc&k=' + encodeURIComponent(k) + '&d=' + encodeURIComponent(b.getAttribute('data-doc')), { redirect: 'follow', cache: 'no-store' }).then(function (r) { return r.json(); }).then(function (j) {
       go.textContent = was; var u = j && j.ok ? safeUrl(j.주소) : '';
       if (u) { if (w) w.location.href = u; else location.href = u; } else { if (w) w.close(); alertBox((j && j.err) || '지금 열 수 없습니다. 코디에게 문의해 주세요.'); }
     }).catch(function () { go.textContent = was; if (w) w.close(); alertBox('연결이 원활하지 않습니다. 잠시 뒤 다시 눌러 주세요.'); });
   });
+  // 2026-11-03 견적 기준 미리보기 — 계약서 초안·예상 공정표 (실측 결과는 예시 화면)
+  function pvOpen(kind) {
+    if (kind === 'measure') { window.open('../measure/?k=demo', '_blank'); return; }
+    var V = LASTP && LASTP.미리보기; if (!V) { alertBox('보내 드린 견적이 있어야 미리보기가 됩니다.'); return; }
+    var h = '';
+    if (kind === 'contract') {
+      var all = V.공사비 + V.코디비 + (V.PM || 0);
+      h = '<h3>계약서 미리보기 <small>보내 드린 견적 기준 · 계약 때 확정</small></h3>' +
+        '<table class="pay"><tr><td><b>공사 범위</b><small>견적서 ' + esc(V.견적서ID) + ' 공종</small></td><td class="r"></td></tr>' + V.공종.map(function (x) { return '<tr><td>' + esc(x.공종) + '</td><td class="r">' + won(x.금액) + '</td></tr>'; }).join('') +
+        '<tr><td><b>시공 금액 (자재+인건비)</b></td><td class="r"><b>' + won(V.공사비) + '</b></td></tr><tr><td>집지니 코디 운영비</td><td class="r">' + won(V.코디비) + '</td></tr>' +
+        (V.PM ? '<tr><td>현장관리(PM 파견)</td><td class="r">' + won(V.PM) + '</td></tr>' : '<tr><td>현장관리(PM 파견) 선택 시<small>공정 관리·자재 입고 확인·대금 대신 지급</small></td><td class="r">+ ' + won(V.PM선택) + '</td></tr>') +
+        '<tr><td><b>합계</b></td><td class="r"><b>' + won(all) + '</b></td></tr></table><p class="vat">부가세 10% 별도 · 실측 후 정밀 견적으로 금액이 바뀔 수 있습니다.</p>' +
+        '<p style="font-size:14px;margin-top:12px"><b>공사 기간</b> · ' + (V.착공희망 ? md(V.착공희망) + ' 착공 희망 · ' : '') + '예상 약 ' + V.총일수 + '일(작업일 기준)</p>' +
+        '<dl style="margin-top:10px">' + V.조항.map(function (x) { return '<dt style="font-weight:700;font-size:14px;margin-top:8px">' + esc(x.제목) + '</dt><dd style="font-size:13px;color:var(--mute)">' + esc(x.내용) + '</dd>'; }).join('') + '</dl>' +
+        '<p class="vat">실제 계약서는 정밀 견적 후 휴대폰으로 보내 드리고, 서명하시면 이 페이지 「내 서류함」에서 언제든 보실 수 있습니다.</p>';
+    } else {
+      h = '<h3>예상 공정표 <small>보내 드린 견적 공종 기준 · 계약 후 날짜 확정</small></h3><ol class="ph">' + V.공정.map(function (x, i) { return '<li class="s-wait"><span class="no">' + (i + 1) + '</span><span class="nm"><b>' + esc(x.단계) + '</b><small>' + x.시작일차 + '일차' + (x.일수 > 1 ? ' ~ ' + (x.시작일차 + x.일수 - 1) + '일차' : '') + ' · ' + x.일수 + '일</small></span></li>'; }).join('') + '</ol>' +
+        '<p class="vat">작업일 기준 약 ' + V.총일수 + '일 · 양생·자재 입고·관리사무소 일정에 따라 달라질 수 있습니다. 계약 후 날짜가 들어간 공정표를 보내 드립니다.</p>';
+    }
+    var m = document.getElementById('pvm'); if (!m) { m = document.createElement('div'); m.id = 'pvm'; m.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:70;display:flex;align-items:flex-end;justify-content:center'; m.onclick = function (e) { if (e.target === m) m.style.display = 'none'; }; document.body.appendChild(m); }
+    m.innerHTML = '<div style="background:#fff;width:100%;max-width:560px;max-height:86vh;overflow:auto;border-radius:16px 16px 0 0;padding:18px 16px 24px"><div style="text-align:right"><button type="button" onclick="document.getElementById(\'pvm\').style.display=\'none\'" style="border:0;background:var(--bg);border-radius:20px;padding:6px 12px;font:inherit">닫기</button></div>' + h + '</div>';
+    m.style.display = 'flex';
+  }
   function alertBox(m) { var x = document.getElementById('toast'); if (!x) { x = document.createElement('div'); x.id = 'toast'; x.style.cssText = 'position:fixed;left:16px;right:16px;bottom:20px;max-width:528px;margin:0 auto;background:#22262a;color:#fff;border-radius:12px;padding:12px 14px;font-size:14px;z-index:60;text-align:center'; document.body.appendChild(x); } x.textContent = m; x.style.display = 'block'; clearTimeout(x._t); x._t = setTimeout(function () { x.style.display = 'none'; }, 4000); }
   app.addEventListener('click', function (e) {
     if (!e.target.closest('#asGo')) return;

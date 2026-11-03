@@ -59,6 +59,19 @@ textarea{width:100%;font:inherit;font-size:16px;padding:11px 12px;border:1px sol
   function m1(n) { return n ? String(Math.round(Number(n)) / 1000) : '-'; }
   function fail(m) { $('who').textContent = ''; $('app').innerHTML = '<div class="card"><p>' + esc(m) + '</p><p class="small">받은 링크를 그대로 눌러 주세요. 안 되면 코디에게 연락 주세요.</p></div>'; }
   if (!k) { fail('링크가 올바르지 않습니다.'); return; }
+  if (k === 'demo') {   // 2026-11-03 실측 전 「이렇게 받으십니다」 예시 화면 (가상 자료)
+    PV = true;
+    D = { 고객명: '예시', 실측일: '', 방문: null, 코디: '010-9806-0422', 합계: { 공간수: 4, 바닥: 63.5, 평: 19.2 }, 사진: [], 그림: [],
+      공간: [{ 공간: '거실', 가로: 5200, 세로: 4600, 높이: 2300, 바닥: 23.92, 평: 7.24, 벽: 38.6, 메모: '우물천장 있음 · 아트월 쪽 콘센트 2개', 항목: [{ 종류: '창문(샷시)', 가로: 3400, 세로: 2100, 수량: 1, 사양: '이중창' }] },
+             { 공간: '안방', 가로: 4200, 세로: 3600, 높이: 2300, 바닥: 15.12, 평: 4.57, 벽: 30.1, 메모: '', 항목: [{ 종류: '방문', 가로: 900, 세로: 2100, 두께: 140, 수량: 1, 열림: '안쪽·왼쪽', 손잡이: '레버' }] },
+             { 공간: '작은방', 가로: 3200, 세로: 3000, 높이: 2300, 바닥: 9.6, 평: 2.9, 벽: 24.4, 메모: '', 항목: [{ 종류: '방문', 가로: 900, 세로: 2100, 두께: 140, 수량: 1 }] },
+             { 공간: '주방', 가로: 3400, 세로: 2800, 높이: 2300, 바닥: 9.52, 평: 2.88, 벽: 20.2, 메모: '싱크대 ㄱ자 3.2m + 1.6m', 항목: [] }],
+      기타: [{ 공간: '욕실', 종류: '욕실 바닥', 가로: 1600, 세로: 2000, 수량: 1, 메모: '타일 들뜸 확인 — 덧방 가능' }],
+      상담: { 공정: [{ 공종: '도배', 세부: ['실크 전체'] }, { 공종: '바닥', 세부: ['강마루'] }, { 공종: '욕실', 세부: ['방수', '도기 교체'] }], 요청: [{ 항목: '입주 날짜 맞추기', 메모: '12월 말 입주' }], 메모: '' } };
+    render();
+    $('app').insertAdjacentHTML('afterbegin', '<div class="note" style="background:#eef5f1;border:1px solid #cfe3d8"><b>예시 화면</b> — 실측이 끝나면 고객님 댁 치수·사진·상담 내용이 이렇게 정리되어 링크로 갑니다. (아래 숫자는 가상의 예시입니다)</div>');
+    return;
+  }
   fetch(EXEC + '?type=ms&k=' + encodeURIComponent(k) + (PV ? '&pv=1' : ''), { redirect: 'follow', cache: 'no-store' }).then(function (r) { return r.json(); }).then(function (d) {
     if (!d || d.ok === false) { fail((d && d.err) || '불러오지 못했습니다.'); return; }
     D = d; render();
@@ -100,7 +113,7 @@ textarea{width:100%;font:inherit;font-size:16px;padding:11px 12px;border:1px sol
     if (!(D.공간 || []).length && !(D.기타 || []).length && !D.상담) h += '<div class="card"><p>아직 정리된 실측 내용이 없습니다. 잠시 뒤 다시 열어 주세요.</p></div>';
     h += '<div id="ack"></div>';
     h += '<div class="note" style="margin-top:14px"><b>안내</b><br>· 실측 일시: ' + esc(when || '-') + '<br>· 이 실측 내용으로 <b>정밀 견적을 완성해 24시간 안에</b> 보내 드립니다.<br>· 궁금하신 점이나 필요하신 사항은 코디 <a href="tel:' + esc(String(D.코디 || '').replace(/[^0-9]/g, '')) + '" style="color:var(--g);font-weight:700">' + esc(D.코디 || '') + '</a>로 연락 주세요.</div>';
-    if (PV) h = '<div class="note" style="background:#fdf1e6;border:1px solid #f0c9a8"><b>미리보기</b> — 고객에게 이렇게 보입니다. 이 화면은 열람으로 세지 않고, 맨 아래 확인 버튼도 눌리지 않습니다.</div>' + h;
+    if (PV && k !== 'demo') h = '<div class="note" style="background:#fdf1e6;border:1px solid #f0c9a8"><b>미리보기</b> — 고객에게 이렇게 보입니다. 이 화면은 열람으로 세지 않고, 맨 아래 확인 버튼도 눌리지 않습니다.</div>' + h;
     $('app').innerHTML = h; ack();
   }
   function ack() {
