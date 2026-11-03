@@ -180,6 +180,7 @@ button{font:inherit;cursor:pointer;color:inherit}
 .toast{position:fixed;left:50%;top:64px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 16px;border-radius:10px;font-size:13.5px;opacity:0;transition:.2s;pointer-events:none;z-index:60;max-width:90%;text-align:center}
 .toast.on{opacity:1}
 .foot{max-width:1080px;margin:20px auto 0;padding:0 16px;font-size:12px;color:var(--hint);line-height:1.8}
+.lib,.tabs,#main,.foot{display:none!important}  /* 2026-11-03 박 대표: 견본 보기 기능 빼고 모두 샘플실에서 직접 */
 </style>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":["LocalBusiness","HomeAndConstructionBusiness"],"@id":"https://jipjini.com/showroom.html#place","name":"집지니 샘플실","description":"벽지·장판·마루·싱크대·타일·도어 실물 견본을 보고 코디와 함께 고르는 집지니 샘플실 (예약 방문제)","url":"https://jipjini.com/showroom.html","telephone":"+82-10-9806-0422","image":"https://jipjini.com/og-cover.png","address":{"@type":"PostalAddress","streetAddress":"공항대로41길 66, 세신종합상가 지하 1층 B156호","addressLocality":"강서구","addressRegion":"서울특별시","postalCode":"07587","addressCountry":"KR"},"parentOrganization":{"@id":"https://jipjini.com/#business"},"areaServed":["서울특별시","경기도","인천광역시"]}</script>
 <meta name="twitter:card" content="summary_large_image"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -222,7 +223,7 @@ button{font:inherit;cursor:pointer;color:inherit}
   <div class="pl-head">오시는 길</div>
   <div class="pl-grid">
     <div class="pl-row"><svg class="ico"><use href="#i-pin"/></svg><div><b>서울 강서구 공항대로41길 66 세신종합상가 B156호</b><span>세신종합상가 지하 1층 · 지번 등촌동 698-1</span><button class="cp" id="cpAddr" data-a="서울 강서구 공항대로41길 66 세신종합상가 B156호">주소 복사</button></div></div>
-    <div class="pl-row"><svg class="ico"><use href="#i-clock"/></svg><div><b>예약 상담제</b><span>상담은 샘플실에서 합니다. 날짜와 시각을 예약해 주시면 보실 견본을 미리 꺼내 두고 코디가 맞이합니다.</span></div></div>
+    <div class="pl-row"><svg class="ico"><use href="#i-clock"/></svg><div><b>예약 상담제</b><span>상담은 샘플실에서 합니다. 벽지·장판·마루·싱크대·타일·도어 견본은 모두 샘플실에서 실물로 보고 고르시며, 예약하신 시간에 코디가 맞이합니다.</span></div></div>
   </div>
   <div class="pl-map"><a href="https://map.naver.com/p/search/서울 강서구 공항대로41길 66" target="_blank" rel="noopener"><svg class="ico"><use href="#i-pin"/></svg>네이버 지도</a><a href="https://map.kakao.com/?q=서울 강서구 공항대로41길 66" target="_blank" rel="noopener"><svg class="ico"><use href="#i-pin"/></svg>카카오맵</a></div>
 </div></section>
@@ -269,7 +270,7 @@ button{font:inherit;cursor:pointer;color:inherit}
     var n=Number(r);return n?Math.max(1,Math.round(n*h.py*10)/10):1}
   function swatch(x,cls){return '<div class="'+cls+(x.사진?'':' pat-'+esc(x.무늬||'plain'))+'" style="background-color:'+esc(x.색||'#e8e4dc')+(x.사진?';background:url('+esc(x.사진)+') center/cover':'')+'"'}
   function byId(id){return (D.목록||[]).filter(function(x){return x.id===id})[0]}
-  function cartList(){if(!D)return [];return Object.keys(cart).map(function(id){var x=byId(id);return x?{x:x,q:cart[id].q}:null}).filter(Boolean)}
+  function cartList(){return [];if(!D)return [];return Object.keys(cart).map(function(id){var x=byId(id);return x?{x:x,q:cart[id].q}:null}).filter(Boolean)}
   function total(){return cartList().reduce(function(a,c){return a+c.x.단가*c.q},0)}
   function renderBar(){var L=cartList();$('bar').classList.toggle('empty',!L.length);
     $('barN').textContent=L.length?'볼 견본 '+L.length+'개 · 상담 예약':'샘플실 상담 예약';
@@ -326,7 +327,7 @@ button{font:inherit;cursor:pointer;color:inherit}
       '<label>전용 평수 (선택)<input id="rPy" inputmode="decimal" placeholder="예: 24"></label>')+'<label>공사 시작 희망 (선택)<input id="rD" type="month"></label>'+
       '<label class="w">더 알려 주실 것 (선택)<textarea id="rMemo" rows="3" placeholder="예: 32평 올수리 / 욕실 2곳만 / 입주 날짜"></textarea></label><input id="rHp" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px;height:0;width:0" aria-hidden="true"></div>'+
       '<label class="agree"><input type="checkbox" id="rAg"><span>상담 예약 안내를 위해 성함·휴대폰을 받는 것에 동의합니다. 상담 외에는 쓰지 않습니다.</span></label>'+
-      '<button class="cta" id="rGo">상담 예약하기</button>'+(L.length?'<button class="cta ghost" id="rBack">보러 갈 견본 보기</button>':(TOK?'<button class="cta ghost" id="rLook">견본 먼저 담고 예약하기</button>':'')));
+      '<button class="cta" id="rGo">상담 예약하기</button>'+(L.length?'<button class="cta ghost" id="rBack">보러 갈 견본 보기</button>':''));
     if($('rLook'))$('rLook').onclick=close;
     var pick={day:'',tm:''};
     document.getElementById('bkDays').onclick=function(e){var b=e.target.closest('[data-day]');if(!b)return;pick.day=b.dataset.day;pick.tm='';
@@ -366,7 +367,7 @@ button{font:inherit;cursor:pointer;color:inherit}
     else if(t.dataset.open){detail(t.dataset.open)}});
   ['hPy','hRoom','hBath'].forEach(function(id){$(id).addEventListener('input',function(){save('jj_sr_home',{py:$('hPy').value,room:$('hRoom').value,bath:$('hBath').value});
     Object.keys(cart).forEach(function(k){var x=byId(k);if(x)cart[k].q=estQty(x)});save('jj_sr_cart',cart);if(D){renderMain();renderBar()}})});
-  $('barBtn').onclick=function(){cartList().length?cartView():reqView()};$('visitBtn').onclick=reqView;$('cpAddr').onclick=function(){var t=this.dataset.a;if(navigator.clipboard)navigator.clipboard.writeText(t).then(function(){toast('주소를 복사했습니다')});else prompt('복사해 주세요',t)};$('bg').onclick=close;$('shX').onclick=close;
+  $('barBtn').onclick=reqView;$('visitBtn').onclick=reqView;$('cpAddr').onclick=function(){var t=this.dataset.a;if(navigator.clipboard)navigator.clipboard.writeText(t).then(function(){toast('주소를 복사했습니다')});else prompt('복사해 주세요',t)};$('bg').onclick=close;$('shX').onclick=close;
   document.addEventListener('keydown',function(e){if(e.key==='Escape')close()});
   var booked=false;
   function bkStart(){if(!/^[a-f0-9]{16}$/.test(BK))return;fetch(API+'?type=consult_tok&k='+BK,{redirect:'follow'}).then(function(r){return r.json()}).then(function(j){if(!j||j.ok===false){toast((j&&j.err)||'예약 링크를 확인하지 못했습니다');return}TOK=j;$('barN').textContent=j.이름+' 고객님 전용 예약';setTimeout(reqView,300)}).catch(function(){})}
