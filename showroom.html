@@ -256,6 +256,7 @@ button{font:inherit;cursor:pointer;color:inherit}
   // 견적 계산기가 알아듣는 공종 말 (sku_bundle_extended.gs _SCOPE_TO_PREFIX)
   var SCOPE={'도배':['도배'],'바닥':['바닥'],'주방':['가구'],'욕실·타일':['타일','도기'],'도어·중문':['목공','도어'],'조명':['조명'],'필름·도장':['필름']};
   var D=null, cat='', grade='전체', cart={}, $=function(id){return document.getElementById(id)};
+  var BK=(new URLSearchParams(location.search).get('bk')||'').trim(), TOK=null;   /* 2026-11-03 고객 전용 예약 링크 — 이름·번호는 서버가 채움 */
   function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
   function won(n){return Math.round(n||0).toLocaleString('ko-KR')+'원'}
   function toast(t){var e=$('toast');e.textContent=t;e.classList.add('on');clearTimeout(e._t);e._t=setTimeout(function(){e.classList.remove('on')},2200)}
@@ -268,7 +269,7 @@ button{font:inherit;cursor:pointer;color:inherit}
     var n=Number(r);return n?Math.max(1,Math.round(n*h.py*10)/10):1}
   function swatch(x,cls){return '<div class="'+cls+(x.사진?'':' pat-'+esc(x.무늬||'plain'))+'" style="background-color:'+esc(x.색||'#e8e4dc')+(x.사진?';background:url('+esc(x.사진)+') center/cover':'')+'"'}
   function byId(id){return (D.목록||[]).filter(function(x){return x.id===id})[0]}
-  function cartList(){return Object.keys(cart).map(function(id){var x=byId(id);return x?{x:x,q:cart[id].q}:null}).filter(Boolean)}
+  function cartList(){if(!D)return [];return Object.keys(cart).map(function(id){var x=byId(id);return x?{x:x,q:cart[id].q}:null}).filter(Boolean)}
   function total(){return cartList().reduce(function(a,c){return a+c.x.단가*c.q},0)}
   function renderBar(){var L=cartList();$('bar').classList.toggle('empty',!L.length);
     $('barN').textContent=L.length?'볼 견본 '+L.length+'개 · 상담 예약':'샘플실 상담 예약';
@@ -319,13 +320,14 @@ button{font:inherit;cursor:pointer;color:inherit}
     open('샘플실 상담 예약','<div class="note" style="margin:0 0 12px"><b>'+esc(PLACE)+'</b><br>'+(L.length?'담으신 견본 '+L.length+'개를 미리 꺼내 두겠습니다. ':'')+'원하시는 날짜와 시각을 고르시면 코디가 확인해 문자로 확정해 드립니다.</div>'+
       '<div class="bk-l">날짜</div><div class="bk-days" id="bkDays">'+days.map(function(x){return '<button type="button" data-day="'+x.y+'"><em>'+x.w+'</em><b>'+x.d+'</b><span>'+x.m+'월</span></button>'}).join('')+'</div>'+
       '<div class="bk-l">시각 <span id="bkHint" style="font-weight:400;color:var(--hint)">날짜를 먼저 골라 주세요</span></div><div class="bk-times" id="bkTimes">'+TIMES.map(function(t){return '<button type="button" data-tm="'+t+'" disabled>'+t+'</button>'}).join('')+'</div>'+
-      '<div class="f"><label>성함<input id="rN" autocomplete="name" value="'+esc(me.n||'')+'"></label><label>휴대폰<input id="rP" inputmode="tel" autocomplete="tel" placeholder="010-0000-0000" value="'+esc(me.p||'')+'"></label>'+
+      (TOK?'<div class="note" style="margin:10px 0 0"><b>'+esc(TOK.이름)+' 고객님 전용 예약</b> — 성함·연락처는 이미 받아 두었습니다. 날짜·시각만 골라 주세요.</div><div class="f">':'<div class="f"><label>성함<input id="rN" autocomplete="name" value="'+esc(me.n||'')+'"></label><label>휴대폰<input id="rP" inputmode="tel" autocomplete="tel" placeholder="010-0000-0000" value="'+esc(me.p||'')+'"></label>')+
       '<label class="w">상담 내용<select id="rK"><option>인테리어 전체 상담</option><option>부분 수리 상담</option><option>자재·샘플 고르기</option><option>견적서 설명 듣기</option><option>기타</option></select></label>'+
       '<label class="w">공사할 집 주소 (선택)<input id="rA" autocomplete="street-address" placeholder="예: 서울 강서구 등촌동 ○○아파트" value="'+esc(me.a||'')+'"></label>'+
       '<label>전용 평수 (선택)<input id="rPy" inputmode="decimal" placeholder="예: 24"></label><label>공사 시작 희망 (선택)<input id="rD" type="month"></label>'+
       '<label class="w">더 알려 주실 것 (선택)<textarea id="rMemo" rows="3" placeholder="예: 32평 올수리 / 욕실 2곳만 / 입주 날짜"></textarea></label><input id="rHp" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px;height:0;width:0" aria-hidden="true"></div>'+
       '<label class="agree"><input type="checkbox" id="rAg"><span>상담 예약 안내를 위해 성함·휴대폰을 받는 것에 동의합니다. 상담 외에는 쓰지 않습니다.</span></label>'+
-      '<button class="cta" id="rGo">상담 예약하기</button>'+(L.length?'<button class="cta ghost" id="rBack">보러 갈 견본 보기</button>':''));
+      '<button class="cta" id="rGo">상담 예약하기</button>'+(L.length?'<button class="cta ghost" id="rBack">보러 갈 견본 보기</button>':(TOK?'<button class="cta ghost" id="rLook">견본 먼저 담고 예약하기</button>':'')));
+    if($('rLook'))$('rLook').onclick=close;
     var pick={day:'',tm:''};
     document.getElementById('bkDays').onclick=function(e){var b=e.target.closest('[data-day]');if(!b)return;pick.day=b.dataset.day;pick.tm='';
       [].forEach.call(this.children,function(c){c.classList.toggle('on',c===b)});$('bkHint').textContent='불러오는 중…';
@@ -337,22 +339,23 @@ button{font:inherit;cursor:pointer;color:inherit}
     if($('rBack'))$('rBack').onclick=cartView;
     $('rGo').onclick=function(){submit(pick)}}
   function submit(pick){
-    var n=$('rN').value.trim(),p=$('rP').value.replace(/[^0-9]/g,'');
+    var n=TOK?'':$('rN').value.trim(),p=TOK?'':$('rP').value.replace(/[^0-9]/g,'');
     if(!pick.day){toast('날짜를 골라 주세요');return} if(!pick.tm){toast('시각을 골라 주세요');return}
-    if(!n){toast('성함을 적어 주세요');return} if(!/^01\d{8,9}$/.test(p)){toast('휴대폰 번호를 확인해 주세요');return}
+    if(!TOK){if(!n){toast('성함을 적어 주세요');return} if(!/^01\d{8,9}$/.test(p)){toast('휴대폰 번호를 확인해 주세요');return}}
     if(!$('rAg').checked){toast('동의에 체크해 주세요');return}
     var L=cartList(),memo=[$('rMemo').value.trim(),$('rD').value?'공사 시작 희망 '+$('rD').value:''].filter(Boolean).join(' / ');
     var f={type:'consult','고객명':n,'연락처':p,'희망일':pick.day,'희망시각':pick.tm,'종류':$('rK').value,'주소':$('rA').value.trim(),'평수':$('rPy').value,'메모':memo,
       '견본':L.map(function(c){return c.x.분류+' '+c.x.이름+(c.x.브랜드?'('+c.x.브랜드+')':'')}).join(' / '),'유입':'사이트 샘플실 페이지',website:$('rHp').value};
+    if(TOK){f.k=BK;delete f['고객명'];delete f['연락처']}
     var b=new URLSearchParams();Object.keys(f).forEach(function(k){b.set(k,f[k])});
-    save('jj_sr_me',{n:n,p:$('rP').value,a:$('rA').value.trim()});
+    if(!TOK)save('jj_sr_me',{n:n,p:$('rP').value,a:$('rA').value.trim()});
     var btn=$('rGo');btn.disabled=true;btn.textContent='보내는 중…';
     fetch(API,{method:'POST',body:b,redirect:'follow'}).then(function(r){return r.json()}).then(function(j){
       if(!j||j.ok===false)throw new Error((j&&j.err)||'접수 실패');
       gtag('event','consult_book',{items:L.length});
       cart={};save('jj_sr_cart',cart);renderMain();renderBar();
       var w='일월화수목금토'.charAt(new Date(pick.day+'T12:00:00+09:00').getDay());
-      open('예약 접수 완료','<div class="done"><svg class="ico" style="width:42px;height:42px;color:var(--ok)"><use href="#i-check"/></svg><h4>상담 예약이 접수됐습니다</h4><p><b>'+Number(pick.day.slice(5,7))+'월 '+Number(pick.day.slice(8))+'일('+w+') '+pick.tm+'</b><br>'+esc(PLACE)+'<br><br>코디가 확인한 뒤 <b>'+esc($('rP').value)+'</b> 로 확정 문자를 드립니다.<br>평면도나 집 사진이 있으면 가져오시면 상담이 빨라집니다.</p></div><a class="cta ghost" style="text-decoration:none" href="https://map.naver.com/p/search/'+encodeURIComponent('서울 강서구 공항대로41길 66')+'" target="_blank" rel="noopener">길 찾기</a><button class="cta ghost" id="okX">닫기</button>');
+      open('예약 접수 완료','<div class="done"><svg class="ico" style="width:42px;height:42px;color:var(--ok)"><use href="#i-check"/></svg><h4>상담 예약이 접수됐습니다</h4><p><b>'+Number(pick.day.slice(5,7))+'월 '+Number(pick.day.slice(8))+'일('+w+') '+pick.tm+'</b><br>'+esc(PLACE)+'<br><br>코디가 확인한 뒤 '+(TOK?'받으신 번호로':'<b>'+esc($('rP').value)+'</b> 로')+' 확정 문자를 드립니다.<br>평면도나 집 사진이 있으면 가져오시면 상담이 빨라집니다.</p></div><a class="cta ghost" style="text-decoration:none" href="https://map.naver.com/p/search/'+encodeURIComponent('서울 강서구 공항대로41길 66')+'" target="_blank" rel="noopener">길 찾기</a><button class="cta ghost" id="okX">닫기</button>');
       $('okX').onclick=close;
     }).catch(function(e){btn.disabled=false;btn.textContent='상담 예약하기';toast('보내지 못했습니다 — '+(e.message||'잠시 뒤 다시')+' · 전화 010-9806-0422')})}
   // 이벤트
@@ -366,8 +369,10 @@ button{font:inherit;cursor:pointer;color:inherit}
   $('barBtn').onclick=function(){cartList().length?cartView():reqView()};$('visitBtn').onclick=reqView;$('cpAddr').onclick=function(){var t=this.dataset.a;if(navigator.clipboard)navigator.clipboard.writeText(t).then(function(){toast('주소를 복사했습니다')});else prompt('복사해 주세요',t)};$('bg').onclick=close;$('shX').onclick=close;
   document.addEventListener('keydown',function(e){if(e.key==='Escape')close()});
   var booked=false;
+  function bkStart(){if(!/^[a-f0-9]{16}$/.test(BK))return;fetch(API+'?type=consult_tok&k='+BK,{redirect:'follow'}).then(function(r){return r.json()}).then(function(j){if(!j||j.ok===false){toast((j&&j.err)||'예약 링크를 확인하지 못했습니다');return}TOK=j;$('barN').textContent=j.이름+' 고객님 전용 예약';setTimeout(reqView,300)}).catch(function(){})}
   function start(d){D=d;if(!booked&&/^#(book|예약)/.test(decodeURIComponent(location.hash))){booked=true;setTimeout(reqView,300)}cat=(D.분류||[])[0]||'';if(!D.__fb)Object.keys(cart).forEach(function(k){if(!byId(k))delete cart[k]});   /* 2026-10-18 예비 목록일 땐 담은 견본을 지우지 않음 */
   renderTabs();renderMain();renderBar()}
+  if(BK){booked=true;bkStart()}   /* 견본 목록이 늦거나 실패해도 예약 화면은 연다 */
   var fb=function(){return fetch('data/showroom.json',{cache:'no-store'}).then(function(r){return r.json()}).then(function(j){j.__fb=1;return j})};
   Promise.race([fetch(API+'?type=showroom',{redirect:'follow'}).then(function(r){return r.json()}).then(function(j){if(!j||!j.ok||!(j.목록||[]).length)throw 0;return j}),
     new Promise(function(_,rej){setTimeout(rej,12000)})]).catch(fb).then(start).catch(function(){$('main').innerHTML='<div class="empty-c">견본을 불러오지 못했습니다. 새로 고침해 주세요.</div>'});
