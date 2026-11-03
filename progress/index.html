@@ -226,7 +226,7 @@ details.sample dd{font-size:13px;color:var(--mute)}
     return '<section class="card"><h2>샘플실 상담 예약</h2>' +
       '<p class="vat" style="margin:0 0 10px">벽지·바닥·타일·도어 등 모든 견본은 샘플실에서 실물로 직접 보고 코디와 함께 고릅니다. 편하신 날짜·시각을 골라 예약해 주세요.</p>' +
       (st ? '<p style="font-size:14px;margin-bottom:10px">' + st + '</p>' : '') +
-      '<div class="btns one"><a class="btn pri" href="' + esc(safeUrl(S.링크)) + '" target="_blank" rel="noopener">' + ICO_CAL + '날짜 예약하기' + '</a><a class="btn" style="margin-top:8px;border:1px solid var(--g);color:var(--g)" href="' + esc(safeUrl(S.링크 + (S.링크.indexOf(\'?\') >= 0 ? \'&\' : \'?\') + \'m=tel\')) + '" target="_blank" rel="noopener">전화 상담 예약 — 고른 시간에 코디가 전화</a></div>' +
+      '<div class="btns one"><a class="btn pri" href="' + esc(safeUrl(S.링크)) + '" target="_blank" rel="noopener">' + ICO_CAL + '날짜 예약하기' + '</a><a class="btn" style="margin-top:8px;border:1px solid var(--g);color:var(--g)" href="' + esc(safeUrl(S.링크 + (S.링크.indexOf('?') >= 0 ? '&' : '?') + 'm=tel')) + '" target="_blank" rel="noopener">전화 상담 예약 — 고른 시간에 코디가 전화</a></div>' +
       '<p class="vat">' + esc(S.장소) + ' · 예약 방문제</p></section>';
   }
   var ICO_CAL = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>';
@@ -435,9 +435,17 @@ details.sample dd{font-size:13px;color:var(--mute)}
   var tx = 0; lb.addEventListener('touchstart', function (e) { tx = e.touches[0].clientX; }, { passive: true });
   lb.addEventListener('touchend', function (e) { var dx = e.changedTouches[0].clientX - tx; if (Math.abs(dx) > 50) lbShow(lbIdx + (dx < 0 ? 1 : -1)); }, { passive: true });
 
+  // 2026-11-03 고객이 페이지에서 누른 것 → 코디 텔레그램 (콘솔 미리보기·직원 휴대폰은 빼고)
+  var STAFF = (function () { try { if (/[?&]jj_staff=1/.test(location.search)) localStorage.setItem('jj_staff', '1'); return !!localStorage.getItem('jj_staff'); } catch (_e) { return false; } })();
+  var EVMAP = [[/전화 상담/, '전화 상담 예약 누름'], [/날짜 예약|샘플실 예약/, '샘플실 날짜 예약 누름'], [/견적서/, '견적서 열어 봄'], [/계약서/, '계약서 미리보기 열어 봄'], [/공정표/, '공정표 미리보기 열어 봄'], [/실측/, '실측 결과 열어 봄'], [/카톡/, '카톡 상담 누름'], [/사업자|통장/, '사업자 서류 열어 봄']];
+  document.addEventListener('click', function (e) {
+    if (PV || STAFF) return; var t = e.target.closest('a,button,[data-pv]'); if (!t) return;
+    var tx = (t.textContent || '') + ' ' + (t.getAttribute('data-pv') === 'contract' ? '계약서' : t.getAttribute('data-pv') === 'schedule' ? '공정표' : t.getAttribute('data-pv') === 'measure' ? '실측' : '');
+    for (var i = 0; i < EVMAP.length; i++) if (EVMAP[i][0].test(tx)) { try { fetch(EXEC + '?type=portal_ev&k=' + encodeURIComponent(k) + '&e=' + encodeURIComponent(EVMAP[i][1]), { mode: 'no-cors', keepalive: true }); } catch (_f) {} break; }
+  }, true);
   function load() {
     if (!/^[A-Za-z0-9_-]{12,64}$/.test(k)) { state('링크가 올바르지 않습니다', '받으신 문자의 링크를 다시 눌러 주시거나 담당 코디에게 문의해 주세요.'); return; }
-    fetch(EXEC + '?type=progress&k=' + encodeURIComponent(k) + (/[?&]pv=1/.test(location.search) ? '&pv=1' : ''), { redirect: 'follow', cache: 'no-store' })
+    fetch(EXEC + '?type=progress&k=' + encodeURIComponent(k) + (/[?&]pv=1/.test(location.search) || STAFF ? '&pv=1' : ''), { redirect: 'follow', cache: 'no-store' })
       .then(function (r) { return r.json(); })
       .then(function (j) {
         if (j && j.ok) { loadedOnce = true; render(j); return; }
