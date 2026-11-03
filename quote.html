@@ -108,7 +108,9 @@ summary::after{content:'＋';color:var(--gray)}details[open] summary::after{cont
       '<div class="kv"><span>예상 합계 (부가세 10% 별도)</span><b class="big">'+won(t+codi+pm)+'</b></div>'+
       (pm?'<div class="kv"><span>현장관리 미선택 시</span><b>'+won(t+codi)+'</b></div>':'')+
       ((d.alternatives||[]).map(function(a){return'<div class="kv"><span>'+esc(a.label)+' (시공 '+won(a.total)+')</span><b>'+won(a.total+Math.round(a.codi||0))+'</b></div>'}).join(''))+'</div>';
-    sum+='<div class="card" style="border:1.5px solid #9a5a4a"><h2>정확한 금액은 현장에서</h2><p style="font-size:14px;line-height:1.8;color:#3d3d3d">이 견적은 의뢰서 숫자로 낸 예상 금액입니다. 코디가 직접 방문해 실측·집 상태 점검·샘플 선택까지 하고 48시간 안에 수정 견적을 드립니다.</p><a href="visit.html" style="display:block;text-align:center;margin-top:12px;background:#2a2a2a;color:#fbf8f1;padding:14px;border-radius:10px;text-decoration:none;font-weight:700">실측·방문 상담 신청 (3만 원, 네이버 결제) →</a></div>';   // 2026-10-14 유료 실측·방문 상담
+    /* 2026-11-03 점검 4번: 실측을 마친 고객에게는 「실측 신청」 상자 대신 「계약 진행」 안내 */
+    if(d.measured){sum+='<div class="card" style="border:1.5px solid #1f5e46"><h2>실측 치수로 맞춘 견적입니다</h2><p style="font-size:14px;line-height:1.8;color:#3d3d3d">현장 실측 치수로 수량을 맞춘 정밀 견적입니다. 내용이 맞으면 받으신 문자에 「진행」이라고 답장하시거나 아래로 연락 주세요. 계약서(전자 서명)를 바로 보내 드립니다.</p><a href="https://pf.kakao.com/_NjpxhC/chat" style="display:block;text-align:center;margin-top:12px;background:#1f5e46;color:#fbf8f1;padding:14px;border-radius:10px;text-decoration:none;font-weight:700">카톡으로 진행 요청 →</a></div>';}
+    else{sum+='<div class="card" style="border:1.5px solid #9a5a4a"><h2>정확한 금액은 현장에서</h2><p style="font-size:14px;line-height:1.8;color:#3d3d3d">이 견적은 의뢰서 숫자로 낸 예상 금액입니다. 샘플실에서 견본을 실물로 보고 상담하신 뒤, 코디가 직접 방문해 실측·집 상태 점검을 하고 24시간 안에 정밀 견적을 드립니다.</p><a href="visit.html" style="display:block;text-align:center;margin-top:12px;background:#2a2a2a;color:#fbf8f1;padding:14px;border-radius:10px;text-decoration:none;font-weight:700">실측·방문 상담 신청 (3만 원, 네이버 결제) →</a></div>';}   // 2026-10-14 유료 실측·방문 상담
     var gap='<div class="card"><h2>견적서 갑지 · 공종별 총괄표</h2><table class="tbl"><tr><th>공종</th><th class="r">항목</th><th class="r">금액</th><th class="r">비중</th></tr>';
     d.sections.forEach(function(s){gap+='<tr><td>'+esc(s.trade)+'</td><td class="r">'+s.lines.length+'</td><td class="r">'+won(s.subtotal)+'</td><td class="r">'+(s.subtotal/t*100).toFixed(1)+'%</td></tr>'});
     gap+='<tr><td><b>시공 총액</b></td><td></td><td class="r"><b>'+won(t)+'</b></td><td class="r">100%</td></tr></table></div>';
@@ -147,7 +149,7 @@ summary::after{content:'＋';color:var(--gray)}details[open] summary::after{cont
       '<div class="tools">'+(d.pdfUrl?'<a href="'+esc(d.pdfDownload||d.pdfUrl)+'" target="_blank" rel="noopener" onclick="return openPdf(this.href)">📄 PDF 저장 · 내려받기</a>':'')+'<button type="button" onclick="printQuote()">'+(d.pdfUrl?'인쇄':'인쇄 · PDF로 저장')+'</button></div>'+
       (inApp()?'<div class="tip">카카오톡 안에서 보고 계십니다 — 인쇄는 되지 않으니 「PDF 저장」을 누르시거나, 오른쪽 위 메뉴에서 「다른 브라우저로 열기」 뒤 인쇄해 주세요.</div>':'')+
       '<a class="cta" href="https://pf.kakao.com/_NjpxhC/chat">카톡으로 상담하기</a>'+
-      '<div class="foot">집지니 · 박찬영 · 사업자번호 874-10-00088<br>인천 강화군 강화읍 동문로 33 · 카카오톡 @집지니<br>금액은 예상 견적이며 현장 실측 후 확정됩니다.</div>';
+      '<div class="foot">집지니 · 박찬영 · 사업자번호 874-10-00088<br>인천 강화군 강화읍 동문로 33 · 카카오톡 @집지니<br>'+(d.measured?'실측 치수로 산출한 정밀 견적입니다. 자재 등급·수량 변경 시 금액이 달라질 수 있습니다.':'금액은 예상 견적이며 현장 실측 후 확정됩니다.')+'</div>';
     CUR_PDF=d.pdfDownload||d.pdfUrl||'';
     app.innerHTML=h;document.title='집지니 · '+d.name+' 고객님 견적서';
     [].forEach.call(document.querySelectorAll('.tab'),function(b){b.onclick=function(){
