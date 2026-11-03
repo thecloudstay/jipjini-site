@@ -217,6 +217,16 @@ details.sample dd{font-size:13px;color:var(--mute)}
     h.push('</ol></section>');
     return h.join('');
   }
+  // 2026-11-03 샘플실 상담 예약 — 고객 전용 링크(이름·번호 입력 없이 날짜·시각·견본만)
+  function showroomHtml(S) {
+    var b = S.예약, st = b ? (b.상태 === '확정' ? '<b style="color:var(--g)">예약 확정</b> · ' + esc(b.때) : b.상태 === '완료' ? '상담 마침 · ' + esc(b.때) : '<b>예약 접수</b> · ' + esc(b.때) + ' — 코디가 확인해 확정 문자를 드립니다') : '';
+    return '<section class="card"><h2>샘플실 상담 예약</h2>' +
+      '<p class="vat" style="margin:0 0 10px">벽지·바닥·타일·도어 실물 견본을 직접 보고 등급과 색을 고르세요. 보고 싶은 견본을 담아 예약하시면 미리 꺼내 두겠습니다.</p>' +
+      (st ? '<p style="font-size:14px;margin-bottom:10px">' + st + '</p>' : '') +
+      '<div class="btns one"><a class="btn pri" href="' + esc(safeUrl(S.링크)) + '" target="_blank" rel="noopener">' + ICO_CAL + (b && b.상태 !== '완료' ? '예약 날짜 바꾸기·견본 담기' : '날짜·시각 골라 예약하기') + '</a></div>' +
+      '<p class="vat">' + esc(S.장소) + ' · 예약 방문제</p></section>';
+  }
+  var ICO_CAL = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>';
   function docsHtml(P) {
     var h = ['<section class="card"><h2>내 서류함</h2><div class="docs">'];
     (P.서류 || []).forEach(function (d) {
@@ -268,6 +278,7 @@ details.sample dd{font-size:13px;color:var(--mute)}
 
     var P = d.포털 || null;
     if (P && P.체인) h.push(chainHtml(P.체인));
+    if (P && P.샘플실 && P.샘플실.링크 && !P.계약요약) h.push(showroomHtml(P.샘플실));
     // 진행률
     if (phases.length) h.push('<section class="card' + (P && P.체인 ? '' : ' top') + '"><h2>전체 진행률</h2><div class="pct"><b>' + pct + '%</b><span>' + (phases.length ? '공정 ' + phases.length + '개 중 ' + doneN + '개 완료' : '') + '</span></div>' +
       '<div class="bar"><i id="barfill"></i></div><div class="meta">' +
