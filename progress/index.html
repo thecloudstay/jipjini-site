@@ -278,7 +278,7 @@ details.sample dd{font-size:13px;color:var(--mute)}
         if ((t.방별 || []).indexOf(w) >= 0) { SEL.목록.forEach(function (y) { if (y.공종 === t.공종 && y.위치.indexOf(w + ' · ') === 0) { used[selKey(y.공종, y.위치)] = 1; n++; rows.push(selRowH(t.공종, 'room', '', y, w)); } }); rows.push('<button type="button" class="seladd" data-addroom="' + esc(w) + '" data-g="' + esc(t.공종) + '">+ ' + esc(w) + ' 방별로 다르게</button>'); } });
       SEL.목록.forEach(function (y) { if (y.공종 === t.공종 && !used[selKey(y.공종, y.위치)]) { used[selKey(y.공종, y.위치)] = 1; n++; rows.push(selRowH(t.공종, 'free', '', y)); } });
       rows.push('<button type="button" class="seladd" data-addfree="1" data-g="' + esc(t.공종) + '">+ ' + esc(t.공종) + ' 직접 추가</button>');
-      return '<details class="selsec"' + (n || si === 0 ? ' open' : '') + '><summary>' + esc(t.공종) + ' <span>' + (n ? n + '개 적음' : '아직 없음') + '</span></summary><div class="selbody" data-sec="' + esc(t.공종) + '">' + rows.join('') + '</div></details>';
+      return '<details class="selsec"' + (n || t.열림 ? ' open' : '') + '><summary>' + esc(t.공종) + ' <span>' + (n ? n + '개 적음' : '아직 없음') + '</span></summary><div class="selbody" data-sec="' + esc(t.공종) + '">' + (t.예 ? '<div style="font-size:12px;color:var(--muted,#888);margin:0 2px 4px;">' + esc(t.예) + ' — 방마다 같으면 「집 전체」 한 줄만, 다르면 방별로 적어 주세요.</div>' : '') + rows.join('') + '</div></details>';
     });
     var dl = SEL.잠김 ? '<div class="seldl" style="background:#fdecea"><b>선택이 마감됐습니다</b> (' + md(SEL.마감) + ', 공사 시작 7일 전) — 아래는 확정된 내용입니다. 바꾸실 것이 있으면 코디에게 연락 주세요.</div>' : SEL.마감 ? '<div class="seldl">선택 마감 <b>' + md(SEL.마감) + '</b> — 공사 시작 7일 전까지 골라 주세요. 이후에는 고칠 수 없습니다.</div>' : '';
     return '<section class="card" id="sel"><h2>자재 고르기 · 샘플 체크리스트</h2>' + dl +
