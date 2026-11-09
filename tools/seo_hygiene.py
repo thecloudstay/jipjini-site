@@ -16,15 +16,46 @@ TW = '<meta name="twitter:card" content="summary_large_image">'
 PRE = '<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>'
 START, END = "<!--SITENAV-->", "<!--/SITENAV-->"
 
+GROUPS = [
+    ("시작하기", [("index.html", "홈"), ("self-interior-agency.html", "셀인대행이란"), ("request.html", "무료 견적 신청"), ("prepare.html", "사전 준비")]),
+    ("샘플실", [("showroom.html", "가양동 샘플실 · 상담 예약")]),
+    ("진행 방식", [("workflow.html", "진행 방식 8단계"), ("interior-coordinator.html", "코디네이터란")]),
+    ("가격·견적", [("pricing.html", "가격·코디비"), ("interior-price-table.html", "실견적 시세표"), ("cases/", "견적 사례"), ("py/", "평형별 비용"), ("trade/", "공종별 비용")]),
+    ("가이드", [("banself-interior.html", "반셀프 코디"), ("jikyoung-interior.html", "직영 인테리어"), ("interior-margin-30.html", "마진 30%"), ("interior-estimate-compare.html", "견적서 비교"), ("apt-olsuri-cost.html", "32평 올수리"), ("bathroom-remodel-cost.html", "욕실 리모델링"), ("interior-scam-types.html", "사기 유형")]),
+    ("회사", [("about.html", "회사소개"), ("faq.html", "자주 묻는 질문"), ("sitemap.html", "사이트 지도")]),
+]
+NAV_CSS = ('<style>.jj-map{max-width:900px;margin:32px auto 0;padding:22px 16px 26px;border-top:2px solid #d9d2c0;font-family:Pretendard,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;color:#2a2a2a;word-break:keep-all}'
+           '.jj-map .ttl{font-size:14px;font-weight:800;letter-spacing:1px;color:#1e4d3a;margin-bottom:10px;text-align:center}'
+           '.jj-map .grp{display:flex;flex-wrap:wrap;gap:6px 8px;align-items:center;margin:6px 0;font-size:14px}'
+           '.jj-map .grp b{min-width:70px;color:#555;font-weight:700;font-size:13px}'
+           '.jj-map .grp a{display:inline-block;padding:6px 12px;border:1px solid #cfc8b8;border-radius:16px;background:#fff;color:#2a2a2a;text-decoration:none;font-size:14px;font-weight:500}'
+           '.jj-map .grp a:hover{border-color:#1e4d3a;color:#1e4d3a}'
+           '.jj-map .grp a[aria-current=page]{background:#1e4d3a;color:#fff;border-color:#1e4d3a;font-weight:800}'
+           '.jj-map .grp a[aria-current=page]::before{content:"▶ ";font-size:11px}'
+           '.jj-map .ft{font-size:13px;color:#555;margin-top:12px;text-align:center;line-height:1.8}'
+           '.jj-where{max-width:1200px;margin:0 auto;padding:8px 16px;font-size:14px;color:#2a2a2a;background:#efe9db;border-bottom:1px solid #d9d2c0;display:flex;gap:6px;align-items:center;flex-wrap:wrap;word-break:keep-all}'
+           '.jj-where a{color:#1e4d3a;text-decoration:none;font-weight:600}.jj-where .now{background:#1e4d3a;color:#fff;padding:2px 10px;border-radius:12px;font-weight:700;font-size:13px}'
+           '.nav-item.is-current>.nav-top{color:#1e4d3a!important;font-weight:800!important;box-shadow:inset 0 -3px 0 #1e4d3a}'
+           '.nav-dropdown a.is-current{background:#e6efe9!important;color:#1e4d3a!important;font-weight:700!important}'
+           '@media(max-width:640px){.jj-map .grp b{min-width:100%}}</style>')
+NAV_JS = r"""<script>(function(){try{
+var here=location.pathname.replace(/\/index\.html$/,"/");
+var norm=function(h){var a=document.createElement("a");a.href=h;return a.pathname.replace(/\/index\.html$/,"/");};
+var isCur=function(h){var p=norm(h);return p===here||(p!=="/"&&p.slice(-1)==="/"&&here.indexOf(p)===0);};
+var map=document.querySelector(".jj-map"),curName="",grpName="";
+if(map){map.querySelectorAll(".grp").forEach(function(g){g.querySelectorAll("a").forEach(function(a){if(isCur(a.getAttribute("href"))){a.setAttribute("aria-current","page");if(!curName){curName=a.textContent;var b=g.querySelector("b");grpName=b?b.textContent.replace(/\s*[·:]\s*$/,""):"";}}});});}
+document.querySelectorAll(".nav-item").forEach(function(it){var top=it.querySelector(".nav-top"),hit=false;it.querySelectorAll("a").forEach(function(a){var h=a.getAttribute("href")||"";if(h.indexOf("http")===0)return;if(norm(h)===here){hit=true;if(a!==top)a.classList.add("is-current");}});it.classList.remove("active");if(hit)it.classList.add("is-current");});
+if(here!=="/"&&!document.querySelector(".jj-where")){var ttl=curName||(document.title.split(/[|—–]/)[0]||"").trim();var up=location.pathname.split("/").length>2?"../":"";
+var bar=document.createElement("div");bar.className="jj-where";bar.innerHTML='<a href="'+up+'index.html">홈</a><span>›</span>'+(grpName?'<span>'+grpName+'</span><span>›</span>':'')+'<span class="now">지금 보는 쪽 · '+ttl+'</span>';
+var hdr=document.querySelector("header, .site-header, nav.site-nav, .navbar, .nav");if(hdr)hdr.insertAdjacentElement("afterend",bar);else document.body.insertBefore(bar,document.body.firstChild);}
+}catch(e){}})();</script>"""
+
 def nav_block(depth):
     r = "../" * depth
-    links = [("interior-price-table.html", "실견적 시세표"), ("py/", "평형별 비용"), ("trade/", "공종별 비용"),
-             ("showroom.html", "샘플실"), ("cases/", "견적 사례"), ("faq.html", "자주 묻는 질문"), ("self-interior-agency.html", "셀인대행"), ("interior-coordinator.html", "코디네이터란"), ("pricing.html", "가격·코디비"), ("workflow.html", "진행 방식"), ("request.html", "무료 견적 신청")]
-    a = "".join(f'<a href="{r}{h}" style="display:inline-block;margin:4px 6px;padding:6px 12px;background:rgba(0,0,0,.05);border-radius:14px;color:inherit;text-decoration:none;font-size:13px">{t}</a>' for h, t in links)
-    return (f'{START}<div style="max-width:780px;margin:28px auto 0;padding:18px 16px 26px;text-align:center;font-family:\'Apple SD Gothic Neo\',\'Noto Sans KR\',sans-serif;color:#555;border-top:1px solid rgba(0,0,0,.08)">'
-            f'<div style="font-size:12px;letter-spacing:2px;color:#999;margin-bottom:8px">집지니 · 마진 0 인테리어 코디</div>{a}'
-            f'<div style="font-size:12px;color:#999;margin-top:10px">서울·경기·인천 수도권 전역 · 자재상·기술자 직거래 · 정찰제 코디비</div>'
-            f'<div style="font-size:12px;color:#999;margin-top:4px">샘플실: <a href="{r}showroom.html" style="color:inherit">서울 강서구 공항대로41길 66 세신종합상가 지하 1층 B156호</a> · 예약 상담</div></div>{END}')
+    rows = "".join('<div class="grp"><b>' + g + ' ·</b>' + "".join(f'<a href="{r}{h}">{t}</a>' for h, t in items) + '</div>' for g, items in GROUPS)
+    return (f'{START}{NAV_CSS}<div class="jj-map"><div class="ttl">집지니 사이트 지도 — 지금 보는 쪽은 ▶ 짙은 녹색</div>{rows}'
+            f'<div class="ft">서울·경기·인천 수도권 전역 · 자재상·기술자 직거래 · 정찰제 코디비 · 부가세 10% 별도<br>'
+            f'샘플실: <a href="{r}showroom.html" style="color:#1e4d3a;font-weight:600">서울 강서구 공항대로41길 66 세신종합상가 지하 1층 B156호 (가양동)</a> · 상담 예약 010-9806-0422</div></div>{NAV_JS}{END}')
 
 def main():
     files = []
