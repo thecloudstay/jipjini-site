@@ -608,7 +608,16 @@ table.plm td.r,table.plm th.r{padding-left:10px}
     var tx = (t.textContent || '') + ' ' + (t.getAttribute('data-pv') === 'contract' ? '계약서' : t.getAttribute('data-pv') === 'schedule' ? '공정표' : t.getAttribute('data-pv') === 'measure' ? '실측' : '');
     for (var i = 0; i < EVMAP.length; i++) if (EVMAP[i][0].test(tx)) { try { fetch(EXEC + '?type=portal_ev&k=' + encodeURIComponent(k) + '&e=' + encodeURIComponent(EVMAP[i][1]), { mode: 'no-cors', keepalive: true }); } catch (_f) {} break; }
   }, true);
+  // 보기용 예시 (2026-11-09): jipjini.com/progress/?demo=1 — 진짜 고객 자료 없이 「우리 집 도면」 구역(배치도·입체·측정표)을 확인하는 용도
+  var DEMO = { ok: true, 고객: '예시 고객', 현장: '예시 단지 101동 1001호 (보기용)', 진행률: 0, 공정: [], 포털: {
+    도면: { 목록: [{ 도면ID: 'PL-DEMO', 이름: '84A 평면도 (예시)', 측정됨: true, 그림: 'https://jipjini.com/demo/plan-sample.svg', 큰그림: 'https://jipjini.com/demo/plan-sample.svg',
+      표시: [{ t: 'scale', x1: 100, y1: 760, x2: 500, y2: 760, mm: 4800 }, { t: 'room', name: '거실', pts: [[100, 100], [620, 100], [620, 480], [100, 480]] }, { t: 'room', name: '안방', pts: [[640, 100], [1100, 100], [1100, 420], [640, 420]] }, { t: 'room', name: '작은방', pts: [[640, 440], [900, 440], [900, 720], [640, 720]] }, { t: 'room', name: '욕실1', pts: [[920, 440], [1100, 440], [1100, 720], [920, 720]] }, { t: 'room', name: '주방', pts: [[100, 500], [620, 500], [620, 720], [100, 720]] },
+        { t: 'win', name: '거실 분합창', x1: 200, y1: 100, x2: 520, y2: 100, h: 2200 }, { t: 'win', name: '안방 창', x1: 700, y1: 100, x2: 900, y2: 100, h: 1200 }, { t: 'door', name: '안방문', x1: 640, y1: 300, x2: 640, y2: 375, h: 2100 }, { t: 'door', name: '욕실문', x1: 920, y1: 560, x2: 920, y2: 627, h: 2100 }] }],
+      측정: { 도면ID: 'PL-DEMO', 날짜: '2026-11-09', 공간: [{ 이름: '거실', 면적: 28.5, 평: 8.6 }, { 이름: '안방', 면적: 21.2, 평: 6.4 }, { 이름: '작은방', 면적: 10.5, 평: 3.2 }, { 이름: '욕실1', 면적: 7.3, 평: 2.2 }, { 이름: '주방', 면적: 16.5, 평: 5 }], 바닥: 84, 창: [{ 이름: '거실 분합창', 폭: 3.84, 높이: 2.2 }, { 이름: '안방 창', 폭: 2.4, 높이: 1.2 }], 창면적: 11.33, 창자: 123, 문: [{ 이름: '안방문', 폭: 0.9, 높이: 2.1 }, { 이름: '욕실문', 폭: 0.8, 높이: 2.1 }], 도배: 268.4, 걸레받이: 71.2, 몰딩: 74.5, 욕실벽: 20.3 },
+      건물: { 전용면적: 84.96, 전용평: 25.7, 준공년도: '2016', 단지명: '예시 단지' } },
+    체인: { 단계: [{ 키: '의뢰', 이름: '상담·의뢰 접수', 설명: '의뢰서를 받고 담당 코디가 정해집니다.', 날짜: '2026-11-09', 상태: '끝남' }, { 키: '가견적', 이름: '가견적', 설명: '의뢰서 기준 예상 견적을 보내 드립니다.', 날짜: '2026-11-09', 상태: '지금' }, { 키: '샘플실', 이름: '샘플실 상담', 설명: '견본을 직접 보고 고릅니다.', 날짜: '', 상태: '다음' }], 지금: '가견적', 다음: '샘플실 상담' }, 서류: [], 계약예시: [], AS가능: false, AS목록: [] } };
   function load() {
+    if (new URLSearchParams(location.search).get('demo') === '1') { loadedOnce = true; render(DEMO); return; }
     if (!/^[A-Za-z0-9_-]{12,64}$/.test(k)) { state('링크가 올바르지 않습니다', '받으신 문자의 링크를 다시 눌러 주시거나 담당 코디에게 문의해 주세요.'); return; }
     fetch(EXEC + '?type=progress&k=' + encodeURIComponent(k) + (/[?&]pv=1/.test(location.search) || STAFF ? '&pv=1' : ''), { redirect: 'follow', cache: 'no-store' })
       .then(function (r) { return r.json(); })
