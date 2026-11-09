@@ -314,6 +314,12 @@ def main():
     cases = [c for c in data["cases"] if c.get("total") and c.get("sections")]
     if not cases: print("공개할 실견적 0건 — 변경 안 함"); return
     for c in cases: c["region"] = norm_region(c["region"])
+    # 지역이 아닌 글(예: 「주소드립니다.」처럼 주소 칸에 적은 말)은 공개하지 않는다 (2026-11-09 대표 지시)
+    SIDO_OK = ("서울", "경기", "인천", "부산", "대구", "광주", "대전", "울산", "세종", "강원", "충북", "충남", "전북", "전남", "경북", "경남", "제주", "수도권")
+    bad = [c for c in cases if c["region"].split()[0] not in SIDO_OK]
+    for c in bad: print("지역 아님 — 제외:", c.get("ymd"), repr(c["region"]), c.get("py"), "평")
+    cases = [c for c in cases if c not in bad]
+    if not cases: print("공개할 실견적 0건 — 변경 안 함"); return
     # 같은 고객이 다시 접수한 중복(같은 가린 이름·같은 시·7일 안)은 계약 건 > 최근 건 하나만
     keep = []
     for c in sorted(cases, key=lambda c: (not c.get("contracted"), -int(c["ymd"]))):

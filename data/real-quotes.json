@@ -1,6 +1,6 @@
 {
  "updated": "2026-11-09",
- "count": 13,
+ "count": 12,
  "note": "집지니 실견적 공개 자료 — 개인정보 제거, 금액은 공급가액(원)",
  "cases": [
   {
@@ -384,84 +384,6 @@
     }
    ],
    "file": "cases/q-20261103-gwangmyeong-25py.html"
-  },
-  {
-   "key": "c169dc04",
-   "ymd": "20261017",
-   "region": "주소드립니다.",
-   "dong": "",
-   "name": "황**",
-   "py": 12,
-   "type": "아파트",
-   "rooms": 0,
-   "baths": 0,
-   "built": "",
-   "method": "일괄",
-   "contracted": true,
-   "total": 3500000,
-   "codi": 525000,
-   "pm": 0,
-   "days": 10,
-   "phases": 4,
-   "sections": [
-    {
-     "trade": "기타",
-     "subtotal": 875000,
-     "lines": [
-      {
-       "item": "석고보드",
-       "spec": "",
-       "qty": 1,
-       "unit": "식",
-       "price": 875000,
-       "amount": 875000
-      }
-     ]
-    },
-    {
-     "trade": "바닥공사",
-     "subtotal": 875000,
-     "lines": [
-      {
-       "item": "바닥 강마루",
-       "spec": "",
-       "qty": 1,
-       "unit": "식",
-       "price": 875000,
-       "amount": 875000
-      }
-     ]
-    },
-    {
-     "trade": "도장공사",
-     "subtotal": 875000,
-     "lines": [
-      {
-       "item": "페인트",
-       "spec": "",
-       "qty": 1,
-       "unit": "식",
-       "price": 875000,
-       "amount": 875000
-      }
-     ]
-    },
-    {
-     "trade": "설비·전기",
-     "subtotal": 875000,
-     "lines": [
-      {
-       "item": "전기 일부",
-       "spec": "",
-       "qty": 1,
-       "unit": "식",
-       "price": 875000,
-       "amount": 875000
-      }
-     ]
-    }
-   ],
-   "file": "cases/q-20261017-etc-12py.html"
   },
   {
    "key": "56a788e1",
