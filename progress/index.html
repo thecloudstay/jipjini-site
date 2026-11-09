@@ -396,7 +396,14 @@ table.plm td.r,table.plm th.r{padding-left:10px}
       '<label class="btn" style="cursor:pointer;display:inline-block"><span id="plUpLbl">평면도 고르기</span><input id="plUpFile" type="file" accept="image/*" style="display:none"></label></div>' +
       '<p id="plUpMsg" class="plnote"></p><div id="plUpOut"></div><div id="plCatBox" style="margin-top:14px;padding-top:12px;border-top:1px solid var(--line,#eee)"></div></section>';
   }
-  function plUpLoad(cb, fail) { if (window.JJPlanAuto) return cb(); var sc = document.createElement('script'); sc.src = '../assets/plan_auto.js?v=20261110'; sc.onload = function () { cb(); }; sc.onerror = function () { fail(); }; document.head.appendChild(sc); }
+  function plUpLoad(cb, fail) { if (window.JJPlanTools && window.JJPlanAuto) return cb(); var one = function (src, next) { var sc = document.createElement('script'); sc.src = src; sc.onload = next; sc.onerror = function () { fail(); }; document.head.appendChild(sc); }; one('../assets/plan_auto.js?v=20261110c', function () { one('../assets/plan_tools.js?v=20261110', function () { cb(); }); }); }
+  var PLFILE = null;
+  function plUpRun(src) { var msg = document.getElementById('plUpMsg'), lbl = document.getElementById('plUpLbl'); msg.textContent = '도면을 읽는 중…'; lbl.textContent = '읽는 중…';
+    plUpLoad(function () { window.JJPlanTools.analyze(src, { areaM2: Number(document.getElementById('plUpM2').value) || 0, onStep: function (t) { msg.textContent = t + '…'; } }).then(function (r) {
+      lbl.textContent = '다른 도면 고르기';
+      if (!r || !r.ok) { PLUP = (r && r.dataUrl) ? r : null; msg.textContent = (r && r.why) || '도면을 읽지 못했습니다.'; document.getElementById('plUpOut').innerHTML = PLUP ? '<div style="margin-top:8px"><button class="btn" id="plUpSend">자동 계산 없이 그림만 코디에게 보내기</button></div>' : ''; return; }
+      PLUP = r; msg.textContent = (r.척도 && r.척도.안내) || ''; plUpShow(r); });
+    }, function () { lbl.textContent = '평면도 고르기'; msg.textContent = '분석 도구를 불러오지 못했습니다. 잠시 뒤 다시 시도해 주세요.'; }); }
   function plUpShow(r) {
     var out = document.getElementById('plUpOut'), h = [window.JJPlanAuto.overlaySvg(r)];
     var opt = function (n, cur) { var a = []; for (var i = 1; i <= n; i++) a.push('<option' + (i === cur ? ' selected' : '') + '>' + i + '</option>'); return a.join(''); };
@@ -406,9 +413,14 @@ table.plm td.r,table.plm th.r{padding-left:10px}
       h.push('<p class="plnote">거실·방 기준 바닥 ' + r.sum.바닥 + '㎡ · 벽 ' + r.sum.벽 + '㎡ · 걸레받이 ' + r.sum.걸레받이 + 'm (천장 높이 2.4m 가정). 자동 계산은 참고값이며 거실에는 이어진 주방·복도가 함께 잡힙니다.</p>'); }
     else h.push('<p class="plnote">전용면적을 적고 다시 넣으면 공간별 면적까지 계산합니다.</p>');
     if (r.engine === '보통 구성') h.push('<p style="font-size:11px;color:#8a8f98;margin:6px 0 0">본 서비스는 과학기술정보통신부의 재원으로 한국지능정보사회진흥원의 지원을 받아 구축된 「건축 도면 데이터」를 활용하였습니다.</p>');
+    if (PLFILE && r.engine !== '보통 구성') h.push('<p class="plnote" style="margin:6px 0 0">폰으로 찍은 사진이라 기울었나요? <button type="button" id="plUpFix" style="padding:3px 9px;border:1px solid #999;background:#fff;border-radius:6px;font-size:12.5px;cursor:pointer">네 모서리 맞춰 반듯하게 펴기</button></p>');
     h.push('<div style="margin-top:8px"><button class="btn" id="plUpSend">이 도면을 코디에게 보내기</button></div>');
     out.innerHTML = h.join('');
   }
+  document.addEventListener('click', function (e) {   // 기울어진 사진 바로잡기 → 편 그림으로 다시 분석
+    var b = e.target && e.target.closest ? e.target.closest('#plUpFix') : null; if (!b || !PLFILE || !window.JJPlanTools) return;
+    window.JJPlanTools.fixPhoto(PLFILE).then(function (cv) { if (cv) plUpRun(cv); });
+  });
   // 비슷한 평면 고르기 (2026-11-10) — 도면이 없는 고객용. 예시 평면의 방 구성 비율 × 전용면적
   var PLSIM = null;
   function plCatMount() {
@@ -441,14 +453,7 @@ table.plm td.r,table.plm th.r{padding-left:10px}
   document.addEventListener('change', function (e) {
     if (!e.target || e.target.id !== 'plUpFile') return;
     var f = e.target.files && e.target.files[0]; e.target.value = ''; if (!f) return;
-    var msg = document.getElementById('plUpMsg'), lbl = document.getElementById('plUpLbl'); msg.textContent = '도면을 읽는 중…'; lbl.textContent = '읽는 중…';
-    plUpLoad(function () {
-      window.JJPlanAuto.analyzeFile(f, { areaM2: Number(document.getElementById('plUpM2').value) || 0 }).then(function (r) {
-        lbl.textContent = '다른 도면 고르기';
-        if (!r || !r.ok) { PLUP = (r && r.dataUrl) ? r : null; msg.textContent = (r && r.why) || '도면을 읽지 못했습니다.'; document.getElementById('plUpOut').innerHTML = PLUP ? '<div style="margin-top:8px"><button class="btn" id="plUpSend">자동 계산 없이 그림만 코디에게 보내기</button></div>' : ''; return; }
-        PLUP = r; msg.textContent = ''; plUpShow(r);
-      });
-    }, function () { lbl.textContent = '평면도 고르기'; msg.textContent = '분석 도구를 불러오지 못했습니다. 잠시 뒤 다시 시도해 주세요.'; });
+    PLFILE = f; plUpRun(f);
   });
   document.addEventListener('click', function (e) {
     var b = e.target && e.target.closest ? e.target.closest('#plUpSend') : null; if (!b || !PLUP) return;
