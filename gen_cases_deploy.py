@@ -227,9 +227,9 @@ ul{padding-left:18px}li{margin:9px 0;font-size:15px}a{color:#2A2A2A}
 
     today = datetime.date.today().isoformat()
     base = ["","about.html","pricing.html","workflow.html","prepare.html","payment.html",
-            "banself-interior.html","gimpo-interior.html","interior-margin-30.html",
+            "banself-interior.html","interior-margin-30.html",
             "jikyoung-interior.html","interior-estimate-compare.html","apt-olsuri-cost.html",
-            "bathroom-remodel-cost.html","incheon-interior.html"]
+            "bathroom-remodel-cost.html"]
     urls = ['  <url><loc>https://jipjini.com/%s</loc><lastmod>%s</lastmod><changefreq>monthly</changefreq><priority>%s</priority></url>' % (p, today, "1.0" if p=="" else "0.8") for p in base]
     urls.append('  <url><loc>https://jipjini.com/cases/</loc><lastmod>%s</lastmod><changefreq>weekly</changefreq><priority>0.9</priority></url>' % today)
     for n, _ in entries:

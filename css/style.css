@@ -3008,3 +3008,6 @@
 .pm-choice-body { font-size: 13px; line-height: 1.7; color: var(--jp-gray); }
 .pm-choice-body strong { color: var(--jp-charcoal); font-weight: 600; }
 @media (max-width: 680px) { .pm-choice { grid-template-columns: 1fr; } }
+
+/* 2026-11-09 낱말 단위 줄바꿈 — 한글 낱말 중간에서 끊기지 않게 */
+body,p,li,td,th,h1,h2,h3,h4,dd,dt,blockquote,figcaption{word-break:keep-all;overflow-wrap:break-word}

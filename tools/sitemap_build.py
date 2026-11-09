@@ -8,7 +8,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SITE = "https://jipjini.com/"
 SKIP_DIRS = ("admin", "console", "assets", "q", "node_modules", ".github", "cards", "data")
 SKIP_FILES = {"quote.html", "client-input.html", "schedule.html", "sign.html", "contract.html", "payment.html"}
-PRIO = [("index.html", "1.0"), ("request.html", "0.9"), ("interior-price-table.html", "0.9"), ("pricing.html", "0.8"), ("region/index.html", "0.8"), ("py/index.html", "0.8"), ("trade/index.html", "0.8")]
+PRIO = [("index.html", "1.0"), ("request.html", "0.9"), ("interior-price-table.html", "0.9"), ("pricing.html", "0.8"), ("py/index.html", "0.8"), ("trade/index.html", "0.8")]
 
 DIRTY = set()
 try:

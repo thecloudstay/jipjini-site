@@ -157,7 +157,7 @@ def py_pages(real, synth):
 {HOW}
 {faq_html(qas)}
 <h2>다른 평형</h2><p class="rel">{others}</p>
-<ul class="rel"><li><a href="../interior-price-table.html">실견적 시세표</a></li><li><a href="../region/">지역별 비용</a></li><li><a href="../trade/">공종별 비용</a></li>{'<li><a href="../apt-olsuri-cost.html">32평 올수리 비용 — 방식별 비교</a></li>' if p == 32 else ''}</ul>
+<ul class="rel"><li><a href="../interior-price-table.html">실견적 시세표</a></li><li><a href="../trade/">공종별 비용</a></li>{'<li><a href="../apt-olsuri-cost.html">32평 올수리 비용 — 방식별 비교</a></li>' if p == 32 else ''}</ul>
 {CTA.format(t=str(p) + '평 우리 집 견적, 줄마다 공개로 받아 보세요')}
 {FOOT_NOTE}"""
         write(f"py/{p}py.html", page(url, title, desc, ld, f"{p}평 인테리어 비용<br>— 올수리·부분수리 범위별 금액", "평형별 비용", f"{p}평", body, "JIPJINI · 평형별 비용"))
@@ -220,7 +220,7 @@ def trade_pages(real, synth_total_count):
 <table class="dl"><tr><th>품목 · 상표·규격</th><th class="r">수량</th><th class="r">단가</th><th class="r">금액</th><th>출처</th></tr>{''.join(samp)}</table>
 {HOW}
 {faq_html(qas)}
-<ul class="rel"><li><a href="../interior-price-table.html">실견적 시세표 — 공종별 평당 금액</a></li><li><a href="../region/">지역별 비용</a></li><li><a href="../py/">평형별 비용</a></li>{'<li><a href="../bathroom-remodel-cost.html">욕실 리모델링 비용 총정리</a></li>' if slug == 'bath' else ''}{'<li><a href="../cases/20260923-gangmaru-vs-jangpan-floor.html">강마루 vs 장판 2.2T 비교</a></li>' if slug == 'floor' else ''}{'<li><a href="../cases/20260826-dobae-partial-vs-full.html">부분 도배 vs 전체 도배</a></li>' if slug == 'dobae' else ''}</ul>
+<ul class="rel"><li><a href="../interior-price-table.html">실견적 시세표 — 공종별 평당 금액</a></li><li><a href="../py/">평형별 비용</a></li>{'<li><a href="../bathroom-remodel-cost.html">욕실 리모델링 비용 총정리</a></li>' if slug == 'bath' else ''}{'<li><a href="../cases/20260923-gangmaru-vs-jangpan-floor.html">강마루 vs 장판 2.2T 비교</a></li>' if slug == 'floor' else ''}{'<li><a href="../cases/20260826-dobae-partial-vs-full.html">부분 도배 vs 전체 도배</a></li>' if slug == 'dobae' else ''}</ul>
 {CTA.format(t=esc(name) + ' 견적, 상표·단가까지 공개로 받아 보세요')}
 {FOOT_NOTE}"""
         write(f"trade/{slug}.html", page(url, title, desc, ld, f"{esc(name)} 비용<br>— 실견적 {len(hits)}건 평당 단가·상표", "공종별 비용", esc(name), body, "JIPJINI · 공종별 비용"))
@@ -236,7 +236,7 @@ def trade_pages(real, synth_total_count):
 def main():
     real, synth = load_real(), load_synthetic()
     if not real and not synth: print("자료 없음 — 변경 안 함"); return
-    r = region_pages(real, synth); p = py_pages(real, synth); t = trade_pages(real, len(synth))
+    r = []; p = py_pages(real, synth); t = trade_pages(real, len(synth))   # 지역별 쪽은 2026-11-09부터 만들지 않음(대표 지시)
     print(f"지역 {len(r)}쪽 · 평형 {len(p)}쪽 · 공종 {len(t)}쪽 생성 (실견적 {len(real)} · 사례 {len(synth)})")
 
 if __name__ == "__main__":

@@ -47,6 +47,7 @@ summary::after{content:'＋';color:var(--gray)}details[open] summary::after{cont
 .tools{display:flex;gap:8px;margin-top:12px}.tools a,.tools button{flex:1;font:inherit;font-size:13.5px;font-weight:600;color:var(--charcoal);background:#fff;border:1px solid var(--line);border-radius:10px;padding:11px 8px;text-align:center;text-decoration:none;cursor:pointer}
 @media print{body{background:#fff}.wrap{max-width:none;padding:0}.tabs,.tools,.cta{display:none}.pane{display:block !important}.pane+.pane{margin-top:18px}details{break-inside:avoid}details:not([open])>*:not(summary){display:block}summary::after{content:''}.total{-webkit-print-color-adjust:exact;print-color-adjust:exact}.card{break-inside:avoid}}
 </style>
+<style>body,p,li,td,th,h1,h2,h3,h4,dd,dt,blockquote,figcaption{word-break:keep-all;overflow-wrap:break-word}</style>
 </head>
 <body>
 <div class="wrap" id="app"><div class="err">견적서를 불러오는 중입니다…</div></div>
@@ -149,7 +150,7 @@ summary::after{content:'＋';color:var(--gray)}details[open] summary::after{cont
       '<div class="tools">'+(d.pdfUrl?'<a href="'+esc(d.pdfDownload||d.pdfUrl)+'" target="_blank" rel="noopener" onclick="return openPdf(this.href)">📄 PDF 저장 · 내려받기</a>':'')+'<button type="button" onclick="printQuote()">'+(d.pdfUrl?'인쇄':'인쇄 · PDF로 저장')+'</button></div>'+
       (inApp()?'<div class="tip">카카오톡 안에서 보고 계십니다 — 인쇄는 되지 않으니 「PDF 저장」을 누르시거나, 오른쪽 위 메뉴에서 「다른 브라우저로 열기」 뒤 인쇄해 주세요.</div>':'')+
       '<a class="cta" href="https://pf.kakao.com/_NjpxhC/chat">카톡으로 상담하기</a>'+
-      '<div class="foot">집지니 · 박찬영 · 사업자번호 874-10-00088<br>인천 강화군 강화읍 동문로 33 · 카카오톡 @집지니<br>'+(d.measured?'실측 치수로 산출한 정밀 견적입니다. 자재 등급·수량 변경 시 금액이 달라질 수 있습니다.':'금액은 예상 견적이며 현장 실측 후 확정됩니다.')+'</div>';
+      '<div class="foot">집지니 · 박찬영 · 사업자번호 874-10-00088<br>서울 강서구 공항대로41길 66 세신종합상가 지하 1층 B156호 · 카카오톡 @집지니<br>'+(d.measured?'실측 치수로 산출한 정밀 견적입니다. 자재 등급·수량 변경 시 금액이 달라질 수 있습니다.':'금액은 예상 견적이며 현장 실측 후 확정됩니다.')+'</div>';
     CUR_PDF=d.pdfDownload||d.pdfUrl||'';
     app.innerHTML=h;document.title='집지니 · '+d.name+' 고객님 견적서';
     [].forEach.call(document.querySelectorAll('.tab'),function(b){b.onclick=function(){

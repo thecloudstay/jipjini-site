@@ -18,7 +18,7 @@ TODAY = datetime.date.today()
 ROMA = {"김포시":"gimpo","인천":"incheon","강화군":"ganghwa","서구":"seogu","연수구":"yeonsu","부평구":"bupyeong","남동구":"namdong","미추홀구":"michuhol","계양구":"gyeyang","중구":"junggu","동구":"donggu",
         "강서구":"gangseo","노원구":"nowon","은평구":"eunpyeong","송파구":"songpa","마포구":"mapo","강남구":"gangnam","서초구":"seocho","양천구":"yangcheon","영등포구":"yeongdeungpo","관악구":"gwanak","구로구":"guro","동작구":"dongjak","성북구":"seongbuk","강동구":"gangdong","광진구":"gwangjin","도봉구":"dobong","중랑구":"jungnang","용산구":"yongsan","성동구":"seongdong","종로구":"jongno","금천구":"geumcheon","서대문구":"seodaemun","동대문구":"dongdaemun","강북구":"gangbuk",
         "고양시":"goyang","용인시":"yongin","성남시":"seongnam","부천시":"bucheon","수원시":"suwon","파주시":"paju","시흥시":"siheung","안산시":"ansan","화성시":"hwaseong","남양주시":"namyangju","하남시":"hanam","광명시":"gwangmyeong","김포":"gimpo","서울":"seoul","경기":"gg","안양시":"anyang","동안구":"dongan","만안구":"manan","청주시":"cheongju","청원구":"cheongwon","수지구":"suji","기흥구":"giheung","처인구":"cheoin","분당구":"bundang","일산동구":"ilsandong","일산서구":"ilsanseo","덕양구":"deogyang","의정부시":"uijeongbu","평택시":"pyeongtaek","군포시":"gunpo","의왕시":"uiwang","오산시":"osan","이천시":"icheon","구리시":"guri","양주시":"yangju","광주시":"gwangju","과천시":"gwacheon"}
-REGION_PAGE = {"김포시": ("gimpo-interior.html", "김포"), "인천": ("incheon-interior.html", "인천"), "강화군": ("incheon-interior.html", "인천·강화")}
+REGION_PAGE = {}   # 지역 안내 쪽 삭제(2026-11-09)
 
 GG = "수원 성남 고양 용인 부천 안산 안양 남양주 화성 평택 의정부 시흥 파주 김포 광명 광주 군포 하남 오산 이천 양주 구리 안성 포천 의왕 여주 동두천 과천 양평 가평 연천".split()
 SIDO_CITY = {"청주": "충북", "충주": "충북", "천안": "충남", "아산": "충남", "춘천": "강원", "원주": "강원", "대전": "대전", "세종": "세종"}
@@ -69,7 +69,7 @@ def short_region(r):
     return " ".join(p[1:]) if len(p) > 1 else r
 
 CSS = """*{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Noto Serif KR',sans-serif;background:#F5F1E8;color:#2A2A2A;line-height:1.7}
+body{font-family:'Noto Serif KR',sans-serif;background:#F5F1E8;color:#2A2A2A;line-height:1.7;word-break:keep-all;overflow-wrap:break-word}
 .wrap{max-width:760px;margin:0 auto;background:#FBF8F1;padding:0 0 60px}
 header{background:#2A2A2A;color:#F5F1E8;padding:44px 28px;text-align:center}
 header .eb{font-size:11px;letter-spacing:5px;color:#C98E7E}
@@ -177,7 +177,6 @@ def case_page(c, fname, others):
     rp = REGION_PAGE.get(c["region"].split()[-1]) or REGION_PAGE.get(c["region"].split()[0])
     rel = "".join(f'<li><a href="{o[0]}">{esc(o[1])}</a></li>' for o in others[:5])
     region_link = f'<li><a href="../{rp[0]}">{rp[1]} 인테리어 안내 — 마진 0 코디</a></li>' if rp else ""
-    region_link += f'<li><a href="../region/{region_slug(c["region"])}.html">{esc(c["region"])} 인테리어 비용 — 실견적·사례 모음</a></li>'
     status = "계약 진행" if c.get("contracted") else "견적 발송"
     return head(url, title, desc, ld) + f"""
 <body><div class="wrap">
