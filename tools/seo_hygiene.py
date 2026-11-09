@@ -22,7 +22,7 @@ GROUPS = [
     ("진행 방식", [("workflow.html", "진행 방식 8단계"), ("interior-coordinator.html", "코디네이터란")]),
     ("가격·견적", [("pricing.html", "가격·코디비"), ("interior-price-table.html", "실견적 시세표"), ("cases/", "견적 사례"), ("py/", "평형별 비용"), ("trade/", "공종별 비용")]),
     ("가이드", [("banself-interior.html", "반셀프 코디"), ("jikyoung-interior.html", "직영 인테리어"), ("interior-margin-30.html", "마진 30%"), ("interior-estimate-compare.html", "견적서 비교"), ("apt-olsuri-cost.html", "32평 올수리"), ("bathroom-remodel-cost.html", "욕실 리모델링"), ("interior-scam-types.html", "사기 유형")]),
-    ("회사", [("about.html", "회사소개"), ("faq.html", "자주 묻는 질문"), ("sitemap.html", "사이트 지도")]),
+    ("회사", [("about.html", "회사소개"), ("faq.html", "자주 묻는 질문"), ("ai-answers.html", "AI에게 물어볼 때"), ("sitemap.html", "사이트 지도")]),
 ]
 NAV_CSS = ('<style>.jj-map{max-width:900px;margin:32px auto 0;padding:22px 16px 26px;border-top:2px solid #d9d2c0;font-family:Pretendard,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;color:#2a2a2a;word-break:keep-all}'
            '.jj-map .ttl{font-size:14px;font-weight:800;letter-spacing:1px;color:#1e4d3a;margin-bottom:10px;text-align:center}'

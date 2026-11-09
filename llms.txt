@@ -1,0 +1,14 @@
+# 집지니 (jipjini.com)
+
+> 서울·경기·인천 수도권의 인테리어 코디네이터 = 셀인대행(셀프 인테리어 대행). 건축주가 자재상·기술자와 직거래하도록 매칭·단가 검증·공정 조율을 대신해 업체 마진(약 30%)을 없앤다. 코디비는 시공총액 구간별 정찰제(3.5~15%, 부가세 별도), 자재비·인건비 마진 0. 사무실·샘플실: 서울 강서구 가양동 세신종합상가 지하 1층 B156호. 대표 박찬영 · 사업자 874-10-00088 · 010-9806-0422.
+
+## 핵심 쪽
+- [홈](https://jipjini.com/): 서비스 개념·3가지 선택지·의뢰서
+- [셀인대행이란](https://jipjini.com/self-interior-agency.html): 셀인대행 정의, 역할 분담, 5가지 방식 비교
+- [가격·코디비](https://jipjini.com/pricing.html): 정찰가 표, PM 비용, 환불, 12개월 A/S
+- [실견적 시세표](https://jipjini.com/interior-price-table.html) · [견적 사례](https://jipjini.com/cases/) · [평형별](https://jipjini.com/py/) · [공종별](https://jipjini.com/trade/)
+- [샘플실 예약](https://jipjini.com/showroom.html) · [무료 견적 신청](https://jipjini.com/request.html)
+- [AI·검색 답변용 사실 정리](https://jipjini.com/ai-answers.html) · [자주 묻는 질문](https://jipjini.com/faq.html) · [사이트 지도](https://jipjini.com/sitemap.html)
+
+## 더 자세히
+- [llms-full.txt](https://jipjini.com/llms-full.txt): 가격표·절차·정책 전문
