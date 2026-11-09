@@ -3,7 +3,7 @@
    결과: { ok, why, dataUrl, W, H, mmpp, rooms:[{ name, kind(거실|방|욕실|발코니), area, perim, w, d, pts }], shapes, sum:{ 방, 욕실, 발코니, 전용합, 바닥, 벽, 천장, 걸레받이 } } */
 (function (root) {
 function plPxArea(pts) { let a = 0; for (let i = 0; i < pts.length; i++) { const p = pts[i], q = pts[(i + 1) % pts.length]; a += p[0] * q[1] - q[0] * p[1]; } return Math.abs(a) / 2; }
-function plAutoRoomsCore(d, w, h) {   // d: 화소 RGBA (Uint8ClampedArray)
+function plAutoRoomsCore(d, w, h, rf) {   // d: 화소 RGBA (Uint8ClampedArray), rf: 중심부 반지름 비율(기본 0.03 — 문이 열린 도면은 0.045·0.06 으로 다시)
   const N = w * h, gray = new Uint8Array(N), sat = new Uint8Array(N), hist = new Uint32Array(256);
   for (let i = 0; i < N; i++) { const r0 = d[i * 4], g0 = d[i * 4 + 1], b0 = d[i * 4 + 2], v = (r0 * 299 + g0 * 587 + b0 * 114) / 1000 | 0, mx = Math.max(r0, g0, b0), mn = Math.min(r0, g0, b0); gray[i] = v; hist[v]++; sat[i] = mx ? ((mx - mn) * 255 / mx) | 0 : 0; }
   let sum = 0; for (let i = 0; i < 256; i++) sum += i * hist[i]; let sb = 0, wb = 0, best = 0, T = 128; for (let t = 0; t < 256; t++) { wb += hist[t]; if (!wb) continue; const wf = N - wb; if (!wf) break; sb += t * hist[t]; const mb = sb / wb, mf = (sum - sb) / wf, v = wb * wf * (mb - mf) * (mb - mf); if (v > best) { best = v; T = t; } }
@@ -20,7 +20,7 @@ function plAutoRoomsCore(d, w, h) {   // d: 화소 RGBA (Uint8ClampedArray)
   // 벽까지 거리 (8방향 너비 우선)
   const dist = new Int32Array(N).fill(-1); let qx = new Int32Array(N), qh = 0, qt = 0; for (let i = 0; i < N; i++) if (wall[i]) { dist[i] = 0; qx[qt++] = i; }
   while (qh < qt) { const i = qx[qh++], x = i % w, y = (i / w) | 0; for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) { if (!dx && !dy) continue; const xx = x + dx, yy = y + dy; if (xx < 0 || yy < 0 || xx >= w || yy >= h) continue; const j = yy * w + xx; if (dist[j] < 0) { dist[j] = dist[i] + 1; qx[qt++] = j; } } }
-  const r = Math.max(5, Math.round(Math.min(w, h) * 0.03));
+  const r = Math.max(5, Math.round(Math.min(w, h) * (rf || 0.03)));
   // 중심부 라벨
   const lab = new Int32Array(N).fill(0); let nl = 0; const sizes = [], border = [];
   for (let i = 0; i < N; i++) { if (lab[i] || dist[i] <= r) continue; nl++; let size = 0, touch = false; qh = 0; qt = 0; qx[qt++] = i; lab[i] = nl;
@@ -51,7 +51,22 @@ function plAutoRoomsCore(d, w, h) {   // d: 화소 RGBA (Uint8ClampedArray)
 }
 function perimPx(pts) { var s = 0; for (var i = 0; i < pts.length; i++) { var a = pts[i], b = pts[(i + 1) % pts.length]; s += Math.hypot(b[0] - a[0], b[1] - a[1]); } return s; }
 function R1(v) { return Math.round(v * 10) / 10; } function R2(v) { return Math.round(v * 100) / 100; }
-function ruleEngine(d, w, h) { return plAutoRoomsCore(d, w, h); }
+// 문이 열린 채 그려진 도면(부동산 앱·분양 안내문)은 방이 합쳐지므로 중심부 반지름을 키워 가며 다시 나눠 보고, 공간이 가장 많이 나뉜 결과를 쓴다
+function ruleEngine(d, w, h) { var best = null; [0.03, 0.045, 0.06].forEach(function (rf) { var r; try { r = plAutoRoomsCore(d, w, h, rf); } catch (e) { r = { found: [] }; } var n = (r.found || []).length; if (n > 16) return; if (!best || n > best.found.length) best = r; }); return best || { found: [] }; }
+var TYP = {"1-1":{"n":113,"침실":[[0.2744,1.25,4.15]],"욕실":[[0.0765,1.45,4.25]],"거실":[0.3115,1.45,4.45],"주방":[0.153,1.51,4.35],"현관":[0.0453,1.22,4.13],"드레스룸":0.0,"기타":0.0678,"발코니":[0.0,0.56]},"1-2":{"n":21,"침실":[[0.2461,1.34,4.13]],"욕실":[[0.0685,1.25,4.09],[0.0283,1.39,4.08]],"거실":[0.2799,1.7,4.86],"주방":[0.1446,1.33,4.19],"현관":[0.0466,1.54,4.28],"드레스룸":0.0,"기타":0.0511,"발코니":[0.0,0.33]},"2-1":{"n":129,"침실":[[0.2128,1.16,4.11],[0.1523,1.18,4.13]],"욕실":[[0.0627,1.46,4.12]],"거실":[0.2896,1.38,4.99],"주방":[0.1431,1.49,4.25],"현관":[0.0391,1.21,4.07],"드레스룸":0.0,"기타":0.0536,"발코니":[0.0778,0.96]},"2-2":{"n":61,"침실":[[0.1956,1.24,4.11],[0.137,1.15,4.2]],"욕실":[[0.0468,1.39,4.07],[0.0335,1.38,4.07]],"거실":[0.3026,1.64,5.26],"주방":[0.1382,1.29,4.17],"현관":[0.0394,1.31,4.08],"드레스룸":0.0242,"기타":0.0678,"발코니":[0.0,1.2]},"3-1":{"n":55,"침실":[[0.2114,1.06,4.01],[0.1393,1.15,4.02],[0.114,1.23,4.03]],"욕실":[[0.0615,1.36,4.07]],"거실":[0.2951,1.5,5.04],"주방":[0.0974,1.32,4.13],"현관":[0.0305,1.15,4.02],"드레스룸":0.0,"기타":0.029,"발코니":[0.1352,1.18]},"3-2":{"n":777,"침실":[[0.1549,1.12,4.08],[0.1067,1.19,4.13],[0.0934,1.19,4.09]],"욕실":[[0.042,1.42,4.07],[0.0347,1.41,4.1]],"거실":[0.28,1.81,5.56],"주방":[0.134,1.26,4.23],"현관":[0.0388,1.19,4.12],"드레스룸":0.0359,"기타":0.0687,"발코니":[0.1354,2.37]},"3-3":{"n":84,"침실":[[0.148,1.14,4.02],[0.096,1.21,4.03],[0.0868,1.29,4.04]],"욕실":[[0.0385,1.42,4.06],[0.0225,1.2,4.02],[0.0097,1.27,4.03]],"거실":[0.2728,1.98,5.53],"주방":[0.1285,1.28,4.22],"현관":[0.0368,1.15,4.07],"드레스룸":0.0395,"기타":0.0907,"발코니":[0.0758,2.13]},"4-2":{"n":174,"침실":[[0.1391,1.08,4.06],[0.0938,1.22,4.15],[0.084,1.2,4.04],[0.074,1.22,4.06]],"욕실":[[0.0337,1.46,4.1],[0.028,1.44,4.08]],"거실":[0.2646,1.79,5.69],"주방":[0.1302,1.2,4.22],"현관":[0.0382,1.24,4.23],"드레스룸":0.0456,"기타":0.0538,"발코니":[0.0873,2.57]},"4-3":{"n":43,"침실":[[0.1312,1.21,4.14],[0.0862,1.3,4.05],[0.0764,1.25,4.03],[0.0618,1.25,4.03]],"욕실":[[0.0341,1.38,4.1],[0.0208,1.2,4.05],[0.0123,1.28,4.06]],"거실":[0.2709,2.0,6.28],"주방":[0.1248,1.24,4.23],"현관":[0.0366,1.32,4.16],"드레스룸":0.0463,"기타":0.0579,"발코니":[0.0552,2.21]}};
+/** 방·욕실 수와 전용면적만으로 「보통 구성」 어림 (실제 평면 라벨 통계 — 인공지능 허브 「건축 도면 데이터」). 결과 모양은 analyze 와 같다 */
+function typical(b, t, m2) {
+  b = Math.max(1, Math.min(5, Number(b) || 3)); t = Math.max(1, Math.min(3, Number(t) || 1)); m2 = Number(m2) || 0;
+  var e = TYP[b + '-' + t] || TYP[b + '-2'] || TYP[b + '-1'] || TYP['3-2']; if (!e || !m2) return { ok: false, why: '전용면적이 필요합니다.' };
+  var rooms = [], add = function (name, kind, q) { if (!q || !(q[0] > 0)) return; var area = R2(q[0] * m2), w = R1(Math.sqrt(area * (q[1] || 1.3))); rooms.push({ name: name, kind: kind, area: area, perim: R2((q[2] || 4.2) * Math.sqrt(area)), w: w, d: w ? R1(area / w) : 0 }); };
+  add('거실', '거실', e.거실); add('주방', '주방', e.주방);
+  for (var i = 0; i < b; i++) add(i === 0 ? '안방' : '작은방' + i, '방', e.침실[Math.min(i, e.침실.length - 1)]);
+  for (var j = 0; j < t; j++) add(t === 1 ? '욕실' : (j === 0 ? '공용욕실' : j === 1 ? '안방욕실' : '욕실' + (j + 1)), '욕실', e.욕실[Math.min(j, e.욕실.length - 1)]);
+  add('현관', '현관', e.현관); if (e.발코니 && e.발코니[0] > 0) add('발코니1', '발코니', [e.발코니[0], 4, 5.4]);
+  var liv = rooms.filter(function (r) { return /거실|방|주방/.test(r.kind); }), sum = { 방: b, 욕실: t, 발코니: rooms.filter(function (r) { return r.kind === '발코니'; }).length };
+  sum.바닥 = R1(liv.reduce(function (s, r) { return s + r.area; }, 0)); sum.천장 = sum.바닥; sum.벽 = R1(liv.reduce(function (s, r) { return s + r.perim * 2.4; }, 0)); sum.걸레받이 = R1(liv.reduce(function (s, r) { return s + r.perim; }, 0));
+  return { ok: true, mmpp: 1, rooms: rooms, sum: sum, shapes: [], engine: '보통 구성', 표본: e.n };
+}
 function analyzeImage(img, opt) {
   opt = opt || {}; var NW = img.naturalWidth || img.width, NH = img.naturalHeight || img.height;
   if (!NW || !NH) return { ok: false, why: '그림을 읽지 못했습니다.' };
@@ -103,11 +118,11 @@ function analyzeFile(file, opt) {
 function overlaySvg(r) {
   if (!r || !r.dataUrl) return ''; var col = { 거실: '#e9b949', 방: '#5b8def', 욕실: '#e06c75', 발코니: '#56b6a6' }, fs = Math.max(14, Math.round(Math.max(r.W, r.H) / 55));
   var h = ['<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + r.W + ' ' + r.H + '" style="width:100%;height:auto;display:block;border-radius:6px;background:#fff"><image href="' + r.dataUrl + '" width="' + r.W + '" height="' + r.H + '"/>'];
-  (r.rooms || []).forEach(function (m) { var cx = 0, cy = 0; m.pts.forEach(function (p) { cx += p[0]; cy += p[1]; }); cx /= m.pts.length; cy /= m.pts.length; var c = col[m.kind] || '#888';
+  (r.rooms || []).forEach(function (m) { if (!m.pts || m.pts.length < 3) return; var cx = 0, cy = 0; m.pts.forEach(function (p) { cx += p[0]; cy += p[1]; }); cx /= m.pts.length; cy /= m.pts.length; var c = col[m.kind] || '#888';
     h.push('<polygon points="' + m.pts.map(function (p) { return p[0] + ',' + p[1]; }).join(' ') + '" fill="' + c + '" fill-opacity="0.28" stroke="' + c + '" stroke-width="' + (fs / 6) + '"/>');
     h.push('<text x="' + cx + '" y="' + cy + '" text-anchor="middle" font-size="' + fs + '" font-weight="700" fill="#222" stroke="#fff" stroke-width="' + (fs / 5) + '" paint-order="stroke">' + m.name + (m.area ? ' ' + m.area + '㎡' : '') + '</text>'); });
   h.push('</svg>'); return h.join('');
 }
-var JJ = { analyzeFile: analyzeFile, analyzeImage: analyzeImage, overlaySvg: overlaySvg, engine: null, version: '2026-11-10' };
+var JJ = { analyzeFile: analyzeFile, analyzeImage: analyzeImage, overlaySvg: overlaySvg, typical: typical, engine: null, version: '2026-11-10b' };
 root.JJPlanAuto = JJ;
 })(typeof window !== 'undefined' ? window : this);

@@ -394,18 +394,50 @@ table.plm td.r,table.plm th.r{padding-left:10px}
     return '<section class="card" id="plUpCard"><h2>도면 넣기</h2><p class="plnote" style="margin-top:0">평면도 그림(분양 안내문·부동산 앱 화면 캡처)을 넣으면 방·욕실·발코니를 자동으로 찾아 면적을 계산합니다. 코디가 확인한 뒤 견적 수량에 반영합니다.</p>' +
       '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:8px"><label style="font-size:13px">전용면적(㎡) <input id="plUpM2" type="number" step="0.01" value="' + (m2 || '') + '" style="width:92px;padding:7px 8px;border:1px solid var(--line,#ddd);border-radius:8px"></label>' +
       '<label class="btn" style="cursor:pointer;display:inline-block"><span id="plUpLbl">평면도 고르기</span><input id="plUpFile" type="file" accept="image/*" style="display:none"></label></div>' +
-      '<p id="plUpMsg" class="plnote"></p><div id="plUpOut"></div></section>';
+      '<p id="plUpMsg" class="plnote"></p><div id="plUpOut"></div><div id="plCatBox" style="margin-top:14px;padding-top:12px;border-top:1px solid var(--line,#eee)"></div></section>';
   }
   function plUpLoad(cb, fail) { if (window.JJPlanAuto) return cb(); var sc = document.createElement('script'); sc.src = '../assets/plan_auto.js?v=20261110'; sc.onload = function () { cb(); }; sc.onerror = function () { fail(); }; document.head.appendChild(sc); }
   function plUpShow(r) {
     var out = document.getElementById('plUpOut'), h = [window.JJPlanAuto.overlaySvg(r)];
-    h.push('<p style="margin:10px 0 4px;font-weight:700">찾은 공간: 거실 1 · 방 ' + r.sum.방 + ' · 욕실 ' + r.sum.욕실 + ' · 발코니 ' + r.sum.발코니 + '</p>');
+    var opt = function (n, cur) { var a = []; for (var i = 1; i <= n; i++) a.push('<option' + (i === cur ? ' selected' : '') + '>' + i + '</option>'); return a.join(''); };
+    h.push('<p style="margin:10px 0 4px;font-weight:700">' + (r.engine === '보통 구성' ? '같은 방·욕실 수의 보통 구성으로 어림' : '찾은 공간') + ': 거실 1 · 방 ' + r.sum.방 + ' · 욕실 ' + r.sum.욕실 + ' · 발코니 ' + r.sum.발코니 + '</p>');
+    h.push('<p class="plnote" style="margin:0 0 6px">실제와 다르면 바꿔 주세요 → 방 <select id="plFixB" style="padding:4px 6px">' + opt(5, Math.max(1, Math.min(5, r.sum.방 || 3))) + '</select> 욕실 <select id="plFixT" style="padding:4px 6px">' + opt(3, Math.max(1, Math.min(3, r.sum.욕실 || 1))) + '</select>' + (r.engine === '보통 구성' ? ' · 도면에서 방을 정확히 나누지 못해 통계 구성으로 어림했습니다. 올린 도면은 코디가 직접 확인합니다.' : '') + '</p>');
     if (r.mmpp) { h.push('<table class="pltbl"><tr><th>공간</th><th>면적</th><th>가로×세로(약)</th></tr>' + r.rooms.map(function (m) { return '<tr><td>' + esc(m.name) + '</td><td>' + m.area + '㎡</td><td>' + Math.max(m.w, m.d) + ' × ' + Math.min(m.w, m.d) + 'm</td></tr>'; }).join('') + '</table>');
       h.push('<p class="plnote">거실·방 기준 바닥 ' + r.sum.바닥 + '㎡ · 벽 ' + r.sum.벽 + '㎡ · 걸레받이 ' + r.sum.걸레받이 + 'm (천장 높이 2.4m 가정). 자동 계산은 참고값이며 거실에는 이어진 주방·복도가 함께 잡힙니다.</p>'); }
     else h.push('<p class="plnote">전용면적을 적고 다시 넣으면 공간별 면적까지 계산합니다.</p>');
+    if (r.engine === '보통 구성') h.push('<p style="font-size:11px;color:#8a8f98;margin:6px 0 0">본 서비스는 과학기술정보통신부의 재원으로 한국지능정보사회진흥원의 지원을 받아 구축된 「건축 도면 데이터」를 활용하였습니다.</p>');
     h.push('<div style="margin-top:8px"><button class="btn" id="plUpSend">이 도면을 코디에게 보내기</button></div>');
     out.innerHTML = h.join('');
   }
+  // 비슷한 평면 고르기 (2026-11-10) — 도면이 없는 고객용. 예시 평면의 방 구성 비율 × 전용면적
+  var PLSIM = null;
+  function plCatMount() {
+    var box = document.getElementById('plCatBox'); if (!box || box.getAttribute('data-on')) return; box.setAttribute('data-on', '1');
+    var go = function () { window.JJPlanCat.mount(box, { areaM2: function () { var i = document.getElementById('plUpM2'); return i ? Number(i.value) || 0 : 0; }, onPick: function (r) {
+      PLSIM = r; PLUP = null; var out = document.getElementById('plUpOut'), h = ['<p style="margin:10px 0 4px;font-weight:700">고른 평면: 방 ' + r.sum.방 + ' · 욕실 ' + r.sum.욕실 + ' · 발코니 ' + r.sum.발코니 + '</p>'];
+      if (r.mmpp) { h.push('<table class="pltbl"><tr><th>공간</th><th>면적(약)</th><th>가로×세로(약)</th></tr>' + r.rooms.map(function (m) { return '<tr><td>' + esc(m.name) + '</td><td>' + m.area + '㎡</td><td>' + Math.max(m.w, m.d) + ' × ' + Math.min(m.w, m.d) + 'm</td></tr>'; }).join('') + '</table>');
+        h.push('<p class="plnote">거실·방·주방 기준 바닥 ' + r.sum.바닥 + '㎡ · 벽 ' + r.sum.벽 + '㎡ · 걸레받이 ' + r.sum.걸레받이 + 'm (천장 높이 2.4m 가정). 비슷한 평면으로 어림한 값이며 실측 뒤 확정합니다.</p>'); }
+      else h.push('<p class="plnote">위에 전용면적을 적고 다시 고르면 방별 면적까지 계산합니다.</p>');
+      h.push('<div style="margin-top:8px"><button class="btn" id="plSimSend">이 평면과 비슷하다고 코디에게 알리기</button></div>'); out.innerHTML = h.join(''); out.scrollIntoView({ block: 'nearest' });
+    } }); };
+    if (window.JJPlanCat) go(); else { var sc = document.createElement('script'); sc.src = '../assets/plan_catalog.js?v=20261110'; sc.onload = go; document.head.appendChild(sc); }
+  }
+  document.addEventListener('click', function (e) {
+    var b = e.target && e.target.closest ? e.target.closest('#plSimSend') : null; if (!b || !PLSIM) return;
+    var msg = document.getElementById('plUpMsg');
+    if (PV || new URLSearchParams(location.search).get('demo') === '1') { msg.textContent = '미리보기·예시 화면에서는 보내지지 않습니다.'; return; }
+    b.disabled = true; msg.textContent = '보내는 중…';
+    fetch(EXEC + '?type=portal_plan', { method: 'POST', redirect: 'follow', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ k: k, 예시ID: PLSIM.예시ID, 전용면적: Number((document.getElementById('plUpM2') || {}).value) || 0 }) }).then(function (r) { return r.json(); }).then(function (j) {
+      if (j && j.ok) { msg.innerHTML = '<b style="color:var(--g)">' + esc(j.안내 || '전달했습니다.') + '</b>'; PLSIM = null; setTimeout(load, 1500); } else { b.disabled = false; msg.textContent = (j && j.err) || '보내지 못했습니다.'; }
+    }).catch(function () { b.disabled = false; msg.textContent = '연결이 원활하지 않습니다. 잠시 뒤 다시 눌러 주세요.'; });
+  });
+  document.addEventListener('change', function (e) {   // 방·욕실 수를 고객이 고치면 같은 수의 보통 구성(실제 평면 통계)으로 다시 어림 — 올린 그림은 그대로 코디에게
+    if (!e.target || (e.target.id !== 'plFixB' && e.target.id !== 'plFixT') || !PLUP || !window.JJPlanAuto) return;
+    var b = Number(document.getElementById('plFixB').value), t = Number(document.getElementById('plFixT').value), m2 = Number(document.getElementById('plUpM2').value) || 0, msg = document.getElementById('plUpMsg');
+    if (!m2) { msg.textContent = '전용면적을 적어 주시면 방·욕실 수에 맞춰 다시 계산합니다.'; return; }
+    var ty = window.JJPlanAuto.typical(b, t, m2); if (!ty.ok) { msg.textContent = ty.why || ''; return; }
+    ty.dataUrl = PLUP.dataUrl; ty.W = PLUP.W; ty.H = PLUP.H; ty.rooms.forEach(function (m) { m.pts = []; }); PLUP = ty; msg.textContent = ''; plUpShow(ty);
+  });
   document.addEventListener('change', function (e) {
     if (!e.target || e.target.id !== 'plUpFile') return;
     var f = e.target.files && e.target.files[0]; e.target.value = ''; if (!f) return;
@@ -580,6 +612,7 @@ table.plm td.r,table.plm th.r{padding-left:10px}
 
     h.push('<footer>집지니 · 인테리어 코디네이터<br>' + (d.갱신 ? esc(d.갱신) + ' 기준 · ' : '') + '5분마다 새로 고칩니다<br>이 링크는 고객님 전용입니다. 다른 분께 전달하지 말아 주세요.</footer>');
     app.innerHTML = h.join('');
+    try { plCatMount(); } catch (_pc) {}   // 2026-11-10 비슷한 평면 고르기
     requestAnimationFrame(function () { var b = document.getElementById('barfill'); if (b) b.style.width = pct + '%'; });
   }
 
