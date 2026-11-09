@@ -170,6 +170,7 @@ table.plm td.r,table.plm th.r{text-align:right;white-space:nowrap}
 table.plm tr.tot td{font-weight:800;color:var(--g);border-top:2px solid var(--g)}
 table.plm td.r,table.plm th.r{padding-left:10px}
 .plnote{font-size:12.5px;color:var(--mute);margin-top:10px;line-height:1.6}
+.plnote a{color:var(--ink,#222);font-weight:600;text-decoration:underline;text-underline-offset:2px}
 .pvbar{background:#fff4d6;color:#6b4e00;font-size:13px;text-align:center;padding:8px 12px;font-weight:600}
 #pvm h3{font-size:17px;color:var(--g);margin-bottom:10px}#pvm h3 small{display:block;font-size:12px;color:var(--mute);font-weight:400;margin-top:2px}
 /* 큰 화면 (2026-11-10): 컴퓨터·태블릿에서 너무 좁던 한 줄 폭을 넓히고 글자를 키운다 */
@@ -390,6 +391,9 @@ table.plm td.r,table.plm th.r{padding-left:10px}
     if (!D || (!(D.목록 || []).length && !D.측정 && !D.건물)) return '';
     PLD = D; var L = D.목록 || [], cur = L[PLI] || null, h = ['<section class="card"><h2>우리 집 도면</h2>'];
     var B = D.건물; if (B && (B.전용면적 || B.준공년도 || B.단지명)) h.push('<div class="hero">' + (B.전용면적 ? '<div><small>전용면적</small><b>' + esc(B.전용면적) + '㎡ · ' + esc(B.전용평) + '평</b></div>' : '') + (B.준공년도 ? '<div><small>준공</small><b>' + esc(B.준공년도) + '년</b></div>' : '') + (B.단지명 ? '<div><small>단지</small><b>' + esc(B.단지명) + '</b></div>' : '') + '</div>');
+    // 2026-11-10 바깥 연결(딥링크): 단지 평면도는 네이버 부동산·KB부동산·호갱노노에서 직접 보도록 안내 — 그림을 가져오지 않고 주소만 안내(저작권 안전)
+    if (B && B.단지명) { var nm = String(B.단지명).trim(), LK = [['네이버 부동산', 'https://new.land.naver.com/search?query=' + encodeURIComponent(nm)], ['KB부동산', 'https://kbland.kr/search?q=' + encodeURIComponent(nm)], ['호갱노노', 'https://hogangnono.com/search?q=' + encodeURIComponent(nm)]];
+      h.push('<p class="plnote" style="margin:6px 0 10px">우리 단지의 공식 평면도·타입별 구조는 ' + LK.map(function (k) { return '<a href="' + esc(k[1]) + '" target="_blank" rel="noopener noreferrer">' + k[0] + '</a>'; }).join(' · ') + ' 에서 바로 보실 수 있습니다 (새 창).</p>'); }
     if (L.length > 1) h.push('<div class="pltabs">' + L.map(function (x, i) { return '<button type="button" data-pltab="' + i + '"' + (i === PLI ? ' class="on"' : '') + '>' + esc(x.이름) + (x.측정됨 ? ' · 측정' : '') + '</button>'; }).join('') + '</div>');
     if (cur) {
       if (safeUrl(cur.그림)) h.push('<div class="plimg"><img referrerpolicy="no-referrer" src="' + esc(safeUrl(cur.그림)) + '" alt="' + esc(cur.이름) + '" data-plbig="' + esc(safeUrl(cur.큰그림) || safeUrl(cur.그림)) + '" data-plcap="' + esc(cur.이름) + '"><button type="button" class="zoom" data-plbig="' + esc(safeUrl(cur.큰그림) || safeUrl(cur.그림)) + '" data-plcap="' + esc(cur.이름) + '">크게 보기</button></div>');
