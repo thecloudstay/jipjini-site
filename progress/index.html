@@ -150,6 +150,26 @@ details.sample dd{font-size:13px;color:var(--mute)}
 .asl div{font-size:13px;padding:6px 0;border-top:1px solid var(--line)}
 .asl div:first-of-type{border-top:0}
 .asl b{font-size:12px;color:var(--g);margin-right:6px}
+/* 우리 집 도면 — 2026-11-09 */
+.pltabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.pltabs button{border:1.5px solid var(--line);background:#fff;color:var(--ink);font:inherit;font-size:13px;font-weight:700;padding:6px 12px;border-radius:20px;cursor:pointer}
+.pltabs button.on{border-color:var(--g);background:var(--gl);color:var(--g)}
+.plimg{position:relative;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fff}
+.plimg img{display:block;width:100%;height:auto;cursor:zoom-in}
+.plimg .zoom{position:absolute;right:8px;bottom:8px;background:rgba(31,94,70,.9);color:#fff;font-size:12px;font-weight:700;border:0;border-radius:16px;padding:5px 10px;cursor:pointer}
+.plsvg{display:block;width:100%;height:auto;border:1px solid var(--line);border-radius:12px;background:#fdfcf8;margin-top:10px}
+.plsub{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.plsub button{flex:1;min-width:120px;height:40px;border-radius:10px;border:1.5px solid var(--g);background:#fff;color:var(--g);font:inherit;font-size:13.5px;font-weight:700;cursor:pointer}
+.plsub button.on{background:var(--g);color:#fff}
+.pl3d{display:none;width:100%;height:auto;border:1px solid var(--line);border-radius:12px;background:#fff;margin-top:10px}
+.pl3d.on{display:block}
+table.plm{width:100%;border-collapse:collapse;font-size:13.5px;margin-top:12px}
+table.plm th{text-align:left;font-size:12px;color:var(--mute);font-weight:700;padding:6px 0;border-bottom:1px solid var(--line)}
+table.plm td{padding:7px 0;border-top:1px solid var(--line);vertical-align:top}
+table.plm td.r,table.plm th.r{text-align:right;white-space:nowrap}
+table.plm tr.tot td{font-weight:800;color:var(--g);border-top:2px solid var(--g)}
+table.plm td.r,table.plm th.r{padding-left:10px}
+.plnote{font-size:12.5px;color:var(--mute);margin-top:10px;line-height:1.6}
 .pvbar{background:#fff4d6;color:#6b4e00;font-size:13px;text-align:center;padding:8px 12px;font-weight:600}
 #pvm h3{font-size:17px;color:var(--g);margin-bottom:10px}#pvm h3 small{display:block;font-size:12px;color:var(--mute);font-weight:400;margin-top:2px}
 </style>
@@ -333,6 +353,71 @@ details.sample dd{font-size:13px;color:var(--mute)}
       fetch(EXEC + '?type=portal_seldone', { method: 'POST', redirect: 'follow', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ k: k }) }).then(function (r) { return r.json(); }).then(function (j) { msg.innerHTML = j && j.ok ? '<b style="color:var(--g)">' + esc(j.안내) + '</b>' : esc((j && j.err) || '알리지 못했습니다.'); }).catch(function () { msg.textContent = '연결이 원활하지 않습니다.'; });
     }
   });
+  // ── 우리 집 도면 (2026-11-09) — 대표가 보이기로 한 도면 + 도면으로 잰 방 면적·창·문 + 입체 보기
+  var PLD = null, PLI = 0, PL3 = { rot: 0.6, tilt: 0.5 };
+  function plMmpp(sh) { var sc = (sh || []).filter(function (q) { return q.t === 'scale'; })[0]; if (!sc) return 0; var px = Math.hypot(sc.x2 - sc.x1, sc.y2 - sc.y1); return px > 0 ? Number(sc.mm) / px : 0; }
+  function plArea(q, mmpp) { var a = 0, n = q.pts.length; for (var i = 0; i < n; i++) { var p = q.pts[i], r = q.pts[(i + 1) % n]; a += p[0] * r[1] - r[0] * p[1]; } return Math.abs(a) / 2 * mmpp * mmpp / 1e6; }
+  function plCen(pts) { var x = 0, y = 0; pts.forEach(function (p) { x += p[0]; y += p[1]; }); return [x / pts.length, y / pts.length]; }
+  var PL_COL = ['#2f6b4f', '#1d5fd0', '#b06a00', '#7a3e9d', '#c0392b', '#0f7f8c', '#8a6a0e'];
+  function plSvg(sh) {
+    var rooms = sh.filter(function (q) { return q.t === 'room' && q.pts && q.pts.length >= 3; }), lines = sh.filter(function (q) { return q.t === 'win' || q.t === 'door'; });
+    if (!rooms.length && !lines.length) return '';
+    var xs = [], ys = []; rooms.forEach(function (q) { q.pts.forEach(function (p) { xs.push(p[0]); ys.push(p[1]); }); }); lines.forEach(function (q) { xs.push(q.x1, q.x2); ys.push(q.y1, q.y2); });
+    var x0 = Math.min.apply(null, xs), x1 = Math.max.apply(null, xs), y0 = Math.min.apply(null, ys), y1 = Math.max.apply(null, ys), W = Math.max(1, x1 - x0), H = Math.max(1, y1 - y0), pad = Math.max(W, H) * 0.06;
+    var mmpp = plMmpp(sh), fs = Math.max(W, H) / 28, h = ['<svg class="plsvg" viewBox="' + (x0 - pad) + ' ' + (y0 - pad) + ' ' + (W + pad * 2) + ' ' + (H + pad * 2) + '" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="방 배치도">'];
+    rooms.forEach(function (q, i) { var c = PL_COL[i % PL_COL.length], cen = plCen(q.pts), a = mmpp ? plArea(q, mmpp) : 0;
+      h.push('<polygon points="' + q.pts.map(function (p) { return p[0] + ',' + p[1]; }).join(' ') + '" fill="' + c + '" fill-opacity=".14" stroke="' + c + '" stroke-width="' + (fs / 7) + '" stroke-linejoin="round"/>');
+      h.push('<text x="' + cen[0] + '" y="' + cen[1] + '" text-anchor="middle" font-size="' + fs + '" font-weight="800" fill="' + c + '" stroke="#fff" stroke-width="' + (fs / 4) + '" paint-order="stroke">' + esc(q.name || '방') + '</text>');
+      if (a) h.push('<text x="' + cen[0] + '" y="' + (cen[1] + fs * 1.15) + '" text-anchor="middle" font-size="' + (fs * 0.85) + '" font-weight="700" fill="#22262a" stroke="#fff" stroke-width="' + (fs / 4) + '" paint-order="stroke">' + a.toFixed(1) + '㎡ · ' + (a / 3.3058).toFixed(1) + '평</text>'); });
+    lines.forEach(function (q) { var w = q.t === 'win', c = w ? '#1d5fd0' : '#b06a00', L = mmpp ? Math.hypot(q.x2 - q.x1, q.y2 - q.y1) * mmpp / 1000 : 0;
+      h.push('<line x1="' + q.x1 + '" y1="' + q.y1 + '" x2="' + q.x2 + '" y2="' + q.y2 + '" stroke="' + c + '" stroke-width="' + (fs / 2.2) + '" stroke-linecap="round"/>');
+      h.push('<text x="' + ((q.x1 + q.x2) / 2) + '" y="' + ((q.y1 + q.y2) / 2 - fs * 0.6) + '" text-anchor="middle" font-size="' + (fs * 0.72) + '" font-weight="700" fill="' + c + '" stroke="#fff" stroke-width="' + (fs / 5) + '" paint-order="stroke">' + esc(q.name || (w ? '창' : '문')) + (L ? ' ' + L.toFixed(2) + 'm' : '') + '</text>'); });
+    h.push('</svg>'); return h.join('');
+  }
+  function planHtml(D) {
+    if (!D || (!(D.목록 || []).length && !D.측정 && !D.건물)) return '';
+    PLD = D; var L = D.목록 || [], cur = L[PLI] || null, h = ['<section class="card"><h2>우리 집 도면</h2>'];
+    var B = D.건물; if (B && (B.전용면적 || B.준공년도 || B.단지명)) h.push('<div class="hero">' + (B.전용면적 ? '<div><small>전용면적</small><b>' + esc(B.전용면적) + '㎡ · ' + esc(B.전용평) + '평</b></div>' : '') + (B.준공년도 ? '<div><small>준공</small><b>' + esc(B.준공년도) + '년</b></div>' : '') + (B.단지명 ? '<div><small>단지</small><b>' + esc(B.단지명) + '</b></div>' : '') + '</div>');
+    if (L.length > 1) h.push('<div class="pltabs">' + L.map(function (x, i) { return '<button type="button" data-pltab="' + i + '"' + (i === PLI ? ' class="on"' : '') + '>' + esc(x.이름) + (x.측정됨 ? ' · 측정' : '') + '</button>'; }).join('') + '</div>');
+    if (cur) {
+      if (safeUrl(cur.그림)) h.push('<div class="plimg"><img referrerpolicy="no-referrer" src="' + esc(safeUrl(cur.그림)) + '" alt="' + esc(cur.이름) + '" data-plbig="' + esc(safeUrl(cur.큰그림) || safeUrl(cur.그림)) + '" data-plcap="' + esc(cur.이름) + '"><button type="button" class="zoom" data-plbig="' + esc(safeUrl(cur.큰그림) || safeUrl(cur.그림)) + '" data-plcap="' + esc(cur.이름) + '">크게 보기</button></div>');
+      var sv = plSvg(cur.표시 || []); if (sv) { h.push(sv); h.push('<div class="plsub"><button type="button" data-pl3d="1">입체로 보기</button><button type="button" data-plrot="-0.5">왼쪽으로 돌리기</button><button type="button" data-plrot="0.5">오른쪽으로 돌리기</button></div><canvas class="pl3d" id="pl3dcv" width="1000" height="600"></canvas>'); }
+    }
+    var M = D.측정;
+    if (M && ((M.공간 || []).length || (M.창 || []).length || (M.문 || []).length)) {
+      if ((M.공간 || []).length) { h.push('<table class="plm"><tr><th>공간</th><th class="r">면적</th><th class="r">평</th></tr>'); M.공간.forEach(function (r) { h.push('<tr><td>' + esc(r.이름) + '</td><td class="r">' + esc(r.면적) + '㎡</td><td class="r">' + esc(r.평) + '평</td></tr>'); }); h.push('<tr class="tot"><td>바닥 합계</td><td class="r">' + esc(M.바닥) + '㎡</td><td class="r">' + (M.바닥 / 3.3058).toFixed(1) + '평</td></tr></table>'); }
+      if ((M.창 || []).length) { h.push('<table class="plm"><tr><th>창 · 샷시</th><th class="r">폭 × 높이</th><th class="r">면적</th></tr>'); M.창.forEach(function (w) { h.push('<tr><td>' + esc(w.이름) + '</td><td class="r">' + w.폭.toFixed(2) + ' × ' + w.높이.toFixed(2) + 'm</td><td class="r">' + (w.폭 * w.높이).toFixed(2) + '㎡</td></tr>'); }); h.push('<tr class="tot"><td>창호 합계 ' + M.창.length + '개</td><td class="r">' + esc(M.창자) + '자²</td><td class="r">' + esc(M.창면적) + '㎡</td></tr></table>'); }
+      if ((M.문 || []).length) h.push('<table class="plm"><tr><th>문 ' + M.문.length + '개</th><th class="r">폭 × 높이</th></tr>' + M.문.map(function (d) { return '<tr><td>' + esc(d.이름) + '</td><td class="r">' + d.폭.toFixed(2) + ' × ' + d.높이.toFixed(2) + 'm</td></tr>'; }).join('') + '</table>');
+      h.push('<p class="plnote">도면 치수선을 기준으로 잰 값이라 실제와 조금 다를 수 있습니다. 현장 정밀 실측 뒤 최종 수량이 정해지고, 견적의 도배·바닥·창호 수량은 이 값을 바탕으로 계산합니다.' + (M.날짜 ? ' (측정 ' + md(M.날짜) + ')' : '') + '</p>');
+    } else if (cur) h.push('<p class="plnote">도면을 바탕으로 방 면적·창호를 재면 이곳에 표로 정리됩니다.</p>');
+    h.push('</section>'); return h.join('');
+  }
+  function pl3dDraw() {
+    var cv = document.getElementById('pl3dcv'), cur = PLD && (PLD.목록 || [])[PLI]; if (!cv || !cur) return; cv.classList.add('on');
+    var sh = cur.표시 || [], rooms = sh.filter(function (q) { return q.t === 'room' && q.pts && q.pts.length >= 3; }); if (!rooms.length) return;
+    var mmpp = plMmpp(sh) || 10, Hw = 2400 / mmpp, rot = PL3.rot, tilt = PL3.tilt, cr = Math.cos(rot), sr = Math.sin(rot);
+    var pts = []; rooms.forEach(function (r) { r.pts.forEach(function (p) { pts.push(p); }); });
+    var cx = (Math.min.apply(null, pts.map(function (p) { return p[0]; })) + Math.max.apply(null, pts.map(function (p) { return p[0]; }))) / 2, cy = (Math.min.apply(null, pts.map(function (p) { return p[1]; })) + Math.max.apply(null, pts.map(function (p) { return p[1]; }))) / 2;
+    var P = function (x, y, z) { var dx = x - cx, dy = y - cy, rx = dx * cr - dy * sr, ry = dx * sr + dy * cr; return [rx, ry * tilt - z * Math.sqrt(1 - tilt * tilt)]; };
+    var all = []; rooms.forEach(function (r) { r.pts.forEach(function (p) { all.push(P(p[0], p[1], 0)); all.push(P(p[0], p[1], Hw)); }); });
+    var bx0 = Math.min.apply(null, all.map(function (p) { return p[0]; })), bx1 = Math.max.apply(null, all.map(function (p) { return p[0]; })), by0 = Math.min.apply(null, all.map(function (p) { return p[1]; })), by1 = Math.max.apply(null, all.map(function (p) { return p[1]; }));
+    var W = cv.width, Hc = cv.height, k = Math.min((W - 60) / ((bx1 - bx0) || 1), (Hc - 60) / ((by1 - by0) || 1)), g = cv.getContext('2d'); g.clearRect(0, 0, W, Hc);
+    var S = function (p) { return [30 + (p[0] - bx0) * k, 30 + (p[1] - by0) * k]; };
+    var labels = [], order = rooms.map(function (r, i) { var c0 = plCen(r.pts); return { r: r, i: i, y: S(P(c0[0], c0[1], 0))[1] }; }).sort(function (a, b) { return a.y - b.y; });
+    order.forEach(function (o) { var r = o.r, n = r.pts.length, col = PL_COL[o.i % PL_COL.length];
+      for (var i = 0; i < n; i++) { var a = r.pts[i], b = r.pts[(i + 1) % n], q = [S(P(a[0], a[1], 0)), S(P(b[0], b[1], 0)), S(P(b[0], b[1], Hw)), S(P(a[0], a[1], Hw))]; g.beginPath(); q.forEach(function (p, j) { j ? g.lineTo(p[0], p[1]) : g.moveTo(p[0], p[1]); }); g.closePath(); g.fillStyle = 'rgba(245,241,232,.55)'; g.fill(); g.strokeStyle = '#8a8a8a'; g.lineWidth = 1; g.stroke(); }
+      g.beginPath(); r.pts.forEach(function (p, i) { var s2 = S(P(p[0], p[1], 0)); i ? g.lineTo(s2[0], s2[1]) : g.moveTo(s2[0], s2[1]); }); g.closePath(); g.fillStyle = col; g.globalAlpha = 0.18; g.fill(); g.globalAlpha = 1; g.strokeStyle = col; g.lineWidth = 2; g.stroke();
+      var c1 = plCen(r.pts), c2 = S(P(c1[0], c1[1], 0)), a2 = plMmpp(sh) ? plArea(r, plMmpp(sh)) : 0; labels.push([(r.name || '방') + (a2 ? ' ' + a2.toFixed(1) + '㎡' : ''), c2[0] - 22, c2[1]]); });
+    sh.filter(function (q) { return q.t === 'win' || q.t === 'door'; }).forEach(function (q) { var w = q.t === 'win', hh = (Number(q.h) || (w ? 1200 : 2100)) / mmpp, z0 = w ? 900 / mmpp : 0, a = S(P(q.x1, q.y1, z0)), b = S(P(q.x2, q.y2, z0)), c = S(P(q.x2, q.y2, z0 + hh)), d = S(P(q.x1, q.y1, z0 + hh)); g.beginPath(); g.moveTo(a[0], a[1]); g.lineTo(b[0], b[1]); g.lineTo(c[0], c[1]); g.lineTo(d[0], d[1]); g.closePath(); g.fillStyle = w ? 'rgba(29,95,208,.35)' : 'rgba(176,106,0,.35)'; g.fill(); g.strokeStyle = w ? '#1d5fd0' : '#b06a00'; g.lineWidth = 2; g.stroke(); });
+    g.font = 'bold 15px sans-serif'; labels.forEach(function (l) { g.lineWidth = 4; g.strokeStyle = '#fff'; g.strokeText(l[0], l[1], l[2]); g.fillStyle = '#1a2a20'; g.fillText(l[0], l[1], l[2]); });   // 이름은 벽 위에 마지막으로
+  }
+  app.addEventListener('click', function (e) {
+    var tb = e.target.closest('[data-pltab]'); if (tb) { PLI = Number(tb.getAttribute('data-pltab')) || 0; var sec = tb.closest('section'), tmp = document.createElement('div'); tmp.innerHTML = planHtml(PLD); sec.replaceWith(tmp.firstChild); return; }
+    var bg = e.target.closest('[data-plbig]'); if (bg) { var u = safeUrl(bg.getAttribute('data-plbig')); if (!u) return; lbImg.src = u; lbTxt.textContent = bg.getAttribute('data-plcap') || '도면'; lb.classList.add('on'); return; }
+    var b3 = e.target.closest('[data-pl3d]'); if (b3) { var cv = document.getElementById('pl3dcv'); if (cv && cv.classList.contains('on')) { cv.classList.remove('on'); b3.classList.remove('on'); return; } b3.classList.add('on'); pl3dDraw(); return; }
+    var rt = e.target.closest('[data-plrot]'); if (rt) { PL3.rot += Number(rt.getAttribute('data-plrot')) || 0; var btn = app.querySelector('[data-pl3d]'); if (btn) btn.classList.add('on'); pl3dDraw(); }
+  });
+
   function asHtml(P) {
     var h = ['<section class="card" id="as"><h2>하자 접수 · 기술자 연결</h2>'];
     if (!P.AS가능) h.push('<p class="empty">계약 후 이곳에서 바로 접수하실 수 있습니다. 지금은 아래 코디 연락처로 말씀해 주세요.</p>');
@@ -358,6 +443,7 @@ details.sample dd{font-size:13px;color:var(--mute)}
     var P = d.포털 || null; LASTP = P;
     if (P && P.체인) h.push(chainHtml(P.체인, P.계약요약 ? null : P.샘플실));
     if (P && P.샘플실 && P.샘플실.링크 && !P.계약요약) h.push(showroomHtml(P.샘플실));
+    if (P && P.도면) h.push(planHtml(P.도면));   // 2026-11-09 우리 집 도면·측정·입체 보기
     if (P && P.자재선택) h.push(selHtml(P.자재선택));   // 2026-11-03 방별 자재 고르기
     // 진행률
     if (phases.length) h.push('<section class="card' + (P && P.체인 ? '' : ' top') + '"><h2>전체 진행률</h2><div class="pct"><b>' + pct + '%</b><span>' + (phases.length ? '공정 ' + phases.length + '개 중 ' + doneN + '개 완료' : '') + '</span></div>' +
@@ -546,17 +632,5 @@ details.sample dd{font-size:13px;color:var(--mute)}
   setInterval(function () { if (!document.hidden && !lb.classList.contains('on')) load(); }, REFRESH_MS);
 })();
 </script>
-<!--SITENAV--><style>.jj-map{max-width:900px;margin:32px auto 0;padding:22px 16px 26px;border-top:2px solid #d9d2c0;font-family:Pretendard,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;color:#2a2a2a;word-break:keep-all}.jj-map .ttl{font-size:14px;font-weight:800;letter-spacing:1px;color:#1e4d3a;margin-bottom:10px;text-align:center}.jj-map .grp{display:flex;flex-wrap:wrap;gap:6px 8px;align-items:center;margin:6px 0;font-size:14px}.jj-map .grp b{min-width:70px;color:#555;font-weight:700;font-size:13px}.jj-map .grp a{display:inline-block;padding:6px 12px;border:1px solid #cfc8b8;border-radius:16px;background:#fff;color:#2a2a2a;text-decoration:none;font-size:14px;font-weight:500}.jj-map .grp a:hover{border-color:#1e4d3a;color:#1e4d3a}.jj-map .grp a[aria-current=page]{background:#1e4d3a;color:#fff;border-color:#1e4d3a;font-weight:800}.jj-map .grp a[aria-current=page]::before{content:"▶ ";font-size:11px}.jj-map .ft{font-size:13px;color:#555;margin-top:12px;text-align:center;line-height:1.8}.jj-where{max-width:1200px;margin:0 auto;padding:8px 16px;font-size:14px;color:#2a2a2a;background:#efe9db;border-bottom:1px solid #d9d2c0;display:flex;gap:6px;align-items:center;flex-wrap:wrap;word-break:keep-all}.jj-where a{color:#1e4d3a;text-decoration:none;font-weight:600}.jj-where .now{background:#1e4d3a;color:#fff;padding:2px 10px;border-radius:12px;font-weight:700;font-size:13px}.nav-item.is-current>.nav-top{color:#1e4d3a!important;font-weight:800!important;box-shadow:inset 0 -3px 0 #1e4d3a}.nav-dropdown a.is-current{background:#e6efe9!important;color:#1e4d3a!important;font-weight:700!important}@media(max-width:640px){.jj-map .grp b{min-width:100%}}</style><div class="jj-map"><div class="ttl">집지니 사이트 지도 — 지금 보는 쪽은 ▶ 짙은 녹색</div><div class="grp"><b>시작하기 ·</b><a href="../index.html">홈</a><a href="../self-interior-agency.html">셀인대행이란</a><a href="../request.html">무료 견적 신청</a><a href="../prepare.html">사전 준비</a></div><div class="grp"><b>샘플실 ·</b><a href="../showroom.html">가양동 샘플실 · 상담 예약</a></div><div class="grp"><b>진행 방식 ·</b><a href="../workflow.html">진행 방식 8단계</a><a href="../interior-coordinator.html">코디네이터란</a></div><div class="grp"><b>가격·견적 ·</b><a href="../pricing.html">가격·코디비</a><a href="../interior-price-table.html">실견적 시세표</a><a href="../cases/">견적 사례</a><a href="../py/">평형별 비용</a><a href="../trade/">공종별 비용</a></div><div class="grp"><b>가이드 ·</b><a href="../banself-interior.html">반셀프 코디</a><a href="../jikyoung-interior.html">직영 인테리어</a><a href="../interior-margin-30.html">마진 30%</a><a href="../interior-estimate-compare.html">견적서 비교</a><a href="../apt-olsuri-cost.html">32평 올수리</a><a href="../bathroom-remodel-cost.html">욕실 리모델링</a><a href="../interior-scam-types.html">사기 유형</a></div><div class="grp"><b>회사 ·</b><a href="../about.html">회사소개</a><a href="../faq.html">자주 묻는 질문</a><a href="../ai-answers.html">AI에게 물어볼 때</a><a href="../sitemap.html">사이트 지도</a></div><div class="ft">서울·경기·인천 수도권 전역 · 자재상·기술자 직거래 · 정찰제 코디비 · 부가세 10% 별도<br>샘플실: <a href="../showroom.html" style="color:#1e4d3a;font-weight:600">서울 강서구 공항대로41길 66 세신종합상가 지하 1층 B156호 (가양동)</a> · 상담 예약 010-9806-0422</div></div><script>(function(){try{
-var here=location.pathname.replace(/\/index\.html$/,"/");
-var norm=function(h){var a=document.createElement("a");a.href=h;return a.pathname.replace(/\/index\.html$/,"/");};
-var isCur=function(h){var p=norm(h);return p===here||(p!=="/"&&p.slice(-1)==="/"&&here.indexOf(p)===0);};
-var map=document.querySelector(".jj-map"),curName="",grpName="";
-if(map){map.querySelectorAll(".grp").forEach(function(g){g.querySelectorAll("a").forEach(function(a){if(isCur(a.getAttribute("href"))){a.setAttribute("aria-current","page");if(!curName){curName=a.textContent;var b=g.querySelector("b");grpName=b?b.textContent.replace(/\s*[·:]\s*$/,""):"";}}});});}
-document.querySelectorAll(".nav-item").forEach(function(it){var top=it.querySelector(".nav-top"),hit=false;it.querySelectorAll("a").forEach(function(a){var h=a.getAttribute("href")||"";if(h.indexOf("http")===0)return;if(norm(h)===here){hit=true;if(a!==top)a.classList.add("is-current");}});it.classList.remove("active");if(hit)it.classList.add("is-current");});
-if(here!=="/"&&!document.querySelector(".jj-where")){var ttl=curName||(document.title.split(/[|—–]/)[0]||"").trim();var up=location.pathname.split("/").length>2?"../":"";
-var bar=document.createElement("div");bar.className="jj-where";bar.innerHTML='<a href="'+up+'index.html">홈</a><span>›</span>'+(grpName?'<span>'+grpName+'</span><span>›</span>':'')+'<span class="now">지금 보는 쪽 · '+ttl+'</span>';
-var hdr=document.querySelector("header, .site-header, nav.site-nav, .navbar, .nav");if(hdr)hdr.insertAdjacentElement("afterend",bar);else document.body.insertBefore(bar,document.body.firstChild);}
-}catch(e){}})();</script><!--/SITENAV-->
-<script src="../assets/chatbot.js" defer></script>
 </body>
 </html>

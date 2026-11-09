@@ -9,8 +9,8 @@
 import os, re, glob, sys, json
 from html import unescape as html_unescape
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-SKIP_DIRS = ("admin", "console", "assets", "q", "node_modules", ".github")
-SKIP_FILES = {"quote.html", "client-input.html", "schedule.html", "sign.html", "contract.html", "payment.html"}   # 고객 개인 화면
+SKIP_DIRS = ("admin", "console", "assets", "q", "node_modules", ".github", "progress", "measure", "wage")   # progress·measure·wage = 고객·기사 개인 화면 (2026-11-09)
+SKIP_FILES = {"quote.html", "client-input.html", "schedule.html", "sign.html", "contract.html", "payment.html", "doc.html", "order.html"}   # 고객 개인 화면
 OG = '<meta property="og:image" content="https://jipjini.com/og-cover.png">'
 TW = '<meta name="twitter:card" content="summary_large_image">'
 PRE = '<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>'
