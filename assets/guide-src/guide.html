@@ -2,206 +2,290 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
+<title>집지니 안내서</title>
+<!-- 집지니 안내서 원본 — 2026-11-10 다시 짬: 인쇄물처럼 담백하게(글 중심 · 선과 여백 · 실제 화면 사진). 상자·알약 모양·장식 색을 쓰지 않는다.
+     PDF 만들기: node assets/guide-src/build.js  →  files/jipjini-guide.pdf -->
 <style>
 @page { size: A4; margin: 0; }
 * { margin:0; padding:0; box-sizing:border-box; }
-body { font-family:'Noto Sans CJK KR','Noto Sans KR',sans-serif; color:#2b2b2b; }
-.page { width:210mm; height:297mm; padding:22mm 20mm; page-break-after:always; position:relative; }
-.dark { background:#173222; color:#f4efe6; }
-.accent { color:#c9a227; }
-.dark .accent { color:#e3c25b; }
-.eyebrow { font-size:9pt; letter-spacing:4px; color:#c9a227; font-weight:700; margin-bottom:6mm; }
-h1 { font-size:28pt; font-weight:900; line-height:1.35; margin-bottom:8mm; }
-h2 { font-size:20pt; font-weight:800; line-height:1.4; margin-bottom:6mm; }
-p.lead { font-size:11pt; line-height:1.8; }
-p.body { font-size:10pt; line-height:1.8; margin-bottom:4mm; }
-.logo { font-size:13pt; font-weight:900; letter-spacing:1px; }
-.logo .box { display:inline-block; background:#c9a227; color:#173222; padding:1mm 2.5mm; border-radius:2mm; margin-right:2mm; }
-.footer { position:absolute; bottom:12mm; left:20mm; right:20mm; display:flex; justify-content:space-between; font-size:8pt; color:#999; }
-.dark .footer { color:#cbbfa4; }
-table { width:100%; border-collapse:collapse; font-size:9.5pt; margin:5mm 0; }
-th { background:#173222; color:#f4efe6; padding:3mm; text-align:left; font-weight:700; }
-td { padding:3mm; border-bottom:0.3mm solid #ddd; }
-tr.hl td { background:#faf3dd; font-weight:700; }
-.card { border:0.4mm solid #e2dccc; border-radius:3mm; padding:6mm; margin-bottom:5mm; background:#fbf9f4; }
-.card h3 { font-size:12pt; margin-bottom:2mm; }
-.big { font-size:44pt; font-weight:900; color:#c9a227; line-height:1.1; }
-.stepnum { display:inline-block; width:8mm; height:8mm; line-height:8mm; border-radius:50%; background:#173222; color:#fff; text-align:center; font-weight:800; font-size:10pt; margin-right:3mm; }
-.step { display:flex; align-items:flex-start; margin-bottom:3.2mm; font-size:9.5pt; line-height:1.5; }
-.step b { display:block; font-size:10.5pt; }
-.divider { height:0.6mm; background:#c9a227; width:24mm; margin:6mm 0; }
-.quote { background:#fbf6e7; border-left:1.2mm solid #c9a227; padding:5mm 6mm; font-size:10.5pt; line-height:1.8; margin:5mm 0; border-radius:0 2mm 2mm 0; }
-.kv { display:flex; margin-bottom:2.5mm; font-size:10.5pt; }
-.kv .k { width:34mm; font-weight:700; color:#173222; }
-.flow { background:#fbf9f4; border:0.4mm solid #e2dccc; border-radius:3mm; padding:5mm 6mm; margin:4mm 0; font-size:10pt; line-height:1.7; }
+html { -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+body { font-family:'Noto Sans CJK KR','Noto Sans KR',sans-serif; color:#1a1a18; word-break:keep-all; overflow-wrap:break-word; font-size:10.4pt; line-height:1.85; }
+.page { width:210mm; height:297mm; padding:24mm 22mm 24mm 22mm; page-break-after:always; position:relative; overflow:hidden; background:#fff; }
+.serif { font-family:'Noto Serif CJK KR','Noto Serif KR','Nanum Myeongjo',serif; }
+h1 { font-family:'Noto Serif CJK KR','Noto Serif KR',serif; font-weight:700; font-size:34pt; line-height:1.3; letter-spacing:-.8px; }
+h2 { font-family:'Noto Serif CJK KR','Noto Serif KR',serif; font-weight:700; font-size:22pt; line-height:1.42; letter-spacing:-.5px; margin-bottom:9mm; }
+h3 { font-size:11pt; font-weight:700; margin-bottom:1mm; }
+p { margin-bottom:4.2mm; }
+.head { display:flex; justify-content:space-between; font-size:8.4pt; color:#77766f; border-bottom:.25mm solid #1a1a18; padding-bottom:2.4mm; margin-bottom:13mm; letter-spacing:.2px; }
+.foot { position:absolute; bottom:11mm; left:22mm; right:22mm; display:flex; justify-content:space-between; font-size:8pt; color:#8d8c84; }
+.cols { display:grid; grid-template-columns:44mm 1fr; column-gap:8mm; }
+.side { font-size:8.8pt; line-height:1.7; color:#6d6c65; padding-top:1mm; }
+.side b { display:block; color:#1a1a18; font-size:9.4pt; margin-bottom:1mm; }
+.two { display:grid; grid-template-columns:1fr 1fr; column-gap:9mm; }
+.lead { font-size:12pt; line-height:1.9; margin-bottom:7mm; }
+.note { font-size:8.6pt; line-height:1.7; color:#77766f; }
+table { width:100%; border-collapse:collapse; font-size:10pt; line-height:1.55; }
+th { text-align:left; font-weight:700; padding:2.8mm 2mm 2.8mm 0; border-bottom:.3mm solid #1a1a18; font-size:9pt; }
+td { padding:3.3mm 2mm 3.3mm 0; border-bottom:.2mm solid #d9d7cf; vertical-align:top; }
+td.me { font-weight:700; }
+.item { display:grid; grid-template-columns:11mm 1fr; padding:4.6mm 0; border-top:.2mm solid #d9d7cf; }
+.item.last { border-bottom:.2mm solid #d9d7cf; }
+.item .n { font-family:'Noto Serif CJK KR',serif; font-size:13pt; font-weight:700; color:#2f6b4f; line-height:1.3; }
+.item p { margin:0; color:#3b3a36; }
+.fig { border:.25mm solid #cfcdc4; } .fig img { display:block; width:100%; height:auto; }
+.cap { font-size:8.4pt; color:#77766f; margin-top:2.2mm; line-height:1.6; }
+.rule { border-top:.25mm solid #1a1a18; margin:8mm 0 6mm; }
+dl.kv { display:grid; grid-template-columns:34mm 1fr; font-size:10.6pt; }
+dl.kv dt, dl.kv dd { padding:3.1mm 0; border-bottom:.2mm solid #cfcdc4; } dl.kv dt { color:#6d6c65; }
+.bars { margin:6mm 0 3mm; } .bars div { display:grid; grid-template-columns:36mm 1fr 30mm; align-items:center; font-size:9.6pt; margin-bottom:2.6mm; } .bars i { display:block; height:5mm; background:#1a1a18; } .bars span { text-align:right; }
+.t5 td { padding:2.5mm 2mm 2.5mm 0; }
+.tight td { padding:2.6mm 2mm 2.6mm 0; }
 </style>
-<style>body,p,li,td,th,h1,h2,h3,h4,dd,dt,blockquote,figcaption{word-break:keep-all;overflow-wrap:break-word}</style>
 </head>
 <body>
 
-<!-- P1 COVER -->
-<div class="page dark">
-  <div class="logo"><span class="box">집</span>집지니 JIPJINI <span style="font-weight:400;opacity:.7">· DIRECT COORDI</span></div>
-  <div style="margin-top:50mm">
-    <div class="eyebrow">INTERIOR COORDINATING GUIDE</div>
-    <h1>인테리어,<br><span class="accent">30%를 돌려드립니다</span></h1>
-    <p class="lead">중간 마진 없이 자재상·기술자와 직접 연결하는<br>'코디네이팅' 방식의 새로운 인테리어.<br>같은 시공을, 더 투명하게, 더 저렴하게.</p>
+<!-- 표지 -->
+<div class="page" style="background:#f4f1ea;">
+  <div style="display:flex;justify-content:space-between;font-size:9pt;color:#55544e;"><span>집지니 · 인테리어 코디네이팅</span><span>2026년 11월</span></div>
+  <div style="margin-top:30mm;">
+    <h1>집지니 안내서</h1>
+    <p class="serif" style="font-size:15pt;line-height:1.75;margin-top:7mm;color:#33322e;">중간 마진 없이 집을 고치는 방법과,<br>그 과정을 처음부터 끝까지 보여 드리는 도구들</p>
   </div>
-  <div style="position:absolute;bottom:28mm;left:20mm">
-    <p style="font-size:11pt;font-weight:700">집지니 서비스 가이드</p>
-    <p style="font-size:10pt;opacity:.85;margin-top:2mm">jipjini.com · 카카오톡 @집지니</p>
-  </div>
+  <div style="position:absolute;right:22mm;bottom:26mm;width:98mm;border:.25mm solid #b9b6aa;background:#fff;"><img src="cover-plan.jpg" style="display:block;width:100%;" alt=""></div>
+  <div style="position:absolute;left:22mm;bottom:26mm;width:58mm;font-size:8.8pt;line-height:1.75;color:#55544e;">오른쪽 그림은 부동산 평면도를 집지니가 읽어 다시 그린 도면입니다. 이 안내서의 화면 사진은 모두 실제 화면입니다.<br><br>jipjini.com</div>
 </div>
 
-<!-- P2 PROBLEM -->
+<!-- 1 인사 -->
 <div class="page">
-  <div class="eyebrow">THE PROBLEM</div>
-  <h2>왜 인테리어는<br>항상 비싸고 불투명할까요?</h2>
-  <p class="body">턴키 업체에 맡기면 편하지만, 견적서 안에는 자재비·인건비에 겹겹이 얹힌 중간 마진이 숨어 있습니다. 소비자는 무엇이 진짜 원가인지 알 수 없습니다.</p>
-  <div style="margin:10mm 0">
-    <div class="big">30%</div>
-    <p class="body" style="font-weight:700;margin-top:2mm">일반 인테리어 견적의 약 30%는 중간 마진입니다.</p>
-  </div>
-  <div class="card">
-    <h3>32평 올수리 기준 — 마진은 얼마일까?</h3>
-    <div class="kv"><span class="k">일반 턴키 견적</span><span>약 6,500만 원</span></div>
-    <div class="kv"><span class="k">실제 자재비+인건비</span><span>약 4,500만 원</span></div>
-    <div class="kv"><span class="k" style="color:#b0392e">숨어있는 중간 마진</span><span style="font-weight:800;color:#b0392e">약 2,000만 원</span></div>
-  </div>
-  <p style="font-size:8.5pt;color:#888">* 위 금액은 시장 평균 기준 예시이며, 현장에 따라 다릅니다.</p>
-  <div class="footer"><span>집지니 GUIDE</span><span>01</span></div>
-</div>
-
-<!-- P3 SOLUTION -->
-<div class="page">
-  <div class="eyebrow">THE SOLUTION</div>
-  <h2>집지니는 시공하지 않습니다.<br>'연결'하고 '관리'합니다.</h2>
-  <p class="body">집지니는 코디네이터(Coordinator)입니다. 직접 시공하는 대신, 검증된 자재상·기술자를 연결하고 공정 순서와 일정을 관리합니다. 자재비·인건비는 소비자가 직접 결제하므로 중간 마진이 0원입니다(PM을 고르시면 PM이 대신 지급 — 그래도 마진 0).</p>
-  <div class="flow">
-    <b>기존 턴키 — 돈이 한 번 더 거칩니다</b><br>
-    고객 → 업체 <span style="color:#b0392e;font-weight:700">(마진 30%)</span> → 자재상·기술자
-  </div>
-  <div class="flow" style="background:#eef5ee;border-color:#173222">
-    <b>집지니 코디 — 직접 연결, 마진 0</b><br>
-    고객 → 자재상·기술자 (직거래)<br>
-    + 집지니 (코디 운영비만 별도)
-  </div>
-  <div class="divider"></div>
-  <p class="body">그 결과, 같은 자재와 같은 기술자에게 시공받아도 <b>최소 20~30% 더 저렴</b>합니다. 차이는 단 하나 — <b>중간 마진을 누가 가져가느냐</b>입니다.</p>
-  <div class="footer"><span>집지니 GUIDE</span><span>02</span></div>
-</div>
-
-<!-- P4 3 OPTIONS -->
-<div class="page">
-  <div class="eyebrow">3 OPTIONS</div>
-  <h2>인테리어에는<br>3가지 길이 있습니다</h2>
-  <p class="body">턴키는 비싸고, 직영은 힘듭니다. 집지니는 그 사이의 새로운 선택지입니다.</p>
-  <table>
-    <tr><th></th><th>턴키</th><th>직영(셀프)</th><th style="background:#c9a227;color:#173222">집지니 코디</th></tr>
-    <tr><td><b>방식</b></td><td>업체에 통째로 맡김</td><td>내가 직접 다 함</td><td>연결·관리만 맡김</td></tr>
-    <tr><td><b>32평 비용</b></td><td>약 6,500만</td><td>약 3,500만</td><td>약 4,000만대</td></tr>
-    <tr><td><b>내 시간</b></td><td>거의 없음</td><td>200시간+</td><td>20~30시간</td></tr>
-    <tr><td><b>중간 마진</b></td><td>30~50%</td><td>0%</td><td>0% (코디비만)</td></tr>
-    <tr><td><b>단가 투명성</b></td><td>불투명</td><td>직접 확인</td><td>100% 공개</td></tr>
-    <tr><td><b>난이도</b></td><td>매우 쉬움</td><td>매우 어려움</td><td>쉬움</td></tr>
-  </table>
-  <p class="body" style="font-weight:700">턴키의 편함과 직영의 저렴함을 동시에 — 그것이 집지니 코디네이팅입니다.</p>
-  <div class="footer"><span>집지니 GUIDE</span><span>03</span></div>
-</div>
-
-<!-- P5 PRICING -->
-<div class="page">
-  <div class="eyebrow">PRICING</div>
-  <h2>집지니는<br>'코디 운영비'만 받습니다</h2>
-  <p class="body">자재비·인건비에는 한 푼도 얹지 않습니다. 시공 총액에 따라 정해진 코디 운영비만 투명하게 받습니다.</p>
-  <table>
-    <tr><th>시공 총액 구간</th><th>코디 운영비</th></tr>
-    <tr><td>500만 원 이하</td><td>15% (최소 75만)</td></tr>
-    <tr><td>500만 ~ 1,000만</td><td>11%</td></tr>
-    <tr><td>1,000만 ~ 2,000만</td><td>8.5%</td></tr>
-    <tr><td>2,000만 ~ 3,000만</td><td>7%</td></tr>
-    <tr><td>3,000만 ~ 4,000만</td><td>6%</td></tr>
-    <tr class="hl"><td>4,000만 ~ 5,000만 (표준)</td><td>5%</td></tr>
-    <tr><td>5,000만 ~ 7,000만</td><td>4.5%</td></tr>
-    <tr><td>7,000만 ~ 1억</td><td>4%</td></tr>
-    <tr><td>1억 이상</td><td>3.5%</td></tr>
-  </table>
-  <p class="body" style="font-size:9pt;color:#666">PM(현장 관리자)을 추가하시면 시공 기간 동안 현장을 대신 챙기고 자재비·인건비 지급도 대신 해 드립니다(대금 지급 계좌에 맡기시면 공정 확인 후 지급, 마진 0). PM 비용은 시공 총액에 따라 별도 책정됩니다 (80만~700만). 소규모 의뢰는 PM 없이도 가능합니다.</p>
-  <div class="footer"><span>집지니 GUIDE</span><span>04</span></div>
-</div>
-
-<!-- P6 PROCESS -->
-<div class="page">
-  <div class="eyebrow">PROCESS</div>
-  <h2>비교부터 입주까지,<br>11단계로 투명하게</h2>
-  <div style="margin-top:6mm">
-    <div class="step"><span class="stepnum">1</span><span><b>방식 비교 · 검토</b>턴키·직영·코디 중 내게 맞는 방식 확인</span></div>
-    <div class="step"><span class="stepnum">2</span><span><b>의뢰서 작성</b>홈페이지에서 평형·범위 입력 (무료)</span></div>
-    <div class="step"><span class="stepnum">3</span><span><b>담당 코디 검토</b>현장 조건 확인 후 견적 작성 (무료)</span></div>
-    <div class="step"><span class="stepnum">4</span><span><b>상세 견적서 수령 (무료)</b>자재 모델명·단가·매칭 파트너 100% 공개</span></div>
-    <div class="step"><span class="stepnum">5</span><span><b>검토 · 진행 결정</b>마음에 들면 진행, 아니면 부담 없이 종료</span></div>
-    <div class="step"><span class="stepnum">6</span><span><b>전자계약 · 코디 비용 결제</b>부가세 10% 별도 금액, 시공 시작 전</span></div>
-    <div class="step"><span class="stepnum">7</span><span><b>단톡방 · 노션 초대</b>진행 상황 실시간 공유</span></div>
-    <div class="step"><span class="stepnum">8</span><span><b>자재 매칭 · 코디표 확정</b>검증된 자재상·기술자 배정, 단가 사전 협상</span></div>
-    <div class="step"><span class="stepnum">9</span><span><b>자재 발주 · 픽업</b>건축주 명의 직거래, 마진 0</span></div>
-    <div class="step"><span class="stepnum">10</span><span><b>시공 · PM 현장 관리</b>매일 카톡으로 진행 상황 보고</span></div>
-    <div class="step"><span class="stepnum">11</span><span><b>입주 · 12개월 A/S</b>하자 점검 후 입주, 12개월 하자 조율</span></div>
-  </div>
-  <div class="footer"><span>집지니 GUIDE</span><span>05</span></div>
-</div>
-
-<!-- P7 PRINCIPLES -->
-<div class="page">
-  <div class="eyebrow">OUR PRINCIPLES</div>
-  <h2>집지니가<br>반드시 지키는 3가지</h2>
-  <div class="card"><h3><span class="accent">01</span> 마진 0</h3>
-  <p class="body" style="margin:0">자재비·인건비에 한 푼도 얹지 않습니다. 집지니는 코디 운영비만 받습니다. 모든 자재·시공은 소비자가 직접 결제합니다(PM 선택 시 PM이 대신 지급, 영수증은 소비자 명의).</p></div>
-  <div class="card"><h3><span class="accent">02</span> 책임은 명확하게</h3>
-  <p class="body" style="margin:0">시공은 기술자가, 자재는 자재상이 책임집니다. 집지니는 매칭 품질과 일정을 책임집니다. 역할이 섞이지 않아야 신뢰가 생깁니다.</p></div>
-  <div class="card"><h3><span class="accent">03</span> 정직한 거절</h3>
-  <p class="body" style="margin:0">부분 수리 1~2개는 직영이 더 쌉니다. 그런 의뢰는 정중히 거절하고 방법을 알려드립니다. 코디의 가치가 생기는 3개 공정 이상부터 받습니다.</p></div>
-  <div class="quote">
-    <b>대표가 직접 겪은 이야기</b><br>
-    "얘들아, 저거 골조 기둥 하나 빼버리자."<br>
-    내 돈 내고 집을 짓는데 오히려 '을'이 되던 경험. 두 번 다시 그런 일이 없도록, 투명한 인테리어를 만들기로 했습니다.
-  </div>
-  <div class="footer"><span>집지니 GUIDE</span><span>06</span></div>
-</div>
-
-<!-- P8 HOW TO START -->
-<div class="page">
-  <div class="eyebrow">HOW TO START</div>
-  <h2>무료로 시작해서,<br>마음에 들면 진행하세요</h2>
-  <p class="body">의뢰서 작성부터 상세 견적서까지 모두 무료입니다. 진행을 결정하실 때만 계약하고 코디 비용을 결제합니다.</p>
-  <table>
-    <tr><th style="text-align:center">STEP 1</th><th style="text-align:center">STEP 2</th><th style="text-align:center">STEP 3</th></tr>
-    <tr><td style="text-align:center"><b>의뢰서 작성</b><br>무료</td><td style="text-align:center"><b>상세 견적서</b><br>무료</td><td style="text-align:center"><b>진행 시작</b><br>코디비 결제</td></tr>
-  </table>
-  <div class="card"><h3>의뢰 가능 범위</h3>
-  <p class="body" style="margin:0">집지니는 <b>부분 수리 3개 공정 이상</b>부터 받습니다. 도배만, 장판만 같은 단일 공정은 인부에게 직접 의뢰하시는 것이 더 저렴합니다. 공정 간 순서·자재·인부 조율이 필요한 규모부터 코디의 가치가 발생합니다.</p></div>
-  <div class="card"><h3>상담은 온라인으로 편하게</h3>
-  <p class="body" style="margin:0">모든 상담·견적은 카카오톡·전화로 진행합니다. 평면도·사진을 보내주시면 더 정확한 견적이 가능합니다. 실물 자재 샘플은 거래처 쇼룸 방문 또는 택배로 받아보실 수 있습니다.</p></div>
-  <div class="footer"><span>집지니 GUIDE</span><span>07</span></div>
-</div>
-
-<!-- P9 BACK -->
-<div class="page dark">
-  <div class="logo"><span class="box">집</span>집지니 JIPJINI <span style="font-weight:400;opacity:.7">· DIRECT COORDI</span></div>
-  <div style="margin-top:55mm">
-    <div class="eyebrow">START NOW</div>
-    <h2>지금, 투명한 인테리어를<br>시작하세요</h2>
-    <div style="margin-top:10mm">
-      <div class="kv"><span class="k" style="color:#e3c25b">홈페이지</span><span style="font-weight:800">jipjini.com</span></div>
-      <div class="kv"><span class="k" style="color:#e3c25b">카카오톡 채널</span><span>@집지니</span></div>
-      <div class="kv"><span class="k" style="color:#e3c25b">전화</span><span>010-9806-0422</span></div>
-      <div class="kv"><span class="k" style="color:#e3c25b">시공 사례</span><span>네이버 블로그 · 유튜브 촌닭건축</span></div>
+  <div class="head"><span>집지니 안내서</span><span>시작하며</span></div>
+  <div class="cols">
+    <div class="side"><b>집지니는</b>시공 회사가 아닙니다. 자재상과 기술자를 고객에게 직접 이어 주고, 공정과 일정을 관리하는 코디네이터입니다.</div>
+    <div>
+      <h2>「얘들아, 저거 골조 기둥<br>하나 빼버리자.」</h2>
+      <p class="lead">제 집을 지을 때 현장에서 들은 말입니다. 돈은 제가 내는데 눈치는 제가 봤습니다. 무엇이 빠지고 무엇이 바뀌는지 알 방법이 없었기 때문입니다.</p>
+      <p>인테리어도 다르지 않았습니다. 견적서에는 「타일 공사 일식」 한 줄과 금액만 있고, 어떤 타일을 몇 장 쓰는지, 그중 얼마가 자재값이고 얼마가 업체 몫인지는 적혀 있지 않습니다. 공사가 시작되면 현장에서 무슨 일이 벌어지는지 전화로 물어볼 수밖에 없습니다.</p>
+      <p>집지니는 이 두 가지를 바꾸려고 만들었습니다. 하나는 돈입니다. 자재비는 자재상에게, 인건비는 기술자에게 고객이 직접 내고, 저희는 미리 정해 둔 운영비만 받습니다. 다른 하나는 과정입니다. 견적, 도면, 작업 지시, 일정, 주문 내역을 고객이 직접 열어 볼 수 있게 했습니다.</p>
+      <p>이 안내서는 그 방법과, 그러려고 저희가 직접 만든 도구들을 소개합니다. 과장 없이 적으려고 했습니다. 읽어 보시고 맞지 않으면 다른 길을 고르셔도 좋습니다. 도배만 하시거나 장판만 바꾸신다면 기술자에게 직접 맡기시는 편이 더 쌉니다. 그런 의뢰는 저희가 먼저 그렇게 말씀드립니다.</p>
+      <p style="margin-top:9mm;">집지니 대표 드림</p>
     </div>
   </div>
-  <div style="position:absolute;bottom:22mm;left:20mm;font-size:8.5pt;line-height:1.8;opacity:.85">
-    집지니 (JIPJINI) · 인테리어 코디네이팅<br>
-    사업자등록번호 874-10-00088 · 인천광역시 강화군 동문로 33<br>
-    thecloudstay@gmail.com
+  <div class="foot"><span>jipjini.com</span><span>1</span></div>
+</div>
+
+<!-- 2 왜 비싼가 -->
+<div class="page">
+  <div class="head"><span>집지니 안내서</span><span>돈의 흐름</span></div>
+  <div class="cols">
+    <div class="side"><b>30퍼센트 안팎</b>통째로 맡기는 인테리어 견적에서 업체 몫이 차지하는 대략의 비율입니다. 업체와 현장에 따라 다릅니다.</div>
+    <div>
+      <h2>같은 자재, 같은 기술자인데<br>견적은 왜 다를까요</h2>
+      <p>한 업체에 전부 맡기면 편합니다. 대신 돈이 업체를 한 번 거칩니다. 업체는 자재상과 기술자에게 줄 돈에 자기 몫을 얹어 견적을 내고, 그 몫이 얼마인지는 견적서에 드러나지 않습니다.</p>
+      <p>32평 아파트 전체 수리를 예로 들면 대략 이렇습니다.</p>
+      <div class="bars">
+        <div><em style="font-style:normal;">통째로 맡긴 견적</em><i style="width:100%;"></i><span>약 6,500만 원</span></div>
+        <div><em style="font-style:normal;">자재비와 인건비</em><i style="width:69%;background:#2f6b4f;"></i><span>약 4,500만 원</span></div>
+        <div><em style="font-style:normal;">업체 몫</em><i style="width:31%;background:#a9a79d;"></i><span>약 2,000만 원</span></div>
+      </div>
+      <p class="note">흔한 수준을 예로 든 금액입니다. 실제 금액은 현장과 자재에 따라 달라집니다.</p>
+      <div class="rule"></div>
+      <h3>집지니를 거치면</h3>
+      <p>고객이 자재상과 기술자에게 직접 냅니다. 영수증도 고객 이름으로 나옵니다. 집지니는 그 옆에서 사람을 연결하고 순서와 일정을 맞추며, 운영비는 따로 받습니다. 운영비 표는 8쪽에 있고 그것이 저희가 받는 돈의 전부입니다.</p>
+      <p>현장 관리자를 함께 쓰시면 맡겨 두신 대금을 공정이 끝난 것을 확인한 뒤 대신 지급해 드립니다. 이때도 얹는 돈은 없습니다.</p>
+    </div>
   </div>
+  <div class="foot"><span>jipjini.com</span><span>2</span></div>
+</div>
+
+<!-- 3 세 가지 길 -->
+<div class="page">
+  <div class="head"><span>집지니 안내서</span><span>세 가지 길</span></div>
+  <h2>통째로 맡기기, 혼자 다 하기, 집지니</h2>
+  <p style="max-width:150mm;">어느 쪽이 무조건 낫다고 말씀드리지 않겠습니다. 시간이 없고 비용이 덜 중요하면 통째로 맡기시는 편이, 시간이 넉넉하고 현장을 아시면 혼자 하시는 편이 맞습니다. 집지니는 그 사이입니다.</p>
+  <table style="margin-top:7mm;">
+    <tr><th style="width:24%"></th><th style="width:24%">통째로 맡기기</th><th style="width:24%">혼자 다 하기</th><th>집지니</th></tr>
+    <tr><td>하는 방식</td><td>업체가 전부</td><td>내가 전부</td><td class="me">연결과 관리만 맡김</td></tr>
+    <tr><td>32평 비용 (예)</td><td>약 6,500만 원</td><td>약 3,500만 원</td><td class="me">약 4,000만 원대</td></tr>
+    <tr><td>내가 쓰는 시간</td><td>거의 없음</td><td>200시간 넘게</td><td class="me">20~30시간</td></tr>
+    <tr><td>업체 몫</td><td>30~50%</td><td>없음</td><td class="me">없음 (운영비만)</td></tr>
+    <tr><td>단가</td><td>묶음 금액</td><td>직접 알아봄</td><td class="me">모델명·단가·거래처 공개</td></tr>
+    <tr><td>작업 지시</td><td>업체 안에서</td><td>말과 사진으로</td><td class="me">도면 기호와 작업지시서</td></tr>
+    <tr><td>진행 확인</td><td>전화로 물어봄</td><td>매일 현장에</td><td class="me">휴대전화 화면에서</td></tr>
+    <tr><td>순서와 일정</td><td>업체가</td><td>내가 조율</td><td class="me">코디가 공정표로</td></tr>
+    <tr><td>하자</td><td>업체마다 다름</td><td>기술자와 직접</td><td class="me">12개월 동안 조율</td></tr>
+  </table>
+  <p class="note" style="margin-top:4mm;">비용과 시간은 흔한 수준을 예로 든 것입니다.</p>
+  <div class="rule"></div>
+  <div class="two">
+    <div><h3>집지니가 맡는 범위</h3><p>공정이 세 가지 이상 얽힌 공사부터 받습니다. 공정 사이의 순서와 자재, 사람을 맞추는 일이 생겨야 코디의 쓸모가 있기 때문입니다.</p></div>
+    <div><h3>책임의 구분</h3><p>시공은 기술자가, 자재는 자재상이 책임집니다. 집지니는 연결한 사람의 품질과 일정을 책임집니다. 역할을 섞지 않습니다.</p></div>
+  </div>
+  <div class="foot"><span>jipjini.com</span><span>3</span></div>
+</div>
+
+<!-- 4 의뢰서와 견적 -->
+<div class="page">
+  <div class="head"><span>집지니 안내서</span><span>의뢰서와 견적서</span></div>
+  <div class="cols">
+    <div class="side"><b>여기까지 무료</b>의뢰서 작성, 담당 코디 검토, 상세 견적서. 진행을 정하시기 전에는 비용이 들지 않습니다.</div>
+    <div>
+      <h2>처음에 자세히 묻습니다</h2>
+      <p>어림 견적이 나중에 불어나는 까닭은 대개 처음에 묻지 않아서입니다. 평수만 듣고 낸 금액은 철거해 보니 다르고, 자재를 고르니 다릅니다. 그래서 집지니는 의뢰서를 길게 받습니다. 10분쯤 걸립니다.</p>
+      <div class="item"><div class="n">1</div><div><h3>주소와 건물</h3><p>주소를 주시면 단지 이름, 전용면적, 준공 연도를 공공 자료에서 확인해 견적에 반영합니다.</p></div></div>
+      <div class="item"><div class="n">2</div><div><h3>평면도</h3><p>사진이나 파일로 올리시면 도면 작업으로 바로 이어집니다. 없으면 코디가 찾아봅니다.</p></div></div>
+      <div class="item"><div class="n">3</div><div><h3>공정별 범위</h3><p>철거부터 도배까지, 새로 할 것과 그대로 둘 것을 항목으로 고르십니다. 작성 전에 재어 둘 것과 찍어 둘 것은 사전 준비표로 알려 드립니다.</p></div></div>
+      <div class="item last"><div class="n">4</div><div><h3>상세 견적서</h3><p>「타일 일식」이 아니라 어떤 자재를 몇 장, 한 장에 얼마, 어느 거래처에서 사는지까지 적습니다. 다른 견적서와 줄 단위로 견주실 수 있습니다.</p></div></div>
+      <p style="margin-top:7mm;">더 정확한 금액이 필요하시면 코디가 현장에 가서 직접 재고 집 상태를 점검합니다. 자재는 서울 강서구 가양동 샘플실에서 벽지, 장판, 마루, 타일, 문 견본을 직접 보실 수 있습니다.</p>
+    </div>
+  </div>
+  <div class="foot"><span>jipjini.com</span><span>4</span></div>
+</div>
+
+<!-- 5 도면 -->
+<div class="page">
+  <div class="head"><span>집지니 안내서</span><span>도면</span></div>
+  <h2>부동산 평면도를 공사 도면으로</h2>
+  <div class="two" style="margin-bottom:5mm;">
+    <p style="margin:0;">공사 도면이 따로 있는 집은 드뭅니다. 대부분 부동산 화면의 평면도나 분양 책자 한 장이 전부입니다. 집지니는 그 그림을 넣으면 방 이름과 치수 글자, 벽을 읽어 방을 나누고, 방마다 넓이와 가로·세로를 계산해 한 가지 양식의 도면으로 다시 그립니다.</p>
+    <p style="margin:0;">읽은 결과는 초안입니다. 틀린 곳은 코디가 눌러서 고치고, 자재 주문에 쓰는 치수는 현장에서 다시 잽니다. 평면도 그림을 읽는 일은 화면을 연 기기 안에서 이루어지며, 그림을 다른 회사로 보내 분석하지 않습니다.</p>
+  </div>
+  <div class="fig"><img src="shot-editor.jpg" alt=""></div>
+  <p class="cap">그림 1. 집지니 도면 화면. 다시 그린 도면 위에 작업 기호를 놓으면 오른쪽 수량표가 따라서 세어집니다. 예시 도면은 부동산 평면도 한 장에서 만든 것입니다.</p>
+  <table class="t5" style="margin-top:4mm;font-size:9.6pt;">
+    <tr><td style="width:30%;font-weight:700;">크기를 잡는 순서</td><td>도면에 적힌 치수선 → 방마다 적힌 면적 → 전용면적</td></tr>
+    <tr><td style="font-weight:700;">구분해서 그리는 것</td><td>방, 거실·주방, 욕실, 발코니, 현관, 설비 통로, 창</td></tr>
+    <tr><td style="font-weight:700;">고치는 방법</td><td>방 옮기기, 꼭짓점 고치기, 길이와 벽 사이 거리 재기, 되돌리기</td></tr>
+    <tr><td style="font-weight:700;">넣을 수 있는 것</td><td>화면을 갈무리한 그림, 휴대전화로 찍은 사진, 설계 도면 문서 파일</td></tr>
+  </table>
+  <div class="foot"><span>jipjini.com</span><span>5</span></div>
+</div>
+
+<!-- 6 작업지시서 -->
+<div class="page">
+  <div class="head"><span>집지니 안내서</span><span>작업지시서</span></div>
+  <div class="two" style="column-gap:10mm;">
+    <div>
+      <h2>말로 전하지 않고<br>도면에 찍어 전합니다</h2>
+      <p>공사에서 생기는 다툼은 솜씨보다 전달에서 더 자주 나옵니다. 「콘센트는 침대 옆에 두 개」라고 말하면 기술자마다 다른 자리에 답니다.</p>
+      <p>집지니는 도면 위에 기호로 찍습니다. 기호마다 번호가 붙고, 새로 다는 것인지 옮기는 것인지 떼어 내는 것인지가 표시됩니다. 개수와 길이, 면적은 표로 모입니다.</p>
+      <p>지시서는 공종별로 따로 나갑니다. 전기 기술자는 전기 지시서만 받습니다. 종이로 뽑을 수도 있고, 휴대전화 주소로 보내면 기술자가 열어 보고 끝낸 항목을 눌러 표시합니다. 그 표시는 코디 화면에 바로 보입니다.</p>
+      <table style="font-size:9.6pt;margin-top:5mm;">
+        <tr><td style="width:36%;font-weight:700;">공종</td><td>철거, 설비, 전기, 목공, 타일, 도장·도배, 가구</td></tr>
+        <tr><td style="font-weight:700;">기호</td><td>서른네 가지 (등, 콘센트, 스위치, 타일 범위, 몰딩, 철거 구역 등)</td></tr>
+        <tr><td style="font-weight:700;">구분</td><td>신설, 유지, 이설, 철거</td></tr>
+        <tr><td style="font-weight:700;">내보내기</td><td>인쇄, 그림, 글</td></tr>
+      </table>
+    </div>
+    <div>
+      <div class="fig"><img src="shot-sheet.jpg" alt=""></div>
+      <p class="cap">그림 2. 작업지시서. 도면 위 번호와 수량표가 서로 맞물립니다.</p>
+    </div>
+  </div>
+  <div class="rule"></div>
+  <div class="cols">
+    <div class="side"><b>지니도면</b>jipjini.com/genie-plan</div>
+    <div><p style="margin:0;">이 도면 도구는 누구나 쓰실 수 있게 무료로 열어 두었습니다. 혼자 공사를 진행하시는 분도 평면도를 올려 작업지시서를 만들 수 있습니다. 가입은 필요 없고, 올린 도면은 쓰시는 기기 안에만 저장됩니다.</p></div>
+  </div>
+  <div class="foot"><span>jipjini.com</span><span>6</span></div>
+</div>
+
+<!-- 7 진행과 기록 -->
+<div class="page">
+  <div class="head"><span>집지니 안내서</span><span>진행과 기록</span></div>
+  <div class="two" style="column-gap:10mm;align-items:start;">
+    <div>
+      <h2>공사 중에는<br>묻지 않아도 보입니다</h2>
+      <p>계약하시면 「우리 집 공사 한눈에」라는 고객 전용 화면이 열립니다. 휴대전화로 보실 수 있습니다.</p>
+      <table style="font-size:9.8pt;">
+        <tr><td style="width:34%;font-weight:700;">진행 현황</td><td>지금 어느 공정이고 다음은 무엇인지</td></tr>
+        <tr><td style="font-weight:700;">우리 집 도면</td><td>다시 그린 도면과 방별 넓이</td></tr>
+        <tr><td style="font-weight:700;">공정표</td><td>날짜별 작업과 순서</td></tr>
+        <tr><td style="font-weight:700;">견적서·발주서</td><td>자재, 단가, 주문한 내역</td></tr>
+        <tr><td style="font-weight:700;">계약</td><td>공사 내용·기간·금액 확인과 화면 서명</td></tr>
+        <tr><td style="font-weight:700;">결제</td><td>안내받은 금액을 안전결제로</td></tr>
+      </table>
+      <p style="margin-top:6mm;">코디 쪽에서는 의뢰, 견적, 계약, 시공, 사후 관리가 한 화면에 이어져 있습니다. 공정표와 자재 주문, 기술자 배정, 임금 대장, 현장별로 들어간 돈, 하자 접수가 같은 곳에 기록됩니다.</p>
+      <p>기록이 남으면 문제가 생겼을 때 기억이 아니라 기록으로 이야기할 수 있습니다. 누가 언제 무엇을 지시했는지, 어떤 자재를 얼마에 주문했는지가 남습니다.</p>
+    </div>
+    <div>
+      <div class="fig"><img src="shot-plan.jpg" alt=""></div>
+      <p class="cap">그림 3. 고객 화면에 올라가는 도면. 방마다 넓이와 가로·세로가 적힙니다.</p>
+    </div>
+  </div>
+  <div class="foot"><span>jipjini.com</span><span>7</span></div>
+</div>
+
+<!-- 8 비용 -->
+<div class="page tight">
+  <div class="head"><span>집지니 안내서</span><span>비용</span></div>
+  <div class="cols">
+    <div class="side"><b>부가세</b>이 쪽의 모든 금액은 부가세 10% 별도입니다.<br><br><b>무료</b>의뢰서, 코디 검토, 상세 견적서, 도면 도구 「지니도면」.</div>
+    <div>
+      <h2>저희가 받는 돈</h2>
+      <p>자재비와 인건비에는 얹지 않습니다. 시공 총액에 따라 아래 운영비를 받습니다.</p>
+      <table style="margin-top:3mm;">
+        <tr><th>시공 총액</th><th style="width:36%">코디 운영비</th></tr>
+        <tr><td>500만 원 이하</td><td>15% (최소 75만 원)</td></tr>
+        <tr><td>500만 ~ 1,000만 원</td><td>11%</td></tr>
+        <tr><td>1,000만 ~ 2,000만 원</td><td>8.5%</td></tr>
+        <tr><td>2,000만 ~ 3,000만 원</td><td>7%</td></tr>
+        <tr><td>3,000만 ~ 4,000만 원</td><td>6%</td></tr>
+        <tr><td>4,000만 ~ 5,000만 원</td><td>5%</td></tr>
+        <tr><td>5,000만 ~ 7,000만 원</td><td>4.5%</td></tr>
+        <tr><td>7,000만 ~ 1억 원</td><td>4%</td></tr>
+        <tr><td>1억 원 이상</td><td>3.5%</td></tr>
+      </table>
+      <div class="rule"></div>
+      <h3>현장 관리자 (선택)</h3>
+      <p>공사 기간 동안 현장을 대신 챙기고 대금 지급을 대행합니다. 비용은 시공 총액에 따라 80만 원에서 700만 원 사이에서 따로 정합니다. 작은 공사는 현장 관리자 없이도 진행합니다.</p>
+      <h3>하자</h3>
+      <p>입주 뒤 12개월 동안 하자를 접수하고 해당 기술자·자재상과 조율합니다.</p>
+    </div>
+  </div>
+  <div class="foot"><span>jipjini.com</span><span>8</span></div>
+</div>
+
+<!-- 9 절차 -->
+<div class="page">
+  <div class="head"><span>집지니 안내서</span><span>절차</span></div>
+  <h2>의뢰부터 입주까지</h2>
+  <table style="font-size:10.2pt;">
+    <tr><th style="width:9%"></th><th style="width:31%">단계</th><th>하는 일</th><th style="width:16%">비용</th></tr>
+    <tr><td>1</td><td style="font-weight:700;">방식 비교</td><td>세 가지 길 가운데 맞는 방식을 고릅니다</td><td></td></tr>
+    <tr><td>2</td><td style="font-weight:700;">의뢰서 작성</td><td>주소, 범위, 일정을 적고 평면도를 올립니다</td><td>무료</td></tr>
+    <tr><td>3</td><td style="font-weight:700;">담당 코디 검토</td><td>현장 조건과 건물 정보를 확인합니다</td><td>무료</td></tr>
+    <tr><td>4</td><td style="font-weight:700;">상세 견적서</td><td>자재 모델명, 단가, 거래처를 적어 보냅니다</td><td>무료</td></tr>
+    <tr><td>5</td><td style="font-weight:700;">검토와 결정</td><td>마음에 들지 않으면 여기서 끝내셔도 됩니다</td><td></td></tr>
+    <tr><td>6</td><td style="font-weight:700;">계약</td><td>화면에서 서명하고 운영비를 결제합니다</td><td>운영비</td></tr>
+    <tr><td>7</td><td style="font-weight:700;">도면과 작업지시서</td><td>기호로 위치와 수량을 확정합니다</td><td></td></tr>
+    <tr><td>8</td><td style="font-weight:700;">자재상·기술자 연결</td><td>거래처를 정하고 단가를 미리 협의합니다</td><td></td></tr>
+    <tr><td>9</td><td style="font-weight:700;">자재 주문</td><td>고객 이름으로 직접 거래합니다</td><td>자재비</td></tr>
+    <tr><td>10</td><td style="font-weight:700;">시공</td><td>공정표대로 진행하고 고객 화면에 올립니다</td><td>인건비</td></tr>
+    <tr><td>11</td><td style="font-weight:700;">입주와 하자 조율</td><td>점검 뒤 입주, 이후 12개월 동안 접수와 조율</td><td></td></tr>
+  </table>
+  <div class="rule"></div>
+  <div class="two">
+    <div><h3>상담</h3><p>카카오톡과 전화로 진행합니다. 평면도와 사진을 보내 주시면 더 정확해집니다. 고객께 보내는 안내는 담당 코디가 확인한 뒤 낮 시간에 보냅니다.</p></div>
+    <div><h3>지역</h3><p>서울, 경기, 인천 수도권 전역에서 진행합니다.</p></div>
+  </div>
+  <div class="foot"><span>jipjini.com</span><span>9</span></div>
+</div>
+
+<!-- 뒷표지 -->
+<div class="page" style="background:#f4f1ea;">
+  <div style="display:flex;justify-content:space-between;font-size:9pt;color:#55544e;"><span>집지니 · 인테리어 코디네이팅</span><span>연락처</span></div>
+  <div style="margin-top:34mm;max-width:140mm;">
+    <h2 style="font-size:24pt;">의뢰서와 견적서는 무료입니다.<br>받아 보시고 정하십시오.</h2>
+    <dl class="kv" style="margin-top:12mm;">
+      <dt>누리집</dt><dd>jipjini.com</dd>
+      <dt>의뢰서</dt><dd>jipjini.com/request.html</dd>
+      <dt>지니도면</dt><dd>jipjini.com/genie-plan</dd>
+      <dt>카카오톡 채널</dt><dd>@집지니</dd>
+      <dt>전화</dt><dd>010-9806-0422</dd>
+      <dt>샘플실</dt><dd>서울 강서구 공항대로41길 66 세신종합상가 B156호</dd>
+      <dt>시공 사례</dt><dd>네이버 블로그, 유튜브 「촌닭건축」</dd>
+    </dl>
+  </div>
+  <p class="note" style="position:absolute;left:22mm;right:22mm;bottom:24mm;">집지니 · 사업자등록번호 874-10-00088 · 인천광역시 강화군 동문로 33 · thecloudstay@gmail.com<br>이 안내서의 비용 예시는 이해를 돕기 위한 것이며 실제 금액은 현장 조건에 따라 달라집니다. 모든 금액은 부가세 10% 별도입니다.</p>
 </div>
 
 </body>

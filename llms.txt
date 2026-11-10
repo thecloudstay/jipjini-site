@@ -12,3 +12,5 @@
 
 ## 더 자세히
 - [llms-full.txt](https://jipjini.com/llms-full.txt): 가격표·절차·정책 전문
+
+- [지니도면 — 무료 공사 도면·작업지시서 도구](https://jipjini.com/genie-plan/): 평면도 사진·PDF를 올리면 방과 면적을 읽어 공사 도면으로 다시 그리고, 작업 기호를 놓아 공종별 작업지시서를 만든다. 가입 없음, 도면은 방문자 기기에만 저장.

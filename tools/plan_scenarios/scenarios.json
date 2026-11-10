@@ -1,12 +1,542 @@
 [
- {"id": "S01", "이름": "KB식 · 콘솔 파일 올리기 (923화소 JPG)", "style": "kb", "ppm": 73, "deliver": {"jpeg": 0.85}, "면적": 76.84},
- {"id": "S02", "이름": "KB식 · 화면 캡처 붙여넣기 (둘레에 화면 글자·여백)", "style": "kb", "ppm": 73, "deliver": {"frame": true}, "면적": 76.84},
- {"id": "S03", "이름": "KB식 · 휴대폰 사진 (2도 기울고 어둡고 압축)", "style": "kb", "ppm": 73, "deliver": {"rotate": 2, "dark": true, "jpeg": 0.6}, "면적": 76.84, "느슨": true},
- {"id": "S04", "이름": "네이버식 · 작은 미리보기 628화소 · 면적 입력 없음 (그림 글자에서 전용 읽기)", "style": "nv", "ppm": 70, "deliver": {"width": 628, "jpeg": 0.8}, "면적": 0, "전용읽기": 80.5},
- {"id": "S05", "이름": "네이버식 치수선 · 입력 면적이 다른 평형 (치수 우선 + 경고)", "style": "nvdim", "ppm": 60, "deliver": {"width": 603, "jpeg": 0.8}, "면적": 59.9, "치수우선": true},
- {"id": "S06", "이름": "부동산114식 · 389화소 작은 그림 · 방마다 면적 글자", "style": "r114", "ppm": 60, "deliver": {"width": 389}, "면적": 0, "방면적": true},
- {"id": "S07", "이름": "부동산114식 · 흐린 확대 캡처 (절반으로 줄였다 키움)", "style": "r114", "ppm": 80, "deliver": {"blur2x": true, "jpeg": 0.7}, "면적": 76.84, "방면적": true, "느슨": true},
- {"id": "S08", "이름": "고객 페이지 · 큰 원본 2600화소 PNG", "style": "kb", "ppm": 205, "deliver": {}, "면적": 76.84},
- {"id": "S09", "이름": "의뢰서 · 글자 없는 도면 (방 이름 없음 → 규칙 방식)", "style": "kb", "ppm": 73, "labels": false, "deliver": {"jpeg": 0.85}, "면적": 76.84, "글자없음": true},
- {"id": "S10", "이름": "설계 도면(PDF 스캔식) · 속 빈 벽 · 치수선 (알려진 한계: 척도만 확인)", "style": "cad", "ppm": 90, "deliver": {}, "면적": 76.84, "한계": true}
+ {
+  "id": "S01",
+  "이름": "KB식 · 콘솔 파일 올리기 (923화소 JPG)",
+  "style": "kb",
+  "ppm": 73,
+  "deliver": {
+   "jpeg": 0.85
+  },
+  "면적": "auto"
+ },
+ {
+  "id": "S02",
+  "이름": "KB식 · 화면 캡처 붙여넣기 (둘레에 화면 글자·여백)",
+  "style": "kb",
+  "ppm": 73,
+  "deliver": {
+   "frame": true
+  },
+  "면적": "auto"
+ },
+ {
+  "id": "S03",
+  "이름": "KB식 · 휴대폰 사진 (2도 기울고 어둡고 압축)",
+  "style": "kb",
+  "ppm": 73,
+  "deliver": {
+   "rotate": 2,
+   "dark": true,
+   "jpeg": 0.6
+  },
+  "면적": "auto",
+  "느슨": true
+ },
+ {
+  "id": "S04",
+  "이름": "네이버식 · 작은 미리보기 628화소 · 면적 입력 없음 (그림 글자에서 전용 읽기)",
+  "style": "nv",
+  "ppm": 70,
+  "deliver": {
+   "width": 628,
+   "jpeg": 0.8
+  },
+  "면적": 0,
+  "전용읽기": "auto"
+ },
+ {
+  "id": "S05",
+  "이름": "네이버식 치수선 · 입력 면적이 다른 평형 (치수 우선 + 경고)",
+  "style": "nvdim",
+  "ppm": 60,
+  "deliver": {
+   "width": 603,
+   "jpeg": 0.8
+  },
+  "면적": 59.9,
+  "치수우선": true
+ },
+ {
+  "id": "S06",
+  "이름": "부동산114식 · 389화소 작은 그림 · 방마다 면적 글자",
+  "style": "r114",
+  "ppm": 60,
+  "deliver": {
+   "width": 389
+  },
+  "면적": 0,
+  "방면적": true
+ },
+ {
+  "id": "S07",
+  "이름": "부동산114식 · 흐린 확대 캡처 (절반으로 줄였다 키움)",
+  "style": "r114",
+  "ppm": 80,
+  "deliver": {
+   "blur2x": true,
+   "jpeg": 0.7
+  },
+  "면적": "auto",
+  "방면적": true,
+  "느슨": true
+ },
+ {
+  "id": "S08",
+  "이름": "고객 페이지 · 큰 원본 2600화소 PNG",
+  "style": "kb",
+  "ppm": 205,
+  "deliver": {},
+  "면적": "auto"
+ },
+ {
+  "id": "S09",
+  "이름": "의뢰서 · 글자 없는 도면 (방 이름 없음 → 규칙 방식)",
+  "style": "kb",
+  "ppm": 73,
+  "labels": false,
+  "deliver": {
+   "jpeg": 0.85
+  },
+  "면적": "auto",
+  "글자없음": true
+ },
+ {
+  "id": "S10",
+  "이름": "설계 도면(PDF 스캔식) · 속 빈 벽 · 치수선 (알려진 한계: 척도만 확인)",
+  "style": "cad",
+  "ppm": 90,
+  "deliver": {},
+  "면적": "auto",
+  "한계": true
+ },
+ {
+  "id": "S11",
+  "이름": "59㎡형 · KB식 · 파일",
+  "style": "kb",
+  "ppm": 80,
+  "opt": {
+   "layout": "B"
+  },
+  "deliver": {
+   "jpeg": 0.85
+  },
+  "면적": "auto"
+ },
+ {
+  "id": "S12",
+  "이름": "59㎡형 · 네이버식 · 면적 입력 없음",
+  "style": "nv",
+  "ppm": 72,
+  "opt": {
+   "layout": "B"
+  },
+  "deliver": {
+   "width": 640,
+   "jpeg": 0.8
+  },
+  "면적": 0,
+  "전용읽기": "auto"
+ },
+ {
+  "id": "S13",
+  "이름": "59㎡형 · 네이버 치수선 · 면적 입력 없음(치수로만)",
+  "style": "nvdim",
+  "ppm": 66,
+  "opt": {
+   "layout": "B"
+  },
+  "deliver": {
+   "jpeg": 0.8
+  },
+  "면적": 0,
+  "치수우선": false,
+  "치수만": true
+ },
+ {
+  "id": "S14",
+  "이름": "59㎡형 · 부동산114식 · 작은 그림 420화소",
+  "style": "r114",
+  "ppm": 60,
+  "opt": {
+   "layout": "B"
+  },
+  "deliver": {
+   "width": 420
+  },
+  "면적": 0,
+  "방면적": true
+ },
+ {
+  "id": "S15",
+  "이름": "114㎡형(방 4) · KB식 · 파일",
+  "style": "kb",
+  "ppm": 64,
+  "opt": {
+   "layout": "C"
+  },
+  "deliver": {
+   "jpeg": 0.85
+  },
+  "면적": "auto"
+ },
+ {
+  "id": "S16",
+  "이름": "114㎡형 · 네이버식 · 작은 미리보기 640화소",
+  "style": "nv",
+  "ppm": 60,
+  "opt": {
+   "layout": "C"
+  },
+  "deliver": {
+   "width": 640,
+   "jpeg": 0.8
+  },
+  "면적": "auto"
+ },
+ {
+  "id": "S17",
+  "이름": "114㎡형 · 네이버 치수선 · 맞는 면적 입력",
+  "style": "nvdim",
+  "ppm": 56,
+  "opt": {
+   "layout": "C"
+  },
+  "deliver": {
+   "jpeg": 0.8
+  },
+  "면적": "auto",
+  "치수방식": true
+ },
+ {
+  "id": "S18",
+  "이름": "114㎡형 · 부동산114식 · 방 면적 글자",
+  "style": "r114",
+  "ppm": 56,
+  "opt": {
+   "layout": "C"
+  },
+  "deliver": {
+   "jpeg": 0.85
+  },
+  "면적": "auto",
+  "방면적": true
+ },
+ {
+  "id": "S19",
+  "이름": "좌우가 뒤집힌 평면 · KB식",
+  "style": "kb",
+  "ppm": 73,
+  "opt": {
+   "layout": "A",
+   "mirror": true
+  },
+  "deliver": {
+   "jpeg": 0.85
+  },
+  "면적": "auto"
+ },
+ {
+  "id": "S20",
+  "이름": "옆으로 누운 평면(발코니가 오른쪽) · KB식",
+  "style": "kb",
+  "ppm": 73,
+  "opt": {
+   "layout": "A",
+   "rot": true
+  },
+  "deliver": {
+   "jpeg": 0.85
+  },
+  "면적": "auto"
+ },
+ {
+  "id": "S21",
+  "이름": "옆으로 누운 59㎡형 · 네이버식",
+  "style": "nv",
+  "ppm": 72,
+  "opt": {
+   "layout": "B",
+   "rot": true
+  },
+  "deliver": {
+   "jpeg": 0.8
+  },
+  "면적": "auto"
+ },
+ {
+  "id": "S22",
+  "이름": "좌우 뒤집힌 114㎡형 · 부동산114식",
+  "style": "r114",
+  "ppm": 56,
+  "opt": {
+   "layout": "C",
+   "mirror": true
+  },
+  "deliver": {
+   "jpeg": 0.85
+  },
+  "면적": "auto",
+  "방면적": true
+ },
+ {
+  "id": "S23",
+  "이름": "방 이름이 「안방·방2·화장실·베란다」 · KB식",
+  "style": "kb",
+  "ppm": 73,
+  "opt": {
+   "layout": "A",
+   "names": "alt"
+  },
+  "deliver": {
+   "jpeg": 0.85
+  },
+  "면적": "auto"
+ },
+ {
+  "id": "S24",
+  "이름": "영문 이름표(BED ROOM·LIVING·BATH) · 네이버식",
+  "style": "nv",
+  "ppm": 73,
+  "opt": {
+   "layout": "A",
+   "names": "en"
+  },
+  "deliver": {
+   "jpeg": 0.85
+  },
+  "면적": "auto",
+  "느슨": true
+ },
+ {
+  "id": "S25",
+  "이름": "방 이름 「안방·방2」 · 부동산114식 59㎡형",
+  "style": "r114",
+  "ppm": 66,
+  "opt": {
+   "layout": "B",
+   "names": "alt"
+  },
+  "deliver": {
+   "jpeg": 0.85
+  },
+  "면적": "auto",
+  "방면적": true
+ },
+ {
+  "id": "S26",
+  "이름": "벽이 회색(짙은 회색 벽) · KB식",
+  "style": "kb",
+  "ppm": 73,
+  "opt": {
+   "layout": "A",
+   "wallColor": "#4a4a4a"
+  },
+  "deliver": {
+   "jpeg": 0.85
+  },
+  "면적": "auto"
+ },
+ {
+  "id": "S27",
+  "이름": "벽이 가는 도면(벽 두께 12cm) · 59㎡형 KB식",
+  "style": "kb",
+  "ppm": 80,
+  "opt": {
+   "layout": "B",
+   "wallT": 0.12
+  },
+  "deliver": {
+   "jpeg": 0.85
+  },
+  "면적": "auto",
+  "느슨": true
+ },
+ {
+  "id": "S28",
+  "이름": "가구(침대·소파·식탁)가 그려진 도면 · KB식",
+  "style": "kb",
+  "ppm": 73,
+  "opt": {
+   "layout": "A",
+   "furniture": true
+  },
+  "deliver": {
+   "jpeg": 0.85
+  },
+  "면적": "auto"
+ },
+ {
+  "id": "S29",
+  "이름": "가구가 그려진 114㎡형 · 네이버식",
+  "style": "nv",
+  "ppm": 60,
+  "opt": {
+   "layout": "C",
+   "furniture": true
+  },
+  "deliver": {
+   "jpeg": 0.8
+  },
+  "면적": "auto"
+ },
+ {
+  "id": "S30",
+  "이름": "공용부(계단·승강기)가 붙은 도면 · 네이버식",
+  "style": "nv",
+  "ppm": 70,
+  "opt": {
+   "layout": "A",
+   "common": true
+  },
+  "deliver": {
+   "jpeg": 0.8
+  },
+  "면적": "auto",
+  "공용부": true
+ },
+ {
+  "id": "S31",
+  "이름": "공용부가 붙은 59㎡형 · KB식",
+  "style": "kb",
+  "ppm": 76,
+  "opt": {
+   "layout": "B",
+   "common": true
+  },
+  "deliver": {
+   "jpeg": 0.85
+  },
+  "면적": "auto",
+  "공용부": true
+ },
+ {
+  "id": "S32",
+  "이름": "비침 글자가 짙고 큰 도면 · 네이버식",
+  "style": "nv",
+  "ppm": 70,
+  "opt": {
+   "layout": "A",
+   "wm": true
+  },
+  "deliver": {
+   "jpeg": 0.8
+  },
+  "면적": "auto",
+  "느슨": true
+ },
+ {
+  "id": "S33",
+  "이름": "색이 바랜(흐린) 인쇄물 사진 · KB식",
+  "style": "kb",
+  "ppm": 73,
+  "opt": {
+   "layout": "A"
+  },
+  "deliver": {
+   "fade": 0.62,
+   "jpeg": 0.7
+  },
+  "면적": "auto",
+  "느슨": true
+ },
+ {
+  "id": "S34",
+  "이름": "잡티가 많은 사진 · 네이버식 59㎡형",
+  "style": "nv",
+  "ppm": 72,
+  "opt": {
+   "layout": "B"
+  },
+  "deliver": {
+   "noise": 14,
+   "jpeg": 0.6
+  },
+  "면적": "auto",
+  "느슨": true
+ },
+ {
+  "id": "S35",
+  "이름": "아주 작은 그림 480화소 · KB식",
+  "style": "kb",
+  "ppm": 73,
+  "opt": {
+   "layout": "A"
+  },
+  "deliver": {
+   "width": 480,
+   "jpeg": 0.8
+  },
+  "면적": "auto",
+  "느슨": true
+ },
+ {
+  "id": "S36",
+  "이름": "아주 큰 원본 3200화소 · 114㎡형 KB식",
+  "style": "kb",
+  "ppm": 200,
+  "opt": {
+   "layout": "C"
+  },
+  "deliver": {},
+  "면적": "auto"
+ },
+ {
+  "id": "S37",
+  "이름": "압축이 심한 그림(품질 40%) · 59㎡형 네이버식",
+  "style": "nv",
+  "ppm": 110,
+  "opt": {
+   "layout": "B"
+  },
+  "deliver": {
+   "jpeg": 0.4
+  },
+  "면적": "auto"
+ },
+ {
+  "id": "S38",
+  "이름": "화면 캡처(둘레에 화면 글자) · 부동산114식",
+  "style": "r114",
+  "ppm": 66,
+  "opt": {
+   "layout": "A"
+  },
+  "deliver": {
+   "frame": true
+  },
+  "면적": "auto",
+  "방면적": true
+ },
+ {
+  "id": "S39",
+  "이름": "휴대폰 사진(반대로 3도 기울고 어두움) · 59㎡형 KB식",
+  "style": "kb",
+  "ppm": 80,
+  "opt": {
+   "layout": "B"
+  },
+  "deliver": {
+   "rotate": -3,
+   "dark": true,
+   "jpeg": 0.6
+  },
+  "면적": "auto",
+  "느슨": true
+ },
+ {
+  "id": "S40",
+  "이름": "흐린 확대 캡처 · 114㎡형 네이버 치수선",
+  "style": "nvdim",
+  "ppm": 60,
+  "opt": {
+   "layout": "C"
+  },
+  "deliver": {
+   "blur2x": true,
+   "jpeg": 0.7
+  },
+  "면적": "auto",
+  "느슨": true,
+  "치수방식": true
+ }
 ]

@@ -396,7 +396,7 @@ table.plm td.r,table.plm th.r{padding-left:10px}
       '<label class="btn" style="cursor:pointer;display:inline-block"><span id="plUpLbl">평면도 고르기</span><input id="plUpFile" type="file" accept="image/*" style="display:none"></label></div>' +
       '<p id="plUpMsg" class="plnote"></p><div id="plUpOut"></div><div id="plCatBox" style="margin-top:14px;padding-top:12px;border-top:1px solid var(--line,#eee)"></div></section>';
   }
-  function plUpLoad(cb, fail) { if (window.JJPlanTools && window.JJPlanAuto) return cb(); var one = function (src, next) { var sc = document.createElement('script'); sc.src = src; sc.onload = next; sc.onerror = function () { fail(); }; document.head.appendChild(sc); }; one('../assets/plan_auto.js?v=20261110h', function () { one('../assets/plan_tools.js?v=20261110h', function () { one('../assets/plan_style.js?v=20261110h', function () { cb(); }); }); }); }
+  function plUpLoad(cb, fail) { if (window.JJPlanTools && window.JJPlanAuto) return cb(); var one = function (src, next) { var sc = document.createElement('script'); sc.src = src; sc.onload = next; sc.onerror = function () { fail(); }; document.head.appendChild(sc); }; one('../assets/plan_auto.js?v=20261110h', function () { one('../assets/plan_tools.js?v=20261110m', function () { one('../assets/plan_style.js?v=20261110h', function () { cb(); }); }); }); }
   var PLFILE = null;
   function plUpRun(src) { var msg = document.getElementById('plUpMsg'), lbl = document.getElementById('plUpLbl'); msg.textContent = '집지니가 도면을 분석하고 있습니다…'; lbl.textContent = '집지니가 분석 중…';
     plUpLoad(function () { window.JJPlanTools.analyze(src, { areaM2: Number(document.getElementById('plUpM2').value) || 0, onStep: function (t) { msg.textContent = t + '…'; } }).then(function (r) {
