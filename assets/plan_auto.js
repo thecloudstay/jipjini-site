@@ -49,6 +49,7 @@ function plAutoRoomsCore(d, w, h, rf) {   // d: 화소 RGBA (Uint8ClampedArray),
   }
   return { found };
 }
+// 새 분석 도구(jipjini.com/assets: 글자 인식으로 방 이름 확정·글자 지운 뒤 방 나누기·치수 읽기) 불러오기
 function perimPx(pts) { var s = 0; for (var i = 0; i < pts.length; i++) { var a = pts[i], b = pts[(i + 1) % pts.length]; s += Math.hypot(b[0] - a[0], b[1] - a[1]); } return s; }
 function R1(v) { return Math.round(v * 10) / 10; } function R2(v) { return Math.round(v * 100) / 100; }
 // 문이 열린 채 그려진 도면(부동산 앱·분양 안내문)은 방이 합쳐지므로 중심부 반지름을 키워 가며 다시 나눠 보고, 공간이 가장 많이 나뉜 결과를 쓴다
@@ -126,13 +127,14 @@ function finalize(found, W, H, dataUrl, areaM2, engineName, mmppFix) {
       if (strip) f.kind = '발코니'; else if (f.px < med * 0.35) f.kind = '욕실'; else if (!hasLiving && firstRoom) { f.kind = '거실'; hasLiving = true; } else f.kind = '방';
       if (f.kind === '거실' || f.kind === '방') firstRoom = false; }
   });
-  found.forEach(function (f) { var k = f.kind; cnt[k] = (cnt[k] || 0) + 1; var n = cnt[k];
-    f.name = k === '방' ? (n === 1 ? '안방' : '방' + n) : k === '거실' ? (n === 1 ? '거실' : '거실' + n) : (k === '욕실' || k === '발코니' || k === '기타') ? k + n : (n === 1 ? k : k + n); });
+  var used = {};
+  found.forEach(function (f) { var k = f.kind; cnt[k] = (cnt[k] || 0) + (f.nm ? 0 : 1); var n = cnt[k];
+    f.name = f.nm ? (used[f.nm] ? f.nm + (++used[f.nm]) : (used[f.nm] = 1, f.nm)) : k === '방' ? (n === 1 ? '안방' : '방' + n) : k === '거실' ? (n === 1 ? '거실' : '거실' + n) : (k === '욕실' || k === '발코니' || k === '기타') ? k + n : (n === 1 ? k : k + n); });
   var outer = function (f) { return f.kind === '발코니' || f.kind === '실외기실'; };
   var m2 = Number(areaM2) || 0, innerPx = found.filter(function (f) { return !outer(f); }).reduce(function (s, f) { return s + f.px; }, 0);
   var mmpp = Number(mmppFix) > 0 ? Number(mmppFix) : ((m2 > 0 && innerPx > 0) ? Math.sqrt(m2 * 1e6 / innerPx) : 0);
   var rooms = found.map(function (f) {
-    var o = { name: f.name, kind: f.kind, pts: f.pts, px: f.px, share: innerPx ? f.px / innerPx : 0 };
+    var o = { name: f.name, kind: f.kind, nm: f.nm || '', pts: f.pts, px: f.px, share: innerPx ? f.px / innerPx : 0 };
     if (mmpp) { o.area = R2(f.px * mmpp * mmpp / 1e6); o.perim = R2(perimPx(f.pts) * mmpp / 1000); var ar = Math.max(f.bw, 1) / Math.max(f.bh, 1); o.w = R1(Math.sqrt(o.area * ar)); o.d = o.w ? R1(o.area / o.w) : 0; }
     return o; });
   var shapes = rooms.map(function (r) { return { t: 'room', c: '#2f6b4f', name: r.name, pts: r.pts, auto: true }; });
