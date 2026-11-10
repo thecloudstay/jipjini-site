@@ -9,7 +9,7 @@
 import os, re, glob, sys, json
 from html import unescape as html_unescape
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-SKIP_DIRS = ("admin", "console", "assets", "q", "node_modules", ".github", "progress", "measure", "wage")   # progress·measure·wage = 고객·기사 개인 화면 (2026-11-09)
+SKIP_DIRS = ("admin", "console", "assets", "q", "node_modules", ".github", "progress", "measure", "wage", "genie-plan")   # progress·measure·wage = 고객·기사 개인 화면 (2026-11-09) · genie-plan = 집지니 CAD(cad.html)로 넘기는 빈 쪽(색인 제외. 2026-11-11)
 SKIP_FILES = {"quote.html", "client-input.html", "schedule.html", "sign.html", "contract.html", "payment.html", "doc.html", "order.html"}   # 고객 개인 화면
 OG = '<meta property="og:image" content="https://jipjini.com/og-cover.png">'
 TW = '<meta name="twitter:card" content="summary_large_image">'
