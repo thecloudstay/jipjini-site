@@ -451,6 +451,18 @@
       var kg = keep.getContext('2d'); kg.fillStyle = '#fff'; kg.fillRect(0, 0, W, H); kg.drawImage(img, 0, 0, W, H); var dataUrl = keep.toDataURL('image/jpeg', 0.86);
       step('도면의 글자와 치수를 읽고 있습니다');
       var ocrJob = opt.ocr === false ? Promise.resolve([]) : readTextScaled(keep).catch(function () { return null; });
+      // 2026-11-10 옆으로 누운 그림 바로 세우기: 부동산 사이트 평면도 일부는 90도 돌아간 채 올라와 있어 방 이름이 안 읽힌다(시험 50곳에서 평균 50점).
+      //   방 이름이 2개도 안 읽히면 왼쪽·오른쪽으로 돌려 글자만 다시 읽고, 3개 이상 읽히는 쪽이 있으면 그 방향으로 분석한다.
+      var turned = 0, nameN = function (its) { var n = 0; (its || []).forEach(function (it) { if (/거\s*[실설]|[침칩]\s*실|안\s*방|[욕옥]\s*실|화장실|주\s*방|발\s*코\s*니|현\s*관/.test(String(it.text || ''))) n++; }); return n; };
+      var rot = function (cv, deg) { var c = document.createElement('canvas'); c.width = cv.height; c.height = cv.width; var g = c.getContext('2d'); g.fillStyle = '#fff'; g.fillRect(0, 0, c.width, c.height); g.translate(c.width / 2, c.height / 2); g.rotate(deg * Math.PI / 180); g.drawImage(cv, -cv.width / 2, -cv.height / 2); return c; };
+      ocrJob = ocrJob.then(function (items) {
+        if (opt.ocr === false || opt.noRotate || nameN(items) >= 2) return items;
+        step('도면 방향을 확인하고 있습니다');
+        var best = { n: nameN(items), items: null, cv: null, deg: 0 };
+        return [90, 270].reduce(function (pr, deg) { return pr.then(function () { var c = rot(keep, deg); return readTextScaled(c).then(function (its) { var n = nameN(its); if (n > best.n) best = { n: n, items: its, cv: c, deg: deg }; }, function () {}); }); }, Promise.resolve()).then(function () {
+          if (best.cv && best.n >= 3) { keep = best.cv; W = keep.width; H = keep.height; dataUrl = keep.toDataURL('image/jpeg', 0.86); turned = best.deg; return best.items; }
+          return items; });
+      });
       return ocrJob.then(function (items) {
         if (items && items.length) items = mergeLines(items);
         var clean = keep, seedJob = Promise.resolve();
@@ -468,7 +480,7 @@
           if (!base.ok || !items || !items.length) { if (base.ok) { base.글자 = { 개수: 0, 방이름: 0, 치수: [], 실패: items === null }; try { var fr = base.rooms.map(function (r) { return { pts: r.pts, px: r.px, kind: r.kind, nm: r.nm }; }); squareUp(fr); var b2 = A.finalize(fr, W, H, dataUrl, opt.areaM2, base.engine); b2.글자 = base.글자; base = b2; } catch (_q) {} } return base; }
           return refine(base, items, opt.areaM2);
         });
-      });
+      }).then(function (res) { if (res && turned) res.회전 = turned; return res; });
     }).catch(function (e) { return { ok: false, why: (e && e.message) || '도면을 읽지 못했습니다.' }; });
   }
   /** 이름이 안 읽힌 칸 하나만 잘라 크게(어두운 바탕이면 뒤집어) 다시 읽는다 → { kind, nm, item } | null */
