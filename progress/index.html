@@ -297,8 +297,10 @@ table.plm td.r,table.plm th.r{padding-left:10px}
   // 2026-11-09 항목별 「사양」 — 기본·중급·고급 선택지 (고르기만 하면 됨)
   function selSpecH(g, w, x) { var t = (SEL.틀 || []).filter(function (z) { return z.공종 === g; })[0] || {}, opts = (t.사양 || {})[w] || (t.사양 || {})['*'] || [], pend = SEL.아직 || [];
     var all = opts.map(function (o) { return o.v; }).concat(pend);
-    return '<select data-f="사양" class="selm"><option value="">' + (opts.length ? '사양 고르기 (기본·중급·고급)' : '고르기') + '</option>' + (opts.length ? '<optgroup label="사양">' + opts.map(function (o) { return '<option value="' + esc(o.v) + '"' + (x.사양 === o.v ? ' selected' : '') + '>' + esc(o.g + ' · ' + o.v) + '</option>'; }).join('') + '</optgroup>' : '') +
-      '<optgroup label="아직 못 고르셨으면">' + pend.map(function (v) { return '<option value="' + esc(v) + '"' + (x.사양 === v ? ' selected' : '') + '>' + esc(v) + '</option>'; }).join('') + '</optgroup>' + (x.사양 && all.indexOf(x.사양) < 0 ? '<option selected>' + esc(x.사양) + '</option>' : '') + '</select>'; }
+    return '<select data-f="사양" class="selm"><option value="">' + (opts.length ? '사양 고르기 (기본·중급·고급)' : '고르기') + '</option>' + (opts.length ? '<optgroup label="사양">' + opts.map(function (o) { return '<option value="' + esc(o.v) + '"' + (x.사양 === o.v ? ' selected' : '') + '>' + esc(o.g + ' · ' + o.v + (o.m ? ' — ' + o.m : '')) + '</option>'; }).join('') + '</optgroup>' : '') +
+      '<optgroup label="아직 못 고르셨으면">' + pend.map(function (v) { return '<option value="' + esc(v) + '"' + (x.사양 === v ? ' selected' : '') + '>' + esc(v) + '</option>'; }).join('') + '</optgroup>' + (x.사양 && all.indexOf(x.사양) < 0 ? '<option selected>' + esc(x.사양) + '</option>' : '') + '</select>' + selModelHint(opts, x); }
+  // 2026-11-10 고른 사양의 기준 모델(브랜드·모델명)을 바로 아래에 보여 준다 — 고객이 모델명을 따로 적으면 그 제품이 우선
+  function selModelHint(opts, x) { var m = ''; (opts || []).forEach(function (o) { if (o.v === x.사양 && o.m) m = o.m; }); return m && !x.모델명 ? '<div style="font-size:12px;color:#6b6b6b;margin:4px 0 2px;line-height:1.5;">기준 모델: ' + esc(m) + ' · 다른 제품을 원하시면 모델명을 적어 주세요</div>' : ''; }
   function selIdx(g) { var i = -1; (SEL && SEL.틀 || []).forEach(function (t, k) { if (t.공종 === g) i = k; }); return i; }
   // 2026-11-09 묶음마다 자주 쓰는 브랜드 보기(datalist) — 폰에서 고르기만 하면 되게
   function selBrandList(t, i) { return t.브랜드 && t.브랜드.length ? '<datalist id="selb_' + i + '">' + t.브랜드.map(function (b) { return '<option value="' + esc(b) + '">'; }).join('') + '</datalist>' : ''; }
