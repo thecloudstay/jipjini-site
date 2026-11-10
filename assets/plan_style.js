@@ -80,6 +80,28 @@
       if (wn._at[2]) h.push('<text x="' + x.toFixed(1) + '" y="' + (y + f0 * 0.34).toFixed(1) + '" text-anchor="middle" font-size="' + f0.toFixed(1) + '" font-weight="600" fill="' + ACC + '" stroke="' + PAPER + '" stroke-width="' + (f0 * 0.5).toFixed(1) + '" paint-order="stroke">' + esc(t) + '</text>');
       else h.push('<text transform="translate(' + (x + f0 * 0.34).toFixed(1) + ' ' + y.toFixed(1) + ') rotate(-90)" text-anchor="middle" font-size="' + f0.toFixed(1) + '" font-weight="600" fill="' + ACC + '" stroke="' + PAPER + '" stroke-width="' + (f0 * 0.5).toFixed(1) + '" paint-order="stroke">' + esc(t) + '</text>'); });
     if (bare) { if (!opt.noMark) h.push('<rect width="100%" height="100%" fill="url(#' + id + 'w)" pointer-events="none"/>'); h.push('</svg>'); return h.join(''); }
+    // 2026-11-10 치수선: 축척을 알면 네 변의 구간 치수와 전체 치수를 기본으로 그린다 (대표 지시 「치수선 모두 추론하여 기본으로」). 끄려면 opt.noDims
+    if (mm && !opt.noDims) (function () {
+      var tol = D * 0.014, band = D * 0.05, off1 = D * 0.034, off2 = D * 0.066, tk = D * 0.008, f0 = fs * 0.58, sw = (D / 800).toFixed(2), minSeg = 300 / mm;
+      var fmt = function (px) { var v = Math.round(px * mm / 10) * 10; return String(v).replace(/\B(?=(\d{3})+(?!\d))/g, ','); };
+      var uniq = function (arr, lo, hi) { arr = arr.concat([lo, hi]).filter(function (v) { return v >= lo - tol && v <= hi + tol; }).sort(function (x, y) { return x - y; }); var out = []; arr.forEach(function (v) { if (!out.length || v - out[out.length - 1] > tol) out.push(v); else out[out.length - 1] = (out[out.length - 1] + v) / 2; }); out[0] = lo; out[out.length - 1] = hi;
+        var o2 = [out[0]]; for (var i = 1; i < out.length; i++) { if (out[i] - o2[o2.length - 1] >= minSeg || i === out.length - 1) o2.push(out[i]); } if (o2.length > 2 && o2[o2.length - 1] - o2[o2.length - 2] < minSeg) o2.splice(o2.length - 2, 1); return o2; };
+      var box = rooms.map(function (o) { var xs2 = o.p.map(function (q) { return q[0]; }), ys2 = o.p.map(function (q) { return q[1]; }); return { x0: Math.min.apply(null, xs2), x1: Math.max.apply(null, xs2), y0: Math.min.apply(null, ys2), y1: Math.max.apply(null, ys2) }; });
+      var hLine = function (xa, xb, y, up) { if (xb - xa < minSeg * 0.6) return; h.push('<line x1="' + (xa + ox).toFixed(1) + '" y1="' + y.toFixed(1) + '" x2="' + (xb + ox).toFixed(1) + '" y2="' + y.toFixed(1) + '" stroke="' + SUBT + '" stroke-width="' + sw + '"/>');
+        [xa, xb].forEach(function (x) { h.push('<line x1="' + (x + ox).toFixed(1) + '" y1="' + (y - tk).toFixed(1) + '" x2="' + (x + ox).toFixed(1) + '" y2="' + (y + tk).toFixed(1) + '" stroke="' + SUBT + '" stroke-width="' + sw + '"/>'); });
+        if (xb - xa > f0 * 2.6) h.push('<text x="' + ((xa + xb) / 2 + ox).toFixed(1) + '" y="' + (up ? y - f0 * 0.45 : y + f0 * 1.25).toFixed(1) + '" text-anchor="middle" font-size="' + f0.toFixed(1) + '" fill="' + SUBT + '">' + fmt(xb - xa) + '</text>'); };
+      var vLine = function (ya, yb, x, left) { if (yb - ya < minSeg * 0.6) return; h.push('<line x1="' + x.toFixed(1) + '" y1="' + (ya + oy).toFixed(1) + '" x2="' + x.toFixed(1) + '" y2="' + (yb + oy).toFixed(1) + '" stroke="' + SUBT + '" stroke-width="' + sw + '"/>');
+        [ya, yb].forEach(function (y) { h.push('<line x1="' + (x - tk).toFixed(1) + '" y1="' + (y + oy).toFixed(1) + '" x2="' + (x + tk).toFixed(1) + '" y2="' + (y + oy).toFixed(1) + '" stroke="' + SUBT + '" stroke-width="' + sw + '"/>'); });
+        if (yb - ya > f0 * 2.6) { var tx2 = left ? x - f0 * 0.45 : x + f0 * 1.25, ty2 = (ya + yb) / 2 + oy; h.push('<text transform="translate(' + tx2.toFixed(1) + ' ' + ty2.toFixed(1) + ') rotate(-90)" text-anchor="middle" font-size="' + f0.toFixed(1) + '" fill="' + SUBT + '">' + fmt(yb - ya) + '</text>'); } };
+      var chain = function (pts2, draw) { if (pts2.length < 3) return false; for (var i = 0; i < pts2.length - 1; i++) draw(pts2[i], pts2[i + 1]); return true; };
+      var top = [], bot = [], lef = [], rig = []; box.forEach(function (b) { if (b.y0 <= by0 + band) top.push(b.x0, b.x1); if (b.y1 >= by1 - band) bot.push(b.x0, b.x1); if (b.x0 <= bx0 + band) lef.push(b.y0, b.y1); if (b.x1 >= bx1 - band) rig.push(b.y0, b.y1); });
+      var yT = by0 + oy, yB = by1 + oy, xL = bx0 + ox, xR = bx1 + ox;
+      var hasT = chain(uniq(top, bx0, bx1), function (p1, p2) { hLine(p1, p2, yT - off1, true); });
+      chain(uniq(bot, bx0, bx1), function (p1, p2) { hLine(p1, p2, yB + off1, false); });
+      var hasL = chain(uniq(lef, by0, by1), function (p1, p2) { vLine(p1, p2, xL - off1, true); });
+      chain(uniq(rig, by0, by1), function (p1, p2) { vLine(p1, p2, xR + off1, false); });
+      hLine(bx0, bx1, yT - (hasT ? off2 : off1), true); vLine(by0, by1, xL - (hasL ? off2 : off1), true);   // 전체 가로·세로
+    })();
     var m0b = 0;
     // 비침 무늬(재가공 표시)
     if (!opt.plain) h.push('<rect x="' + m0.toFixed(1) + '" y="' + (m0 + head * 0.82).toFixed(1) + '" width="' + (VW - m0 * 2).toFixed(1) + '" height="' + (VH - m0 * 2 - head * 0.82 - foot * 0.62).toFixed(1) + '" fill="url(#' + id + 'w)" pointer-events="none"/>');
@@ -90,7 +112,7 @@
       h.push('<text x="' + gx.toFixed(1) + '" y="' + (gy + fs * 1.15).toFixed(1) + '" font-size="' + (fs * 0.68).toFixed(1) + '" fill="' + SUBT + '">0</text><text x="' + (gx + one * nSeg).toFixed(1) + '" y="' + (gy + fs * 1.15).toFixed(1) + '" text-anchor="middle" font-size="' + (fs * 0.68).toFixed(1) + '" fill="' + SUBT + '">' + nSeg + ' m</text>'); }
     var by = r.척도 && r.척도.방식 && r.척도.방식 !== '없음' ? '크기 기준: ' + (r.척도.방식 === '치수' ? '도면 치수선' : r.척도.방식 === '방 면적' ? '도면에 적힌 방 면적' : '전용면적') : '';
     h.push('<text x="' + (VW - m0 - D * 0.035).toFixed(1) + '" y="' + (gy + fs * 0.1).toFixed(1) + '" text-anchor="end" font-size="' + (fs * 0.7).toFixed(1) + '" fill="' + INK + '">' + esc(opt.note || '원본 평면도를 집지니가 읽어 다시 그린 참고용 도면입니다.') + '</text>');
-    h.push('<text x="' + (VW - m0 - D * 0.035).toFixed(1) + '" y="' + (gy + fs * 1.15).toFixed(1) + '" text-anchor="end" font-size="' + (fs * 0.64).toFixed(1) + '" fill="' + SUBT + '">' + esc((by ? by + '  ·  ' : '') + '문·창 위치와 정확한 치수는 현장 실측으로 확정합니다.') + '</text>');
+    h.push('<text x="' + (VW - m0 - D * 0.035).toFixed(1) + '" y="' + (gy + fs * 1.15).toFixed(1) + '" text-anchor="end" font-size="' + (fs * 0.64).toFixed(1) + '" fill="' + SUBT + '">' + esc((by ? by + '  ·  ' : '') + (mm && !opt.noDims ? '치수 단위 mm · ' : '') + '문·창 위치와 정확한 치수는 현장 실측으로 확정합니다.') + '</text>');
     h.push('</svg>'); return h.join('');
   }
   function png(r, opt, width) {
@@ -98,5 +120,5 @@
       s = s.replace('<svg ', '<svg width="' + W + '" height="' + H + '" '); var img = new Image(); img.onload = function () { var c = document.createElement('canvas'); c.width = W; c.height = H; c.getContext('2d').drawImage(img, 0, 0, W, H); ok(c.toDataURL('image/png')); };
       img.onerror = function () { no(new Error('그림으로 바꾸지 못했습니다.')); }; img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(s); });
   }
-  root.JJPlanStyle = { svg: svg, png: png, version: '2026-11-10' };
+  root.JJPlanStyle = { svg: svg, png: png, version: '2026-11-10b' };
 })(typeof window !== 'undefined' ? window : this);
