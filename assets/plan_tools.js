@@ -116,13 +116,13 @@
   function chainScale(items) {
     var ds = []; items.forEach(function (it) { var ns = numsOf(it.text); if (!ns.length) return; var n = ns.length;
       ns.forEach(function (v, k) { var f = (k + 0.5) / n; ds.push({ n: v, v: !!it.v, c: it.v ? it.y + it.h * (1 - f) : it.x + it.w * f, o: it.v ? it.x + it.w / 2 : it.y + it.h / 2, t: it.v ? it.w : it.h }); }); });
-    var cand = [];
+    var cand = [], keep = [];   // keep: 읽힌 치수 줄 그대로(다시 그릴 때 원본 치수를 그대로 쓴다)
     [false, true].forEach(function (V) { var L = ds.filter(function (d) { return d.v === V; }).sort(function (a, b) { return a.o - b.o || a.c - b.c; }), rows = [];
       L.forEach(function (d) { var r = rows[rows.length - 1]; if (r && Math.abs(r[0].o - d.o) <= Math.max(r[0].t, d.t) * 0.8) r.push(d); else rows.push([d]); });
-      rows.forEach(function (r) { r.sort(function (a, b) { return a.c - b.c; }); for (var i = 0; i + 1 < r.length; i++) { var dpx = r[i + 1].c - r[i].c; if (dpx > 12) cand.push((r[i].n + r[i + 1].n) / 2 / dpx); } }); });
-    if (cand.length < 2) return { mm: 0, n: cand.length };
+      rows.forEach(function (r) { r.sort(function (a, b) { return a.c - b.c; }); keep.push({ v: V, o: r.reduce(function (s3, q) { return s3 + q.o; }, 0) / r.length, d: r.map(function (q) { return { n: q.n, c: q.c }; }) }); for (var i = 0; i + 1 < r.length; i++) { var dpx = r[i + 1].c - r[i].c; if (dpx > 12) cand.push((r[i].n + r[i + 1].n) / 2 / dpx); } }); });
+    if (cand.length < 2) return { mm: 0, n: cand.length, rows: keep };
     cand.sort(function (a, b) { return a - b; }); var med = cand[cand.length >> 1], ok = cand.filter(function (c) { return Math.abs(c - med) / med <= 0.1; });
-    return ok.length >= 2 && ok.length >= cand.length * 0.5 ? { mm: ok.reduce(function (s2, c) { return s2 + c; }, 0) / ok.length, n: ok.length } : { mm: 0, n: 0 };
+    return ok.length >= 2 && ok.length >= cand.length * 0.5 ? { mm: ok.reduce(function (s2, c) { return s2 + c; }, 0) / ok.length, n: ok.length, rows: keep } : { mm: 0, n: 0, rows: keep };
   }
   function numOf(t) { var s = String(t).replace(/[\s,.]/g, ''); if (!/^\d{3,5}$/.test(s)) return 0; var n = Number(s); return (n >= 600 && n <= 30000) ? n : 0; }
   /** 글자 인식 결과로 방 종류를 확정하고, 치수 숫자로 척도를 검증·보완한다 */
@@ -168,7 +168,7 @@
       ta.forEach(function (f) { var calc = f.px * fix * fix / 1e6; if (Math.abs(calc - f.areaTxt) / f.areaTxt <= 0.3) f.px = f.areaTxt * 1e6 / (fix * fix); }); }
     var out = A.finalize(found, base.W, base.H, base.dataUrl, areaM2, base.engine, fix);
     out.rooms.forEach(function (r) { for (var q = 0; q < found.length; q++) if (found[q].pts === r.pts && found[q].areaTxt) r.areaTxt = found[q].areaTxt; });
-    out.글자 = { 개수: items.length, 방이름: named, 치수: dims.map(function (d) { return d.n; }).sort(function (a, b) { return b - a; }).slice(0, 12) }; out.척도 = sc; (out.shapes || []).forEach(function (sh) { if (sh.t === 'scale') sh.by = sc.방식; }); if (base.wallPx) out.wallPx = base.wallPx; if (base.외곽) out.외곽 = base.외곽;
+    out.글자 = { 개수: items.length, 방이름: named, 치수: dims.map(function (d) { return d.n; }).sort(function (a, b) { return b - a; }).slice(0, 12) }; out.척도 = sc; (out.shapes || []).forEach(function (sh) { if (sh.t === 'scale') sh.by = sc.방식; }); if (base.wallPx) out.wallPx = base.wallPx; if (base.외곽) out.외곽 = base.외곽; if (chain && chain.mm && chain.rows && chain.rows.length) out.치수줄 = chain.rows;   // 2026-11-11 원본에 적힌 치수 줄(다시 그릴 때 그 숫자 그대로)
     if (base.문) out.문 = base.문; if (base.창) out.창 = base.창;
     if (!out.창 && base.창선 && base.창선.length) { var mmW = out.mmpp || 0, roomAt = function (pt) { for (var q = 0; q < out.rooms.length; q++) if (out.rooms[q].pts.length >= 3 && inPoly(pt[0], pt[1], out.rooms[q].pts)) return out.rooms[q]; return null; }, isBal = function (r) { return r && (r.kind === '발코니' || r.kind === '실외기실'); };
       out.창 = []; base.창선.forEach(function (wn) { var ra = roomAt(wn.a), rb = roomAt(wn.b); if (ra && rb && ra === rb) return; if (!ra && !rb) return;   // 같은 방 안의 선(욕조·가구)이나 세대 밖은 창이 아니다

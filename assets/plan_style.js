@@ -27,6 +27,7 @@
     opt = opt || {}; if (!r || !r.rooms || !r.rooms.length) return '';
     var rooms = r.rooms.filter(function (m) { return m.pts && m.pts.length >= 3; }).map(function (m) { return { m: m, p: m.pts.map(function (q) { return [q[0], q[1]]; }) }; }); if (!rooms.length) return '';
     var xs = [], ys = []; rooms.forEach(function (o) { o.p.forEach(function (q) { xs.push(q[0]); ys.push(q[1]); }); });
+    var rx0 = Math.min.apply(null, xs), rx1 = Math.max.apply(null, xs), ry0 = Math.min.apply(null, ys), ry1 = Math.max.apply(null, ys);   // 방만의 범위(치수선 기준)
     var hull = r.외곽 && r.외곽.length >= 4 ? r.외곽.map(function (q) { return [q[0], q[1]]; }) : null; if (hull) hull.forEach(function (q) { xs.push(q[0]); ys.push(q[1]); });   // 2026-11-11 집 외곽선(방과 별개로 한 줄)
     var bx0 = Math.min.apply(null, xs), bx1 = Math.max.apply(null, xs), by0 = Math.min.apply(null, ys), by1 = Math.max.apply(null, ys), bw = bx1 - bx0, bh = by1 - by0, D = Math.max(bw, bh);
     snapAll(rooms, D * 0.024);   // 벽 두께(약 200mm)만큼 떨어진 두 방의 변을 벽 가운데 한 줄로 모은다 → 벽선이 겹치지 않고 한 줄
@@ -94,13 +95,25 @@
         [ya, yb].forEach(function (y) { h.push('<line x1="' + (x - tk).toFixed(1) + '" y1="' + (y + oy).toFixed(1) + '" x2="' + (x + tk).toFixed(1) + '" y2="' + (y + oy).toFixed(1) + '" stroke="' + SUBT + '" stroke-width="' + sw + '"/>'); });
         if (yb - ya > f0 * 2.6) { var tx2 = left ? x - f0 * 0.45 : x + f0 * 1.25, ty2 = (ya + yb) / 2 + oy; h.push('<text transform="translate(' + tx2.toFixed(1) + ' ' + ty2.toFixed(1) + ') rotate(-90)" text-anchor="middle" font-size="' + f0.toFixed(1) + '" fill="' + SUBT + '">' + fmt(yb - ya) + '</text>'); } };
       var chain = function (pts2, draw) { if (pts2.length < 3) return false; for (var i = 0; i < pts2.length - 1; i++) draw(pts2[i], pts2[i + 1]); return true; };
-      var top = [], bot = [], lef = [], rig = []; box.forEach(function (b) { if (b.y0 <= by0 + band) top.push(b.x0, b.x1); if (b.y1 >= by1 - band) bot.push(b.x0, b.x1); if (b.x0 <= bx0 + band) lef.push(b.y0, b.y1); if (b.x1 >= bx1 - band) rig.push(b.y0, b.y1); });
+      var top = [], bot = [], lef = [], rig = []; box.forEach(function (b) { if (b.y0 <= ry0 + band) top.push(b.x0, b.x1); if (b.y1 >= ry1 - band) bot.push(b.x0, b.x1); if (b.x0 <= rx0 + band) lef.push(b.y0, b.y1); if (b.x1 >= rx1 - band) rig.push(b.y0, b.y1); });
       var yT = by0 + oy, yB = by1 + oy, xL = bx0 + ox, xR = bx1 + ox;
-      var hasT = chain(uniq(top, bx0, bx1), function (p1, p2) { hLine(p1, p2, yT - off1, true); });
-      chain(uniq(bot, bx0, bx1), function (p1, p2) { hLine(p1, p2, yB + off1, false); });
-      var hasL = chain(uniq(lef, by0, by1), function (p1, p2) { vLine(p1, p2, xL - off1, true); });
-      chain(uniq(rig, by0, by1), function (p1, p2) { vLine(p1, p2, xR + off1, false); });
-      hLine(bx0, bx1, yT - (hasT ? off2 : off1), true); vLine(by0, by1, xL - (hasL ? off2 : off1), true);   // 전체 가로·세로
+      // 2026-11-11 치수 기준은 벽 가운데: 외곽선(벽 바깥면)과 방 안쪽 면의 가운데를 끝점으로 쓴다 — 바깥면까지 재면 원본보다 4%쯤 크게 나왔다(8,850 → 9,170)
+      var cx0 = (rx0 + bx0) / 2, cx1 = (rx1 + bx1) / 2, cy0 = (ry0 + by0) / 2, cy1 = (ry1 + by1) / 2;
+      // 원본에 치수 줄이 적혀 있으면 그 숫자와 구간을 그대로 옮긴다(그 변은 어림 치수를 그리지 않는다)
+      var read = { T: [], B: [], L: [], R: [] }, lab2 = function (n) { return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ','); };
+      (r.치수줄 || []).forEach(function (row) { var d = row.d || []; if (!d.length) return; var span = (d[d.length - 1].c - d[0].c) * mm, want = 0; d.forEach(function (q, i) { want += (i === 0 || i === d.length - 1) ? q.n / 2 : q.n; }); if (d.length >= 2 && Math.abs(span - want) / want > 0.07) return;
+        var b0 = d[0].c - d[0].n / 2 / mm, segs = []; d.forEach(function (q) { segs.push([b0, b0 + q.n / mm, q.n]); b0 += q.n / mm; });
+        var lo = row.v ? cy0 : cx0, hi = row.v ? cy1 : cx1, len = hi - lo; if (segs[0][0] < lo - len * 0.08 || segs[segs.length - 1][1] > hi + len * 0.08) return;   // 집 범위를 벗어난 줄(다른 그림의 숫자)
+        var side = row.v ? (row.o < (bx0 + bx1) / 2 ? 'L' : 'R') : (row.o < (by0 + by1) / 2 ? 'T' : 'B'); read[side].push({ o: row.o, segs: segs }); });
+      var drawRead = function (side) { var rowsS = read[side]; if (!rowsS.length) return false; var near = side === 'T' || side === 'L' ? function (a, b) { return b.o - a.o; } : function (a, b) { return a.o - b.o; }; rowsS.sort(near);
+        rowsS.slice(0, 3).forEach(function (row, i) { var off = off1 + (off2 - off1) * i; row.segs.forEach(function (sg) { var txt = lab2(sg[2]), keepFmt = fmt; fmt = function () { return txt; };
+            if (side === 'T') hLine(sg[0], sg[1], yT - off, true); else if (side === 'B') hLine(sg[0], sg[1], yB + off, false); else if (side === 'L') vLine(sg[0], sg[1], xL - off, true); else vLine(sg[0], sg[1], xR + off, false); fmt = keepFmt; }); }); return true; };
+      var rT = drawRead('T'), rB = drawRead('B'), rL = drawRead('L'), rR = drawRead('R');
+      var hasT = !rT && chain(uniq(top, cx0, cx1), function (p1, p2) { hLine(p1, p2, yT - off1, true); });
+      if (!rB) chain(uniq(bot, cx0, cx1), function (p1, p2) { hLine(p1, p2, yB + off1, false); });
+      var hasL = !rL && chain(uniq(lef, cy0, cy1), function (p1, p2) { vLine(p1, p2, xL - off1, true); });
+      if (!rR) chain(uniq(rig, cy0, cy1), function (p1, p2) { vLine(p1, p2, xR + off1, false); });
+      if (!rT && !rB) hLine(cx0, cx1, yT - (hasT ? off2 : off1), true); if (!rL && !rR) vLine(cy0, cy1, xL - (hasL ? off2 : off1), true);   // 전체 가로·세로(원본 치수 줄이 없을 때만 어림)
     })();
     var m0b = 0;
     // 비침 무늬(재가공 표시)
