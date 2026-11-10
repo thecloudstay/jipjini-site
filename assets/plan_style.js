@@ -31,6 +31,7 @@
     snapAll(rooms, D * 0.024);   // 벽 두께(약 200mm)만큼 떨어진 두 방의 변을 벽 가운데 한 줄로 모은다 → 벽선이 겹치지 않고 한 줄
     var mm = Number(r.mmpp) || 0, T = mm ? Math.max(D * 0.006, 190 / mm) : D * 0.014, Tb = T * 0.45;   // 벽 굵기: 척도를 알면 약 190mm
     var pad = D * 0.11, head = D * 0.15, foot = D * 0.2, VW = bw + pad * 2, VH = bh + pad * 2 + head + foot, ox = pad - bx0, oy = pad + head - by0, fs = D / 38, id = 'jj' + Math.round(bx0 + by1 + rooms.length * 7);
+    var bare = opt.bare && opt.bare.W ? opt.bare : null; if (bare) { VW = bare.W; VH = bare.H; ox = 0; oy = 0; }   // 편집 바탕용: 머리·발 없이 원본 그림과 같은 자리·크기로 그린다(표시가 그대로 겹친다)
     var pts = function (p) { return p.map(function (q) { return (q[0] + ox).toFixed(1) + ',' + (q[1] + oy).toFixed(1); }).join(' '); };
     var F = "font-family=\"Pretendard,'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif\"";
     var h = ['<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + VW.toFixed(0) + ' ' + VH.toFixed(0) + '" style="width:100%;height:auto;display:block;background:' + PAPER + '" ' + F + '>'];
@@ -40,6 +41,7 @@
       '<pattern id="' + id + 'w" width="' + (D / 3.2).toFixed(0) + '" height="' + (D / 5.5).toFixed(0) + '" patternUnits="userSpaceOnUse" patternTransform="rotate(-24)"><text x="0" y="' + (D / 11).toFixed(0) + '" font-size="' + (D / 30).toFixed(1) + '" font-weight="800" fill="' + ACC + '" fill-opacity="0.055" letter-spacing="' + (D / 160).toFixed(1) + '">집지니</text></pattern>' +
       '</defs>');
     h.push('<rect width="100%" height="100%" fill="' + PAPER + '"/>');
+    if (!bare) {
     // 바깥 테두리(도면 틀)
     var m0 = D * 0.03; h.push('<rect x="' + m0.toFixed(1) + '" y="' + m0.toFixed(1) + '" width="' + (VW - m0 * 2).toFixed(1) + '" height="' + (VH - m0 * 2).toFixed(1) + '" fill="none" stroke="' + INK + '" stroke-width="' + (D / 500).toFixed(2) + '"/>');
     // 머리: 인장 + 제목
@@ -52,6 +54,7 @@
     h.push('<text x="' + (VW - m0 - D * 0.035).toFixed(1) + '" y="' + (sy + sr * 0.82).toFixed(1) + '" text-anchor="end" font-size="' + (fs * 0.86).toFixed(1) + '" font-weight="600" fill="' + INK + '">' + esc(info.join('  ·  ')) + '</text>');
     if (opt.date) h.push('<text x="' + (VW - m0 - D * 0.035).toFixed(1) + '" y="' + (sy + sr * 1.72).toFixed(1) + '" text-anchor="end" font-size="' + (fs * 0.72).toFixed(1) + '" fill="' + SUBT + '">' + esc(opt.date) + '</text>');
     h.push('<line x1="' + m0.toFixed(1) + '" y1="' + (m0 + head * 0.82).toFixed(1) + '" x2="' + (VW - m0).toFixed(1) + '" y2="' + (m0 + head * 0.82).toFixed(1) + '" stroke="' + INK + '" stroke-width="' + (D / 500).toFixed(2) + '"/>');
+    }
     // 바닥을 먼저 칠하고, 벽은 모든 방 둘레를 같은 굵기의 먹선 한 줄로 긋는다(맞닿은 변은 같은 자리라 겹쳐 보이지 않는다)
     var outer = function (k) { return k === '발코니' || k === '실외기실'; }, TW = Math.max(D * 0.0085, Math.min(D * 0.013, T * 0.75));
     rooms.forEach(function (o) { var k = o.m.kind, f = FILL[k] || FILL.기타; h.push('<polygon points="' + pts(o.p) + '" fill="' + f + '"/>');
@@ -74,6 +77,8 @@
     (r.창 || []).forEach(function (wn) { if (!wn._at || opt.noWinText) return; var t = wn.종류 + (wn.w_m ? ' ' + wn.w_m + 'm' : ''), f0 = fs * 0.5, x = wn._at[0], y = wn._at[1];
       if (wn._at[2]) h.push('<text x="' + x.toFixed(1) + '" y="' + (y + f0 * 0.34).toFixed(1) + '" text-anchor="middle" font-size="' + f0.toFixed(1) + '" font-weight="600" fill="' + ACC + '" stroke="' + PAPER + '" stroke-width="' + (f0 * 0.5).toFixed(1) + '" paint-order="stroke">' + esc(t) + '</text>');
       else h.push('<text transform="translate(' + (x + f0 * 0.34).toFixed(1) + ' ' + y.toFixed(1) + ') rotate(-90)" text-anchor="middle" font-size="' + f0.toFixed(1) + '" font-weight="600" fill="' + ACC + '" stroke="' + PAPER + '" stroke-width="' + (f0 * 0.5).toFixed(1) + '" paint-order="stroke">' + esc(t) + '</text>'); });
+    if (bare) { h.push('<rect width="100%" height="100%" fill="url(#' + id + 'w)" pointer-events="none"/>'); h.push('</svg>'); return h.join(''); }
+    var m0b = 0;
     // 비침 무늬(재가공 표시)
     if (!opt.plain) h.push('<rect x="' + m0.toFixed(1) + '" y="' + (m0 + head * 0.82).toFixed(1) + '" width="' + (VW - m0 * 2).toFixed(1) + '" height="' + (VH - m0 * 2 - head * 0.82 - foot * 0.62).toFixed(1) + '" fill="url(#' + id + 'w)" pointer-events="none"/>');
     // 발: 축척 막대 + 안내
