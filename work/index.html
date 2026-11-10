@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>집지니 작업지시서</title>
+<style>
+:root{--ink:#1c2421;--sub:#5d665f;--line:#d9d5ca;--paper:#f7f4ee;--g:#2f6b4f;--gs:#e6f1eb;--warn:#b4232a}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:Pretendard,'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif;font-size:15px;line-height:1.55;-webkit-text-size-adjust:100%}
+.wrap{max-width:760px;margin:0 auto;padding:16px 14px 110px}
+.head{display:flex;align-items:center;gap:11px;padding-bottom:12px;border-bottom:2px solid var(--ink)}
+.seal{width:40px;height:40px;border-radius:9px;background:var(--g);color:var(--paper);font-weight:800;font-size:23px;display:flex;align-items:center;justify-content:center;flex:none}
+h1{font-size:19px;margin:0;letter-spacing:-.3px}
+.sub{color:var(--sub);font-size:13px}
+.box{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-top:12px}
+.box b.t{display:block;font-size:12px;color:var(--sub);margin-bottom:4px;letter-spacing:.2px}
+.plan{margin-top:12px;border:1px solid var(--line);border-radius:12px;overflow:auto;background:#fff;-webkit-overflow-scrolling:touch}
+.plan img{display:block;width:100%;height:auto}
+.plan.big img{width:220%;max-width:none}
+.item{display:flex;gap:11px;align-items:flex-start;background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px;margin-top:8px}
+.item.done{background:var(--gs);border-color:#b9d6c6}
+.no{width:30px;height:30px;border-radius:50%;background:var(--ink);color:#fff;font-weight:700;font-size:14px;display:flex;align-items:center;justify-content:center;flex:none}
+.item.done .no{background:var(--g)}
+.body{flex:1;min-width:0}
+.name{font-weight:700;font-size:15.5px}
+.tag{display:inline-block;font-size:11.5px;border:1px solid var(--line);border-radius:6px;padding:0 6px;margin-left:5px;color:var(--sub);font-weight:500;vertical-align:1px}
+.tag.w{border-color:#e7b7ba;color:var(--warn)}
+.meta{color:var(--sub);font-size:13.5px}
+.note{margin-top:4px;font-size:14px}
+.chk{flex:none;border:1.5px solid var(--g);background:#fff;color:var(--g);border-radius:9px;padding:9px 12px;font-size:14px;font-weight:700;min-width:64px}
+.item.done .chk{background:var(--g);color:#fff}
+.bar{position:fixed;left:0;right:0;bottom:0;background:rgba(247,244,238,.96);border-top:1px solid var(--line);padding:10px 14px calc(10px + env(safe-area-inset-bottom))}
+.bar .in{max-width:760px;margin:0 auto;display:flex;gap:10px;align-items:center}
+.prog{flex:1;font-weight:700}
+.btn{border:0;background:var(--g);color:#fff;border-radius:10px;padding:12px 16px;font-size:15px;font-weight:700}
+.btn.line{background:#fff;color:var(--ink);border:1px solid var(--line)}
+.msg{padding:40px 10px;text-align:center;color:var(--sub)}
+.alert{background:#fff4f4;border:1px solid #e7b7ba;color:var(--warn);border-radius:12px;padding:12px 14px;margin-top:12px;font-weight:600}
+h2{font-size:13px;color:var(--sub);margin:18px 0 0;letter-spacing:.2px}
+</style>
+</head>
+<body>
+<div class="wrap" id="app"><div class="msg">집지니가 작업지시서를 불러오고 있습니다…</div></div>
+<div class="bar" id="bar" style="display:none"><div class="in"><div class="prog" id="prog"></div><a class="btn line" id="call" href="#">코디에게 전화</a><button class="btn" id="allBtn">모두 완료</button></div></div>
+<script>
+(function () {
+  var EXEC = 'https://script.google.com/macros/s/AKfycbzxm4mmZs1yVJPa3T-wb0cdJbEUMPYl6dDKtQNSNmJy4nEsCholrEnPAN8e0JfAtOV99A/exec';
+  var k = (new URLSearchParams(location.search).get('k') || '').trim(), app = document.getElementById('app'), D = null, busy = false;
+  function esc(t) { return String(t == null ? '' : t).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+  function fail(m) { app.innerHTML = '<div class="head"><div class="seal">집</div><div><h1>작업지시서</h1><div class="sub">집지니</div></div></div><div class="alert">' + esc(m) + '</div><p class="sub" style="margin-top:12px">링크가 열리지 않으면 집지니 코디에게 알려 주세요.</p>'; }
+  function qty(r) { return r.unit === '개' ? '1개' : (r.qty ? r.qty + r.unit : ''); }
+  function draw() {
+    var rows = D.rows || [], dn = rows.filter(function (r) { return r.done; }).length, multi = D.공종 === '전체', last = '', h = [];
+    h.push('<div class="head"><div class="seal">집</div><div style="flex:1"><h1>작업지시서 — ' + esc(D.공종) + '</h1><div class="sub">집지니 · ' + esc(D.만든) + (D.현장 ? ' · ' + esc(D.현장) : '') + '</div></div></div>');
+    if (D.바뀜) h.push('<div class="alert">이 지시서는 새 지시서로 바뀌었습니다. 집지니가 보낸 최신 링크를 열어 주세요.</div>');
+    if (D.주소) h.push('<div class="box"><b class="t">현장 주소</b>' + esc(D.주소) + '</div>');
+    if (D.그림) h.push('<div class="plan" id="plan"><img src="' + D.그림 + '" alt="도면"></div><div class="sub" style="margin-top:4px">도면을 누르면 크게 봅니다. 번호는 아래 항목 번호와 같습니다.</div>');
+    else if (D.그림 === undefined) h.push('<div class="plan"><div class="msg" style="padding:24px 10px">집지니가 도면을 불러오고 있습니다…</div></div>');
+    if (D.합계) h.push('<div class="box"><b class="t">합계</b>' + esc(D.합계) + '</div>');
+    if (D.특이사항) h.push('<div class="box"><b class="t">특이사항</b>' + esc(D.특이사항).replace(/\n/g, '<br>') + '</div>');
+    h.push('<h2>항목 ' + rows.length + '개 — 끝난 것은 눌러 표시해 주세요</h2>');
+    rows.forEach(function (r) { if (multi && r.trade !== last) { last = r.trade; h.push('<h2 style="color:var(--ink);font-size:14px">' + esc(r.trade) + '</h2>'); }
+      h.push('<div class="item' + (r.done ? ' done' : '') + '"><div class="no">' + r.no + '</div><div class="body"><div class="name">' + esc(r.label) + (r.st && r.st !== '신설' ? '<span class="tag' + (r.st === '철거' ? ' w' : '') + '">' + esc(r.st) + '</span>' : '') + '</div><div class="meta">' + [esc(r.room), qty(r)].filter(Boolean).join(' · ') + (r.done ? ' · 완료 ' + esc(r.done) : '') + '</div>' + (r.note ? '<div class="note">' + esc(r.note) + '</div>' : '') + '</div><button class="chk" data-no="' + r.no + '" data-trade="' + esc(r.trade) + '"' + (D.바뀜 ? ' disabled' : '') + '>' + (r.done ? '완료됨' : '완료') + '</button></div>'); });
+    h.push('<p class="sub" style="margin-top:16px">치수·위치가 현장과 다르면 현장 기준으로 하되, 바꾸기 전에 집지니에 먼저 알려 주세요. 수량은 도면 기준 어림이며 자재 주문 전 실측으로 확정합니다.</p>');
+    app.innerHTML = h.join('');
+    document.getElementById('bar').style.display = D.바뀜 ? 'none' : ''; document.getElementById('prog').textContent = '완료 ' + dn + ' / ' + rows.length; document.getElementById('allBtn').style.display = dn === rows.length ? 'none' : '';
+    var tel = String(D.코디 || '').replace(/[^0-9]/g, ''), call = document.getElementById('call'); if (tel) call.href = 'tel:' + tel; else call.style.display = 'none';
+    var pl = document.getElementById('plan'); if (pl) pl.onclick = function () { pl.classList.toggle('big'); };
+  }
+  function send(body, btn) {
+    if (busy) return; busy = true; var old = btn ? btn.textContent : ''; if (btn) btn.textContent = '집지니가 기록 중…';
+    fetch(EXEC + '?type=work_check', { method: 'POST', redirect: 'follow', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(Object.assign({ k: k }, body)) }).then(function (r) { return r.json(); }).then(function (j) {
+      busy = false; if (!j || !j.ok) { if (btn) btn.textContent = old; alert((j && (j.err || j.error || j.message)) || '기록하지 못했습니다. 잠시 뒤 다시 눌러 주세요.'); return; }
+      D.rows.forEach(function (r) { r.done = (j.done && j.done[r.no]) || ''; }); draw();
+    }).catch(function () { busy = false; if (btn) btn.textContent = old; alert('연결이 고르지 않습니다. 잠시 뒤 다시 눌러 주세요.'); });
+  }
+  app.addEventListener('click', function (ev) { var b = ev.target.closest && ev.target.closest('.chk'); if (!b || b.disabled) return; var no = Number(b.getAttribute('data-no')), r = D.rows.filter(function (x) { return x.no === no && (D.공종 !== '전체' || x.trade === b.getAttribute('data-trade')); })[0]; send({ no: no, done: !(r && r.done) }, b); });
+  document.getElementById('allBtn').onclick = function () { if (confirm('모든 항목을 완료로 표시할까요?')) send({ all: true, done: true }, this); };
+  if (!/^[0-9a-f]{32}$/.test(k)) { fail('링크가 올바르지 않습니다.'); return; }
+  var pv = new URLSearchParams(location.search).get('pv') ? '&pv=1' : '';
+  fetch(EXEC + '?type=work_order&k=' + k + pv, { redirect: 'follow' }).then(function (r) { return r.json(); }).then(function (j) {
+    if (!j || !j.ok) { fail((j && (j.err || j.error || j.message)) || '지시서를 불러오지 못했습니다.'); return; } D = j; draw();
+    fetch(EXEC + '?type=work_order&k=' + k + '&img=1&pv=1', { redirect: 'follow' }).then(function (r) { return r.json(); }).then(function (g) { D.그림 = (g && g.그림) || ''; draw(); }).catch(function () { D.그림 = ''; draw(); });
+  }).catch(function () { fail('연결이 고르지 않습니다. 잠시 뒤 다시 열어 주세요.'); });
+})();
+</script>
+</body>
+</html>

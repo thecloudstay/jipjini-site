@@ -10,7 +10,7 @@
   function snapAll(rooms, tol) {
     ['0', '1'].forEach(function (ax) { ax = Number(ax); var vals = []; rooms.forEach(function (r) { r.p.forEach(function (q) { vals.push(q[ax]); }); }); vals.sort(function (a, b) { return a - b; });
       var map = {}, grp = []; var flush = function () { if (!grp.length) return; var m = grp.reduce(function (s, v) { return s + v; }, 0) / grp.length; grp.forEach(function (v) { map[v] = Math.round(m * 10) / 10; }); grp = []; };
-      vals.forEach(function (v) { if (grp.length && v - grp[grp.length - 1] > tol) flush(); grp.push(v); }); flush();
+      vals.forEach(function (v) { if (grp.length && v - grp[0] > tol) flush(); grp.push(v); }); flush();
       rooms.forEach(function (r) { r.p.forEach(function (q) { q[ax] = map[q[ax]]; }); }); });
     rooms.forEach(function (r) { var o = []; r.p.forEach(function (q) { var l = o[o.length - 1]; if (!l || l[0] !== q[0] || l[1] !== q[1]) o.push(q); }); if (o.length > 1 && o[0][0] === o[o.length - 1][0] && o[0][1] === o[o.length - 1][1]) o.pop();
       // 한 줄 위에 놓인 가운데 점 빼기
@@ -28,7 +28,7 @@
     var rooms = r.rooms.filter(function (m) { return m.pts && m.pts.length >= 3; }).map(function (m) { return { m: m, p: m.pts.map(function (q) { return [q[0], q[1]]; }) }; }); if (!rooms.length) return '';
     var xs = [], ys = []; rooms.forEach(function (o) { o.p.forEach(function (q) { xs.push(q[0]); ys.push(q[1]); }); });
     var bx0 = Math.min.apply(null, xs), bx1 = Math.max.apply(null, xs), by0 = Math.min.apply(null, ys), by1 = Math.max.apply(null, ys), bw = bx1 - bx0, bh = by1 - by0, D = Math.max(bw, bh);
-    snapAll(rooms, D * 0.012);
+    snapAll(rooms, D * 0.024);   // 벽 두께(약 200mm)만큼 떨어진 두 방의 변을 벽 가운데 한 줄로 모은다 → 벽선이 겹치지 않고 한 줄
     var mm = Number(r.mmpp) || 0, T = mm ? Math.max(D * 0.006, 190 / mm) : D * 0.014, Tb = T * 0.45;   // 벽 굵기: 척도를 알면 약 190mm
     var pad = D * 0.11, head = D * 0.15, foot = D * 0.2, VW = bw + pad * 2, VH = bh + pad * 2 + head + foot, ox = pad - bx0, oy = pad + head - by0, fs = D / 38, id = 'jj' + Math.round(bx0 + by1 + rooms.length * 7);
     var pts = function (p) { return p.map(function (q) { return (q[0] + ox).toFixed(1) + ',' + (q[1] + oy).toFixed(1); }).join(' '); };
@@ -52,13 +52,11 @@
     h.push('<text x="' + (VW - m0 - D * 0.035).toFixed(1) + '" y="' + (sy + sr * 0.82).toFixed(1) + '" text-anchor="end" font-size="' + (fs * 0.86).toFixed(1) + '" font-weight="600" fill="' + INK + '">' + esc(info.join('  ·  ')) + '</text>');
     if (opt.date) h.push('<text x="' + (VW - m0 - D * 0.035).toFixed(1) + '" y="' + (sy + sr * 1.72).toFixed(1) + '" text-anchor="end" font-size="' + (fs * 0.72).toFixed(1) + '" fill="' + SUBT + '">' + esc(opt.date) + '</text>');
     h.push('<line x1="' + m0.toFixed(1) + '" y1="' + (m0 + head * 0.82).toFixed(1) + '" x2="' + (VW - m0).toFixed(1) + '" y2="' + (m0 + head * 0.82).toFixed(1) + '" stroke="' + INK + '" stroke-width="' + (D / 500).toFixed(2) + '"/>');
-    // 벽(굵은 먹선) → 바닥
-    var outer = function (k) { return k === '발코니' || k === '실외기실'; };
-    rooms.forEach(function (o) { h.push('<polygon points="' + pts(o.p) + '" fill="' + INK + '" stroke="' + INK + '" stroke-width="' + ((outer(o.m.kind) ? Tb : T) * 2).toFixed(2) + '" stroke-linejoin="miter"/>'); });
+    // 바닥을 먼저 칠하고, 벽은 모든 방 둘레를 같은 굵기의 먹선 한 줄로 긋는다(맞닿은 변은 같은 자리라 겹쳐 보이지 않는다)
+    var outer = function (k) { return k === '발코니' || k === '실외기실'; }, TW = Math.max(D * 0.0085, Math.min(D * 0.013, T * 0.75));
     rooms.forEach(function (o) { var k = o.m.kind, f = FILL[k] || FILL.기타; h.push('<polygon points="' + pts(o.p) + '" fill="' + f + '"/>');
       if (k === '발코니' || k === '실외기실') h.push('<polygon points="' + pts(o.p) + '" fill="url(#' + id + 'b)"/>'); else if (k === '욕실' || k === '현관') h.push('<polygon points="' + pts(o.p) + '" fill="url(#' + id + 't)"/>'); });
-    // 칸막이선: 방끼리 맞닿은 자리에도 벽이 보이게 방 둘레를 한 번 더 긋는다
-    rooms.forEach(function (o) { h.push('<polygon points="' + pts(o.p) + '" fill="none" stroke="' + INK + '" stroke-width="' + ((outer(o.m.kind) ? Tb * 0.7 : T * 0.62)).toFixed(2) + '" stroke-linejoin="miter"/>'); });
+    rooms.forEach(function (o) { h.push('<polygon points="' + pts(o.p) + '" fill="none" stroke="' + INK + '" stroke-width="' + TW.toFixed(2) + '" stroke-linejoin="miter" stroke-miterlimit="3"/>'); });
     // 이름표
     rooms.forEach(function (o) { var m = o.m, L = labelAt(o.p), big = Math.min(L.w, L.h), f1 = Math.max(fs * 0.62, Math.min(fs * 1.05, big / 5.2)), small = big < fs * 3.4, cx = L.x + ox, cy = L.y + oy;
       var lines = [[m.name, f1, 700, INK]]; if (m.area) lines.push([m.area + '㎡', f1 * 0.8, 500, SUBT]); if (!small && m.w && m.d && m.kind !== '발코니') lines.push([m.w + ' × ' + m.d + ' m', f1 * 0.66, 400, SUBT]);
