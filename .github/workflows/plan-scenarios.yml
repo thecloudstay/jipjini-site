@@ -1,5 +1,5 @@
 # 도면 분석 실전 시나리오 고리 (2026-11-10)
-#   도면 분석 도구(assets/plan_*.js)가 바뀌거나 매일 새벽에, 플랫폼 양식·전달 방식이 다른 합성 도면 10개를 분석해 정답과 견준다.
+#   도면 분석 도구(assets/plan_*.js)가 바뀌거나 매일 새벽에, 플랫폼 양식·전달 방식이 다른 합성 도면 40개를 분석해 정답과 견준다.
 #   기준(tools/plan_scenarios/baseline.json)보다 나빠지면 실패 — 방금 올린 바뀜이 원인이면 그 바뀜을 자동으로 되돌린다(사이트는 직전 좋은 판으로 복귀).
 name: 도면 분석 실전 시나리오
 on:
@@ -26,7 +26,7 @@ jobs:
           npm i --no-save playwright@1.49.1
           npx playwright install --with-deps chromium
           sudo apt-get install -y fonts-noto-cjk >/dev/null 2>&1 || true
-      - name: 시나리오 10개
+      - name: 시나리오 40개
         id: scn
         run: node tools/plan_scenarios/run.js --shots scn_shots
       - name: 결과 남기기
