@@ -86,6 +86,11 @@ var TYP = {"1-1":{"n":113,"침실":[[0.2744,1.25,4.15]],"욕실":[[0.0765,1.45,4
 function typical(b, t, m2) {
   b = Math.max(1, Math.min(5, Number(b) || 3)); t = Math.max(1, Math.min(3, Number(t) || 1)); m2 = Number(m2) || 0;
   var e = TYP[b + '-' + t] || TYP[b + '-2'] || TYP[b + '-1'] || TYP['3-2']; if (!e || !m2) return { ok: false, why: '전용면적이 필요합니다.' };
+  // 자가 학습 조정값(대표가 확인한 정답 도면의 중앙값)을 표본 수에 비례해 섞는다 — 정답 n 장이면 비중 n/(n+30)
+  var tu = JJ.tuning && JJ.tuning.typical && JJ.tuning.typical[b + '-' + t];
+  if (tu && tu.n >= 5) { var wt = tu.n / (tu.n + 30), mix = function (base, v) { return v > 0 ? base * (1 - wt) + v * wt : base; }; e = JSON.parse(JSON.stringify(e));
+    e.침실.forEach(function (q, i) { q[0] = mix(q[0], (tu.침실 || [])[i]); }); e.욕실.forEach(function (q, i) { q[0] = mix(q[0], (tu.욕실 || [])[i]); });
+    e.거실[0] = mix(e.거실[0], tu.거실); e.주방[0] = mix(e.주방[0], tu.주방); e.현관[0] = mix(e.현관[0], tu.현관); e.n = e.n + tu.n; }
   var rooms = [], add = function (name, kind, q) { if (!q || !(q[0] > 0)) return; var area = R2(q[0] * m2), w = R1(Math.sqrt(area * (q[1] || 1.3))); rooms.push({ name: name, kind: kind, area: area, perim: R2((q[2] || 4.2) * Math.sqrt(area)), w: w, d: w ? R1(area / w) : 0 }); };
   add('거실', '거실', e.거실); add('주방', '주방', e.주방);
   for (var i = 0; i < b; i++) add(i === 0 ? '안방' : '작은방' + i, '방', e.침실[Math.min(i, e.침실.length - 1)]);
@@ -159,5 +164,10 @@ function overlaySvg(r) {
   h.push('</svg>'); return h.join('');
 }
 var JJ = { analyzeFile: analyzeFile, analyzeImage: analyzeImage, overlaySvg: overlaySvg, typical: typical, finalize: finalize, engine: null, version: '2026-11-10c' };
+// 조정값 받기: 하루 한 번, 실패해도 조용히 (기본 표로 동작)
+(function () { try { var K = 'jj_plan_tune', now = Date.now(), c = null; try { c = JSON.parse(localStorage.getItem(K) || 'null'); } catch (_e) {}
+  if (c && c.t && now - c.t < 86400000) { JJ.tuning = c.d; return; }
+  if (typeof fetch !== 'function') return;
+  fetch('https://script.google.com/macros/s/AKfycbzxm4mmZs1yVJPa3T-wb0cdJbEUMPYl6dDKtQNSNmJy4nEsCholrEnPAN8e0JfAtOV99A/exec?type=plan_tune', { redirect: 'follow' }).then(function (r) { return r.json(); }).then(function (d) { if (d && d.typical) { JJ.tuning = d; try { localStorage.setItem(K, JSON.stringify({ t: now, d: d })); } catch (_s) {} } }).catch(function () {}); } catch (_x) {} })();
 root.JJPlanAuto = JJ;
 })(typeof window !== 'undefined' ? window : this);
