@@ -70,14 +70,14 @@
       [[X1, Y1], [X2, Y2]].forEach(function (e) { h.push('<line x1="' + (e[0] - nx * TW * 0.62).toFixed(1) + '" y1="' + (e[1] - ny * TW * 0.62).toFixed(1) + '" x2="' + (e[0] + nx * TW * 0.62).toFixed(1) + '" y2="' + (e[1] + ny * TW * 0.62).toFixed(1) + '" stroke="' + INK + '" stroke-width="' + (TW * 0.45).toFixed(2) + '"/>'); });
       wn._at = [(X1 + X2) / 2, (Y1 + Y2) / 2, hor]; });
     // 이름표
-    rooms.forEach(function (o) { var m = o.m, L = labelAt(o.p), big = Math.min(L.w, L.h), f1 = Math.max(fs * 0.62, Math.min(fs * 1.05, big / 5.2)), small = big < fs * 3.4, cx = L.x + ox, cy = L.y + oy;
+    if (!opt.noLabels) rooms.forEach(function (o) { var m = o.m, L = labelAt(o.p), big = Math.min(L.w, L.h), f1 = Math.max(fs * 0.62, Math.min(fs * 1.05, big / 5.2)), small = big < fs * 3.4, cx = L.x + ox, cy = L.y + oy;
       var lines = [[m.name, f1, 700, INK]]; if (m.area) lines.push([m.area + '㎡', f1 * 0.8, 500, SUBT]); if (!small && m.w && m.d && m.kind !== '발코니') lines.push([m.w + ' × ' + m.d + ' m', f1 * 0.66, 400, SUBT]);
       var tot = lines.reduce(function (s, l) { return s + l[1] * 1.28; }, 0), y = cy - tot / 2;
       lines.forEach(function (l) { y += l[1] * 1.05; h.push('<text x="' + cx.toFixed(1) + '" y="' + y.toFixed(1) + '" text-anchor="middle" font-size="' + l[1].toFixed(1) + '" font-weight="' + l[2] + '" fill="' + l[3] + '">' + esc(l[0]) + '</text>'); y += l[1] * 0.23; }); });
     (r.창 || []).forEach(function (wn) { if (!wn._at || opt.noWinText) return; var t = wn.종류 + (wn.w_m ? ' ' + wn.w_m + 'm' : ''), f0 = fs * 0.5, x = wn._at[0], y = wn._at[1];
       if (wn._at[2]) h.push('<text x="' + x.toFixed(1) + '" y="' + (y + f0 * 0.34).toFixed(1) + '" text-anchor="middle" font-size="' + f0.toFixed(1) + '" font-weight="600" fill="' + ACC + '" stroke="' + PAPER + '" stroke-width="' + (f0 * 0.5).toFixed(1) + '" paint-order="stroke">' + esc(t) + '</text>');
       else h.push('<text transform="translate(' + (x + f0 * 0.34).toFixed(1) + ' ' + y.toFixed(1) + ') rotate(-90)" text-anchor="middle" font-size="' + f0.toFixed(1) + '" font-weight="600" fill="' + ACC + '" stroke="' + PAPER + '" stroke-width="' + (f0 * 0.5).toFixed(1) + '" paint-order="stroke">' + esc(t) + '</text>'); });
-    if (bare) { h.push('<rect width="100%" height="100%" fill="url(#' + id + 'w)" pointer-events="none"/>'); h.push('</svg>'); return h.join(''); }
+    if (bare) { if (!opt.noMark) h.push('<rect width="100%" height="100%" fill="url(#' + id + 'w)" pointer-events="none"/>'); h.push('</svg>'); return h.join(''); }
     var m0b = 0;
     // 비침 무늬(재가공 표시)
     if (!opt.plain) h.push('<rect x="' + m0.toFixed(1) + '" y="' + (m0 + head * 0.82).toFixed(1) + '" width="' + (VW - m0 * 2).toFixed(1) + '" height="' + (VH - m0 * 2 - head * 0.82 - foot * 0.62).toFixed(1) + '" fill="url(#' + id + 'w)" pointer-events="none"/>');
