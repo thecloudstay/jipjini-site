@@ -130,7 +130,7 @@ function finalize(found, W, H, dataUrl, areaM2, engineName, mmppFix) {
   var used = {};
   found.forEach(function (f) { var k = f.kind; cnt[k] = (cnt[k] || 0) + (f.nm ? 0 : 1); var n = cnt[k];
     f.name = f.nm ? (used[f.nm] ? f.nm + (++used[f.nm]) : (used[f.nm] = 1, f.nm)) : k === '방' ? (n === 1 ? '안방' : '방' + n) : k === '거실' ? (n === 1 ? '거실' : '거실' + n) : (k === '욕실' || k === '발코니' || k === '기타') ? k + n : (n === 1 ? k : k + n); });
-  var outer = function (f) { return f.kind === '발코니' || f.kind === '실외기실'; };
+  var outer = function (f) { return f.kind === '발코니' || f.kind === '실외기실' || f.kind === '피트'; };   // 피트·PD(설비 통로)는 전용면적에 넣지 않는다
   var m2 = Number(areaM2) || 0, innerPx = found.filter(function (f) { return !outer(f); }).reduce(function (s, f) { return s + f.px; }, 0);
   var mmpp = Number(mmppFix) > 0 ? Number(mmppFix) : ((m2 > 0 && innerPx > 0) ? Math.sqrt(m2 * 1e6 / innerPx) : 0);
   var rooms = found.map(function (f) {
@@ -141,7 +141,7 @@ function finalize(found, W, H, dataUrl, areaM2, engineName, mmppFix) {
   if (mmpp) { var L = Math.round(1000 / mmpp); shapes.push({ t: 'scale', c: '#1d5fd0', x1: Math.round(W * 0.05), y1: Math.round(H * 0.965), x2: Math.round(W * 0.05) + L, y2: Math.round(H * 0.965), mm: 1000, by: mmppFix ? '치수' : '면적' }); }
   var sum = { 방: cnt['방'] || 0, 욕실: cnt['욕실'] || 0, 발코니: cnt['발코니'] || 0 };
   if (mmpp) { var liv = rooms.filter(function (r) { return /^(거실|방|주방|드레스룸|기타)$/.test(r.kind); });
-    sum.전용합 = R1(rooms.filter(function (r) { return r.kind !== '발코니' && r.kind !== '실외기실'; }).reduce(function (s, r) { return s + r.area; }, 0));
+    sum.전용합 = R1(rooms.filter(function (r) { return r.kind !== '발코니' && r.kind !== '실외기실' && r.kind !== '피트'; }).reduce(function (s, r) { return s + r.area; }, 0));
     sum.바닥 = R1(liv.reduce(function (s, r) { return s + r.area; }, 0)); sum.천장 = sum.바닥;
     sum.벽 = R1(liv.reduce(function (s, r) { return s + r.perim * 2.4; }, 0)); sum.걸레받이 = R1(liv.reduce(function (s, r) { return s + r.perim; }, 0)); }
   return { ok: true, dataUrl: dataUrl, W: W, H: H, mmpp: mmpp, rooms: rooms, shapes: shapes, sum: sum, engine: engineName || '규칙' };

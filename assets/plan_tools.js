@@ -8,10 +8,10 @@
    학습 모델이 없거나 어느 단계가 실패하면 그 단계만 건너뛰고 앞 단계 결과를 돌려준다. */
 (function (root) {
   var BASE = root.JJ_ASSET_BASE || 'https://jipjini.com/assets/', VEN = null, OCR = null, AI = undefined;
-  var KW = [[/거\s*[실설]|가족실|living/i, '거실'], [/[침칩템]\s*실|^심1\d$|안\s*방|^방\s*\d|bed\s*room|^room/i, '방'], [/[욕옥]\s*[실스]|^요스$|화장실|bath|toilet|^w\.?c/i, '욕실'], [/[발빌밥필]\s*코\s*[니나]|베란다|다용도|balcony/i, '발코니'], [/실외기/i, '실외기실'],
+  var KW = [[/^(A\.?D|P\.?D|P\.?S|E\.?P\.?S|T\.?P\.?S)(\s*[&·\/]\s*(A\.?D|P\.?D|P\.?S))?$|피트|덕트|^PIT$/i, '피트'], [/거\s*[실설]|가족실|living/i, '거실'], [/[침칩템]\s*실|^심1\d$|안\s*방|^방\s*\d|bed\s*room|^room/i, '방'], [/[욕옥]\s*[실스]|^요스$|화장실|bath|toilet|^w\.?c/i, '욕실'], [/[발빌밥필]\s*코\s*[니나]|베란다|다용도|balcony/i, '발코니'], [/실외기/i, '실외기실'],
     [/주\s*방|식\s*당|kitchen|dining/i, '주방'], [/[현협]\s*관|entrance/i, '현관'], [/드레스|파우더|dress/i, '드레스룸'], [/팬트리|창고|알파|세탁|보일러|대피|pantry/i, '기타']];
   function script(src) { return new Promise(function (ok, no) { var s = document.createElement('script'); s.src = src; s.onload = function () { ok(); }; s.onerror = function () { no(new Error('불러오지 못했습니다: ' + src)); }; document.head.appendChild(s); }); }
-  function needAuto() { return root.JJPlanAuto ? Promise.resolve() : script(BASE + 'plan_auto.js?v=20261110c'); }
+  function needAuto() { return root.JJPlanAuto ? Promise.resolve() : script(BASE + 'plan_auto.js?v=20261110h'); }
   function vendor() { if (VEN) return VEN; root.JJ_VENDOR_BASE = BASE + 'vendor/'; VEN = script(BASE + 'vendor/jjvendor.js?v=20261110').then(function () { if (!root.JJVendor) throw new Error('도구 묶음 없음'); return root.JJVendor; }); VEN.catch(function () { VEN = null; }); return VEN; }
   function toImage(src) {
     return new Promise(function (ok, no) {
@@ -47,7 +47,7 @@
       });
     });
   }
-  function nmOf(t) { var L = [[/가족실/, '가족실'], [/알파/, '알파룸'], [/팬트리/, '팬트리'], [/다용도/, '다용도실'], [/실외기/, '실외기실'], [/세탁/, '세탁실'], [/창고/, '창고'], [/보일러/, '보일러실'], [/대피/, '대피공간'], [/파우더/, '파우더룸']]; for (var i = 0; i < L.length; i++) if (L[i][0].test(t)) return L[i][1]; return ''; }
+  function nmOf(t) { var L = [[/^(A\.?D|P\.?D|P\.?S|E\.?P\.?S|T\.?P\.?S)|피트|덕트/i, '피트'], [/가족실/, '가족실'], [/알파/, '알파룸'], [/팬트리/, '팬트리'], [/다용도/, '다용도실'], [/실외기/, '실외기실'], [/세탁/, '세탁실'], [/창고/, '창고'], [/보일러/, '보일러실'], [/대피/, '대피공간'], [/파우더/, '파우더룸']]; for (var i = 0; i < L.length; i++) if (L[i][0].test(t)) return L[i][1]; return ''; }
   /** 방 바깥선을 가로·세로로 반듯하게 편다 (건물은 거의 직각이다). 20도 안쪽으로 기운 변은 가로/세로로, 짧은 빗변은 가까운 쪽으로, 길고 뚜렷한 빗변(모서리를 깎은 벽)만 남긴다 */
   function orthoPoly(p, D) {
     var n = p.length; if (n < 4) return p; var E = [], i;
@@ -119,7 +119,7 @@
     // 글자로 이름이 붙은 방이 하나라도 있으면, 이름 없는 공간은 모양·크기 추정에 맡긴다(거실 추정 포함)
     var xs = [], ys = []; found.forEach(function (f) { f.pts.forEach(function (p) { xs.push(p[0]); ys.push(p[1]); }); });
     var bw = Math.max.apply(null, xs) - Math.min.apply(null, xs), bh = Math.max.apply(null, ys) - Math.min.apply(null, ys);
-    var innerPx = rooms.filter(function (r) { return r.kind !== '발코니' && r.kind !== '실외기실'; }).reduce(function (s, r) { return s + r.px; }, 0), m2 = Number(areaM2) || txtArea || 0;
+    var innerPx = rooms.filter(function (r) { return r.kind !== '발코니' && r.kind !== '실외기실' && r.kind !== '피트'; }).reduce(function (s, r) { return s + r.px; }, 0), m2 = Number(areaM2) || txtArea || 0;
     // 전용면적은 안목치수(외벽 안쪽) 기준이라 세대 안 칸막이벽은 면적에 들어간다 → 굵은 벽 화소의 40% 를 더해 척도를 잡는다(방만 세면 방이 4~5% 크게 나온다)
     var mmArea = (m2 && innerPx) ? Math.sqrt(m2 * 1e6 / (innerPx + 0.4 * (base.wallPx || 0))) : 0;
     // 치수 기준 척도: ① 이어 쓴 치수선(글자 사이 거리) — 방 나누기와 무관해 가장 믿을 만하다 ② 없으면 가장 큰 숫자 = 도면 전체 가로·세로
@@ -144,6 +144,15 @@
     out.rooms.forEach(function (r) { for (var q = 0; q < found.length; q++) if (found[q].pts === r.pts && found[q].areaTxt) r.areaTxt = found[q].areaTxt; });
     out.글자 = { 개수: items.length, 방이름: named, 치수: dims.map(function (d) { return d.n; }).sort(function (a, b) { return b - a; }).slice(0, 12) }; out.척도 = sc; (out.shapes || []).forEach(function (sh) { if (sh.t === 'scale') sh.by = sc.방식; }); if (base.wallPx) out.wallPx = base.wallPx;
     if (base.문) out.문 = base.문; if (base.창) out.창 = base.창;
+    if (!out.창 && base.창선 && base.창선.length) { var mmW = out.mmpp || 0, roomAt = function (pt) { for (var q = 0; q < out.rooms.length; q++) if (out.rooms[q].pts.length >= 3 && inPoly(pt[0], pt[1], out.rooms[q].pts)) return out.rooms[q]; return null; }, isBal = function (r) { return r && (r.kind === '발코니' || r.kind === '실외기실'); };
+      out.창 = []; base.창선.forEach(function (wn) { var ra = roomAt(wn.a), rb = roomAt(wn.b); if (ra && rb && ra === rb) return; if (!ra && !rb) return;   // 같은 방 안의 선(욕조·가구)이나 세대 밖은 창이 아니다
+        var len = Math.sqrt(Math.pow(wn.x2 - wn.x1, 2) + Math.pow(wn.y2 - wn.y1, 2)), wm = mmW ? Math.round(len * mmW / 10) / 100 : 0, inn = isBal(ra) ? rb : ra, outR = isBal(ra) ? ra : rb, kind, hh;
+        if (isBal(ra) && isBal(rb)) return;   // 발코니끼리 칸막이
+        if ((isBal(ra) || isBal(rb)) && inn && !isBal(inn)) { kind = '분합창'; hh = 2300; }                       // 방·거실 ↔ 발코니
+        else if (isBal(ra) || isBal(rb)) { kind = '하이샷시'; hh = 2300; }   // 발코니 ↔ 바깥: 우리나라 발코니는 하이샷시가 기본(도면에서 창틀마다 끊겨 보여도 같은 샷시)
+        else if (ra && rb) return;                                                                              // 방 ↔ 방: 창이 아니라 문·가구 선일 가능성이 높다
+        else { var rm = ra || rb; if (rm.kind === '욕실') { kind = '작은 창'; hh = 600; } else if (wm && wm >= 2.4) { kind = '큰 창'; hh = 2300; } else { kind = '창'; hh = 1500; } }   // 방 ↔ 바깥(발코니 없는 쪽·확장형)
+        out.창.push({ x1: Math.round(wn.x1), y1: Math.round(wn.y1), x2: Math.round(wn.x2), y2: Math.round(wn.y2), w_m: wm, h_mm: hh, 종류: kind, 안: (inn && inn.name) || '', 밖: outR && isBal(outR) ? outR.name : (ra && rb ? '' : '바깥'), 가정: '폭은 도면에서 읽고 높이는 자리로 가정' }); }); }
     return out;
   }
 
@@ -284,13 +293,13 @@
         // 글자를 지운 흰 네모·가는 선 때문에 생긴 구멍 메우기: 덩어리의 네모 범위 안에서 사방이 덩어리에 막힌 바깥 화소
         comp.forEach(function (k4) { lab[k4] = sd.l; });
         for (var pass2 = 0; pass2 < 3; pass2++) for (var k5 = w; k5 < N - w; k5++) { if (lab[k5] > 1 || wall[k5]) continue; var c4 = (lab[k5 - 1] === sd.l) + (lab[k5 + 1] === sd.l) + (lab[k5 - w] === sd.l) + (lab[k5 + w] === sd.l); if (c4 >= 3) lab[k5] = sd.l; } }); })();
-    (function () { var seenE = new Uint8Array(N), lim = U * U * 0.9; for (var k = 0; k < N; k++) { if (lab[k] || wall[k] || seenE[k]) continue; var st = [k], comp = [k]; seenE[k] = 1;
+    (function () { var seenE = new Uint8Array(N), lim = U * U * 0.22; /* 0.2㎡ 남짓한 닫힌 칸(피트·PD)도 잡는다 */ for (var k = 0; k < N; k++) { if (lab[k] || wall[k] || seenE[k]) continue; var st = [k], comp = [k]; seenE[k] = 1;
         while (st.length) { var p = st.pop(), px = p % w, py = (p / w) | 0, nb = [px > 0 ? p - 1 : -1, px < w - 1 ? p + 1 : -1, py > 0 ? p - w : -1, py < h - 1 ? p + w : -1]; for (var b = 0; b < 4; b++) { var q2 = nb[b]; if (q2 >= 0 && !lab[q2] && !wall[q2] && !seenE[q2]) { seenE[q2] = 1; st.push(q2); comp.push(q2); } } }
         if (comp.length >= lim) { var l = seeds.length + 2, bp = comp[0]; comp.forEach(function (q3) { lab[q3] = l; if (dist[q3] > dist[bp]) bp = q3; }); seeds.push({ kind: undefined, text: '', l: l, p: bp }); } } })();
     // (가) 한 공간에 이름이 둘 이상(주방/식당·거실·가족실이 트인 평면): 벽 사이 목이 없어 한 씨앗이 다 차지하므로, 그 공간 안에서 가까운 씨앗끼리 다시 나눈다
     var cnt0 = {}; for (i = 0; i < N; i++) if (lab[i] >= 2) cnt0[lab[i]] = (cnt0[lab[i]] || 0) + 1;
     var minPx0 = N * 0.0012, groups = {};
-    seeds.forEach(function (sd) { if (!sd.kind || (cnt0[sd.l] || 0) >= minPx0) return; var px0 = sd.p % w, py0 = (sd.p / w) | 0, win = 0;
+    seeds.forEach(function (sd) { if (!sd.kind || sd.kind === '피트' || (cnt0[sd.l] || 0) >= minPx0) return; var px0 = sd.p % w, py0 = (sd.p / w) | 0, win = 0;
       for (var rr = 1; rr <= 4 && !win; rr++) [[rr, 0], [-rr, 0], [0, rr], [0, -rr]].forEach(function (o2) { var xx = px0 + o2[0], yy = py0 + o2[1]; if (xx >= 0 && yy >= 0 && xx < w && yy < h) { var l9 = lab[yy * w + xx]; if (l9 >= 2 && l9 !== sd.l && !win) win = l9; } });
       if (win) (groups[win] = groups[win] || []).push(sd); });
     Object.keys(groups).forEach(function (wk) { var W0 = Number(wk), owner = seeds.filter(function (sd) { return sd.l === W0; })[0]; if (!owner || !owner.kind) return; var members = [owner].concat(groups[wk]), setL = {}; members.forEach(function (m) { setL[m.l] = 1; });
@@ -337,12 +346,25 @@
     var anyBath = seeds.some(function (sd) { return sd.kind === '욕실'; }), lineN = {}, satN = {}; for (i = 0; i < N; i++) { var l8 = lab[i]; if (l8 >= 2) { if (line[i] && !wall[i]) lineN[l8] = (lineN[l8] || 0) + 1; if (sat[i] > 28) satN[l8] = (satN[l8] || 0) + 1; } }
     found = found.filter(function (f) { if (f.kind) return true; var n = cnt[f.l] || 1, m2r = n / (U * U), ld = (lineN[f.l] || 0) / n, bx = f.pts.map(function (q) { return q[0]; }), by = f.pts.map(function (q) { return q[1]; }), fw = Math.max.apply(null, bx) - Math.min.apply(null, bx), fh = Math.max.apply(null, by) - Math.min.apply(null, by), strip = Math.max(fw, fh) / Math.max(1, Math.min(fw, fh)) >= 3.2;
       f.dbg = [Math.round(m2r * 10) / 10, Math.round(ld * 1000) / 1000, Math.round((satN[f.l] || 0) / n * 100) / 100]; if (m2r >= 9 && ld >= 0.045) return false;   // 공용부
+      if (m2r < 1.05) { f.kind = '피트'; f.nm = '피트'; f.guess = true; return true; }   /* 벽으로 닫힌 1㎡ 안쪽 작은 칸 = 설비 통로(피트·PD)로 본다 (코디 확인) */
       if (strip) { f.kind = '발코니'; f.guess = true; return true; }
       if (!anyBath && m2r >= 1.2 && m2r <= 7.5 && (satN[f.l] || 0) / n >= 0.12) { f.kind = '욕실'; f.guess = true; return true; }
       f.kind = f.px >= medN ? '방' : '기타'; f.guess = true; return true; });
+    // 세대와 떨어져 홀로 있는 작은 칸(공용부 조각)은 피트로 넣지 않는다
+    var bb = function (f) { var xs2 = f.pts.map(function (q) { return q[0]; }), ys2 = f.pts.map(function (q) { return q[1]; }); return [Math.min.apply(null, xs2), Math.min.apply(null, ys2), Math.max.apply(null, xs2), Math.max.apply(null, ys2)]; }, mg = U * 0.45 / s;
+    found = found.filter(function (f) { if (f.kind !== '피트' || !f.guess) return true; var a2 = bb(f); return found.some(function (g2) { if (g2 === f || (g2.kind === '피트' && g2.guess)) return false; var b2 = bb(g2); return a2[0] - mg <= b2[2] && a2[2] + mg >= b2[0] && a2[1] - mg <= b2[3] && a2[3] + mg >= b2[1]; }); });
     if (root.JJ_PLAN_DEBUG) root.JJ_PLAN_DEBUG.un = found.filter(function (f) { return f.dbg; }).map(function (f) { return f.kind + JSON.stringify(f.dbg); }).join(' ') + ' U=' + U.toFixed(1);
     if (found.length < 3) return null;
     var wallN = 0; for (i = 0; i < N; i++) if (wall[i] && !isAdd[i]) wallN++; found.wallPx = wallN / (s * s);
+    // 창 자리: 굵은 벽 사이를 가는 선이 잇던 틈(위에서 메운 곳)을 선분으로 뽑는다. 폭은 도면에서, 높이는 뒤에서 자리(발코니 바깥 = 하이샷시 등)로 가정한다
+    var wins = [], seenA = new Uint8Array(N);
+    for (i = 0; i < N; i++) { if (!isAdd[i] || !wall[i] || seenA[i]) continue; var stA = [i], x0a = w, x1a = 0, y0a = h, y1a = 0, cntA = 0; seenA[i] = 1;
+      while (stA.length) { var pa = stA.pop(), xa = pa % w, ya = (pa / w) | 0; cntA++; if (xa < x0a) x0a = xa; if (xa > x1a) x1a = xa; if (ya < y0a) y0a = ya; if (ya > y1a) y1a = ya;
+        for (var dy2 = -1; dy2 <= 1; dy2++) for (var dx2 = -1; dx2 <= 1; dx2++) { var nx3 = xa + dx2, ny3 = ya + dy2; if (nx3 < 0 || ny3 < 0 || nx3 >= w || ny3 >= h) continue; var qa = ny3 * w + nx3; if (isAdd[qa] && wall[qa] && !seenA[qa]) { seenA[qa] = 1; stA.push(qa); } } }
+      var bwA = x1a - x0a + 1, bhA = y1a - y0a + 1, hor = bwA >= bhA, len = hor ? bwA : bhA, thick = hor ? bhA : bwA; if (len < U * 0.45 || thick > U * 0.6 || len < thick * 2) continue;
+      var cxA = (x0a + x1a) / 2, cyA = (y0a + y1a) / 2, off = thick / 2 + Math.max(4, U * 0.22);
+      wins.push({ x1: (hor ? x0a : cxA) / s, y1: (hor ? cyA : y0a) / s, x2: (hor ? x1a + 1 : cxA) / s, y2: (hor ? cyA : y1a + 1) / s, a: [(hor ? cxA : cxA - off) / s, (hor ? cyA - off : cyA) / s], b: [(hor ? cxA : cxA + off) / s, (hor ? cyA + off : cyA) / s] }); }
+    found.창선 = wins;
     return found;
   }
   function analyze(src, opt) {
@@ -362,7 +384,7 @@
         var base = A.analyzeImage(clean, { areaM2: opt.areaM2 }); base.dataUrl = dataUrl; base.W = W; base.H = H;
         // 방 이름이 3곳 이상 읽히면 글자 기준 나누기가 우선 (부동산 사이트 도면)
         if (items && items.length) { var seeded = null; try { seeded = seedRooms(clean, items, W, H, opt.areaM2); } catch (e) { if (root.JJ_PLAN_DEBUG) console.error(e); seeded = null; }
-          if (seeded) { var mk = function () { base = A.finalize(seeded, W, H, dataUrl, opt.areaM2, '글자 기준'); base.wallPx = seeded.wallPx; }; mk();
+          if (seeded) { var mk = function () { base = A.finalize(seeded, W, H, dataUrl, opt.areaM2, '글자 기준'); base.wallPx = seeded.wallPx; base.창선 = seeded.창선; }; mk();
             var blind = seeded.filter(function (f) { return f.guess; }).sort(function (a, b) { return b.px - a.px; }).slice(0, 5);
             if (blind.length) { step('이름이 안 읽힌 칸을 다시 읽고 있습니다'); seedJob = blind.reduce(function (pr, f) { return pr.then(function () { return readRegion(keep, f).then(function (k) { if (k) { f.kind = k.kind; f.nm = k.nm; f.guess = false; items.push(k.item); } }, function () {}); }); }, Promise.resolve()).then(mk); } } }
         return seedJob.then(aiReady).then(function (ai) { if (!ai) return null; step('벽·문·창 자리를 읽고 있습니다'); return aiAnalyze(ai, clean).catch(function () { return null; }); }).then(function (aiRes) {

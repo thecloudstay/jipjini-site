@@ -4,7 +4,7 @@
    벽은 「방 바깥선을 굵게 긋고 그 위에 방 바닥을 덮는」 방식이라 방 사이 틈이 자연스럽게 벽이 된다. 문·창 자리는 알 수 없어 그리지 않는다(공간 구성도). */
 (function (root) {
   var INK = '#26302c', PAPER = '#f7f4ee', LINE = '#c9c2b4', ACC = '#2f6b4f', SUBT = '#7a7468';
-  var FILL = { 거실: '#efe5d3', 방: '#e6ebe3', 주방: '#f2e9dd', 욕실: '#dde7ea', 발코니: '#eef0e9', 현관: '#e4ddd1', 드레스룸: '#ebe4dc', 실외기실: '#ecebe6', 기타: '#efede8' };
+  var FILL = { 거실: '#efe5d3', 방: '#e6ebe3', 주방: '#f2e9dd', 욕실: '#dde7ea', 발코니: '#eef0e9', 현관: '#e4ddd1', 드레스룸: '#ebe4dc', 실외기실: '#ecebe6', 기타: '#efede8', 피트: '#d9d6cd' };
   function esc(t) { return String(t == null ? '' : t).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
   // 가로·세로가 거의 같은 꼭짓점들을 한 줄로 맞춘다(방끼리 벽선이 가지런해진다)
   function snapAll(rooms, tol) {
@@ -55,13 +55,25 @@
     // 바닥을 먼저 칠하고, 벽은 모든 방 둘레를 같은 굵기의 먹선 한 줄로 긋는다(맞닿은 변은 같은 자리라 겹쳐 보이지 않는다)
     var outer = function (k) { return k === '발코니' || k === '실외기실'; }, TW = Math.max(D * 0.0085, Math.min(D * 0.013, T * 0.75));
     rooms.forEach(function (o) { var k = o.m.kind, f = FILL[k] || FILL.기타; h.push('<polygon points="' + pts(o.p) + '" fill="' + f + '"/>');
-      if (k === '발코니' || k === '실외기실') h.push('<polygon points="' + pts(o.p) + '" fill="url(#' + id + 'b)"/>'); else if (k === '욕실' || k === '현관') h.push('<polygon points="' + pts(o.p) + '" fill="url(#' + id + 't)"/>'); });
+      if (k === '발코니' || k === '실외기실') h.push('<polygon points="' + pts(o.p) + '" fill="url(#' + id + 'b)"/>'); else if (k === '욕실' || k === '현관') h.push('<polygon points="' + pts(o.p) + '" fill="url(#' + id + 't)"/>');
+      else if (k === '피트') { var px = o.p.map(function (q) { return q[0]; }), py = o.p.map(function (q) { return q[1]; }), ax = Math.min.apply(null, px) + ox, bx = Math.max.apply(null, px) + ox, ay = Math.min.apply(null, py) + oy, by2 = Math.max.apply(null, py) + oy; h.push('<path d="M' + ax.toFixed(1) + ' ' + ay.toFixed(1) + 'L' + bx.toFixed(1) + ' ' + by2.toFixed(1) + 'M' + bx.toFixed(1) + ' ' + ay.toFixed(1) + 'L' + ax.toFixed(1) + ' ' + by2.toFixed(1) + '" stroke="' + INK + '" stroke-width="' + (D / 700).toFixed(2) + '" fill="none"/>'); } });
     rooms.forEach(function (o) { h.push('<polygon points="' + pts(o.p) + '" fill="none" stroke="' + INK + '" stroke-width="' + TW.toFixed(2) + '" stroke-linejoin="miter" stroke-miterlimit="3"/>'); });
+    // 창: 벽선 위에 흰 틈 + 가는 두 줄(샷시)로 그리고 종류·폭을 적는다. 방을 반듯하게 편 뒤라 가장 가까운 벽선에 붙인다
+    (r.창 || []).forEach(function (wn) { var hor = Math.abs(wn.x2 - wn.x1) >= Math.abs(wn.y2 - wn.y1), c = hor ? (wn.y1 + wn.y2) / 2 : (wn.x1 + wn.x2) / 2, best = null, bd = D * 0.035, a0 = hor ? Math.min(wn.x1, wn.x2) : Math.min(wn.y1, wn.y2), a1 = hor ? Math.max(wn.x1, wn.x2) : Math.max(wn.y1, wn.y2);
+      rooms.forEach(function (o) { for (var i = 0; i < o.p.length; i++) { var p1 = o.p[i], p2 = o.p[(i + 1) % o.p.length], eh = p1[1] === p2[1], ev = p1[0] === p2[0]; if (hor ? !eh : !ev) continue; var ec = hor ? p1[1] : p1[0], lo = hor ? Math.min(p1[0], p2[0]) : Math.min(p1[1], p2[1]), hi = hor ? Math.max(p1[0], p2[0]) : Math.max(p1[1], p2[1]); if (Math.min(hi, a1) - Math.max(lo, a0) < (a1 - a0) * 0.5) continue; var d = Math.abs(ec - c); if (d < bd) { bd = d; best = ec; } } });
+      if (best == null) return; var X1 = hor ? a0 + ox : best + ox, Y1 = hor ? best + oy : a0 + oy, X2 = hor ? a1 + ox : best + ox, Y2 = hor ? best + oy : a1 + oy, g = TW * 0.36, nx = hor ? 0 : 1, ny = hor ? 1 : 0;
+      h.push('<line x1="' + X1.toFixed(1) + '" y1="' + Y1.toFixed(1) + '" x2="' + X2.toFixed(1) + '" y2="' + Y2.toFixed(1) + '" stroke="' + PAPER + '" stroke-width="' + (TW * 1.25).toFixed(2) + '"/>');
+      [-1, 1].forEach(function (sg) { h.push('<line x1="' + (X1 + nx * g * sg).toFixed(1) + '" y1="' + (Y1 + ny * g * sg).toFixed(1) + '" x2="' + (X2 + nx * g * sg).toFixed(1) + '" y2="' + (Y2 + ny * g * sg).toFixed(1) + '" stroke="' + INK + '" stroke-width="' + (TW * 0.2).toFixed(2) + '"/>'); });
+      [[X1, Y1], [X2, Y2]].forEach(function (e) { h.push('<line x1="' + (e[0] - nx * TW * 0.62).toFixed(1) + '" y1="' + (e[1] - ny * TW * 0.62).toFixed(1) + '" x2="' + (e[0] + nx * TW * 0.62).toFixed(1) + '" y2="' + (e[1] + ny * TW * 0.62).toFixed(1) + '" stroke="' + INK + '" stroke-width="' + (TW * 0.45).toFixed(2) + '"/>'); });
+      wn._at = [(X1 + X2) / 2, (Y1 + Y2) / 2, hor]; });
     // 이름표
     rooms.forEach(function (o) { var m = o.m, L = labelAt(o.p), big = Math.min(L.w, L.h), f1 = Math.max(fs * 0.62, Math.min(fs * 1.05, big / 5.2)), small = big < fs * 3.4, cx = L.x + ox, cy = L.y + oy;
       var lines = [[m.name, f1, 700, INK]]; if (m.area) lines.push([m.area + '㎡', f1 * 0.8, 500, SUBT]); if (!small && m.w && m.d && m.kind !== '발코니') lines.push([m.w + ' × ' + m.d + ' m', f1 * 0.66, 400, SUBT]);
       var tot = lines.reduce(function (s, l) { return s + l[1] * 1.28; }, 0), y = cy - tot / 2;
       lines.forEach(function (l) { y += l[1] * 1.05; h.push('<text x="' + cx.toFixed(1) + '" y="' + y.toFixed(1) + '" text-anchor="middle" font-size="' + l[1].toFixed(1) + '" font-weight="' + l[2] + '" fill="' + l[3] + '">' + esc(l[0]) + '</text>'); y += l[1] * 0.23; }); });
+    (r.창 || []).forEach(function (wn) { if (!wn._at || opt.noWinText) return; var t = wn.종류 + (wn.w_m ? ' ' + wn.w_m + 'm' : ''), f0 = fs * 0.5, x = wn._at[0], y = wn._at[1];
+      if (wn._at[2]) h.push('<text x="' + x.toFixed(1) + '" y="' + (y + f0 * 0.34).toFixed(1) + '" text-anchor="middle" font-size="' + f0.toFixed(1) + '" font-weight="600" fill="' + ACC + '" stroke="' + PAPER + '" stroke-width="' + (f0 * 0.5).toFixed(1) + '" paint-order="stroke">' + esc(t) + '</text>');
+      else h.push('<text transform="translate(' + (x + f0 * 0.34).toFixed(1) + ' ' + y.toFixed(1) + ') rotate(-90)" text-anchor="middle" font-size="' + f0.toFixed(1) + '" font-weight="600" fill="' + ACC + '" stroke="' + PAPER + '" stroke-width="' + (f0 * 0.5).toFixed(1) + '" paint-order="stroke">' + esc(t) + '</text>'); });
     // 비침 무늬(재가공 표시)
     if (!opt.plain) h.push('<rect x="' + m0.toFixed(1) + '" y="' + (m0 + head * 0.82).toFixed(1) + '" width="' + (VW - m0 * 2).toFixed(1) + '" height="' + (VH - m0 * 2 - head * 0.82 - foot * 0.62).toFixed(1) + '" fill="url(#' + id + 'w)" pointer-events="none"/>');
     // 발: 축척 막대 + 안내
