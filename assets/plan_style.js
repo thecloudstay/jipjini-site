@@ -27,6 +27,7 @@
     opt = opt || {}; if (!r || !r.rooms || !r.rooms.length) return '';
     var rooms = r.rooms.filter(function (m) { return m.pts && m.pts.length >= 3; }).map(function (m) { return { m: m, p: m.pts.map(function (q) { return [q[0], q[1]]; }) }; }); if (!rooms.length) return '';
     var xs = [], ys = []; rooms.forEach(function (o) { o.p.forEach(function (q) { xs.push(q[0]); ys.push(q[1]); }); });
+    var hull = r.외곽 && r.외곽.length >= 4 ? r.외곽.map(function (q) { return [q[0], q[1]]; }) : null; if (hull) hull.forEach(function (q) { xs.push(q[0]); ys.push(q[1]); });   // 2026-11-11 집 외곽선(방과 별개로 한 줄)
     var bx0 = Math.min.apply(null, xs), bx1 = Math.max.apply(null, xs), by0 = Math.min.apply(null, ys), by1 = Math.max.apply(null, ys), bw = bx1 - bx0, bh = by1 - by0, D = Math.max(bw, bh);
     snapAll(rooms, D * 0.024);   // 벽 두께(약 200mm)만큼 떨어진 두 방의 변을 벽 가운데 한 줄로 모은다 → 벽선이 겹치지 않고 한 줄
     var mm = Number(r.mmpp) || 0, T = mm ? Math.max(D * 0.006, 190 / mm) : D * 0.014, Tb = T * 0.45;   // 벽 굵기: 척도를 알면 약 190mm
@@ -57,6 +58,7 @@
     }
     // 바닥을 먼저 칠하고, 벽은 모든 방 둘레를 같은 굵기의 먹선 한 줄로 긋는다(맞닿은 변은 같은 자리라 겹쳐 보이지 않는다)
     var outer = function (k) { return k === '발코니' || k === '실외기실'; }, TW = Math.max(D * 0.0085, Math.min(D * 0.013, T * 0.75));
+    if (hull) h.push('<polygon points="' + pts(hull) + '" fill="' + (FILL.기타 || '#eee') + '" stroke="' + INK + '" stroke-width="' + (TW * 1.7).toFixed(2) + '" stroke-linejoin="miter" stroke-miterlimit="3"/>');   // 외곽선을 먼저 긋고 그 안에 방을 놓는다 — 방을 못 찾은 자리도 집 모양은 남는다
     rooms.forEach(function (o) { var k = o.m.kind, f = FILL[k] || FILL.기타; h.push('<polygon points="' + pts(o.p) + '" fill="' + f + '"/>');
       if (k === '발코니' || k === '실외기실') h.push('<polygon points="' + pts(o.p) + '" fill="url(#' + id + 'b)"/>'); else if (k === '욕실' || k === '현관') h.push('<polygon points="' + pts(o.p) + '" fill="url(#' + id + 't)"/>');
       else if (k === '피트') { var px = o.p.map(function (q) { return q[0]; }), py = o.p.map(function (q) { return q[1]; }), ax = Math.min.apply(null, px) + ox, bx = Math.max.apply(null, px) + ox, ay = Math.min.apply(null, py) + oy, by2 = Math.max.apply(null, py) + oy; h.push('<path d="M' + ax.toFixed(1) + ' ' + ay.toFixed(1) + 'L' + bx.toFixed(1) + ' ' + by2.toFixed(1) + 'M' + bx.toFixed(1) + ' ' + ay.toFixed(1) + 'L' + ax.toFixed(1) + ' ' + by2.toFixed(1) + '" stroke="' + INK + '" stroke-width="' + (D / 700).toFixed(2) + '" fill="none"/>'); } });
