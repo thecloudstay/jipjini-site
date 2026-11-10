@@ -18,6 +18,7 @@ START, END = "<!--SITENAV-->", "<!--/SITENAV-->"
 
 GROUPS = [
     ("시작하기", [("index.html", "홈"), ("self-interior-agency.html", "셀인대행이란"), ("request.html", "무료 견적 신청"), ("prepare.html", "사전 준비")]),
+    ("집지니 CAD", [("cad.html", "집지니 CAD — 무료 공사 계획 도면")]),
     ("샘플실", [("showroom.html", "가양동 샘플실 · 상담 예약")]),
     ("진행 방식", [("workflow.html", "진행 방식 8단계"), ("interior-coordinator.html", "코디네이터란")]),
     ("가격·견적", [("pricing.html", "가격·코디비"), ("interior-price-table.html", "실견적 시세표"), ("cases/", "견적 사례"), ("py/", "평형별 비용"), ("trade/", "공종별 비용")]),

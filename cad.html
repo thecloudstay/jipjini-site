@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="naver-site-verification" content="c251139cf29944ffe603d11ecf58e973d448a8fa" />
+<title>집지니 CAD — 우리 집 도면으로 공사 계획·작업 지시 만들기 (무료) | 집지니</title>
+<meta name="description" content="집지니 CAD로 공사계획 도면을 만들고, 작업지시를 해보세요! 우리 집 평면도 그림을 올리면 집지니가 방을 나눠 깨끗한 도면으로 다시 그립니다. 철거할 곳·공사할 곳을 표시하고 번호가 붙은 작업 지시를 달아 한 장으로 인쇄·저장하세요. 무료, 가입 없음, 도면은 내 기기에만 보관됩니다.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.34.0/dist/tabler-icons.min.css">
+<link rel="stylesheet" href="css/style.css">
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-35EM7T3M9W"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  (function(){try{if(/[?&]jj_staff=1/.test(location.search))localStorage.setItem('jj_staff','1');if(/[?&]jj_staff=0/.test(location.search))localStorage.removeItem('jj_staff');if(localStorage.getItem('jj_staff'))window['ga-disable-G-35EM7T3M9W']=true}catch(e){}})();gtag('config', 'G-35EM7T3M9W');
+</script>
+<link rel="canonical" href="https://jipjini.com/cad.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="집지니 · Direct Coordi">
+<meta property="og:locale" content="ko_KR">
+<meta property="og:title" content="집지니 CAD — 우리 집 도면으로 공사 계획·작업 지시 만들기">
+<meta property="og:description" content="집지니 CAD로 공사계획 도면을 만들고, 작업지시를 해보세요! 평면도 그림을 올리면 깨끗한 도면으로 다시 그려 드립니다. 무료, 가입 없음.">
+<meta property="og:url" content="https://jipjini.com/cad.html">
+<meta property="og:image" content="https://jipjini.com/og-cover.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="집지니 CAD — 우리 집 도면으로 공사 계획·작업 지시 만들기">
+<meta name="twitter:description" content="집지니 CAD로 공사계획 도면을 만들고, 작업지시를 해보세요! 평면도 그림을 올리면 깨끗한 도면으로 다시 그려 드립니다. 무료, 가입 없음.">
+<meta name="twitter:image" content="https://jipjini.com/og-cover.png">
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebApplication","@id":"https://jipjini.com/cad.html#app","name":"집지니 CAD","url":"https://jipjini.com/cad.html","applicationCategory":"DesignApplication","operatingSystem":"웹 브라우저","inLanguage":"ko","description":"우리 집 평면도 그림을 올리면 방을 나눠 깨끗한 도면으로 다시 그리고, 그 위에 철거할 곳·공사할 곳·작업 지시를 표시해 한 장으로 인쇄·저장하는 무료 도구.","offers":{"@type":"Offer","price":"0","priceCurrency":"KRW"},"provider":{"@id":"https://jipjini.com/#business"}},{"@type":"HowTo","name":"집지니 CAD로 공사 계획 도면 만드는 법","step":[{"@type":"HowToStep","position":1,"name":"우리 집 도면 올리기","text":"부동산 앱에서 우리 단지 평면도 화면을 갈무리해 올립니다."},{"@type":"HowToStep","position":2,"name":"집지니식 도면 확인","text":"집지니가 방을 나누고 깨끗한 도면으로 다시 그려 보여 줍니다."},{"@type":"HowToStep","position":3,"name":"공사 계획·작업 지시","text":"철거할 곳과 공사할 곳을 표시하고 번호가 붙은 작업 지시를 달아 인쇄하거나 그림으로 저장합니다."}]},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"집지니","item":"https://jipjini.com/"},{"@type":"ListItem","position":2,"name":"집지니 CAD","item":"https://jipjini.com/cad.html"}]}]}</script>
+<style>body,p,li,td,th,h1,h2,h3,h4,dd,dt,blockquote,figcaption{word-break:keep-all;overflow-wrap:break-word}</style>
+<style>
+/* 집지니 CAD (2026-11-11) — 글자는 크게(본문 18), 단추는 높게(48 이상), 한 화면에 한 가지 일 */
+.cad{max-width:1180px;margin:0 auto;padding:28px 20px 56px;font-size:18px;line-height:1.7;color:#2A2A2A}
+.cad h1{font-family:'Noto Serif KR',serif;font-weight:500;font-size:34px;letter-spacing:-.6px;line-height:1.3;margin:0}
+.cad h2{font-size:24px;font-weight:700;text-align:left;letter-spacing:-.4px;line-height:1.4;margin:0 0 10px}
+.cad h3{font-size:19px;font-weight:700;margin:0 0 6px}
+.cad p{margin:0 0 10px}
+.cad .sub{color:#6B6B6B}
+.cad [hidden]{display:none!important}
+.cad-head{padding:8px 0 22px;border-bottom:1px solid #C8C4BC;margin-bottom:22px}
+.cad-head .say{font-size:21px;margin:12px 0 0;color:#2A2A2A}
+.cad-head .say b{font-weight:600}
+.cad-head .free{font-size:16px;color:#6B6B6B;margin:6px 0 0}
+/* 걸음 표시 */
+.cad-steps{display:flex;gap:0;margin:0 0 24px;padding:0;list-style:none;border:1px solid #C8C4BC;background:#FBF8F1}
+.cad-steps li{flex:1;padding:12px 14px;font-size:16px;color:#6B6B6B;border-right:1px solid #C8C4BC;display:flex;gap:10px;align-items:center;min-width:0}
+.cad-steps li:last-child{border-right:0}
+.cad-steps li i{font-style:normal;font-weight:700;flex:none;width:28px;height:28px;border:1.5px solid #9A9A9A;display:flex;align-items:center;justify-content:center;font-size:15px}
+.cad-steps li.on{background:#2A2A2A;color:#F5F1E8;font-weight:600}
+.cad-steps li.on i{border-color:#F5F1E8}
+.cad-steps li.done{color:#2A2A2A}
+.cad-steps li.done i{background:#1e4d3a;border-color:#1e4d3a;color:#fff}
+.cad-pane{display:none}
+.cad-pane.on{display:block}
+/* 단추 */
+.cbtn{min-height:52px;padding:12px 22px;border:1.5px solid #2A2A2A;background:#fff;color:#2A2A2A;font:inherit;font-size:18px;font-weight:600;border-radius:6px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:8px;text-decoration:none;line-height:1.3}
+.cbtn:hover{background:#F5F1E8}
+.cbtn.dark{background:#2A2A2A;color:#F5F1E8}
+.cbtn.dark:hover{background:#1A1A1A}
+.cbtn.go{background:#9a5a4a;border-color:#9a5a4a;color:#F5F1E8}
+.cbtn.go:hover{background:#86493a}
+.cbtn.wide{width:100%}
+.cbtn:disabled{opacity:.45;cursor:not-allowed}
+.cbtn i{font-size:22px}
+.crow{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+/* 들어오는 길 두 가지 */
+.cad-ways{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:0 0 22px}
+.cad-way{border:1.5px solid #C8C4BC;background:#fff;padding:16px 18px;text-align:left;font:inherit;color:inherit;border-radius:6px;cursor:pointer;min-height:92px}
+.cad-way b{display:block;font-size:19px}
+.cad-way span{display:block;font-size:16px;color:#6B6B6B;line-height:1.55;margin-top:2px}
+.cad-way.on{border-color:#2A2A2A;box-shadow:inset 0 0 0 1px #2A2A2A}
+.cad-way em{font-style:normal;font-size:14px;font-weight:700;color:#9a5a4a;border:1px solid #9a5a4a;padding:1px 7px;margin-left:8px;vertical-align:2px}
+.cad-soon{display:none;border-left:3px solid #9a5a4a;background:#FBF8F1;padding:12px 16px;margin:-10px 0 22px;font-size:17px}
+.cad-soon.on{display:block}
+/* 올리기 */
+.cad-up{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,6fr);gap:28px;align-items:start}
+.cad-drop{border:2px dashed #6B6B6B;background:#fff;padding:30px 20px;text-align:center;border-radius:6px;cursor:pointer}
+.cad-drop.over{border-color:#1e4d3a;background:#eef3ef}
+.cad-drop .big{font-size:21px;font-weight:700;margin-bottom:4px}
+.cad-drop .cbtn{margin-top:14px}
+.cad-field{margin-top:18px}
+.cad-field label{display:block;font-weight:600;margin-bottom:6px}
+.cad-field .in{display:flex;align-items:center;gap:8px}
+.cad-field input{font:inherit;font-size:20px;height:52px;width:150px;border:1.5px solid #6B6B6B;border-radius:6px;padding:0 12px;background:#fff;color:#2A2A2A}
+.cad-field small{display:block;font-size:15px;color:#6B6B6B;margin-top:6px;line-height:1.55}
+.cad-safe{font-size:15.5px;color:#6B6B6B;margin-top:16px;line-height:1.6}
+.cad-resume{border:1.5px solid #1e4d3a;background:#eef3ef;padding:16px 18px;margin:0 0 22px;border-radius:6px;display:none}
+.cad-resume.on{display:block}
+/* 안내 */
+.cad-guide ol.how{margin:0 0 18px;padding:0;list-style:none;counter-reset:h}
+.cad-guide ol.how li{counter-increment:h;position:relative;padding:9px 0 9px 44px;border-bottom:1px solid #DDD7C8;font-size:18px}
+.cad-guide ol.how li::before{content:counter(h);position:absolute;left:0;top:10px;width:30px;height:30px;background:#2A2A2A;color:#F5F1E8;font-weight:700;font-size:16px;display:flex;align-items:center;justify-content:center}
+.cad-ex{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:8px 0 16px}
+.cad-ex figure{margin:0;border:1px solid #C8C4BC;background:#fff}
+.cad-ex figure svg{display:block;width:100%;height:auto;background:#fff}
+.cad-ex figcaption{font-size:15.5px;line-height:1.5;padding:8px 10px;border-top:1px solid #C8C4BC}
+.cad-ex figcaption b{display:block}
+.cad-ex .ok figcaption b{color:#1e4d3a}
+.cad-ex .no figcaption b{color:#b3261e}
+.cad-ex .first{grid-column:1/-1}
+.cad-tips{margin:0;padding:0 0 0 22px;font-size:17px}
+.cad-tips li{margin:3px 0}
+/* 읽는 중 */
+.cad-wait{max-width:640px;margin:20px auto;padding:34px 22px;border:1px solid #C8C4BC;background:#fff;text-align:center}
+.cad-wait .msg{font-size:21px;font-weight:600;min-height:64px}
+.cad-bar{height:6px;background:#EBE5D5;overflow:hidden;margin:18px 0 14px}
+.cad-bar i{display:block;height:100%;width:30%;background:#2A2A2A;animation:cadbar 1.6s linear infinite}
+@keyframes cadbar{from{transform:translateX(-100%)}to{transform:translateX(340%)}}
+.cad-res{display:grid;grid-template-columns:minmax(0,7fr) minmax(0,4fr);gap:26px;align-items:start}
+.cad-paper{border:1px solid #C8C4BC;background:#f7f4ee}
+.cad-sum{margin:0 0 14px;padding:0;list-style:none;border-top:2px solid #2A2A2A}
+.cad-sum li{display:flex;justify-content:space-between;padding:9px 2px;border-bottom:1px solid #C8C4BC}
+.cad-sum li b{font-weight:600}
+.cad-note{border-left:3px solid #9a5a4a;background:#FBF8F1;padding:12px 16px;font-size:17px;margin:12px 0}
+.cad-fail{max-width:720px;margin:10px auto}
+/* 편집 */
+.cad-edit{display:grid;grid-template-columns:minmax(0,1fr) 370px;gap:22px;align-items:start}
+.cad-tools{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;position:sticky;top:60px;z-index:20;background:#F5F1E8;padding:8px 0}
+.ctool{min-height:64px;border:1.5px solid #2A2A2A;background:#fff;color:#2A2A2A;font:inherit;font-size:17px;font-weight:600;line-height:1.25;border-radius:6px;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:6px 4px}
+.ctool i{font-size:24px}
+.ctool.on{background:#2A2A2A;color:#F5F1E8}
+.ctool[data-tool="철거"].on{background:#b3261e;border-color:#b3261e}
+.ctool[data-tool="공사"].on{background:#1e4d3a;border-color:#1e4d3a}
+.ctool:disabled{opacity:.4;cursor:not-allowed}
+.cad-hint{background:#2A2A2A;color:#F5F1E8;padding:10px 14px;font-size:17px;display:flex;gap:10px;align-items:center;justify-content:space-between;min-height:52px}
+.cad-hint button{flex:none;min-height:40px;border:1px solid #F5F1E8;background:transparent;color:#F5F1E8;font:inherit;font-size:16px;font-weight:600;padding:4px 12px;border-radius:4px;cursor:pointer}
+.cad-stage{position:relative;border:1px solid #C8C4BC;border-top:0;background:#f7f4ee;overflow:hidden;-webkit-user-select:none;user-select:none}
+.cad-stage .base svg{display:block;width:100%;height:auto}
+.cad-stage .over{position:absolute;left:0;top:0;width:100%;height:100%;touch-action:pan-y}
+.cad-stage.tool .over{touch-action:none;cursor:crosshair}
+.cad-stage .over .mk{cursor:grab;touch-action:none}
+.cad-scale{font-size:15px;color:#6B6B6B;margin:6px 0 0}
+.cad-side h2{font-size:21px;padding-bottom:8px;border-bottom:2px solid #2A2A2A;margin-bottom:0}
+.cad-list{margin:0;padding:0;list-style:none}
+.cad-list li{display:grid;grid-template-columns:40px minmax(0,1fr);gap:4px 10px;padding:12px 0;border-bottom:1px solid #C8C4BC}
+.cad-list .no{width:36px;height:36px;border-radius:50%;color:#fff;font-weight:700;font-size:18px;display:flex;align-items:center;justify-content:center;background:#2A2A2A}
+.cad-list .no.k철거{background:#b3261e}
+.cad-list .no.k공사{background:#1e4d3a}
+.cad-list .tx{font-size:18px;font-weight:600;line-height:1.45}
+.cad-list .wh{font-size:15.5px;color:#6B6B6B}
+.cad-list .ac{grid-column:2;display:flex;gap:8px;margin-top:4px}
+.cad-list .ac button{min-height:48px;padding:0 16px;border:1px solid #6B6B6B;background:#fff;color:#2A2A2A;font:inherit;font-size:16px;font-weight:600;border-radius:6px;cursor:pointer}
+.cad-list .ac button.del{color:#b3261e;border-color:#b3261e}
+.cad-empty{padding:16px 0;color:#6B6B6B;font-size:17px;border-bottom:1px solid #C8C4BC}
+.cad-out{margin-top:20px;display:grid;gap:10px}
+.cad-out .tip{font-size:15.5px;color:#6B6B6B;line-height:1.6;margin:2px 0 0}
+.cad-restart{margin-top:22px;font-size:16px}
+.cad-restart button{background:none;border:0;font:inherit;font-size:16px;color:#6B6B6B;text-decoration:underline;cursor:pointer;min-height:48px;padding:0}
+/* 적어 넣는 창 */
+.cad-sheet-bg{position:fixed;inset:0;background:rgba(26,26,26,.5);z-index:500;display:none;align-items:center;justify-content:center;padding:16px}
+.cad-sheet-bg.on{display:flex}
+.cad-sheet{background:#fff;width:100%;max-width:560px;max-height:92vh;overflow:auto;border-radius:8px;padding:20px 20px 18px;font-size:18px;color:#2A2A2A}
+.cad-sheet h3{font-size:21px;margin:0 0 4px}
+.cad-sheet .q{color:#6B6B6B;font-size:16.5px;margin:0 0 12px}
+.cad-chips{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 12px}
+.cad-chips button{min-height:48px;padding:0 14px;border:1px solid #6B6B6B;background:#FBF8F1;color:#2A2A2A;font:inherit;font-size:17px;border-radius:6px;cursor:pointer}
+.cad-chips button.on{background:#2A2A2A;color:#F5F1E8;border-color:#2A2A2A}
+.cad-sheet textarea,.cad-sheet input[type=text]{width:100%;font:inherit;font-size:19px;border:1.5px solid #6B6B6B;border-radius:6px;padding:12px;color:#2A2A2A;background:#fff}
+.cad-sheet textarea{min-height:92px;resize:vertical;line-height:1.5}
+.cad-sheet .crow{justify-content:flex-end}
+.cad-toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#2A2A2A;color:#F5F1E8;padding:13px 20px;font-size:17px;border-radius:6px;z-index:600;display:none;max-width:92vw;text-align:center}
+.cad-toast.on{display:block}
+/* 적어 넣는 창이 떠 있는 동안은 상담 도우미 단추가 저장 단추를 가리지 않게 숨긴다 */
+body.cad-sheet-on #jjc-btn{display:none!important}
+@media print{#jjc-btn,#jjc-box{display:none!important}}
+#cadPrint{display:none}
+@media (max-width:900px){
+  .cad-up,.cad-res,.cad-edit{grid-template-columns:minmax(0,1fr)}
+  .cad-side{margin-top:6px}
+}
+@media (max-width:640px){
+  .cad{padding:20px 16px 44px}
+  .cad h1{font-size:28px}
+  .cad h2{font-size:22px}
+  .cad-head .say{font-size:19px}
+  .cad-ways{grid-template-columns:1fr}
+  .cad-steps li{padding:10px 6px;font-size:15px;gap:6px;flex-direction:column;text-align:center;line-height:1.3}
+  .cad-tools{top:52px;gap:5px}
+  .ctool{font-size:15px;min-height:66px;padding:6px 2px}
+  .cad-hint{font-size:16px}
+  .cad-sheet-bg{align-items:flex-end;padding:0}
+  .cad-sheet{border-radius:10px 10px 0 0;max-height:88vh}
+  .cbtn{width:100%}
+}
+@media print{
+  body>*{display:none!important}
+  body>#cadPrint{display:block!important;margin:0;padding:0}
+  #cadPrint svg{width:100%;height:auto;display:block}
+  @page{size:A4 portrait;margin:10mm}
+  body{background:#fff!important}
+}
+</style>
+</head>
+<body>
+<nav class="nav">
+  <a href="index.html" class="logo">
+    <div class="logo-box">집</div>
+    <span class="logo-text">집지니</span>
+    <span class="logo-tag">DIRECT COORDI</span>
+  </a>
+  <button class="nav-toggle" aria-label="메뉴" onclick="document.querySelector('.nav-menu').classList.toggle('open')"><i class="ti ti-menu-2"></i></button>
+  <div class="nav-menu">
+    <div class="nav-item">
+      <a href="index.html" class="nav-top">홈</a>
+      <div class="nav-dropdown">
+        <a href="index.html#concept">서비스 소개</a>
+        <a href="self-interior-agency.html">셀인대행이란</a>
+        <a href="index.html#market">3가지 선택지</a>
+        <a href="index.html#eligibility">의뢰 가능 범위</a>
+        <a href="index.html#quote-form">정밀 의뢰서 신청</a>
+        <a href="genie-plan/">지니도면 — 무료 공사 도면 도구</a>
+      </div>
+    </div>
+    <div class="nav-item active">
+      <a href="cad.html" class="nav-top">집지니 CAD</a>
+    </div>
+    <div class="nav-item">
+      <a href="showroom.html" class="nav-top">샘플실</a>
+      <div class="nav-dropdown">
+        <a href="showroom.html">샘플실 · 가양동 상담 예약</a>
+      </div>
+    </div>
+    <div class="nav-item">
+      <a href="workflow.html" class="nav-top">프로세스</a>
+      <div class="nav-dropdown">
+        <a href="workflow.html#flows">4가지 흐름 차이</a>
+        <a href="workflow.html#how">8단계 안내 (업무 흐름)</a>
+        <a href="https://blog.naver.com/cloudstay_" target="_blank" rel="noopener">코디 포트폴리오 (네이버 블로그)</a>
+        <a href="workflow.html#pm-guide">PM 필요성 가이드</a>
+        <a href="workflow.html#procurement">자재 조달 방법</a>
+      </div>
+    </div>
+    <div class="nav-item">
+      <a href="pricing.html" class="nav-top">가격·견적</a>
+      <div class="nav-dropdown">
+        <a href="pricing.html#pricing">정찰가 공시</a>
+        <a href="pricing.html#sample">견적서 샘플</a>
+        <a href="/cases/">견적 사례 모음</a>
+        <a href="pricing.html#refund">환불 정책</a>
+        <a href="pricing.html#as">12개월 A/S</a>
+      </div>
+    </div>
+    <div class="nav-item">
+      <a href="about.html" class="nav-top">회사소개</a>
+      <div class="nav-dropdown">
+        <a href="about.html#story">사업 동기</a>
+        <a href="about.html#ceo">왜 집지니인가</a>
+        <a href="about.html#faq">자주 묻는 질문</a>
+        <a href="sitemap.html">사이트 지도</a>
+      </div>
+    </div>
+    <div class="nav-item">
+      <a href="payment.html" class="nav-top">코디비용 결제</a>
+    </div>
+    <a class="nav-phone" href="https://pf.kakao.com/_NjpxhC/chat" target="_blank" rel="noopener"><i class="ti ti-message-circle"></i>카톡 상담</a>
+  </div>
+</nav>
+
+<main class="cad" id="cad">
+  <div class="cad-head">
+    <h1>집지니 CAD</h1>
+    <p class="say"><b>집지니 CAD로 공사계획 도면을 만들고, 작업지시를 해보세요!</b></p>
+    <p class="free">무료 · 가입 없음 · 올린 그림과 도면은 이 기기에만 보관됩니다</p>
+  </div>
+
+  <ol class="cad-steps" id="cadSteps" aria-label="진행 순서">
+    <li data-s="1" class="on"><i>1</i><span>우리 집 도면 올리기</span></li>
+    <li data-s="2"><i>2</i><span>집지니 도면 확인</span></li>
+    <li data-s="3"><i>3</i><span>공사 계획·작업 지시</span></li>
+  </ol>
+
+  <!-- 첫째 걸음: 도면 올리기 -->
+  <div class="cad-pane on" id="pane1">
+    <div class="cad-resume" id="cadResume">
+      <h3>하던 작업이 이 기기에 남아 있습니다</h3>
+      <p class="sub" id="cadResumeInfo"></p>
+      <div class="crow">
+        <button type="button" class="cbtn dark" id="cadResumeGo">이어서 하기</button>
+        <button type="button" class="cbtn" id="cadResumeDrop">지우고 새로 시작</button>
+      </div>
+    </div>
+
+    <h2>어떻게 시작할까요?</h2>
+    <div class="cad-ways">
+      <button type="button" class="cad-way on" id="wayUp"><b>도면 그림을 직접 올리기</b><span>부동산 앱에서 갈무리한 평면도, 분양 책자 평면도</span></button>
+      <button type="button" class="cad-way" id="waySearch" aria-describedby="cadSoon"><b>우리 집 검색해서 시작<em>준비 중</em></b><span>단지와 평형을 고르면 집지니가 다시 그려 둔 도면으로 시작</span></button>
+    </div>
+    <div class="cad-soon" id="cadSoon" role="status">곧 열립니다. 지금은 도면을 직접 올려 주세요.</div>
+
+    <div class="cad-up">
+      <div>
+        <div class="cad-drop" id="cadDrop">
+          <div class="big">평면도 그림을 여기에 끌어다 놓으세요</div>
+          <div class="sub">휴대전화는 아래 단추를 눌러 사진 보관함에서 고르세요</div>
+          <button type="button" class="cbtn dark" id="cadPick"><i class="ti ti-photo-up"></i>그림 고르기</button>
+          <input type="file" id="cadFile" accept="image/*" hidden>
+        </div>
+        <div class="cad-field">
+          <label for="cadM2">전용면적 <span class="sub" style="font-weight:400">(몰라도 됩니다)</span></label>
+          <div class="in"><input type="number" id="cadM2" inputmode="decimal" min="10" max="400" step="0.01" placeholder="예: 84.9"><span>㎡</span></div>
+          <small>넣어 주면 방 크기가 더 정확해집니다. 등기부등본이나 부동산 앱의 「전용」 숫자입니다.</small>
+        </div>
+        <p class="cad-safe">올린 그림은 이 기기 안에서만 읽습니다. 집지니 서버나 다른 곳으로 보내지 않습니다.</p>
+      </div>
+
+      <div class="cad-guide">
+        <h2>어떤 그림을 올리면 잘 되나요?</h2>
+        <p>가장 잘 되는 것은 <b>부동산 앱(네이버 부동산 등)의 우리 단지 평면도 화면을 직접 갈무리한 그림</b>입니다.</p>
+        <ol class="how">
+          <li>부동산 앱에서 <b>우리 단지</b>를 찾습니다</li>
+          <li><b>평면도</b>를 누릅니다</li>
+          <li><b>우리 평형</b>을 고릅니다</li>
+          <li>평면도가 화면에 꽉 차게 한 뒤 <b>화면을 갈무리</b>합니다</li>
+          <li>그 그림을 <b>여기에 올립니다</b></li>
+        </ol>
+        <div class="cad-ex">
+          <figure class="ok first">
+            <svg viewBox="0 0 520 250" role="img" aria-label="좋은 예: 벽이 굵은 검은 선이고 방 이름이 또렷한 색칠 평면도">
+              <rect width="520" height="250" fill="#fff"/>
+              <g transform="translate(90,22)">
+                <rect x="0" y="0" width="340" height="38" fill="#eef0e9"/><rect x="0" y="38" width="120" height="96" fill="#e6ebe3"/><rect x="120" y="38" width="220" height="96" fill="#efe5d3"/>
+                <rect x="0" y="134" width="88" height="72" fill="#e6ebe3"/><rect x="88" y="134" width="62" height="72" fill="#dde7ea"/><rect x="150" y="134" width="112" height="72" fill="#f2e9dd"/><rect x="262" y="134" width="78" height="72" fill="#e4ddd1"/>
+                <path d="M0 0H340V206H0Z M0 38H340 M120 38V134 M0 134H340 M88 134V206 M150 134V206 M262 134V206" fill="none" stroke="#111" stroke-width="6" stroke-linejoin="miter"/>
+                <g font-family="Pretendard,'Malgun Gothic',sans-serif" font-size="15" font-weight="700" fill="#111" text-anchor="middle"><text x="170" y="25">발코니</text><text x="60" y="92">안방</text><text x="230" y="92">거실</text><text x="44" y="176">방</text><text x="119" y="176">욕실</text><text x="206" y="176">주방</text><text x="301" y="176">현관</text></g>
+              </g>
+            </svg>
+            <figcaption><b>좋은 예 — 가장 잘 됩니다</b>부동산 앱의 색칠 평면도. 벽이 굵은 검은 선이고 방 이름 글자가 또렷합니다.</figcaption>
+          </figure>
+          <figure class="no">
+            <svg viewBox="0 0 250 170" role="img" aria-label="나쁜 예: 비스듬히 찍은 사진">
+              <rect width="250" height="170" fill="#d9d6cd"/>
+              <g transform="translate(40,26) rotate(-9 85 60) skewX(-14)"><rect width="180" height="118" fill="#fff"/><path d="M12 12H168V106H12Z M12 46H168 M72 46V106 M120 46V106" fill="none" stroke="#555" stroke-width="3"/></g>
+            </svg>
+            <figcaption><b>잘 안 됩니다</b>종이 도면을 비스듬히 찍은 사진</figcaption>
+          </figure>
+          <figure class="no">
+            <svg viewBox="0 0 250 170" role="img" aria-label="나쁜 예: 손으로 그린 그림">
+              <rect width="250" height="170" fill="#fff"/>
+              <path d="M38 30C80 26 150 33 214 28C218 60 212 110 216 142C160 147 90 139 36 144C33 100 40 66 38 30Z M39 78C90 74 150 82 214 77 M112 78C115 100 109 122 113 142 M160 29C163 46 158 62 161 78" fill="none" stroke="#444" stroke-width="2.2" stroke-linecap="round"/>
+            </svg>
+            <figcaption><b>잘 안 됩니다</b>손으로 그린 그림</figcaption>
+          </figure>
+          <figure class="no">
+            <svg viewBox="0 0 250 170" role="img" aria-label="나쁜 예: 여러 세대가 한 장에 든 도면">
+              <rect width="250" height="170" fill="#fff"/>
+              <g fill="none" stroke="#333" stroke-width="2"><path d="M18 20H118V78H18Z M18 44H118 M62 44V78"/><path d="M132 20H232V78H132Z M132 44H232 M186 44V78"/><path d="M18 92H118V150H18Z M18 116H118 M62 116V150"/><path d="M132 92H232V150H132Z M132 116H232 M186 116V150"/></g>
+            </svg>
+            <figcaption><b>잘 안 됩니다</b>여러 세대가 한 장에 든 도면</figcaption>
+          </figure>
+          <figure class="no">
+            <svg viewBox="0 0 250 170" role="img" aria-label="나쁜 예: 글자가 작은 축소본">
+              <rect width="250" height="170" fill="#fff"/>
+              <g transform="translate(96,58)"><path d="M0 0H58V40H0Z M0 14H58 M22 14V40 M40 14V40" fill="none" stroke="#333" stroke-width="1.4"/><g fill="#888"><rect x="6" y="5" width="9" height="2"/><rect x="5" y="25" width="7" height="2"/><rect x="27" y="25" width="7" height="2"/><rect x="45" y="25" width="7" height="2"/></g></g>
+            </svg>
+            <figcaption><b>잘 안 됩니다</b>글자가 작은 축소본</figcaption>
+          </figure>
+        </div>
+        <h3>세 가지만 지켜 주세요</h3>
+        <ul class="cad-tips">
+          <li>평면도만 화면에 <b>꽉 차게</b></li>
+          <li>기울지 않게 <b>똑바로</b></li>
+          <li><b>방 이름 글자</b>가 보이게</li>
+        </ul>
+        <p class="sub" style="font-size:16px;margin-top:10px">분양 책자나 건설사 누리집의 평면도도 잘 됩니다.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 둘째 걸음: 집지니 도면 확인 -->
+  <div class="cad-pane" id="pane2">
+    <div class="cad-wait" id="cadWait">
+      <div class="msg" id="cadMsg">집지니가 도면을 읽을 준비를 하고 있습니다…</div>
+      <div class="cad-bar"><i></i></div>
+      <p class="sub">보통 15~30초 걸립니다. 이 화면을 닫지 말고 기다려 주세요.</p>
+    </div>
+    <div class="cad-fail" id="cadFail" hidden>
+      <h2>도면을 읽지 못했습니다</h2>
+      <div class="cad-note" id="cadWhy"></div>
+      <p>벽이 굵은 검은 선이고 방 이름이 또렷한 평면도에서 가장 잘 됩니다. 부동산 앱의 우리 단지 평면도를 화면에 꽉 차게 갈무리해 다시 올려 보세요.</p>
+      <div class="crow">
+        <button type="button" class="cbtn dark" id="cadRetry">다른 그림 올리기</button>
+        <button type="button" class="cbtn" id="cadFix">비스듬한 사진 바로 펴서 다시 읽기</button>
+      </div>
+    </div>
+    <div class="cad-res" id="cadRes" hidden>
+      <div class="cad-paper" id="cadPaper"></div>
+      <div>
+        <h2>집지니가 다시 그린 도면입니다</h2>
+        <ul class="cad-sum" id="cadSum"></ul>
+        <div class="cad-note" id="cadResNote" hidden></div>
+        <p class="sub" style="font-size:16px">방 이름이 다르게 읽혔다면 다음 걸음에서 고칠 수 있습니다.</p>
+        <div class="crow">
+          <button type="button" class="cbtn dark wide" id="cadStart">이 도면으로 공사 계획 시작<i class="ti ti-arrow-right"></i></button>
+          <button type="button" class="cbtn wide" id="cadAgain">다른 그림으로 다시</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 셋째 걸음: 공사 계획·작업 지시 -->
+  <div class="cad-pane" id="pane3">
+    <div class="cad-edit">
+      <div>
+        <div class="cad-tools" id="cadTools">
+          <button type="button" class="ctool" data-tool="철거"><i class="ti ti-hammer"></i>철거할 곳</button>
+          <button type="button" class="ctool" data-tool="공사"><i class="ti ti-brush"></i>공사할 곳</button>
+          <button type="button" class="ctool" data-tool="메모"><i class="ti ti-map-pin"></i>작업 지시</button>
+          <button type="button" class="ctool" data-tool="이름"><i class="ti ti-pencil"></i>방 이름</button>
+          <button type="button" class="ctool" id="cadUndo" disabled><i class="ti ti-arrow-back-up"></i>되돌리기</button>
+        </div>
+        <div class="cad-hint"><span id="cadHint">위 단추에서 할 일을 하나 고르세요.</span><button type="button" id="cadToolOff" hidden>표시 끝내기</button></div>
+        <div class="cad-stage" id="cadStage"><div class="base" id="cadBase"></div><svg class="over" id="cadOver" xmlns="http://www.w3.org/2000/svg"></svg></div>
+        <p class="cad-scale" id="cadScale"></p>
+      </div>
+      <aside class="cad-side">
+        <h2>작업 지시 목록 <span class="sub" id="cadCount" style="font-weight:400;font-size:17px"></span></h2>
+        <div class="cad-empty" id="cadEmpty">아직 표시한 곳이 없습니다. 「철거할 곳」「공사할 곳」「작업 지시」 가운데 하나를 누르고 도면을 눌러 보세요.</div>
+        <ol class="cad-list" id="cadList"></ol>
+        <div class="cad-out">
+          <button type="button" class="cbtn dark wide" id="cadPng"><i class="ti ti-download"></i>그림으로 저장</button>
+          <button type="button" class="cbtn wide" id="cadPrintBtn"><i class="ti ti-printer"></i>한 장으로 인쇄</button>
+          <p class="tip">도면과 작업 지시 목록이 한 장에 담깁니다. 작업자에게 그대로 건네세요.</p>
+          <a class="cbtn go wide" id="cadQuote" href="request.html" target="_blank" rel="noopener"><i class="ti ti-coin"></i>이 도면으로 견적 의뢰하기</a>
+          <p class="tip">의뢰서는 5분이면 씁니다. 저장한 도면 그림은 의뢰 뒤 카톡 상담에 붙여 주시면 견적이 더 정확해집니다.</p>
+        </div>
+        <div class="cad-restart"><button type="button" id="cadNew">다른 도면으로 처음부터 다시 하기</button></div>
+      </aside>
+    </div>
+  </div>
+</main>
+
+<div class="cad-sheet-bg" id="cadSheetBg"><div class="cad-sheet" id="cadSheet" role="dialog" aria-modal="true"></div></div>
+<div class="cad-toast" id="cadToast" role="status"></div>
+<div id="cadPrint"></div>
+
+<div style="max-width:1180px;margin:0 auto;padding:0 20px 8px;font-size:15px;color:#6B6B6B;line-height:1.7">
+  집지니가 다시 그린 도면은 참고용입니다. 문·창 위치와 정확한 치수는 현장 실측으로 확정합니다. · <a href="index.html" style="text-decoration:underline">집지니 홈</a> · <a href="pricing.html" style="text-decoration:underline">가격·견적</a> · <a href="sitemap.html" style="text-decoration:underline">사이트 지도</a>
+</div>
+
+<script>
+(function () {
+  var menu = document.querySelector('.nav-menu');
+  if (menu) menu.addEventListener('click', function (e) { if (e.target.tagName === 'A') menu.classList.remove('open'); });
+})();
+window.JJ_ASSET_BASE = '/assets/';
+</script>
+<script src="assets/plan_style.js?v=20261111"></script>
+<script src="assets/cad_app.js?v=20261111a"></script>
+<!--SITENAV--><style>.jj-map{max-width:900px;margin:32px auto 0;padding:22px 16px 26px;border-top:2px solid #d9d2c0;font-family:Pretendard,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;color:#2a2a2a;word-break:keep-all}.jj-map .ttl{font-size:14px;font-weight:800;letter-spacing:1px;color:#1e4d3a;margin-bottom:10px;text-align:center}.jj-map .grp{display:flex;flex-wrap:wrap;gap:6px 8px;align-items:center;margin:6px 0;font-size:14px}.jj-map .grp b{min-width:70px;color:#555;font-weight:700;font-size:13px}.jj-map .grp a{display:inline-block;padding:6px 12px;border:1px solid #cfc8b8;border-radius:16px;background:#fff;color:#2a2a2a;text-decoration:none;font-size:14px;font-weight:500}.jj-map .grp a:hover{border-color:#1e4d3a;color:#1e4d3a}.jj-map .grp a[aria-current=page]{background:#1e4d3a;color:#fff;border-color:#1e4d3a;font-weight:800}.jj-map .grp a[aria-current=page]::before{content:"▶ ";font-size:11px}.jj-map .ft{font-size:13px;color:#555;margin-top:12px;text-align:center;line-height:1.8}.jj-where{max-width:1200px;margin:0 auto;padding:8px 16px;font-size:14px;color:#2a2a2a;background:#efe9db;border-bottom:1px solid #d9d2c0;display:flex;gap:6px;align-items:center;flex-wrap:wrap;word-break:keep-all}.jj-where a{color:#1e4d3a;text-decoration:none;font-weight:600}.jj-where .now{background:#1e4d3a;color:#fff;padding:2px 10px;border-radius:12px;font-weight:700;font-size:13px}.nav-item.is-current>.nav-top{color:#1e4d3a!important;font-weight:800!important;box-shadow:inset 0 -3px 0 #1e4d3a}.nav-dropdown a.is-current{background:#e6efe9!important;color:#1e4d3a!important;font-weight:700!important}@media(max-width:640px){.jj-map .grp b{min-width:100%}}</style><div class="jj-map"><div class="ttl">집지니 사이트 지도 — 지금 보는 쪽은 ▶ 짙은 녹색</div><div class="grp"><b>시작하기 ·</b><a href="index.html">홈</a><a href="self-interior-agency.html">셀인대행이란</a><a href="request.html">무료 견적 신청</a><a href="prepare.html">사전 준비</a></div><div class="grp"><b>집지니 CAD ·</b><a href="cad.html">집지니 CAD — 무료 공사 계획 도면</a></div><div class="grp"><b>샘플실 ·</b><a href="showroom.html">가양동 샘플실 · 상담 예약</a></div><div class="grp"><b>진행 방식 ·</b><a href="workflow.html">진행 방식 8단계</a><a href="interior-coordinator.html">코디네이터란</a></div><div class="grp"><b>가격·견적 ·</b><a href="pricing.html">가격·코디비</a><a href="interior-price-table.html">실견적 시세표</a><a href="cases/">견적 사례</a><a href="py/">평형별 비용</a><a href="trade/">공종별 비용</a></div><div class="grp"><b>가이드 ·</b><a href="banself-interior.html">반셀프 코디</a><a href="jikyoung-interior.html">직영 인테리어</a><a href="interior-margin-30.html">마진 30%</a><a href="interior-estimate-compare.html">견적서 비교</a><a href="apt-olsuri-cost.html">32평 올수리</a><a href="bathroom-remodel-cost.html">욕실 리모델링</a><a href="interior-scam-types.html">사기 유형</a></div><div class="grp"><b>회사 ·</b><a href="about.html">회사소개</a><a href="faq.html">자주 묻는 질문</a><a href="ai-answers.html">AI에게 물어볼 때</a><a href="sitemap.html">사이트 지도</a></div><div class="ft">서울·경기·인천 수도권 전역 · 자재상·기술자 직거래 · 정찰제 코디비 · 부가세 10% 별도<br>샘플실: <a href="showroom.html" style="color:#1e4d3a;font-weight:600">서울 강서구 공항대로41길 66 세신종합상가 지하 1층 B156호 (가양동)</a> · 상담 예약 010-9806-0422</div></div><script>(function(){try{
+var here=location.pathname.replace(/\/index\.html$/,"/");
+var norm=function(h){var a=document.createElement("a");a.href=h;return a.pathname.replace(/\/index\.html$/,"/");};
+var isCur=function(h){var p=norm(h);return p===here||(p!=="/"&&p.slice(-1)==="/"&&here.indexOf(p)===0);};
+var map=document.querySelector(".jj-map"),curName="",grpName="";
+if(map){map.querySelectorAll(".grp").forEach(function(g){g.querySelectorAll("a").forEach(function(a){if(isCur(a.getAttribute("href"))){a.setAttribute("aria-current","page");if(!curName){curName=a.textContent;var b=g.querySelector("b");grpName=b?b.textContent.replace(/\s*[·:]\s*$/,""):"";}}});});}
+document.querySelectorAll(".nav-item").forEach(function(it){var top=it.querySelector(".nav-top"),hit=false;it.querySelectorAll("a").forEach(function(a){var h=a.getAttribute("href")||"";if(h.indexOf("http")===0)return;if(norm(h)===here){hit=true;if(a!==top)a.classList.add("is-current");}});it.classList.remove("active");if(hit)it.classList.add("is-current");});
+if(here!=="/"&&!document.querySelector(".jj-where")){var ttl=curName||(document.title.split(/[|—–]/)[0]||"").trim();var up=location.pathname.split("/").length>2?"../":"";
+var bar=document.createElement("div");bar.className="jj-where";bar.innerHTML='<a href="'+up+'index.html">홈</a><span>›</span>'+(grpName?'<span>'+grpName+'</span><span>›</span>':'')+'<span class="now">지금 보는 쪽 · '+ttl+'</span>';
+var hdr=document.querySelector("header, .site-header, nav.site-nav, .navbar, .nav");if(hdr)hdr.insertAdjacentElement("afterend",bar);else document.body.insertBefore(bar,document.body.firstChild);}
+}catch(e){}})();</script><!--/SITENAV-->
+<script src="assets/chatbot.js" defer></script>
+</body>
+</html>
