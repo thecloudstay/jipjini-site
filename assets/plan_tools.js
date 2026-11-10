@@ -418,7 +418,7 @@
       // (2) 파란 칸 합치기
       var cntL = {}, blueL = {}; for (k = 0; k < N; k++) { var l = lab[k]; if (l >= 2) { cntL[l] = (cntL[l] || 0) + 1; if (cls[k] === 3) blueL[l] = (blueL[l] || 0) + 1; } }
       var isBlue = function (l) { return l >= 2 && (blueL[l] || 0) >= (cntL[l] || 1) * 0.4 && (!kindOf[l] || kindOf[l] === '욕실'); }, adj = {};
-      for (k = 0; k < N - w; k++) { var la = lab[k]; if (!isBlue(la)) continue; [k % w < w - 1 ? lab[k + 1] : 0, lab[k + w], k % w < w - 2 ? lab[k + 2] : 0, k < N - 2 * w ? lab[k + 2 * w] : 0].forEach(function (lb) { if (lb !== la && isBlue(lb)) { var key = Math.min(la, lb) + '|' + Math.max(la, lb); adj[key] = (adj[key] || 0) + 1; } }); }
+      for (k = 0; k < N - w; k++) { var la = lab[k]; if (!isBlue(la)) continue; [k % w < w - 1 ? lab[k + 1] : 0, lab[k + w]].forEach(   /* 바로 맞닿은 칸만 — 두 칸 건너까지 보면 줄인 그림에서 얇은 벽 너머의 다른 욕실과 합쳐져 욕실이 1개로 줄었다(106장 중 4장) */function (lb) { if (lb !== la && isBlue(lb)) { var key = Math.min(la, lb) + '|' + Math.max(la, lb); adj[key] = (adj[key] || 0) + 1; } }); }
       var to = {}, root2 = function (x) { while (to[x]) x = to[x]; return x; }; Object.keys(adj).forEach(function (key) { if (adj[key] < Math.max(4, U * 0.5)) return; var pr = key.split('|'), a = root2(Number(pr[0])), b3 = root2(Number(pr[1])); if (a === b3) return; var named = kindOf[a] ? a : kindOf[b3] ? b3 : ((cntL[a] || 0) >= (cntL[b3] || 0) ? a : b3), other = named === a ? b3 : a; to[other] = named; });
       if (Object.keys(to).length) for (k = 0; k < N; k++) { var l9 = lab[k]; if (to[l9]) lab[k] = root2(l9); } })();
     // 방마다 바깥선
