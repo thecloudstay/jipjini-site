@@ -217,7 +217,7 @@
     el.innerHTML = '<div style="display:flex;align-items:center;gap:6px;padding:2px 6px 4px 9px"><b style="flex:1">겹쳐 보기</b><button type="button" class="jje-chip" data-a="layAll">모두 켜기</button><button type="button" class="jje-chip" data-a="layers">닫기</button></div>' +
       '<div class="jje-layh">도면</div>' + row('바탕', '집지니 도면 바탕', '#26302c', '', !hide['바탕']) + row('공간', '공간 이름·면적', '#2f6b4f', n(function (q) { return q.t === 'room'; }), !hide['공간']) + row('창·문', '창·문', '#1d5fd0', n(function (q) { return q.t === 'win' || q.t === 'door'; }), !hide['창·문']) + row('치수', '치수·척도', '#111827', n(function (q) { return q.t === 'dim' || q.t === 'scale'; }), !hide['치수']) +
       '<div class="jje-layh">작업지시</div>' + TRADES.map(function (t) { return row(t[0], t[0], t[1], n(function (q) { return q.t === 'wk' && (SYMS[q.k] || [''])[0] === t[0]; }), !hide[t[0]]); }).join('') + row('번호', '기호 번호', '#64748b', '', nums) +
-      '<div class="jje-layh">그 밖</div>' + row('표시', '표시·글자', '#d8322e', n(function (q) { return /^(circle|arrow|pen|text|rect|poly)$/.test(q.t); }), !hide['표시']) + row('무늬', '집지니 비침 무늬', '#2f6b4f', '', hide['무늬'] === false);
+      '<div class="jje-layh">그 밖</div>' + row('표시', '표시·글자', '#d8322e', n(function (q) { return /^(circle|arrow|pen|text|rect|poly)$/.test(q.t); }), !hide['표시']);
   }
   function layToggle(key) { if (key === '번호') nums = !nums; else if (key === '무늬') hide[key] = hide[key] === false; else hide[key] = !hide[key]; sel = -1; laySave(); layDraw(); redraw(); propDraw(); sideDraw(); if (/^(바탕|공간|창·문|무늬|치수)$/.test(key)) bgApply(); }
 
@@ -235,7 +235,7 @@
   // 바탕 그림 만들기. 양식 도구의 「편집 바탕용」(bare)은 치수선을 그리지 않으므로, 치수선까지 든 온전한 도면을 받아 머리·발·틀을 잘라 내고 집 둘레만 쓴다.
   //   온전한 도면의 자리 옮김(여백·머리 높이)은 양식 도구와 같은 식으로 셈하고, 그림 크기가 셈과 다르면(양식이 바뀌었으면) 치수 없는 편집 바탕으로 물러난다.
   //   돌려주는 값: { svg, x, y, w, h } — 그림이 놓일 자리(원본 좌표)
-  function bgSvg(opt) { if (!root.JJPlanStyle) return null; var d = bgData(), o = { noLabels: !!hide['공간'], noDims: !!hide['치수'], plain: hide['무늬'] !== false, noMark: hide['무늬'] !== false }; if (opt) Object.keys(opt).forEach(function (k) { o[k] = opt[k]; });
+  function bgSvg(opt) { if (!root.JJPlanStyle) return null; var d = bgData(), o = { noLabels: !!hide['공간'], noDims: !!hide['치수'], plain: false, noMark: false };   // 2026-11-11 집지니 비침 무늬는 늘 넣는다(대표 지시 — 무료로 푸는 도구라 화면·저장 그림·인쇄물에 모두 남긴다. 끄는 단추 없음) if (opt) Object.keys(opt).forEach(function (k) { o[k] = opt[k]; });
     var xs = [], ys = [], s = ''; d.rooms.forEach(function (r) { r.pts.forEach(function (p) { xs.push(p[0]); ys.push(p[1]); }); }); if (d.외곽 && d.외곽.length >= 4) d.외곽.forEach(function (p) { xs.push(p[0]); ys.push(p[1]); });
     var bx0 = Math.min.apply(null, xs), bx1 = Math.max.apply(null, xs), by0 = Math.min.apply(null, ys), by1 = Math.max.apply(null, ys), bw = bx1 - bx0, bh = by1 - by0, D = Math.max(bw, bh), pad = D * 0.11, head = D * 0.15, foot = D * 0.2;
     try { s = root.JJPlanStyle.svg(d, o); } catch (e) { s = ''; }
@@ -570,7 +570,7 @@
     var only = function (q) { return q.t !== 'wk' || ci == null || catOf(q.k) === ci; }, xs = [], ys = [], u = U();
     shapes.forEach(function (q) { if (!visible(q) && q.t !== 'room') return; if (q.t === 'wk' && !only(q)) return; if (q.t === 'scale') return; if (q.pts) q.pts.forEach(function (p) { xs.push(p[0]); ys.push(p[1]); }); if ('x1' in q) { xs.push(q.x1, q.x2); ys.push(q.y1, q.y2); } if ('x' in q && q.t !== 'circle') { xs.push(q.x); ys.push(q.y); } });
     if (baseOk && base.외곽) base.외곽.forEach(function (p) { xs.push(p[0]); ys.push(p[1]); });
-    var B = bgSvg({ plain: true, noMark: true, noLabels: false, noDims: false });
+    var B = bgSvg({ plain: false, noMark: false, noLabels: false, noDims: false });   // 지시서 그림에도 비침 무늬
     if (B) { xs.push(B.x, B.x + B.w); ys.push(B.y, B.y + B.h); } var m = B ? 0 : D0 * 0.1, x0 = Math.min.apply(null, xs) - m, y0 = Math.min.apply(null, ys) - m, x1 = Math.max.apply(null, xs) + m, y1 = Math.max.apply(null, ys) + m, cw = 1900, k = cw / (x1 - x0), c = doc.createElement('canvas'); c.width = cw; c.height = Math.round((y1 - y0) * k);
     var g = c.getContext('2d'), fin = function (img) { g.fillStyle = '#fff'; g.fillRect(0, 0, c.width, c.height); g.setTransform(k, 0, 0, k, -x0 * k, -y0 * k); if (img) { try { g.drawImage(img, B.x, B.y, B.w, B.h); } catch (e) {} } var keepSel = sel, keepBg = bgOn; sheetMode = true; sel = -1; bgOn = !!img; try { paint(g, only, true); } finally { sheetMode = false; sel = keepSel; bgOn = keepBg; } var url = ''; try { url = c.toDataURL('image/png'); } catch (e) { url = ''; } cb(url, c.width, c.height); };
     if (!B) { fin(null); return; } var s = B.svg.replace('fill="#f7f4ee"/>', 'fill="#ffffff"/>').replace('background:#f7f4ee', 'background:#ffffff');
