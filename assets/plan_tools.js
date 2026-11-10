@@ -511,7 +511,11 @@
           if (seeded) { var mk = function () { base = A.finalize(seeded, W, H, dataUrl, opt.areaM2, '글자 기준'); base.wallPx = seeded.wallPx; base.창선 = seeded.창선; }; mk();
             var blind = seeded.filter(function (f) { return f.guess; }).sort(function (a, b) { return b.px - a.px; }).slice(0, 5);
             if (blind.length) { step('이름이 안 읽힌 칸을 다시 읽고 있습니다'); seedJob = blind.reduce(function (pr, f) { return pr.then(function () { return readRegion(keep, f).then(function (k) { if (k) { f.kind = k.kind; f.nm = k.nm; f.guess = false; items.push(k.item); } }, function () {}); }); }, Promise.resolve()).then(mk); } } }
-        return seedJob.then(aiReady).then(function (ai) { if (!ai) return null; step('벽·문·창 자리를 읽고 있습니다'); return aiAnalyze(ai, clean).catch(function () { return null; }); }).then(function (aiRes) {
+        // 학습 모델은 설계 도면(색을 칠하지 않은 선 도면)으로 배웠다 → 그런 그림이거나 글자 기준 방식이 아예 못 읽었을 때만 쓴다.
+        // 부동산 화면 양식(바닥에 색·무늬가 칠해진 그림)은 글자 기준 방식이 더 잘 읽으므로 모델을 내려받지도 않는다 (2026-11-10)
+        var lineOnly = (function () { try { var cc = document.createElement('canvas'), k9 = Math.min(1, 320 / Math.max(W, H)); cc.width = Math.max(8, Math.round(W * k9)); cc.height = Math.max(8, Math.round(H * k9)); var g9 = cc.getContext('2d'); g9.fillStyle = '#fff'; g9.fillRect(0, 0, cc.width, cc.height); g9.drawImage(keep, 0, 0, cc.width, cc.height); var d9 = g9.getImageData(0, 0, cc.width, cc.height).data, mid = 0, n9 = d9.length / 4; for (var q9 = 0; q9 < d9.length; q9 += 4) { var v9 = (d9[q9] * 299 + d9[q9 + 1] * 587 + d9[q9 + 2] * 114) / 1000; if (v9 >= 96 && v9 <= 243) mid++; } return mid / n9 < 0.12; } catch (_e) { return false; } })();
+        var wantAI = lineOnly || !base.ok;
+        return seedJob.then(function () { return wantAI ? aiReady() : null; }).then(function (ai) { if (!ai) return null; step('학습한 눈으로 공간을 읽고 있습니다'); return aiAnalyze(ai, clean).catch(function () { return null; }); }).then(function (aiRes) {
           if (aiRes && aiRes.found.length >= 2) { base = A.finalize(aiRes.found, W, H, dataUrl, opt.areaM2, '학습'); base.문 = aiRes.문; base.창 = aiRes.창; }
           if (!base.ok || !items || !items.length) { if (base.ok) { base.글자 = { 개수: 0, 방이름: 0, 치수: [], 실패: items === null }; try { var fr = base.rooms.map(function (r) { return { pts: r.pts, px: r.px, kind: r.kind, nm: r.nm }; }); squareUp(fr); var b2 = A.finalize(fr, W, H, dataUrl, opt.areaM2, base.engine); b2.글자 = base.글자; base = b2; } catch (_q) {} } return base; }
           return refine(base, items, opt.areaM2);
