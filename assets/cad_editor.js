@@ -178,7 +178,7 @@
   function reqLabel(key) { var it = MAP && MAP.items[key]; return it ? it.label.replace(/\s*\(.*\)$/, '') : key; }
   function rqStamp(q) { if (q && q.t === 'wk' && rqPick[q.k] && reqCandsOf(q).indexOf(rqPick[q.k]) >= 0) q.rq = rqPick[q.k];
     // 놓는 순간의 공법을 도형에 적어 둔다 — 나중에 기본 공법을 바꿔도 이미 놓은 자리는 바뀌지 않는다
-    if (q && q.t === 'wk' && METH[q.k]) METH[q.k].forEach(function (o) { var v = mdef[q.k + '.' + o[0]]; if (v) { q.m = q.m || {}; if (!q.m[o[0]]) q.m[o[0]] = v; } }); return q; }
+    if (q && q.t === 'wk' && METH[q.k]) { var mk = reqKey(q); q.m = q.m || {}; METH[q.k].forEach(function (o) { if (!q.m[o[0]]) q.m[o[0]] = mVal({ k: q.k }, o, mk); }); } return q; }
   function takeRows() {
     var mm = mmpp(), Hm = ceilH / 1000, M = measureAll(), by = {}, order = [], bathSeen = {};
     shapes.forEach(function (q) { if (q.t !== 'wk') return; var S = SYMS[q.k]; if (!S) return; var st = q.st || 'new'; if (st === 'keep' || (st === 'remove' && S[0] !== '철거')) return;
