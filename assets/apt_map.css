@@ -1,0 +1,73 @@
+/* 우리 아파트 찾기 — 종이색 바탕, 먹선, 올리브 한 가지 */
+.apt{--ink:#2A2A2A;--mute:#6B6B6B;--line:#C8C4BC;--paper:#F5F1E8;--ol:#5B6B2E;--ol-d:#3E4A1F;--ol-l:#E9EBDD;max-width:1180px;margin:0 auto;padding:108px 20px 80px;color:var(--ink);font-family:Pretendard,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;word-break:keep-all}
+.apt-head{border-bottom:2px solid var(--ink);padding-bottom:18px}
+.apt-kicker{font-size:13px;color:var(--mute);margin:0 0 6px;letter-spacing:.5px}
+.apt h1{font-family:'Noto Serif KR',serif;font-weight:500;font-size:34px;letter-spacing:-.6px;margin:0}
+.apt-lead{max-width:720px;font-size:15.5px;line-height:1.75;margin:12px 0 0;color:#3D3D3D}
+.apt-lead b{font-weight:600;color:var(--ol-d);font-variant-numeric:tabular-nums}
+.apt-bar{display:flex;flex-wrap:wrap;gap:14px 28px;align-items:flex-end;justify-content:space-between;padding:16px 0;border-bottom:1px solid var(--line)}
+.apt-find{display:flex;align-items:baseline;gap:10px;font-size:14px;color:var(--mute)}
+.apt-find input{width:260px;max-width:60vw;border:0;border-bottom:1px solid var(--ink);background:transparent;padding:6px 2px;font:inherit;font-size:16px;color:var(--ink);outline:none;border-radius:0}
+.apt-find input:focus{border-bottom:2px solid var(--ol)}
+.apt-legend{list-style:none;display:flex;flex-wrap:wrap;gap:6px 20px;margin:0;padding:0;font-size:13.5px}
+.apt-legend li{display:flex;align-items:center;gap:7px}
+.apt-legend b{font-weight:600;font-variant-numeric:tabular-nums}
+.mk{display:inline-block;width:11px;height:11px;border-radius:50%;border:1.5px solid var(--ink);flex:none}
+.mk.s2{background:var(--ol-d);border-color:var(--ol-d)}
+.mk.s1{background:#A9B67A;border-color:var(--ol)}
+.mk.s0{background:#fff;border-color:#B9B2A3;border-style:dashed}
+.apt-body{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:34px;padding-top:22px;align-items:start}
+.apt-map{margin:0;position:sticky;top:92px}
+.apt-map svg{width:100%;height:auto;display:block;background:var(--paper);border:1px solid var(--line)}
+.apt-map figcaption{font-size:12.5px;color:var(--mute);margin-top:8px;line-height:1.6}
+.apt-kakao{width:100%;height:420px;border:1px solid var(--line);margin-bottom:10px}
+.rg{stroke:#fff;cursor:pointer;transition:fill .12s}
+.rg:hover,.rg:focus{stroke:var(--ink);outline:none}
+.rg.on{stroke:var(--ink)}
+.rl{fill:var(--ink);pointer-events:none;text-anchor:middle;font-family:Pretendard,sans-serif}
+.rl.n{fill:#4F4F4F;font-variant-numeric:tabular-nums}
+.rl.w{fill:#fff}
+.apt-side{min-width:0}
+.apt-view{display:flex;gap:16px;align-items:baseline;font-size:13.5px;color:var(--mute);margin-bottom:8px}
+.apt-view button{appearance:none;border:0;background:none;padding:2px 0;font:inherit;color:var(--mute);cursor:pointer;border-bottom:2px solid transparent}
+.apt-view button.on{color:var(--ink);font-weight:600;border-bottom-color:var(--ol)}
+.apt-side h2{text-align:left;font-family:'Noto Serif KR',serif;font-weight:500;font-size:23px;margin:0;letter-spacing:-.4px}
+.apt-sub{font-size:14px;color:var(--mute);margin:6px 0 14px;line-height:1.6}
+.apt-sub b{color:var(--ink);font-weight:600;font-variant-numeric:tabular-nums}
+.apt-ratio{height:6px;background:#E4DFD3;margin:0 0 14px;display:flex}
+.apt-ratio i{display:block;height:100%}
+.apt-ratio .r2{background:var(--ol-d)}.apt-ratio .r1{background:#A9B67A}
+.apt-tabs{display:flex;gap:18px;font-size:14px;border-bottom:1px solid var(--ink);margin-bottom:0}
+.apt-tabs button{appearance:none;border:0;background:none;padding:8px 0;font:inherit;color:var(--mute);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px}
+.apt-tabs button.on{color:var(--ink);font-weight:600;border-bottom-color:var(--ol)}
+.apt-tbl{width:100%;border-collapse:collapse;font-size:14px}
+.apt-tbl th{font-weight:500;color:var(--mute);font-size:12.5px;text-align:left;padding:8px 6px;border-bottom:1px solid var(--line)}
+.apt-tbl td{padding:9px 6px;border-bottom:1px solid #E4DFD3;vertical-align:top}
+.apt-tbl td.num,.apt-tbl th.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.apt-tbl tr.row{cursor:pointer}
+.apt-tbl tr.row:hover td{background:#FBF8F1}
+.apt-tbl tr.row.on td{background:var(--ol-l)}
+.apt-tbl .nm{font-weight:500}
+.apt-tbl .dg{color:var(--mute);font-size:12.5px}
+.apt-det td{background:#FBF8F1;padding:14px 12px 16px;border-bottom:1px solid var(--ink)}
+.apt-det dl{display:grid;grid-template-columns:auto 1fr auto 1fr;gap:4px 14px;margin:0 0 12px;font-size:13.5px}
+.apt-det dt{color:var(--mute)}.apt-det dd{margin:0;font-variant-numeric:tabular-nums}
+.apt-det p{margin:0 0 12px;font-size:13.5px;line-height:1.65;color:#3D3D3D}
+.apt-act{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center}
+.apt-go{display:inline-block;background:var(--ol);color:#fff;text-decoration:none;font-weight:600;font-size:14.5px;padding:10px 18px;border:1px solid var(--ol-d)}
+.apt-go:hover{background:var(--ol-d)}
+.apt-ln{font-size:13.5px;color:var(--ink);text-decoration:underline;text-underline-offset:3px;background:none;border:0;padding:0;font-family:inherit;cursor:pointer}
+.apt-more{margin:12px 0 0;font-size:13.5px}
+.apt-empty{font-size:14px;color:var(--mute);padding:18px 0}
+.apt-how{margin-top:56px;border-top:2px solid var(--ink);padding-top:22px}
+.apt-how h2{text-align:left;font-family:'Noto Serif KR',serif;font-weight:500;font-size:22px;margin:0 0 10px}
+.apt-how table{width:100%;border-collapse:collapse;font-size:14.5px}
+.apt-how th{width:34px;font-family:'Noto Serif KR',serif;font-weight:500;font-size:18px;text-align:left;vertical-align:top;padding:12px 0;border-bottom:1px solid var(--line)}
+.apt-how td{padding:12px 14px 12px 0;border-bottom:1px solid var(--line);vertical-align:top;line-height:1.65}
+.apt-how td:nth-child(2){width:210px;font-weight:600}
+.apt-note{font-size:12.5px;color:var(--mute);margin-top:14px;line-height:1.7}
+@media(max-width:880px){.apt{padding:88px 16px 60px}.apt h1{font-size:27px}.apt-body{grid-template-columns:1fr;gap:20px}.apt-map{position:static}.apt-how td:nth-child(2){width:120px}.apt-det dl{grid-template-columns:auto 1fr}.apt-tbl .hide-s{display:none}.apt-find input{width:200px}}
+
+.apt-sig{max-width:720px;margin:14px 0 0;padding:10px 0 0 14px;border-left:3px solid var(--ol);font-size:14.5px;line-height:1.75;color:#3D3D3D}
+.apt-sig b{font-family:'Noto Serif KR',serif;font-weight:500;font-size:18px;color:var(--ink);display:block;margin-bottom:2px}
+.apt-sig a{color:var(--ol-d);text-underline-offset:3px}
