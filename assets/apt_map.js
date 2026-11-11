@@ -198,19 +198,67 @@
       var key = 'jj_apt_ll_' + x.c, mem = null; try { mem = JSON.parse(localStorage.getItem(key) || 'null'); } catch (e) {}
       if (x.ll) return go(x.ll); if (mem) return go(mem);
       if (!K.services) return;
-      new K.services.Places().keywordSearch((x.g + ' ' + x.d + ' ' + x.n).trim(), function (res, st) {
-        if (st !== K.services.Status.OK || !res.length) return;
-        var hit = res.filter(function (p) { return /아파트|주거/.test(p.category_name || ''); })[0] || res[0], ll = [+hit.y, +hit.x];
-        if (ll[0] < BOX.y0 || ll[0] > BOX.y1 || ll[1] < BOX.x0 || ll[1] > BOX.x1) return;
-        try { localStorage.setItem(key, JSON.stringify(ll)); } catch (e) {} go(ll);
-      }, { size: 5 });
+      var keep = function (ll) { if (ll[0] < BOX.y0 || ll[0] > BOX.y1 || ll[1] < BOX.x0 || ll[1] > BOX.x1) return; try { localStorage.setItem(key, JSON.stringify(ll)); } catch (e) {} go(ll); };
+      var byName = function () {
+        var reg = region(x.rid || CUR), opt = { size: 15 }; if (reg) { opt.location = new K.LatLng(reg.가운데[1], reg.가운데[0]); opt.radius = 20000; }
+        new K.services.Places().keywordSearch((x.d + ' ' + x.n).trim(), function (res, st) {
+          if (st !== K.services.Status.OK || !res.length) return;
+          var score = function (p) { return (/아파트/.test(p.category_name || '') ? 4 : 0) + ((p.address_name || '').indexOf(x.d) >= 0 ? 3 : 0) + (p.place_name.replace(/\s/g, '').indexOf(x.n.replace(/\s|아파트$/g, '').slice(0, 6)) >= 0 ? 2 : 0) - (/분양|모델하우스|상가|부동산|관리사무소/.test(p.place_name + (p.category_name || '')) ? 5 : 0); };
+          var hit = res.slice().sort(function (p, q) { return score(q) - score(p); })[0]; if (score(hit) < 3) return;
+          keep([+hit.y, +hit.x]);
+        }, opt);
+      };
+      if (x.a) new K.services.Geocoder().addressSearch(x.a, function (res, st) { if (st === K.services.Status.OK && res.length) keep([+res[0].y, +res[0].x]); else byName(); });
+      else byName();
     });
   }
+
+  // 주소·동 이름으로 찾기: 카카오 주소 찾기 → 그 자리가 속한 구역과 동의 단지 목록을 보여 주고 지도를 옮긴다.
+  function inRing(pt, ring) { var c = false; for (var i = 0, j = ring.length - 1; i < ring.length; j = i++) { var a = ring[i], b = ring[j]; if ((a[1] > pt[1]) !== (b[1] > pt[1]) && pt[0] < (b[0] - a[0]) * (pt[1] - a[1]) / (b[1] - a[1]) + a[0]) c = !c; } return c; }
+  function regionAt(lng, lat) { var hit = null; IDX.구역.forEach(function (r) { if (!hit && r.경계.some(function (ring) { return inRing([lng, lat], ring); })) hit = r; }); return hit; }
+  function addrFind() {
+    var q = $('aptQ').value.trim(), msg = $('aptAddrMsg'); if (q.length < 2) return;
+    if (!window.JJ_KAKAO_KEY) { msg.textContent = '주소로 찾기는 지도 연결 뒤에 쓸 수 있습니다. 단지 이름으로 찾아 주세요.'; return; }
+    msg.textContent = '찾는 중입니다…';
+    kakaoReady(function () {
+      var K = window.kakao.maps, S = K.services;
+      var done = function (lat, lng, dong, label) {
+        var r = regionAt(lng, lat); if (!r) { msg.textContent = '서울·경기·인천 안의 주소만 찾을 수 있습니다.'; return; }
+        msg.textContent = ''; track('apt_addr', { region: r.짧은시도 + ' ' + r.이름 });
+        CUR = r.id; TAB = 'all'; OPEN = ''; SHOWN = 60;
+        Array.prototype.forEach.call(document.querySelectorAll('.rg'), function (p) { p.classList.toggle('on', p.getAttribute('data-id') === r.id); }); labels();
+        load(r.id, function (rows) {
+          var near = dong ? rows.filter(function (x) { return x.d === dong || x.d.replace(/\d+가$/, '') === dong.replace(/\d+가$/, ''); }) : [];
+          var show = near.length ? near : rows;
+          $('aptSideTtl').textContent = near.length ? r.짧은시도 + ' ' + r.이름 + ' ' + dong : r.짧은시도 + ' ' + r.이름;
+          $('aptSideSub').innerHTML = '「' + esc(label) + '」 근처 · 단지 <b>' + num(show.length) + '</b>곳 · 평면 확보 <b>' + num(show.filter(function (x) { return x.s > 0; }).length) + '</b>곳' + (near.length ? '' : ' (그 동에는 올려 둔 단지가 없어 구역 전체를 보여 드립니다)');
+          $('aptTop').innerHTML = ''; list(show);
+          var box = $('aptKakao'); box.hidden = false; if (!KMAP) { KMAP = new K.Map(box, { center: new K.LatLng(lat, lng), level: 5 }); KMAP.setMaxLevel(11); }
+          KOV.forEach(function (o) { o.setMap(null); }); KOV = []; KMAP.relayout(); KMAP.setLevel(5); KMAP.setCenter(new K.LatLng(lat, lng));
+          var pin = document.createElement('div'); pin.style.cssText = 'width:14px;height:14px;border:2px solid #2A2A2A;background:#fff;transform:rotate(45deg)'; pin.title = label;
+          var ov = new K.CustomOverlay({ position: new K.LatLng(lat, lng), content: pin, yAnchor: 0.5 }); ov.setMap(KMAP); KOV.push(ov);
+          show.forEach(function (x) { if (x.ll) dot(x, new K.LatLng(x.ll[0], x.ll[1])); });
+          if (window.innerWidth < 880) $('aptSide').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+      };
+      new S.Geocoder().addressSearch(q, function (res, st) {
+        if (st === S.Status.OK && res.length) { var a = res[0], ad = a.address || {}, rd = a.road_address || {}; return done(+a.y, +a.x, ad.region_3depth_name || rd.region_3depth_name || '', a.address_name || q); }
+        new S.Places().keywordSearch(q, function (r2, s2) {
+          if (s2 !== S.Status.OK || !r2.length) { msg.textContent = '그 주소를 찾지 못했습니다. 도로명이나 동 이름, 단지 이름으로 다시 적어 주세요.'; return; }
+          var p = r2[0], parts = (p.address_name || '').split(' '), dong = parts.filter(function (w) { return /(동|가|리)$/.test(w); }).pop() || '';
+          done(+p.y, +p.x, dong, p.place_name);
+        }, { size: 5 });
+      });
+    });
+  }
+  $('aptAddrBtn').addEventListener('click', addrFind);
+  $('aptQ').addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); addrFind(); } });
 
   $('aptView').addEventListener('click', function (e) { var b = e.target.closest('button'); if (b) setView(b.getAttribute('data-v')); });
 
   fetch('data/apt/index.json').then(function (r) { return r.json(); }).then(function (j) {
     IDX = j; legend(); drawMap();
+    if (window.JJ_KAKAO_KEY) kakaoReady(function () { var K = window.kakao.maps, box = $('aptKakao'); box.hidden = false; if (!KMAP) { KMAP = new K.Map(box, { center: new K.LatLng(37.52, 126.93), level: 10 }); KMAP.setMaxLevel(11); } });
     var m = /[?&]r=(\d+)/.exec(location.search); if (m && region(m[1])) pick(m[1]);
   }).catch(function () { $('aptSideSub').textContent = '지도 자료를 불러오지 못했습니다. 잠시 뒤 다시 열어 주세요.'; });
 })();
