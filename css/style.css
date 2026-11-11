@@ -3068,3 +3068,12 @@ li+li{margin-top:.3em}
 .hero-lead>span{display:block}
 .hero-lead>span+span{margin-top:.35em}
 @media(max-width:600px){.hero-lead{font-size:16px!important;line-height:1.7!important;padding:0 4px}}
+
+/* 다닥다닥 붙어 보이지 않게: 본문 문단은 줄 간격을 넉넉히, 문단 사이를 띄우고, 한 줄이 너무 길지 않게 */
+main p,article p{line-height:1.85}
+main p+p,article p+p{margin-top:1em}
+.cg p,.cad p,article>p,.tw-txt p,.apt-lead{max-width:40em}
+.cg p,.cad p{margin-bottom:1em!important;line-height:1.85!important}
+.cg h2,.cg h3{margin-top:2em}
+.cg table td,.cg table th{padding-top:12px!important;padding-bottom:12px!important;line-height:1.7}
+.cg figure,.cg img{margin-top:1.4em}

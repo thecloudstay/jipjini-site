@@ -18,9 +18,9 @@
 .mk.s0{background:#fff;border-color:#B9B2A3;border-style:dashed}
 .apt-body{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:34px;padding-top:22px;align-items:start}
 .apt-map{margin:0;position:sticky;top:92px}
-.apt-map svg{width:100%;height:auto;display:block;background:var(--paper);border:1px solid var(--line)}
+#aptSvg{width:100%;height:auto;display:block;background:var(--paper);border:1px solid var(--line)}
 .apt-map figcaption{font-size:12.5px;color:var(--mute);margin-top:8px;line-height:1.6}
-.apt-kakao{width:100%;height:420px;border:1px solid var(--line);margin-bottom:10px}
+.apt-kakao{width:100%;height:520px;border:1px solid var(--line);margin-bottom:10px}
 .rg{stroke:#fff;cursor:pointer;transition:fill .12s}
 .rg:hover,.rg:focus{stroke:var(--ink);outline:none}
 .rg.on{stroke:var(--ink)}
@@ -80,3 +80,18 @@
 /* 읽기 쉬움 기준 */
 .apt h1,.apt h2,.tw h1,.tw h2{text-wrap:balance}
 .apt p,.apt td,.apt li,.tw p,.tw td,.tw li,.tw figcaption{text-wrap:pretty;word-break:keep-all}
+
+/* 카카오 지도 위 표식 */
+.apt-capk{font-size:12.5px;color:var(--mute);margin:8px 0 18px;line-height:1.6;min-height:1.6em}
+.kreg{appearance:none;border:1px solid #B9B2A3;background:#fff;color:var(--ink);font-family:Pretendard,sans-serif;padding:4px 8px 5px;cursor:pointer;line-height:1.25;text-align:center;transform:translateX(-50%);white-space:nowrap}
+.kreg b{display:block;font-size:12.5px;font-weight:600}.kreg span{display:block;font-size:11.5px;color:#6B6B6B;font-variant-numeric:tabular-nums}
+.kreg.has{background:var(--ol);border-color:var(--ol-d);color:#fff}.kreg.has span{color:#E9EBDD}
+.kreg:hover{border-color:var(--ink);outline:1px solid var(--ink)}
+.kpin{appearance:none;border:0;background:none;padding:0;cursor:pointer;display:flex;align-items:center;gap:4px;transform:translateX(-7px);font-family:Pretendard,sans-serif}
+.kpin i{display:block;width:13px;height:13px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1px #2A2A2A;flex:none}
+.kpin.s2 i{background:var(--ol-d)}.kpin.s1 i{background:#A9B67A}.kpin.s0 i{background:#fff;box-shadow:0 0 0 1px #9A9A9A;width:10px;height:10px}
+.kpin span{font-size:12px;background:#fff;border:1px solid #2A2A2A;padding:1px 6px 2px;white-space:nowrap;color:#2A2A2A}
+.kpin.s0 span{border-color:#B9B2A3;color:#4F4F4F}
+.kpin.on i{width:17px;height:17px;box-shadow:0 0 0 2px #2A2A2A}.kpin.on span{background:#2A2A2A;color:#fff;font-weight:600}
+.kfind{width:16px;height:16px;border:2px solid #2A2A2A;background:#fff;transform:translateX(-50%) rotate(45deg)}
+@media(max-width:880px){.apt-kakao{height:380px}}
