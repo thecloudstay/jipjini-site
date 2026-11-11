@@ -2823,6 +2823,22 @@
 
 @media (max-width: 680px) {
   .quotedoc { padding: 24px 18px; }
+  /* 좁은 화면: 여섯 칸 표가 종이 밖으로 밀려 나가던 것 — 줄마다 두 단으로 접는다 (2026-11-12) */
+  .quotedoc-title-ko { letter-spacing: 2px; white-space: nowrap; }
+  .quotedoc-title-en { letter-spacing: 1px; white-space: nowrap; }
+  .quotedoc-info, .quotedoc-info tbody { display: block; }
+  .quotedoc-info tr { display: grid; grid-template-columns: 5.6em 1fr; }
+  .quotedoc-info th, .quotedoc-info td { width: auto; }
+  .quotedoc-items, .quotedoc-items tbody { display: block; }
+  .quotedoc-items thead { display: none; }
+  .quotedoc-items tr { display: grid; grid-template-columns: auto auto auto 1fr; column-gap: 6px; row-gap: 3px; align-items: baseline; padding: 13px 0; border-bottom: 1px solid var(--jp-gray-line); }
+  .quotedoc-items td { display: block; padding: 0; border: 0; text-align: left; }
+  .quotedoc-items td:nth-child(1) { grid-column: 1 / -1; font-size: 12.5px; color: var(--jp-gray); }
+  .quotedoc-items td:nth-child(2) { grid-column: 1 / -1; font-size: 15px; margin-bottom: 4px; }
+  .quotedoc-items td:nth-child(3), .quotedoc-items td:nth-child(4), .quotedoc-items td:nth-child(5) { font-size: 13px; color: var(--jp-gray); white-space: nowrap; }
+  .quotedoc-items td:nth-child(4)::before { content: "· "; }
+  .quotedoc-items td:nth-child(5)::before { content: "× "; }
+  .quotedoc-items td:nth-child(6) { text-align: right; font-weight: 600; font-size: 15px; white-space: nowrap; }
   .quotedoc-summary, .quotedoc-save-row, .quotedoc-pm-row { width: 100%; }
   .quotedoc-grades { grid-template-columns: 1fr; }
   .quotedoc-partners { grid-template-columns: 1fr; }
@@ -3077,3 +3093,8 @@ main p+p,article p+p{margin-top:1em}
 .cg h2,.cg h3{margin-top:2em}
 .cg table td,.cg table th{padding-top:12px!important;padding-bottom:12px!important;line-height:1.7}
 .cg figure,.cg img{margin-top:1.4em}
+
+/* 좁은 화면에서 표가 화면 밖으로 밀려 나가 쪽 전체가 옆으로 흔들리던 것 (2026-11-12) — 표만 제 안에서 옆으로 넘긴다 */
+@media (max-width: 680px) {
+  main table:not([class^="quotedoc"]), article table:not([class^="quotedoc"]) { display: block; max-width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+}
