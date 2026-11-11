@@ -415,6 +415,15 @@
       spread(2, isBed, zone); spread(1, isLiv, zone);
       // 색을 못 가린 자투리(선·글자 지운 자리)가 남의 방 안에 섬처럼 남으면 둘레에서 가장 많은 이름표를 따른다
       for (var pass = 0; pass < 2; pass++) for (k = w; k < N - w; k++) { var l0 = lab[k]; if (l0 < 2 || !zone(l0) || cls[k]) continue; var ns = [lab[k - 1], lab[k + 1], lab[k - w], lab[k + w]], c = {}, bestL = 0, bc = 0; ns.forEach(function (x) { if (x >= 2 && zone(x)) { c[x] = (c[x] || 0) + 1; if (c[x] > bc) { bc = c[x]; bestL = x; } } }); if (bestL && bestL !== l0 && bc >= 3) lab[k] = bestL; }
+      // (1.5) 2026-11-11 낮: 남의 방에 묻힌 파란 칸 떼어 내기 — 문 틈으로 침실·거실과 한 덩어리가 된 욕실(이름 글자 없음)을 바닥색으로 따로 세운다.
+      //   고정 표본 60장에서 「모양 겹침」이 34장 틀렸고 그 가운데 욕실 겹침 0%가 여럿(연수1차대림 105 등): 파란 바닥은 있는데 욕실이 한 칸도 안 나왔다.
+      (function () { var cT = {}, bT = {}, i4; for (i4 = 0; i4 < N; i4++) { var l4 = lab[i4]; if (l4 >= 2) { cT[l4] = (cT[l4] || 0) + 1; if (cls[i4] === 3) bT[l4] = (bT[l4] || 0) + 1; } }
+        var seenB = new Uint8Array(N); for (i4 = 0; i4 < N; i4++) { if (cls[i4] !== 3 || seenB[i4]) continue; var host = lab[i4]; if (host < 2) continue; seenB[i4] = 1; var st4 = [i4], comp4 = [], x0 = w, x1 = 0, y0 = h, y1 = 0;
+          while (st4.length) { var p4 = st4.pop(); comp4.push(p4); var px4 = p4 % w, py4 = (p4 / w) | 0; if (px4 < x0) x0 = px4; if (px4 > x1) x1 = px4; if (py4 < y0) y0 = py4; if (py4 > y1) y1 = py4; var nb4 = [px4 > 0 ? p4 - 1 : -1, px4 < w - 1 ? p4 + 1 : -1, py4 > 0 ? p4 - w : -1, py4 < h - 1 ? p4 + w : -1]; for (var b4 = 0; b4 < 4; b4++) { var n4 = nb4[b4]; if (n4 >= 0 && !seenB[n4] && cls[n4] === 3 && lab[n4] === host) { seenB[n4] = 1; st4.push(n4); } } }
+          if (kindOf[host] === '욕실' || (bT[host] || 0) >= (cT[host] || 1) * 0.4) continue;      // 이미 욕실이거나 칸 전체가 파랗다
+          var bw4 = x1 - x0 + 1, bh4 = y1 - y0 + 1; if (comp4.length < U * U * 0.3 || Math.min(bw4, bh4) < U * 0.8 || bw4 * bh4 > U * U * 12) continue;   // 창 유리 같은 가는 띠·12㎡ 넘는 덩어리는 욕실이 아니다. 기구 선에 잘려 파란 바닥이 조각나도(0.3㎡부터) 네모 안을 통째로 잡는다
+          var nl = seeds.length + 2; seeds.push({ kind: '욕실', text: '', l: nl, p: comp4[0], byColor: true }); kindOf[nl] = '욕실';
+          for (var yy = y0; yy <= y1; yy++) for (var xx = x0; xx <= x1; xx++) { var q4 = yy * w + xx; if (lab[q4] === host && !wall[q4] && cls[q4] !== 1 && cls[q4] !== 2) lab[q4] = nl; } } })();
       // (2) 파란 칸 합치기
       var cntL = {}, blueL = {}; for (k = 0; k < N; k++) { var l = lab[k]; if (l >= 2) { cntL[l] = (cntL[l] || 0) + 1; if (cls[k] === 3) blueL[l] = (blueL[l] || 0) + 1; } }
       var isBlue = function (l) { return l >= 2 && (blueL[l] || 0) >= (cntL[l] || 1) * 0.4 && (!kindOf[l] || kindOf[l] === '욕실'); }, adj = {};
