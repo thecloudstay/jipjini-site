@@ -171,8 +171,24 @@
   function mSel(attr, id, o, v) { return '<div class="jje-row jje-mrow"><label>' + o[1] + '</label><select ' + attr + '="' + id + '">' + o[2].map(function (c) { return '<option value="' + c[0] + '"' + (c[0] === v ? ' selected' : '') + '>' + c[1] + '</option>'; }).join('') + '</select></div>'; }
   function methPane() { var k = wk.k, key = rqPick[k] || (Array.isArray(REQ[k]) ? REQ[k][0] : ''), os = mOpts(k, key), q = { k: k }; if (!os.length) return '';
     return '<div class="jje-h">공법 — 시공 순서대로</div>' + os.map(function (o) { return mSel('data-m', k + '.' + o[0], o, mVal(q, o, key)); }).join('') + '<p class="jje-p" style="margin-top:6px">여기서 고른 공법으로 다음부터 놓입니다. 이미 놓은 자리는 「선택」으로 눌러 바꿉니다.</p>'; }
+  // ── 견적서에 따로 넣는 항목 (2026-11-11): 견적에는 들어가는데 도면 기호도 없고 콘솔 물량 묶음표(takeoff-map)에도 아직 없는 줄.
+  //   물량 칸에서 체크하면 물량표와 견적 의뢰 묶음(메모)에 「1식」으로 실린다. 콘솔 묶음표에 들어가면 여기서 뺀다.
+  var XITEMS = {
+    preparation: [['x_highRise', '초고층 반출 인력 (승강기 대기·왕복)'], ['x_hoist', '자재 양중'], ['x_evFee', '승강기 사용료 (관리사무소 실비)'], ['x_coordi', '코디비 · 현장 대리인 비용']],
+    demolition: [['x_floorStrip', '기존 마루·장판 철거와 본드 갈아내기'], ['x_bathStrip', '욕실 타일·도기·천장재 철거'], ['x_helper', '잡부'], ['x_wasteExtra', '폐기물 추가분 (붙박이장·가구)']],
+    plumbing: [['x_coreDrill', '코어 드릴 (위치·용도·관리사무소 승인)'], ['x_sinkPipe', '싱크대 배관 연장'], ['x_bathDrainMove', '욕실 급배수 위치 변경 (벽 배수·매립 수전)'], ['x_gasCap', '가스 배관 막음']],
+    lighting: [['x_elecBase', '전기 기본 품 (기존 조명 철거·결선·배선 점검)'], ['x_lightMove', '등기구 위치 조정·매입 타공 품'], ['x_wireMat', '배선·부자재 (전선·접지선·난연관)'], ['x_dedicated', '전용선 신설 (인덕션·식기세척기·건조기)'], ['x_euroBox', '매립 박스 교체 (유럽형 스위치·콘센트)'], ['x_lightPatch', '기존 등 자리 막음·천장 보수']],
+    carpentry: [['x_baseLabor', '기본 목공 품'], ['x_woodMat', '목재·부자재'], ['x_trim9', '9mm 문선 마감 (문틀 둘레 석고·퍼티)'], ['x_bathDoor', '욕실문 (문짝 + 문틀)'], ['x_bathCeil', '욕실 천장 (방수 석고보드·도장·방습등)']],
+    tile: [['x_tileSub', '타일 접착·줄눈·부자재'], ['x_tileLabor', '타일공·조공 품'], ['x_cornerFinish', '모서리 마감 (졸리컷·코너비드)']],
+    bathroom: [['x_slope', '바닥 구배 재시공'], ['x_showerFaucet', '샤워 수전'], ['x_basinFaucet', '세면 수전'], ['x_bathCabinet', '욕실 맞춤 수납장'], ['x_floorDrain', '바닥 배수구 (일반·트렌치)']],
+    painting: [['x_paintLabor', '도장공 품']],
+    wallpaper: [['x_lining', '초배 (부직포·삼중지 띄움)'], ['x_stripOld', '기존 벽지 제거'], ['x_cornerBead', '코너 각대·모서리 직각 잡기'], ['x_delivery', '화물 배송비 (도배·바닥 자재)']],
+    film: [['x_midDoorFilm', '중문 필름']],
+    etc: [['x_cleaning', '입주 청소'], ['x_silicone', '마감 실리콘 (창틀·걸레받이·주방·욕실)']]
+  };
+  function xMerge() { if (!MAP || MAP._x) return; MAP._x = 1; Object.keys(XITEMS).forEach(function (w) { XITEMS[w].forEach(function (a) { var key = w + '.' + a[0]; if (!MAP.items[key]) MAP.items[key] = { work: w, group: '견적서에 따로 넣는 항목', label: a[1], measure: null, unit: '', mats: [], labor: [], add: true }; }); }); }
   function mapLoad(cb) { if (MAP) return cb(); if (mapState === 'load') return; mapState = 'load'; var done = function (ok) { mapState = ok ? 'ok' : 'fail'; cb(); };
-    try { fetch('data/takeoff-map.json?v=20261111').then(function (r) { return r.ok ? r.json() : null; }).then(function (j) { if (j && j.items) MAP = j; done(!!MAP); }, function () { done(false); }); } catch (e) { done(false); } }
+    try { fetch('data/takeoff-map.json?v=20261111').then(function (r) { return r.ok ? r.json() : null; }).then(function (j) { if (j && j.items) { MAP = j; xMerge(); } done(!!MAP); }, function () { done(false); }); } catch (e) { done(false); } }
   function shapeCenter(q) { if (q.f === 'p') return [q.x, q.y]; if (q.f === 'l') return q.loop ? centroid(q.pts.slice(0, -1)) : [(q.pts[0][0] + q.pts[q.pts.length - 1][0]) / 2, (q.pts[0][1] + q.pts[q.pts.length - 1][1]) / 2]; return centroid(q.pts); }
   // 선은 벽 위에 놓이는 일이 많아, 가운데가 방 밖이면 선의 양옆을 조금 들여다보고 방을 찾는다
   function shapeRoom(q) { var c = shapeCenter(q), r = roomAt(c[0], c[1]); if (r || q.f !== 'l' || q.loop || q.pts.length < 2) return r; var a = q.pts[0], b = q.pts[q.pts.length - 1], L = Math.hypot(b[0] - a[0], b[1] - a[1]) || 1, nx = -(b[1] - a[1]) / L, ny = (b[0] - a[0]) / L, d = U() * 0.7;
@@ -241,8 +257,11 @@
         h += '<details class="jje-det"' + (nOn ? ' open' : '') + '><summary>' + c[0] + ' ' + esc(c[1]) + (nOn ? ' <b>' + nOn + '</b>' : '') + '</summary>' + body + '</details>'; }); })();
     h += '<div class="jje-h">도면에 찍지 않는 항목</div><p class="jje-p" style="margin:0 0 6px">보양·사다리차·도어락처럼 도면에 표시하지 않는 공사는 여기서 고르면 물량표에 들어갑니다.</p>';
     var have = {}; rows.forEach(function (r) { if (r.key && !r.chk) have[r.key] = 1; });
-    CATS.forEach(function (c) { var its = []; c[3].forEach(function (w) { Object.keys(MAP.items).forEach(function (k) { var it = MAP.items[k]; if (it.work === w && !it.extra && !have[k] && !areaSym(k)) its.push(k); }); }); if (!its.length) return; var nOn = its.filter(function (k) { return chk[k]; }).length;
+    CATS.forEach(function (c) { var its = []; c[3].forEach(function (w) { Object.keys(MAP.items).forEach(function (k) { var it = MAP.items[k]; if (it.work === w && !it.extra && !it.add && !have[k] && !areaSym(k)) its.push(k); }); }); if (!its.length) return; var nOn = its.filter(function (k) { return chk[k]; }).length;
       h += '<details class="jje-det"' + (nOn ? ' open' : '') + '><summary>' + c[0] + ' ' + esc(c[1]) + (nOn ? ' <b>' + nOn + '</b>' : '') + '</summary>' + its.map(function (k) { return '<label class="jje-ck"><input type="checkbox" data-chk="' + k + '"' + (chk[k] ? ' checked' : '') + '><span>' + esc(MAP.items[k].label) + '</span></label>'; }).join('') + '</details>'; });
+    h += '<div class="jje-h">견적서에 따로 넣는 항목</div><p class="jje-p" style="margin:0 0 6px">품·부자재·운반처럼 도면 기호가 없는 견적 줄입니다. 공정마다 훑어 체크하면 물량표와 견적 의뢰에 함께 넘어갑니다. 수량은 견적에서 정합니다.</p>';
+    CATS.forEach(function (c) { var its = []; c[3].forEach(function (w) { (XITEMS[w] || []).forEach(function (a) { var k = w + '.' + a[0]; if (MAP.items[k] && MAP.items[k].add) its.push(k); }); }); if (!its.length) return; var nOn = its.filter(function (k) { return chk[k]; }).length;
+      h += '<details class="jje-det"' + (nOn ? ' open' : '') + '><summary>' + c[0] + ' ' + esc(c[1]) + ' <b>' + nOn + '/' + its.length + '</b></summary>' + its.map(function (k) { return '<label class="jje-ck"><input type="checkbox" data-chk="' + k + '"' + (chk[k] ? ' checked' : '') + '><span>' + esc(MAP.items[k].label) + '</span></label>'; }).join('') + '</details>'; });
     el.innerHTML = h;
   }
   // ── 기준선(레이저 먹줄): 방 안의 벽에서 벽까지 가는 세로·가로 줄. 기호와 선이 이 줄에 붙는다 (2026-11-11)
