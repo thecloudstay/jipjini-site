@@ -187,6 +187,41 @@
     etc: [['x_cleaning', '입주 청소'], ['x_silicone', '마감 실리콘 (창틀·걸레받이·주방·욕실)']]
   };
   function xMerge() { if (!MAP || MAP._x) return; MAP._x = 1; Object.keys(XITEMS).forEach(function (w) { XITEMS[w].forEach(function (a) { var key = w + '.' + a[0]; if (!MAP.items[key]) MAP.items[key] = { work: w, group: '견적서에 따로 넣는 항목', label: a[1], measure: null, unit: '', mats: [], labor: [], add: true }; }); }); }
+  // ── 실시간 예상 공사비 (2026-11-11 박 대표: 「캐드에서 물량을 찍을수록 즉석에서 견적이」 「합계는 실시간, 내역은 단추 뒤」)
+  //   단가는 콘솔이 내보내는 공개 값(?type=cad_price: 자재키 → 단가, 기술자 → 하루 단가, 따로 넣는 항목 단가)만 쓴다. 못 받으면 금액 줄을 아예 안 보인다.
+  //   금액은 도면에서 바로 셈한 어림이다 — 정밀 견적은 코디가 검토해 따로 보낸다. 공법에 딸린 물량(초배 등)은 아직 금액에 안 들어간다.
+  var PRICE = null, priceState = '';
+  function priceLoad(cb) {
+    if (PRICE || priceState === 'load' || priceState === 'none') return; if (!OPT.priceUrl) { priceState = 'none'; return; } priceState = 'load';
+    var use = function (j) { if (j && j.자재 && Object.keys(j.자재).length) { PRICE = j; priceState = 'ok'; if (cb) cb(); return true; } return false; };
+    try { var c = JSON.parse(localStorage.getItem('jj_cad_price') || 'null'); if (c && c.t && Date.now() - c.t < 6 * 3600000 && use(c.d)) return; } catch (e) {}
+    try { fetch(OPT.priceUrl, { redirect: 'follow' }).then(function (r) { return r.ok ? r.json() : null; }).then(function (j) { if (use(j)) { try { localStorage.setItem('jj_cad_price', JSON.stringify({ t: Date.now(), d: j })); } catch (e) {} } else priceState = 'none'; }, function () { priceState = 'none'; }); } catch (e) { priceState = 'none'; }
+  }
+  function costCtx(rows) {
+    var sumW = function (w) { return rows.reduce(function (a, r) { return a + (r.work === w && r.unit === '㎡' && !r.chk ? r.qty : 0); }, 0); }, cnt = function (ks) { return shapes.filter(function (q) { return q.t === 'wk' && ks.indexOf(q.k) >= 0 && (q.st || 'new') !== 'keep' && q.st !== 'remove'; }).length; };
+    var mm = mmpp(), inner = 0; rooms().forEach(function (q) { if (mm && !/베란다|발코니|다용도|실외기/.test(q.name)) inner += pxArea(q.pts) * mm * mm / 1e6; });
+    var baths = rooms().filter(function (q) { return (q.kind || kindOf(q.name)) === '욕실'; }).length, bathUse = baths && rows.some(function (r) { return /^(tile\.tileBathroom|bathroom\.)/.test(r.key || ''); }) ? baths : 0;
+    return { '식': 1, '도배㎡': sumW('wallpaper'), '바닥㎡': sumW('flooring'), '타일㎡': sumW('tile'), '욕실': bathUse, '문': cnt(['doorN']), '스위치콘센트': cnt(['sw', 'ol']), '매입등12': Math.ceil(cnt(['dl']) / 12), '평': Math.round(inner * 1.1 / 3.3058 * 10) / 10 };
+  }
+  function rowCost(r, ctx) {
+    var x = PRICE.따로 && PRICE.따로[r.key]; if (x) { var b = ctx[x[1]] || 0; return { amt: Math.round(x[0] * b), how: x[1] === '식' ? '1식' : takeNum(R2(b)) + ' × ' + x[0].toLocaleString('ko-KR') + '원 (' + x[1].replace(/\d+$/, '') + ' 기준)', none: !b }; }
+    var dg = PRICE.도급 || {}, dk = r.key && (/원목/.test(r.meth || '') && dg[r.key + '|원목'] ? r.key + '|원목' : /강화/.test(r.meth || '') && dg[r.key + '|강화'] ? r.key + '|강화' : r.key); if (dk && dg[dk] && !r.chk) return { amt: Math.round(dg[dk] * r.qty), how: '㎡당 ' + dg[dk].toLocaleString('ko-KR') + '원 (자재·시공 일체)' };
+    var it = r.it; if (!it || (r.chk && r.noBom)) return { amt: 0, none: true };
+    var u = 0, miss = 0; (it.mats || []).forEach(function (m) { var p = PRICE.자재[m.k]; if (p) u += p * m.q; else miss++; }); (it.labor || []).forEach(function (l) { var p = PRICE.노무[l.n]; if (p) u += p * l.d; else miss++; });
+    return { amt: Math.round(u * r.qty), none: !u, part: !!(u && miss) };
+  }
+  function costAll() {
+    if (!PRICE || !MAP) return null; var rows = takeRows(), ctx = costCtx(rows), tot = 0, cats = {}, none = [], lines = [];
+    rows.forEach(function (r) { var c = rowCost(r, ctx), i = takeCat(r); if (c.none) { none.push(r.label); return; } tot += c.amt; cats[i] = (cats[i] || 0) + c.amt; lines.push({ cat: i, label: r.label, qty: r.qty, unit: r.unit, amt: c.amt, how: c.how || '', part: c.part }); });
+    return { tot: tot, cats: cats, none: none, lines: lines, n: rows.length };
+  }
+  function won10(v) { v = Math.round(v / 100000) * 10; return v >= 10000 ? (Math.floor(v / 10000) + '억' + (v % 10000 ? ' ' + (v % 10000).toLocaleString('ko-KR') + '만' : '')) : v.toLocaleString('ko-KR') + '만'; }
+  function costRange(t) { return '약 ' + won10(t) + '~' + won10(t * 1.15) + ' 원'; }
+  function costDraw() {
+    var el = $('jjeCost'); if (!el) return; if (!PRICE || !MAP) { el.style.display = 'none'; if (OPT.priceUrl && !MAP) mapLoad(function () { costDraw(); }); return; }
+    var c = costAll(); if (!c || !c.n) { el.style.display = 'none'; return; }
+    el.style.display = ''; el.innerHTML = '예상 공사비 <b>' + (c.tot > 0 ? costRange(c.tot) : '셈하는 중') + '</b> <span style="color:#6B6B6B">부가세 별도 · 도면 어림</span> <button type="button" class="jje-b" data-a="pane" data-v="take" style="margin-left:6px">내역 보기</button>';
+  }
   function mapLoad(cb) { if (MAP) return cb(); if (mapState === 'load') return; mapState = 'load'; var done = function (ok) { mapState = ok ? 'ok' : 'fail'; cb(); };
     try { fetch('data/takeoff-map.json?v=20261111').then(function (r) { return r.ok ? r.json() : null; }).then(function (j) { if (j && j.items) { MAP = j; xMerge(); } done(!!MAP); }, function () { done(false); }); } catch (e) { done(false); } }
   function shapeCenter(q) { if (q.f === 'p') return [q.x, q.y]; if (q.f === 'l') return q.loop ? centroid(q.pts.slice(0, -1)) : [(q.pts[0][0] + q.pts[q.pts.length - 1][0]) / 2, (q.pts[0][1] + q.pts[q.pts.length - 1][1]) / 2]; return centroid(q.pts); }
@@ -243,6 +278,14 @@
     var rows = takeRows(), mm = mmpp(), h = '<div class="jje-row" style="margin-top:0"><label style="width:auto">천장 높이</label><input type="number" id="jjeCeil" min="2000" max="3500" step="10" value="' + ceilH + '" style="width:104px"><span style="font-size:14.5px;color:#6B6B6B">mm · 벽 면적 계산에 씁니다</span></div>';
     if (!mm) h += '<p class="jje-p" style="color:#b4232a">척도가 없어 면적·길이 물량은 0으로 나옵니다. 「측정」에서 척도를 잡아 주세요.</p>';
     var wa = warnAll(); if (wa.length) h += '<div class="jje-h" style="color:#b4232a">확인할 것 ' + wa.length + '건</div>' + wa.map(function (t) { return '<p class="jje-p" style="color:#b4232a;margin:0 0 4px">' + esc(t) + '</p>'; }).join('');
+    (function () { var c = costAll(); if (!c || !c.n) return;
+      h += '<div class="jje-h">예상 공사비</div><p class="jje-p" style="margin:0 0 6px;font-size:17px"><b>' + (c.tot > 0 ? costRange(c.tot) : '—') + '</b> <span style="font-size:14px;color:#6B6B6B">부가세 10% 별도</span></p><table class="jje-qty jje-take">';
+      CATS.forEach(function (ct, i) { if (!c.cats[i]) return; h += '<tr class="tr"><td>' + ct[0] + ' ' + esc(ct[1]) + '</td><td>' + Math.round(c.cats[i] / 10000).toLocaleString('ko-KR') + '만 원</td></tr>'; c.lines.filter(function (l) { return l.cat === i; }).forEach(function (l) { h += '<tr><td>' + esc(l.label) + ' <span style="color:#6B6B6B">' + takeNum(l.qty) + l.unit + (l.how ? ' · ' + esc(l.how) : '') + (l.part ? ' · 일부 단가 없음' : '') + '</span></td><td>' + l.amt.toLocaleString('ko-KR') + '</td></tr>'; }); });
+      h += '</table>';
+      if (c.none.length) h += '<p class="jje-p" style="color:#6B6B6B">단가가 없어 금액에서 빠진 항목 ' + c.none.length + '건: ' + esc(c.none.slice(0, 6).join(', ')) + (c.none.length > 6 ? ' 등' : '') + '</p>';
+      var used = {}; takeRows().forEach(function (r) { if (r.work) used[r.work] = 1; }); var left = []; Object.keys(used).forEach(function (w) { (XITEMS[w] || []).forEach(function (a) { if (!chk[w + '.' + a[0]] && PRICE.따로 && PRICE.따로[w + '.' + a[0]]) left.push(w + '.' + a[0]); }); });
+      if (left.length) h += '<p class="jje-p" style="margin:8px 0 4px">품·부자재처럼 도면에 안 찍히는 항목 ' + left.length + '건이 아직 빠져 있어 실제보다 적게 나옵니다.</p><div class="jje-chips"><button type="button" class="jje-chip" data-a="xAll">함께 드는 항목 ' + left.length + '건 넣기</button></div>';
+      h += '<p class="jje-p" style="margin:10px 0 4px">이 금액은 도면에서 바로 셈한 어림입니다. 의뢰하시면 코디가 빠진 항목, 공사 순서, 현장 조건, 자재 모델을 검토해 <b>24시간 안에 정밀 견적서</b>를 보내 드립니다. 상담은 무료입니다.</p><div class="jje-chips"><a class="jje-chip on" href="request.html" target="_blank" rel="noopener" data-a="tkQuote">이 도면으로 정밀 견적 받기</a></div>'; })();
     h += '<div class="jje-h">물량표 — 공사 순서</div>';
     if (!rows.length) h += '<p class="jje-p" style="margin:0">아직 놓은 기호가 없습니다. 「작업지시」에서 기호를 놓으면 의뢰서 항목별 물량이 여기에 모입니다.</p>';
     else { h += '<table class="jje-qty jje-take">'; CATS.forEach(function (c, i) { var R = rows.filter(function (r) { return takeCat(r) === i; }); if (!R.length) return; h += '<tr class="tr"><td colspan="2">' + c[0] + ' ' + esc(c[1]) + '</td></tr>';
@@ -330,7 +373,7 @@
       '.jje-view{flex:1;position:relative;overflow:hidden;background:#dcd8cd;touch-action:none;min-width:0;min-height:0;-webkit-user-select:none;user-select:none}' +
       '#jjeStage{position:absolute;left:0;top:0;transform-origin:0 0;background:#f7f4ee;box-shadow:0 0 0 1px #c4bfb2}#jjeStage img{position:absolute;left:0;top:0;display:none;max-width:none;user-select:none;-webkit-user-drag:none;pointer-events:none}#jjeCv{position:absolute;left:0;top:0;width:100%;height:100%}' +
       '.jje-float{position:absolute;background:rgba(255,255,255,.96);border:1px solid #9A9A9A;border-radius:2px;font-size:14px;display:flex;align-items:center;gap:2px;padding:2px}.jje-float button{border:0;background:transparent;border-radius:0;min-width:40px;height:40px;padding:0 9px;font-size:15px;font-weight:600}.jje-float button:hover{background:#EDE7D8}' +
-      '.jje-say{flex:none;display:flex;gap:14px;align-items:center;padding:6px 12px;border-bottom:1px solid var(--ln);background:#fff;font-size:14.5px;line-height:1.45;min-height:37px}.jje-say span{flex:1;min-width:0}.jje-say a{flex:none;color:var(--ink);font-weight:600;text-decoration:underline;text-underline-offset:3px;white-space:nowrap}' +
+      '.jje-say{flex:none;display:flex;gap:14px;align-items:center;padding:6px 12px;border-bottom:1px solid var(--ln);background:#fff;font-size:14.5px;line-height:1.45;min-height:37px}.jje-cost{flex:none;padding:7px 12px;border-bottom:1px solid var(--ln);background:#FBF8F1;font-size:15px;line-height:1.5}.jje-cost b{font-size:17px;font-weight:700}.jje-say span{flex:1;min-width:0}.jje-say a{flex:none;color:var(--ink);font-weight:600;text-decoration:underline;text-underline-offset:3px;white-space:nowrap}' +
       '#jjeLayers{position:absolute;left:10px;top:60px;z-index:6;width:262px;max-height:calc(100% - 76px);overflow:auto;background:#fff;border:1px solid var(--ln);border-radius:6px;box-shadow:0 4px 16px rgba(0,0,0,.16);padding:6px 4px;display:none;font-size:15px}' +
       '.jje-lay{display:flex;align-items:center;gap:9px;padding:0 9px;min-height:40px;border-radius:4px;cursor:pointer;user-select:none}.jje-lay:hover{background:#F5F1E8}.jje-lay i{width:10px;height:10px;border-radius:50%;flex:none}.jje-lay .n{flex:1}.jje-lay .ct{color:var(--sub);font-size:13.5px;font-variant-numeric:tabular-nums}' +
       '.jje-sw{width:34px;height:20px;border-radius:10px;background:#bdb8ab;position:relative;flex:none}.jje-sw:after{content:"";position:absolute;left:2px;top:2px;width:16px;height:16px;border-radius:50%;background:#fff;transition:left .12s}.jje-lay.on .jje-sw{background:var(--gr)}.jje-lay.on .jje-sw:after{left:16px}.jje-lay.off .n{color:#9a958a}.jje-layh{font-size:13px;color:#8a8478;padding:8px 9px 2px}' +
@@ -367,6 +410,7 @@
     el.innerHTML = '<div class="jje" id="jjeRoot"><div class="jje-top"><h3>집지니 CAD</h3><span class="nm" id="jjeNm"></span>' +
       '<button type="button" class="jje-b" data-a="undo" title="되돌리기">되돌리기</button><button type="button" class="jje-b" data-a="redo" title="다시 하기">다시</button><button type="button" class="jje-b dark" data-a="sheet">작업지시서</button><button type="button" class="jje-b" data-a="full" id="jjeFull">넓게</button></div>' +
       '<div class="jje-say"><span id="jjeSay"></span><a href="cad-guide.html" target="_blank" rel="noopener">사용법</a></div>' +
+      '<div class="jje-cost" id="jjeCost" style="display:none"></div>' +
       '<div class="jje-main"><div class="jje-rail" id="jjeRail"></div>' +
       '<div class="jje-view" id="jjeWrap"><div id="jjeStage"><img id="jjeBg" alt=""><canvas id="jjeCv"></canvas></div>' +
       '<div class="jje-float" style="left:10px;top:10px;z-index:4"><button type="button" data-a="layers" title="공종별로 켜고 끄기">겹쳐 보기</button></div><div id="jjeLayers"></div>' +
@@ -396,7 +440,7 @@
     K = Math.max(1, Math.min(4, 2800 / Math.max(SW, SH)));
     var cv = $('jjeCv'), stg = $('jjeStage'); cv.width = Math.round(SW * K); cv.height = Math.round(SH * K); stg.style.width = SW + 'px'; stg.style.height = SH + 'px';
     tool = 'select'; draft = null; poly = null; sel = -1; hist = []; redoSt = []; bgOn = false; pane = 'work'; $('jjeNm').textContent = planName; say('');
-    full = root.innerWidth <= 860; applyFull(); railDraw(); sideDraw(); mapLoad(function () { if (active()) { sideDraw(); propDraw(); } }); fit(); redraw(); bgApply();
+    full = root.innerWidth <= 860; applyFull(); railDraw(); sideDraw(); mapLoad(function () { if (active()) { sideDraw(); propDraw(); costDraw(); } }); priceLoad(function () { costDraw(); }); fit(); redraw(); costDraw(); bgApply();
     if (!shapes.some(function (q) { return q.t === 'door'; })) say('문은 도면에 없습니다. 왼쪽 「문」 도구로 문 자리를 끌어 놓을 수 있습니다.');
     return true;
   }
@@ -427,7 +471,7 @@
 
   // ── 되돌리기 (50단계)
   function snap() { hist.push(JSON.stringify(shapes)); if (hist.length > 50) hist.shift(); redoSt = []; }
-  function touch(roomChanged) { if (roomChanged) baseOk = false; redraw(); qtyDraw(); if (pane === 'take') takeDraw(); bgSoon(); layDraw(); saveSoon(); }
+  function touch(roomChanged) { if (roomChanged) baseOk = false; redraw(); qtyDraw(); if (pane === 'take') takeDraw(); costDraw(); bgSoon(); layDraw(); saveSoon(); }
   function undo() { if (poly) { poly.pts.pop(); if (!poly.pts.length) poly = null; redraw(); return; } if (!hist.length) { toast('되돌릴 것이 없습니다.'); return; } redoSt.push(JSON.stringify(shapes)); shapes = JSON.parse(hist.pop()); sel = -1; touch(); propDraw(); }
   function redo() { if (!redoSt.length) return; hist.push(JSON.stringify(shapes)); shapes = JSON.parse(redoSt.pop()); sel = -1; touch(); propDraw(); }
 
@@ -960,6 +1004,7 @@
     else if (a === 'sym') { wk.k = v; wk.trade = SYMS[v][0]; if (hide[wk.trade]) { hide[wk.trade] = false; laySave(); layDraw(); } if (SYMS[v][0] === '철거') wk.st = 'remove'; setTool('wk'); if (root.innerWidth <= 860) sideOpen(false); }
     else if (a === 'st') { wk.st = v; sideDraw(); }
     else if (a === 'rq') { rqPick[wk.k] = v; sideDraw(); } else if (a === 'prq' && s) { snap(); s.rq = v; touch(); propDraw(); }
+    else if (a === 'xAll') { var usedW = {}; takeRows().forEach(function (r) { if (r.work) usedW[r.work] = 1; }); Object.keys(usedW).forEach(function (w) { (XITEMS[w] || []).forEach(function (x) { var k = w + '.' + x[0]; if (PRICE && PRICE.따로 && PRICE.따로[k]) chk[k] = true; }); }); takeDraw(); costDraw(); saveSoon(); }
     else if (a === 'tkCopy') { if (!takeRows().length) toast('놓은 작업 기호가 없습니다.'); else copyText(takeText()); } else if (a === 'tkQuote') { if (OPT.onEvent) OPT.onEvent('cad_quote_takeoff'); var cq = document.getElementById('cadQuote'); if (cq) { ev.preventDefault(); cq.click(); } }
     else if (a === 'arRoom') { var keepOpen = {}; Array.prototype.forEach.call($('jjePaneTake').querySelectorAll('details'), function (d, i) { keepOpen[i] = d.open; }); var stp = $('jjePaneTake').scrollTop; areaToggle(v, Number(b.getAttribute('data-r'))); Array.prototype.forEach.call($('jjePaneTake').querySelectorAll('details'), function (d, i) { if (keepOpen[i]) d.open = true; }); $('jjePaneTake').scrollTop = stp; }
     else if (a === 'gO') { gd.o = v; sideDraw(); } else if (a === 'gDiv') { gd.div = v === '1'; sideDraw(); say(gd.div ? '기준선: 나눌 방 안쪽을 누르세요.' : HINT.guide); } else if (a === 'gHalf') { gd.half = v === '1'; sideDraw(); } else if (a === 'gC') { gd.c = v; sideDraw(); } else if (a === 'pgC' && s) { snap(); s.c = v; gd.c = v; touch(); propDraw(); }
@@ -981,7 +1026,7 @@
   function onInput(ev) { if (ev.target.id === 'jjeFocus') { focusOn = ev.target.checked; redraw(); return; } var t = ev.target, ma = t.getAttribute && t.getAttribute('data-m'), mp = t.getAttribute && t.getAttribute('data-pm'), ms = shapes[sel];
     if (ma) { if (mdef[ma] !== t.value) { mdef[ma] = t.value; redraw(); qtyDraw(); saveSoon(); } return; }
     if (mp) { if (ms) { if (!(ms.m && ms.m[mp] === t.value)) { snap(); ms.m = ms.m || {}; ms.m[mp] = t.value; touch(); } if (ev.type === 'change') propDraw(); } return; }
-    if (t.id === 'jjeCeil') { var cv = Math.round(Number(t.value)); if (cv >= 2000 && cv <= 3500) { ceilH = cv; if (ev.type === 'change') takeDraw(); saveSoon(); } return; } if (t.getAttribute && t.getAttribute('data-chk')) { var ck = t.getAttribute('data-chk'); if (t.checked) chk[ck] = true; else delete chk[ck]; takeDraw(); saveSoon(); return; } if (t.id === 'jjeGNv') gd.nv = gN(t.value); else if (t.id === 'jjeGNh') gd.nh = gN(t.value); else if (t.id === 'jjeGOff') gd.off = t.value; else if (t.id === 'jjeDia') { var dv = Math.round(Number(t.value)); if (dv >= 50 && dv <= 200) wk.dia = dv; } else if (t.id === 'jjeRow') { wk.row = Math.max(1, Math.min(40, Number(t.value) || 1)); if (tool === 'wk') wkHint(); } else if (t.id === 'jjeName') { planName = t.value.trim().slice(0, 30) || '우리 집'; $('jjeNm').textContent = planName; saveSoon(); } else if (t.getAttribute && t.getAttribute('data-p')) propSet(t.getAttribute('data-p'), t.value); }
+    if (t.id === 'jjeCeil') { var cv = Math.round(Number(t.value)); if (cv >= 2000 && cv <= 3500) { ceilH = cv; if (ev.type === 'change') takeDraw(); saveSoon(); } return; } if (t.getAttribute && t.getAttribute('data-chk')) { var ck = t.getAttribute('data-chk'); if (t.checked) chk[ck] = true; else delete chk[ck]; takeDraw(); costDraw(); saveSoon(); return; } if (t.id === 'jjeGNv') gd.nv = gN(t.value); else if (t.id === 'jjeGNh') gd.nh = gN(t.value); else if (t.id === 'jjeGOff') gd.off = t.value; else if (t.id === 'jjeDia') { var dv = Math.round(Number(t.value)); if (dv >= 50 && dv <= 200) wk.dia = dv; } else if (t.id === 'jjeRow') { wk.row = Math.max(1, Math.min(40, Number(t.value) || 1)); if (tool === 'wk') wkHint(); } else if (t.id === 'jjeName') { planName = t.value.trim().slice(0, 30) || '우리 집'; $('jjeNm').textContent = planName; saveSoon(); } else if (t.getAttribute && t.getAttribute('data-p')) propSet(t.getAttribute('data-p'), t.value); }
   function leave() { if (full) { full = false; applyFull(); } var s = $('jjeSheet'); if (s) s.remove(); }
 
   root.JJCadEditor = { mount: mount, open: open, fromPlan: fromPlan, fromV1: fromV1, getState: getState, quote: quotePack, leave: leave, SYMS: SYMS, TRADES: TRADES, CATS: CATS,
