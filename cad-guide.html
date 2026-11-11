@@ -128,7 +128,7 @@
     <p class="lead">평면도를 올린 뒤 작업지시서를 뽑기까지의 순서입니다. 화면 사진은 모두 예시 도면(84㎡)을 넣고 실제 화면을 찍은 것입니다.</p>
   </div>
   <ul class="cg-toc">
-    <li><a href="#s1">1. 도면 올리기</a></li><li><a href="#s2">2. 화면 보는 법</a></li><li><a href="#s3">3. 작업 기호 놓기</a></li><li><a href="#s4">4. 기준선</a></li><li><a href="#s5">5. 타공</a></li><li><a href="#s6">6. 치수 재기</a></li><li><a href="#s7">7. 작업지시서</a></li><li><a href="#s8">8. 안 되는 것</a></li>
+    <li><a href="#s1">1. 도면 올리기</a></li><li><a href="#s2">2. 화면 보는 법</a></li><li><a href="#s3">3. 작업 기호 놓기</a></li><li><a href="#s4">4. 기준선</a></li><li><a href="#s5">5. 타공</a></li><li><a href="#s6">6. 치수 재기</a></li><li><a href="#s7">7. 물량</a></li><li><a href="#s8">8. 작업지시서</a></li><li><a href="#s9">9. 안 되는 것</a></li>
   </ul>
 
   <section class="cg-sec" id="s1">
@@ -234,7 +234,23 @@
   </section>
 
   <section class="cg-sec" id="s7">
-    <div class="cg-side"><b>7</b>번호는 도면의 번호와 지시 목록의 번호가 같습니다. 작업자는 번호만 보고 자리를 찾습니다.</div>
+    <div class="cg-side"><b>7</b>항목 이름과 순서는 집지니 정밀 의뢰서의 공사 항목 01~12와 같습니다. 금액은 나오지 않습니다.</div>
+    <div>
+      <h2>물량 보기</h2>
+      <p>오른쪽 「물량」을 누르면 도면에 놓은 기호가 의뢰서 항목별 물량으로 모입니다. 도배는 벽과 천장 넓이, 바닥재는 바닥 넓이, 벽 타일과 가벽은 길이에 높이를 곱한 넓이, 등과 콘센트는 개수로 셉니다.</p>
+      <figure class="cg-fig"><img src="assets/cad-guide/takeoff.jpg" alt="물량 탭. 의뢰서 항목 순서로 물량과 자재·품이 나와 있다" loading="lazy" width="1700" height="1200"><figcaption>그림 8. 예시 도면의 물량표. 항목 아래에 들어가는 자재와 품(일)이 같이 나옵니다</figcaption></figure>
+      <table class="cg-tbl">
+        <tr><td>천장 높이</td><td>벽 넓이 계산에 씁니다. 기본 2,300mm이고 우리 집에 맞게 고칩니다.</td></tr>
+        <tr><td>의뢰서 항목 고르기</td><td>도배는 합지·실크, 바닥은 장판 두께·강마루처럼 등급이 여럿인 기호는 놓기 전에 고르거나, 놓은 뒤 「선택」으로 눌러 바꿉니다.</td></tr>
+        <tr><td>높이</td><td>벽 타일·가벽·아트월 선은 높이를 따로 적을 수 있습니다. 비우면 주방 벽 타일은 800mm, 그 밖은 천장 높이로 계산합니다.</td></tr>
+        <tr><td>찍지 않는 항목</td><td>보양·사다리차·도어락처럼 도면에 표시하지 않는 공사는 아래 목록에서 고르면 물량표에 들어갑니다.</td></tr>
+      </table>
+      <p>물량은 도면 기준 어림입니다. 자재를 주문하기 전에는 실측으로 확정합니다. 「이 물량으로 견적 받기」를 누르면 의뢰서로 넘어갑니다.</p>
+    </div>
+  </section>
+
+  <section class="cg-sec" id="s8">
+    <div class="cg-side"><b>8</b>번호는 도면의 번호와 지시 목록의 번호가 같습니다. 작업자는 번호만 보고 자리를 찾습니다.</div>
     <div>
       <h2>작업지시서 뽑기</h2>
       <p>맨 윗줄 「작업지시서」를 누르면 도면·범례·수량표·공종별 지시 목록이 한 장으로 나옵니다. 위쪽에서 공종을 고르면 그 공종 것만 따로 뽑습니다. 전기 기사에게는 전기만, 목수에게는 목공만 건넬 수 있습니다.</p>
@@ -243,12 +259,12 @@
         <tr><td>그림으로 저장</td><td>한 장짜리 그림으로 내려받습니다. 카카오톡으로 보내기 좋습니다.</td></tr>
         <tr><td>글로 복사</td><td>지시 목록을 글로 복사합니다. 문자에 붙여 넣습니다.</td></tr>
       </table>
-      <figure class="cg-fig narrow"><img src="assets/cad-guide/sheet.jpg" alt="작업지시서. 위에 도면, 아래에 범례와 수량표, 공종별 지시 목록" loading="lazy" width="1700" height="3033"><figcaption>그림 7. 위 예시로 뽑은 작업지시서. 기준선과 벽에서 띄운 거리도 도면에 같이 찍힙니다</figcaption></figure>
+      <figure class="cg-fig narrow"><img src="assets/cad-guide/sheet.jpg" alt="작업지시서. 위에 도면, 아래에 범례와 수량표, 공종별 지시 목록" loading="lazy" width="1700" height="3033"><figcaption>그림 9. 위 예시로 뽑은 작업지시서. 기준선과 벽에서 띄운 거리도 도면에 같이 찍힙니다</figcaption></figure>
     </div>
   </section>
 
-  <section class="cg-sec" id="s8">
-    <div class="cg-side"><b>8</b>미리 알고 쓰시는 편이 낫습니다.</div>
+  <section class="cg-sec" id="s9">
+    <div class="cg-side"><b>9</b>미리 알고 쓰시는 편이 낫습니다.</div>
     <div>
       <h2>안 되는 것</h2>
       <table class="cg-tbl">
