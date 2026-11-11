@@ -20,7 +20,7 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.34.0/dist/tabler-icons.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" defer></script>
 <style>
-:root { --jp-dark:#1a472a; --jp-oatmeal:#F5F1E8; --jp-line:#C8C4BC; --jp-gray:#6B6B6B; --jp-red:#E74C3C; }
+:root { --jp-dark:#33491C; --jp-oatmeal:#F5F1E8; --jp-line:#C8C4BC; --jp-gray:#6B6B6B; --jp-red:#E74C3C; }
 * { box-sizing: border-box; }
 body { font-family: Pretendard, -apple-system, sans-serif; background: var(--jp-oatmeal); color: #2A2A2A; margin: 0; padding: 24px 16px 80px; }
 .wrap { max-width: 720px; margin: 0 auto; }
@@ -284,7 +284,7 @@ canvas { display: block; width: 100%; height: 200px; background: #fafaf5; border
     canvas.height = rect.height * window.devicePixelRatio;
     ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
     ctx.lineWidth = 2.5;
-    ctx.strokeStyle = '#1a472a';
+    ctx.strokeStyle = '#33491C';
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
   }
@@ -314,7 +314,7 @@ canvas { display: block; width: 100%; height: 200px; background: #fafaf5; border
     if (!hasSignature) {
       hasSignature = true;
       document.getElementById('signature-status').textContent = '✓ 서명 입력됨';
-      document.getElementById('signature-status').style.color = '#1a472a';
+      document.getElementById('signature-status').style.color = '#33491C';
     }
   }
   function endDraw() { isDrawing = false; }

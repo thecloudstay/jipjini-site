@@ -129,7 +129,7 @@
     var t = e.target, b;
     if ((b = t.closest('[data-t]'))) { TAB = b.getAttribute('data-t'); SHOWN = 60; Array.prototype.forEach.call(document.querySelectorAll('.apt-tabs button'), function (x) { x.classList.toggle('on', x === b); }); return list(LAST.rows, LAST.withRegion); }
     if (t.closest('[data-more]')) { SHOWN += 120; return list(LAST.rows, LAST.withRegion); }
-    if ((b = t.closest('[data-wish]'))) { track('apt_wish', { apt: b.getAttribute('data-wish') }); b.outerHTML = '<span class="apt-ln" style="text-decoration:none;color:#3E4A1F">알려 주셔서 고맙습니다. 요청이 많은 단지부터 엽니다.</span>'; return; }
+    if ((b = t.closest('[data-wish]'))) { track('apt_wish', { apt: b.getAttribute('data-wish') }); b.outerHTML = '<span class="apt-ln" style="text-decoration:none;color:#33491C">알려 주셔서 고맙습니다. 요청이 많은 단지부터 엽니다.</span>'; return; }
     if ((b = t.closest('[data-ev]'))) { track(b.getAttribute('data-ev'), { apt: OPEN }); return; }
     if ((b = t.closest('tr.row'))) { var c = b.getAttribute('data-c'); OPEN = OPEN === c ? '' : c; if (OPEN) { track('apt_pick', { apt: c }); locate(LAST.rows.filter(function (x) { return x.c === c; })[0]); } list(LAST.rows, LAST.withRegion); }
   });

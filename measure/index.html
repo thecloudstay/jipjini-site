@@ -5,25 +5,25 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
 <meta name="referrer" content="no-referrer">
-<meta name="theme-color" content="#1f5e46">
+<meta name="theme-color" content="#4F6B2C">
 <title>정밀 실측 결과 | 집지니</title>
 <style>
-:root{--g:#1f5e46;--gl:#e6efe9;--bg:#fbf8f1;--card:#fff;--ink:#22262a;--mute:#6f7479;--line:#e7e1d4;--warn:#b5562b;--warnl:#f8e7dc}
+:root{--g:#4F6B2C;--gl:#E8EEDC;--bg:#fbf8f1;--card:#fff;--ink:#22262a;--mute:#6f7479;--line:#e7e1d4;--warn:#b5562b;--warnl:#f8e7dc}
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{background:var(--bg)}
-body{font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Pretendard","Noto Sans KR","Malgun Gothic",sans-serif;color:var(--ink);-webkit-font-smoothing:antialiased;letter-spacing:-.2px;line-height:1.55}
+body{font-family:Pretendard,-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Pretendard","Noto Sans KR","Malgun Gothic",sans-serif;color:var(--ink);-webkit-font-smoothing:antialiased;letter-spacing:-.2px;line-height:1.55}
 .wrap{max-width:600px;margin:0 auto;padding:0 16px 60px}
 header{background:var(--g);color:#fff;padding:22px 16px 26px}
 header .in{max-width:600px;margin:0 auto}
 .brand{font-weight:800;letter-spacing:3px;font-size:14px;opacity:.9}
 header h1{font-size:22px;font-weight:800;margin-top:8px}
 header p{margin-top:4px;font-size:14px;opacity:.9}
-.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-top:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:4px;padding:16px;margin-top:14px}
 .card h2{font-size:16px;font-weight:800;color:var(--g);margin-bottom:8px;display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
 .card h2 small{font-size:13px;color:var(--mute);font-weight:500}
-.note{background:var(--gl);border-radius:12px;padding:12px 14px;font-size:14px;margin-top:14px}
+.note{background:var(--gl);border-radius:4px;padding:12px 14px;font-size:14px;margin-top:14px}
 .stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:14px}
-.stat{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px;text-align:center}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:4px;padding:10px;text-align:center}
 .stat b{display:block;font-size:20px;color:var(--g);font-variant-numeric:tabular-nums}
 .stat span{font-size:12px;color:var(--mute)}
 .dim{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-size:15px}
@@ -34,11 +34,11 @@ header p{margin-top:4px;font-size:14px;opacity:.9}
 .it .n{font-weight:700}.it .s{color:var(--mute);font-size:12.5px}
 .it .m{font-variant-numeric:tabular-nums;white-space:nowrap;text-align:right}
 .memo{font-size:13px;color:var(--mute);margin-top:6px;white-space:pre-wrap}
-.pic img{width:100%;border:1px solid var(--line);border-radius:10px;background:#fff;margin-top:6px}
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;font:inherit;font-weight:700;border-radius:10px;padding:13px 14px;border:1px solid var(--g);background:#fff;color:var(--g);cursor:pointer;width:100%;font-size:16px}
+.pic img{width:100%;border:1px solid var(--line);border-radius:4px;background:#fff;margin-top:6px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;font:inherit;font-weight:700;border-radius:4px;padding:13px 14px;border:1px solid var(--g);background:#fff;color:var(--g);cursor:pointer;width:100%;font-size:16px}
 .btn.main{background:var(--g);color:#fff;font-size:17px;padding:15px;margin-top:8px}
 .btn:disabled{opacity:.6}
-textarea{width:100%;font:inherit;font-size:16px;padding:11px 12px;border:1px solid var(--line);border-radius:10px;min-height:110px;margin-top:8px}
+textarea{width:100%;font:inherit;font-size:16px;padding:11px 12px;border:1px solid var(--line);border-radius:4px;min-height:110px;margin-top:8px}
 .msg{margin-top:10px;font-size:14px;color:var(--warn)}
 .ok{border-color:var(--g);background:var(--gl)}
 .small{font-size:12.5px;color:var(--mute);margin-top:8px}
@@ -89,7 +89,7 @@ textarea{width:100%;font:inherit;font-size:16px;padding:11px 12px;border:1px sol
     var t = D.합계 || {}, h = '';
     h += '<div class="note">공간별 치수와 문·창 크기, 실측 사진입니다. 공간 크기는 <b>m</b>, 문·창 크기는 <b>mm</b>(1,000mm = 1m)이고, 면적은 ㎡와 평으로 적었습니다. 이 치수로 <b>정밀 견적</b>을 완성해 24시간 안에 보내 드립니다.</div>';
     h += '<div class="stats"><div class="stat"><b>' + (t.공간수 || 0) + '곳</b><span>공간</span></div><div class="stat"><b>' + (t.바닥 || 0) + '㎡</b><span>바닥 합계</span></div><div class="stat"><b>' + (t.평 || 0) + '평</b><span>바닥 평수</span></div></div>';
-    if ((D.사진 || []).length) h += '<div class="card"><h2>실측 사진 <small>' + D.사진.length + '장 · 누르면 크게</small></h2><div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px">' + D.사진.map(function (p) { return '<a href="' + esc(p.큰사진) + '" target="_blank" rel="noopener" style="position:relative;display:block;aspect-ratio:1;border-radius:10px;overflow:hidden;border:1px solid var(--line);background:#eee center/cover no-repeat url(\'' + esc(p.썸네일) + '\')">' + (p.공간 ? '<span style="position:absolute;left:5px;bottom:5px;background:rgba(0,0,0,.55);color:#fff;font-size:11px;border-radius:6px;padding:1px 6px">' + esc(p.공간) + '</span>' : '') + '</a>'; }).join('') + '</div></div>';
+    if ((D.사진 || []).length) h += '<div class="card"><h2>실측 사진 <small>' + D.사진.length + '장 · 누르면 크게</small></h2><div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px">' + D.사진.map(function (p) { return '<a href="' + esc(p.큰사진) + '" target="_blank" rel="noopener" style="position:relative;display:block;aspect-ratio:1;border-radius:4px;overflow:hidden;border:1px solid var(--line);background:#eee center/cover no-repeat url(\'' + esc(p.썸네일) + '\')">' + (p.공간 ? '<span style="position:absolute;left:5px;bottom:5px;background:rgba(0,0,0,.55);color:#fff;font-size:11px;border-radius:6px;padding:1px 6px">' + esc(p.공간) + '</span>' : '') + '</a>'; }).join('') + '</div></div>';
     (D.그림 || []).forEach(function (p) { h += '<div class="card pic"><h2>' + esc(p.제목 || '평면 손그림') + '</h2><img alt="실측 평면 손그림" src="' + p.그림 + '"></div>'; });
     (D.공간 || []).forEach(function (r) {
       h += '<div class="card"><h2>' + esc(r.공간 || '공간') + '</h2><div class="dim">' +

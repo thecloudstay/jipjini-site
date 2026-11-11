@@ -14,7 +14,7 @@
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-35EM7T3M9W"></script>
 <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());(function(){try{if(/[?&]jj_staff=1/.test(location.search))localStorage.setItem('jj_staff','1');if(/[?&]jj_staff=0/.test(location.search))localStorage.removeItem('jj_staff');if(localStorage.getItem('jj_staff'))window['ga-disable-G-35EM7T3M9W']=true}catch(e){}})();gtag('config','G-35EM7T3M9W');</script>
 <style>
-:root{--ink:#2A2A2A;--ink2:#3D3D3D;--mute:#6B6B6B;--hint:#9A9A9A;--line:#E2DCCD;--line2:#C8C4BC;--oat:#F5F1E8;--oat2:#FBF8F1;--oat3:#EBE5D5;--white:#fff;--clay:#5B6B2E;--ok:#2f6b4f;
+:root{--ink:#2A2A2A;--ink2:#3D3D3D;--mute:#6B6B6B;--hint:#9A9A9A;--line:#D9D2C0;--line2:#C8C4BC;--oat:#F5F1E8;--oat2:#FBF8F1;--oat3:#EBE5D5;--white:#fff;--clay:#4F6B2C;--ok:#4F6B2C;
 --serif:'Noto Serif KR',serif;--sans:'Pretendard',-apple-system,sans-serif}
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:var(--oat);color:var(--ink);font-family:var(--sans);-webkit-font-smoothing:antialiased;letter-spacing:-.2px;padding-bottom:96px}
@@ -36,11 +36,11 @@ button{font:inherit;cursor:pointer;color:inherit}
 .steps span i{font-style:normal;color:var(--clay);font-weight:700;margin-right:4px}
 .bk-l{font-size:14px;font-weight:700;margin:4px 0 8px}
 .bk-days{display:flex;gap:6px;overflow-x:auto;padding-bottom:6px;margin-bottom:12px;scrollbar-width:none}.bk-days::-webkit-scrollbar{display:none}
-.bk-days button{flex:none;width:56px;border:1px solid var(--line2);background:var(--white);border-radius:12px;padding:8px 0;font:inherit;display:flex;flex-direction:column;align-items:center;gap:1px;cursor:pointer;color:var(--ink)}
+.bk-days button{flex:none;width:56px;border:1px solid var(--line2);background:var(--white);border-radius:4px;padding:8px 0;font:inherit;display:flex;flex-direction:column;align-items:center;gap:1px;cursor:pointer;color:var(--ink)}
 .bk-days em{font-style:normal;font-size:13px;color:var(--mute)}.bk-days b{font-size:17px}.bk-days span{font-size:10.5px;color:var(--hint)}
-.bk-days button.on{background:var(--ink);border-color:var(--ink);color:#fff}.bk-days button.on em,.bk-days button.on span{color:#cfc9bb}
+.bk-days button.on{background:var(--ink);border-color:var(--ink);color:#fff}.bk-days button.on em,.bk-days button.on span{color:#C8C4BC}
 .bk-times{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:14px}
-.bk-times button{border:1px solid var(--line2);background:var(--white);border-radius:10px;padding:10px 0;font:inherit;font-size:13.5px;font-weight:600;cursor:pointer;color:var(--ink)}
+.bk-times button{border:1px solid var(--line2);background:var(--white);border-radius:4px;padding:10px 0;font:inherit;font-size:13.5px;font-weight:600;cursor:pointer;color:var(--ink)}
 .bk-times button:disabled{opacity:.4;cursor:default}.bk-times button.full{text-decoration:line-through;background:var(--oat3)}
 .bk-times button.on{background:var(--ink);border-color:var(--ink);color:#fff}
 #jjc-btn{bottom:calc(84px + env(safe-area-inset-bottom))!important}.sheet-on #jjc-btn{display:none!important}
@@ -50,7 +50,7 @@ button{font:inherit;cursor:pointer;color:inherit}
 .sv-k{display:flex;align-items:center;gap:10px;font-size:12.5px;letter-spacing:1.5px;color:#cfc6b4}
 .sv-k span{font-family:var(--serif);font-weight:700;font-size:14px;letter-spacing:0;border:1px solid #6d665a;border-radius:6px;padding:2px 7px;color:#f3ead9}
 .sv h1{font-family:var(--serif);font-weight:700;font-size:32px;line-height:1.3;margin:14px 0 12px;color:#fff;letter-spacing:-.5px}
-.sv p{font-size:14.5px;line-height:1.8;color:#cfc9bb;max-width:520px}
+.sv p{font-size:14.5px;line-height:1.8;color:#C8C4BC;max-width:520px}
 .sv-cta{display:grid;grid-template-columns:1.3fr 1fr;gap:8px;margin-top:20px;max-width:460px}
 .sv-cta .cta{margin:0;background:var(--oat);color:var(--ink);text-decoration:none}
 .sv-cta .cta.line{background:transparent;color:var(--oat);border:1px solid #6d665a;font-weight:600;font-size:14px}
@@ -60,7 +60,7 @@ button{font:inherit;cursor:pointer;color:inherit}
 .sv-wall i.t{background-image:linear-gradient(rgba(255,255,255,.55) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.55) 1px,transparent 1px)!important;background-size:50% 50%!important}
 @media(min-width:820px){.sv-in{grid-template-columns:1.2fr 1fr;padding:56px 16px}.sv h1{font-size:44px}}
 .place{max-width:1080px;margin:-14px auto 0;padding:0 16px;position:relative}
-.place-in{background:var(--white);border:1px solid var(--line);border-radius:16px;padding:18px;box-shadow:0 8px 24px rgba(42,42,42,.06)}
+.place-in{background:var(--white);border:1px solid var(--line);border-radius:4px;padding:18px;box-shadow:0 8px 24px rgba(42,42,42,.06)}
 .pl-head{font-size:13.5px;letter-spacing:2px;color:var(--clay);font-weight:700;margin-bottom:6px}
 .pl-grid{display:grid;gap:4px}@media(min-width:820px){.pl-grid{grid-template-columns:1fr 1fr;gap:20px}}
 .pl-row{display:flex;gap:10px;align-items:flex-start;padding:8px 0}
@@ -68,10 +68,10 @@ button{font:inherit;cursor:pointer;color:inherit}
 .pl-row b{display:block;font-size:15.5px;line-height:1.45}.pl-row span{display:block;font-size:14px;color:var(--mute);line-height:1.65;margin-top:3px}
 .cp{margin-top:8px;font:inherit;font-size:13.5px;color:var(--ink2);background:var(--oat2);border:1px solid var(--line2);border-radius:999px;padding:4px 10px;cursor:pointer}
 .pl-map{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px;border-top:1px solid var(--line);padding-top:12px}
-.pl-map a{display:flex;align-items:center;justify-content:center;gap:6px;font-size:14px;font-weight:600;color:var(--ink);text-decoration:none;border:1px solid var(--line2);border-radius:10px;padding:11px}
+.pl-map a{display:flex;align-items:center;justify-content:center;gap:6px;font-size:14px;font-weight:600;color:var(--ink);text-decoration:none;border:1px solid var(--line2);border-radius:4px;padding:11px}
 .pl-map .ico{width:17px;height:17px;color:var(--clay)}
 .flow{max-width:1080px;margin:16px auto 0;padding:0 16px}
-.flow ol{list-style:none;display:grid;grid-template-columns:repeat(3,1fr);border:1px solid var(--line);border-radius:14px;background:var(--oat2);overflow:hidden}
+.flow ol{list-style:none;display:grid;grid-template-columns:repeat(3,1fr);border:1px solid var(--line);border-radius:4px;background:var(--oat2);overflow:hidden}
 .flow li{padding:12px 10px;border-left:1px solid var(--line)}.flow li:first-child{border-left:0}
 .flow b{display:block;font-family:var(--serif);color:var(--clay);font-size:14px}
 .flow span{display:block;font-size:13.5px;font-weight:700;margin-top:4px;line-height:1.35}
@@ -81,10 +81,10 @@ button{font:inherit;cursor:pointer;color:inherit}
 .lib p{font-size:13.5px;color:var(--mute);line-height:1.7}
 .sec-h{flex-wrap:wrap}.sec-h h2{white-space:nowrap}
 .home{max-width:1080px;margin:14px auto 0;padding:0 16px}
-.home-in{background:var(--white);border:1px solid var(--line);border-radius:14px;padding:12px 14px;display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center}
+.home-in{background:var(--white);border:1px solid var(--line);border-radius:4px;padding:12px 14px;display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center}
 .home-in .t{font-size:14px;font-weight:600}
 .home-in label{display:flex;align-items:center;gap:6px;font-size:14px;color:var(--mute)}
-.home-in input{width:64px;padding:7px 8px;border:1px solid var(--line2);border-radius:8px;font:inherit;font-size:14px;text-align:right;background:var(--oat2)}
+.home-in input{width:64px;padding:7px 8px;border:1px solid var(--line2);border-radius:4px;font:inherit;font-size:14px;text-align:right;background:var(--oat2)}
 .home-in .n{font-size:13.5px;color:var(--hint);flex-basis:100%}
 /* 분류 */
 .tabs{position:sticky;top:53px;z-index:20;background:var(--oat);border-bottom:1px solid var(--line)}
@@ -99,13 +99,13 @@ button{font:inherit;cursor:pointer;color:inherit}
 .sec-h h2{font-family:var(--serif);font-size:20px}
 .sec-h p{font-size:12.5px;color:var(--hint)}
 .grade{display:flex;gap:6px;margin-bottom:12px}
-.grade button{border:1px solid var(--line2);background:transparent;border-radius:8px;padding:5px 10px;font-size:12.5px;color:var(--mute)}
+.grade button{border:1px solid var(--line2);background:transparent;border-radius:4px;padding:5px 10px;font-size:12.5px;color:var(--mute)}
 .grade button.on{border-color:var(--ink);color:var(--ink);font-weight:600;background:var(--white)}
 /* 견본 카드 */
 .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
 @media(min-width:720px){.grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(min-width:980px){.grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
-.card{background:var(--white);border:1px solid var(--line);border-radius:14px;overflow:hidden;display:flex;flex-direction:column;transition:border-color .15s,box-shadow .15s}
+.card{background:var(--white);border:1px solid var(--line);border-radius:4px;overflow:hidden;display:flex;flex-direction:column;transition:border-color .15s,box-shadow .15s}
 .card.in{border-color:var(--ink);box-shadow:0 0 0 1px var(--ink)}
 .sw{position:relative;aspect-ratio:4/3;background:#eee;cursor:zoom-in}
 .sw .badge{position:absolute;left:8px;top:8px;background:rgba(255,255,255,.92);border-radius:6px;padding:2px 7px;font-size:13px;font-weight:600}
@@ -118,7 +118,7 @@ button{font:inherit;cursor:pointer;color:inherit}
 .cb .p{font-size:14px;margin-top:4px}.cb .p span{color:var(--hint);font-size:11.5px}
 .cb .est{font-size:13.5px;color:var(--ok);margin-top:1px}
 .add{margin-top:auto;padding-top:8px}
-.add button{width:100%;border:1px solid var(--ink);background:var(--white);border-radius:9px;padding:9px;font-size:13.5px;font-weight:600}
+.add button{width:100%;border:1px solid var(--ink);background:var(--white);border-radius:4px;padding:9px;font-size:13.5px;font-weight:600}
 .card.in .add button{background:var(--ink);color:#fff}
 /* 견본 그림 (사진이 없을 때) */
 .pat-plain{}
@@ -136,40 +136,40 @@ button{font:inherit;cursor:pointer;color:inherit}
 .bar{position:fixed;left:0;right:0;bottom:0;z-index:40;background:var(--ink);color:#fff;padding:10px 16px calc(10px + env(safe-area-inset-bottom))}
 .bar-in{max-width:1080px;margin:0 auto;display:flex;align-items:center;gap:12px}
 .bar .l{display:flex;flex-direction:column;line-height:1.35}
-.bar .l b{font-size:15px}.bar .l span{font-size:11.5px;color:#cfc9bb}
-.bar button{white-space:nowrap;flex:none;margin-left:auto;background:var(--oat);color:var(--ink);border:0;border-radius:10px;padding:11px 16px;font-weight:700;font-size:14px;display:flex;gap:6px;align-items:center}
+.bar .l b{font-size:15px}.bar .l span{font-size:11.5px;color:#C8C4BC}
+.bar button{white-space:nowrap;flex:none;margin-left:auto;background:var(--oat);color:var(--ink);border:0;border-radius:4px;padding:11px 16px;font-weight:700;font-size:14px;display:flex;gap:6px;align-items:center}
 .bar.empty button{opacity:1}
 /* 덮개 창 */
 .sheet-bg{position:fixed;inset:0;background:rgba(20,18,15,.45);z-index:50;display:none}
 .sheet-bg.on{display:block}
-.sheet{position:fixed;left:0;right:0;bottom:0;z-index:51;background:var(--oat2);border-radius:18px 18px 0 0;max-height:92vh;overflow:auto;transform:translateY(105%);transition:transform .22s ease;padding-bottom:env(safe-area-inset-bottom)}
+.sheet{position:fixed;left:0;right:0;bottom:0;z-index:51;background:var(--oat2);border-radius:4px 18px 0 0;max-height:92vh;overflow:auto;transform:translateY(105%);transition:transform .22s ease;padding-bottom:env(safe-area-inset-bottom)}
 .sheet.on{transform:none}
-@media(min-width:760px){.sheet{left:50%;width:720px;margin-left:-360px;bottom:4vh;border-radius:18px;max-height:88vh}}
+@media(min-width:760px){.sheet{left:50%;width:720px;margin-left:-360px;bottom:4vh;border-radius:4px;max-height:88vh}}
 .sh-h{position:sticky;top:0;background:var(--oat2);display:flex;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid var(--line);z-index:2}
 .sh-h h3{font-family:var(--serif);font-size:18px}
 .sh-h .x{margin-left:auto;border:0;background:transparent;padding:4px}
 .sh-b{padding:14px 16px 20px}
-.big{aspect-ratio:16/10;border-radius:12px;border:1px solid var(--line)}
+.big{aspect-ratio:16/10;border-radius:4px;border:1px solid var(--line)}
 .dt{margin-top:12px}.dt h4{font-size:18px}.dt .s{color:var(--mute);font-size:14px;margin-top:4px;line-height:1.6}
-.kv{display:grid;grid-template-columns:96px 1fr;gap:6px 10px;font-size:13.5px;margin-top:12px;background:var(--white);border:1px solid var(--line);border-radius:12px;padding:12px}
+.kv{display:grid;grid-template-columns:96px 1fr;gap:6px 10px;font-size:13.5px;margin-top:12px;background:var(--white);border:1px solid var(--line);border-radius:4px;padding:12px}
 .kv dt{color:var(--hint)}.kv dd b{font-size:15px}
-.cta{width:100%;border:0;background:var(--ink);color:#fff;border-radius:12px;padding:14px;font-weight:700;font-size:15px;margin-top:14px;display:flex;justify-content:center;gap:6px;align-items:center}
+.cta{width:100%;border:0;background:var(--ink);color:#fff;border-radius:4px;padding:14px;font-weight:700;font-size:15px;margin-top:14px;display:flex;justify-content:center;gap:6px;align-items:center}
 .cta.ghost{background:var(--white);color:var(--ink);border:1px solid var(--ink)}
 .note{font-size:13.5px;color:var(--hint);line-height:1.65;margin-top:10px}
 /* 장바구니 목록 */
-.ci{display:flex;gap:10px;align-items:center;background:var(--white);border:1px solid var(--line);border-radius:12px;padding:10px;margin-bottom:8px}
-.ci .th{width:54px;height:54px;border-radius:8px;flex:none;border:1px solid var(--line)}
+.ci{display:flex;gap:10px;align-items:center;background:var(--white);border:1px solid var(--line);border-radius:4px;padding:10px;margin-bottom:8px}
+.ci .th{width:54px;height:54px;border-radius:4px;flex:none;border:1px solid var(--line)}
 .ci .m{flex:1;min-width:0}.ci .m b{font-size:13.5px;display:block}.ci .m span{font-size:13.5px;color:var(--hint)}
 .qty{display:flex;align-items:center;gap:4px;margin-top:4px}
 .qty input{width:62px;padding:5px 6px;border:1px solid var(--line2);border-radius:7px;font:inherit;font-size:14px;text-align:right}
 .qty em{font-style:normal;font-size:13.5px;color:var(--mute)}
 .ci .r{text-align:right;font-size:14px;white-space:nowrap}
 .ci .rm{border:0;background:transparent;color:var(--hint);font-size:13.5px;padding:2px 0;margin-top:4px}
-.tot{background:var(--ink);color:#fff;border-radius:12px;padding:14px;margin-top:8px;display:flex;justify-content:space-between;align-items:baseline}
-.tot b{font-family:var(--serif);font-size:21px}.tot span{font-size:13.5px;color:#cfc9bb}
+.tot{background:var(--ink);color:#fff;border-radius:4px;padding:14px;margin-top:8px;display:flex;justify-content:space-between;align-items:baseline}
+.tot b{font-family:var(--serif);font-size:21px}.tot span{font-size:13.5px;color:#C8C4BC}
 .f{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:6px}
 .f label{display:flex;flex-direction:column;gap:5px;font-size:12.5px;color:var(--mute)}
-.f input,.f select,.f textarea{padding:11px;border:1px solid var(--line2);border-radius:10px;font:inherit;font-size:14.5px;color:var(--ink);background:#fff;width:100%}
+.f input,.f select,.f textarea{padding:11px;border:1px solid var(--line2);border-radius:4px;font:inherit;font-size:14.5px;color:var(--ink);background:#fff;width:100%}
 .f .w{grid-column:1/-1}
 .agree{display:flex;gap:8px;align-items:flex-start;font-size:12.5px;color:var(--mute);margin-top:10px;line-height:1.55}
 .agree input{margin-top:3px}
@@ -177,12 +177,12 @@ button{font:inherit;cursor:pointer;color:inherit}
 .done h4{font-family:var(--serif);font-size:20px;margin:10px 0}
 .done p{color:var(--mute);font-size:14px;line-height:1.75}
 .empty-c{text-align:center;color:var(--hint);padding:30px 0;font-size:14px}
-.toast{position:fixed;left:50%;top:64px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 16px;border-radius:10px;font-size:13.5px;opacity:0;transition:.2s;pointer-events:none;z-index:60;max-width:90%;text-align:center}
+.toast{position:fixed;left:50%;top:64px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 16px;border-radius:4px;font-size:13.5px;opacity:0;transition:.2s;pointer-events:none;z-index:60;max-width:90%;text-align:center}
 .toast.on{opacity:1}
 .foot{max-width:1080px;margin:20px auto 0;padding:0 16px;font-size:13.5px;color:var(--hint);line-height:1.8}
 .lib,.tabs,#main,.foot{display:none!important}  /* 2026-11-03 박 대표: 견본 보기 기능 빼고 모두 샘플실에서 직접 */
 .bk-days button.shut{opacity:.35;cursor:not-allowed;text-decoration:line-through}
-.bk-mode{display:flex;gap:6px;margin:0 0 12px}.bk-mode button{flex:1;height:42px;border-radius:10px;border:1px solid var(--line,#ddd);background:#fff;font:inherit;font-weight:600;cursor:pointer;color:var(--hint,#777)}.bk-mode button.on{border-color:var(--brand,#1f5e46);background:var(--brand,#1f5e46);color:#fff}
+.bk-mode{display:flex;gap:6px;margin:0 0 12px}.bk-mode button{flex:1;height:42px;border-radius:4px;border:1px solid var(--line,#ddd);background:#fff;font:inherit;font-weight:600;cursor:pointer;color:var(--hint,#777)}.bk-mode button.on{border-color:var(--brand,#4F6B2C);background:var(--brand,#4F6B2C);color:#fff}
 </style>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":["LocalBusiness","HomeAndConstructionBusiness"],"@id":"https://jipjini.com/showroom.html#place","name":"집지니 샘플실","description":"벽지·장판·마루·싱크대·타일·도어 실물 견본을 보고 코디와 함께 고르는 집지니 샘플실 (예약 방문제)","url":"https://jipjini.com/showroom.html","telephone":"+82-10-9806-0422","image":"https://jipjini.com/og-cover.png","address":{"@type":"PostalAddress","streetAddress":"공항대로41길 66, 세신종합상가 지하 1층 B156호","addressLocality":"강서구","addressRegion":"서울특별시","postalCode":"07587","addressCountry":"KR"},"parentOrganization":{"@id":"https://jipjini.com/#business"},"areaServed":["서울특별시","경기도","인천광역시"]}</script>
 <meta name="twitter:card" content="summary_large_image"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -326,7 +326,7 @@ button{font:inherit;cursor:pointer;color:inherit}
     open(MODE==='tel'?'전화 상담 예약':'샘플실 상담 예약',''+(TEST?'<div class="note" style="margin:0 0 10px;background:#fdecea;border-color:#e6b0aa"><b>미리보기(직원 화면)</b> — 눌러도 예약되지 않고 고객에게 문자가 나가지 않습니다.</div>':'')+'<div class="bk-mode" id="bkMode"><button type="button" data-mode="visit" class="'+(MODE==='visit'?'on':'')+'">샘플실 방문 상담</button><button type="button" data-mode="tel" class="'+(MODE==='tel'?'on':'')+'">전화 상담</button></div>'+(MODE==='tel'?'<div class="note" style="margin:0 0 12px"><b>고르신 날짜·시각에 코디가 직접 전화드립니다.</b><br>견적서나 평면도를 옆에 두시면 상담이 빨라집니다. 견본을 실물로 보시려면 「샘플실 방문 상담」을 골라 주세요.</div>':'<div class="note" style="margin:0 0 12px"><b>'+esc(PLACE)+'</b><br>'+(L.length?'담으신 견본 '+L.length+'개를 미리 꺼내 두겠습니다. ':'')+(TOK?'날짜와 시각을 고르시면 바로 확정 문자를 보내 드립니다.':'원하시는 날짜와 시각을 고르시면 코디가 확인해 문자로 확정해 드립니다.')+'</div>')+
       '<div class="bk-l">날짜</div><div class="bk-days" id="bkDays">'+days.map(function(x){return '<button type="button" data-day="'+x.y+'"><em>'+x.w+'</em><b>'+x.d+'</b><span>'+x.m+'월</span></button>'}).join('')+'</div>'+
       '<div class="bk-l">시각 <span id="bkHint" style="font-weight:400;color:var(--hint)">날짜를 먼저 골라 주세요</span></div><div class="bk-times" id="bkTimes">'+TIMES.map(function(t){return '<button type="button" data-tm="'+t+'" disabled>'+t+'</button>'}).join('')+'</div>'+
-      (TOK&&TOK.예약&&TOK.예약.날짜?'<div class="note" id="rCur" style="margin:10px 0 0;border-color:var(--brand,#1f5e46)"><b>지금 잡힌 예약: '+esc(TOK.예약.날짜)+'('+esc(TOK.예약.요일||'')+') '+esc(TOK.예약.시각||'')+' · '+(TOK.예약.상태==='확정'?'확정':'확인 중')+'</b><br>다른 날짜·시각을 고르시면 그 시간으로 바뀝니다. <button type="button" id="rCancel" style="margin-top:6px;border:1px solid #c0392b;color:#c0392b;background:#fff;border-radius:8px;padding:6px 12px;cursor:pointer">예약 취소하기</button></div>':'')+(TOK?'<div class="note" style="margin:10px 0 0"><b>'+esc(TOK.이름)+' 고객님 전용 예약</b> — 아래 정보는 이미 등록돼 있습니다. 날짜·시각만 고르시면 바로 확정 문자를 보내 드립니다.<br>· 성함·연락처: 등록됨'+(TOK.주소?'<br>· 공사 주소: '+esc(TOK.주소):'')+(TOK.평수?'<br>· 평수: '+esc(TOK.평수)+'평':'')+'</div><div class="f">':'<div class="f"><label>성함<input id="rN" autocomplete="name" value="'+esc(me.n||'')+'"></label><label>휴대폰<input id="rP" inputmode="tel" autocomplete="tel" placeholder="010-0000-0000" value="'+esc(me.p||'')+'"></label>')+
+      (TOK&&TOK.예약&&TOK.예약.날짜?'<div class="note" id="rCur" style="margin:10px 0 0;border-color:var(--brand,#4F6B2C)"><b>지금 잡힌 예약: '+esc(TOK.예약.날짜)+'('+esc(TOK.예약.요일||'')+') '+esc(TOK.예약.시각||'')+' · '+(TOK.예약.상태==='확정'?'확정':'확인 중')+'</b><br>다른 날짜·시각을 고르시면 그 시간으로 바뀝니다. <button type="button" id="rCancel" style="margin-top:6px;border:1px solid #c0392b;color:#c0392b;background:#fff;border-radius:4px;padding:6px 12px;cursor:pointer">예약 취소하기</button></div>':'')+(TOK?'<div class="note" style="margin:10px 0 0"><b>'+esc(TOK.이름)+' 고객님 전용 예약</b> — 아래 정보는 이미 등록돼 있습니다. 날짜·시각만 고르시면 바로 확정 문자를 보내 드립니다.<br>· 성함·연락처: 등록됨'+(TOK.주소?'<br>· 공사 주소: '+esc(TOK.주소):'')+(TOK.평수?'<br>· 평수: '+esc(TOK.평수)+'평':'')+'</div><div class="f">':'<div class="f"><label>성함<input id="rN" autocomplete="name" value="'+esc(me.n||'')+'"></label><label>휴대폰<input id="rP" inputmode="tel" autocomplete="tel" placeholder="010-0000-0000" value="'+esc(me.p||'')+'"></label>')+
       (TOK?'<input id="rK" type="hidden" value="'+(TOK.의뢰?'견적서 설명 듣기':'인테리어 전체 상담')+'">':'<label class="w">상담 내용<select id="rK">'+['인테리어 전체 상담','부분 수리 상담','자재·샘플 고르기','견적서 설명 듣기','기타'].map(function(o){return '<option'+(TOK&&TOK.의뢰&&o==='견적서 설명 듣기'?' selected':'')+'>'+o+'</option>'}).join('')+'</select></label>')+
       (TOK?'<input id="rA" type="hidden" value=""><input id="rPy" type="hidden" value="">':'<label class="w">공사할 집 주소 (선택)<input id="rA" autocomplete="street-address" placeholder="예: 서울 강서구 가양동 ○○아파트" value="'+esc(me.a||'')+'"></label>'+
       '<label>전용 평수 (선택)<input id="rPy" inputmode="decimal" placeholder="예: 24"></label>')+(TOK?'<input id="rD" type="hidden" value=""><input id="rMemo" type="hidden" value="">':'<label>공사 시작 희망 (선택)<input id="rD" type="month"></label>'+
@@ -390,7 +390,7 @@ button{font:inherit;cursor:pointer;color:inherit}
     new Promise(function(_,rej){setTimeout(rej,12000)})]).catch(fb).then(start).catch(function(){$('main').innerHTML='<div class="empty-c">견본을 불러오지 못했습니다. 새로 고침해 주세요.</div>'});
 })();
 </script>
-<!--SITENAV--><style>.jj-map{max-width:900px;margin:32px auto 0;padding:22px 16px 26px;border-top:2px solid #d9d2c0;font-family:Pretendard,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;color:#2a2a2a;word-break:keep-all}.jj-map .ttl{font-size:14px;font-weight:800;letter-spacing:1px;color:#1e4d3a;margin-bottom:10px;text-align:center}.jj-map .grp{display:flex;flex-wrap:wrap;gap:6px 8px;align-items:center;margin:6px 0;font-size:14px}.jj-map .grp b{min-width:70px;color:#555;font-weight:700;font-size:13px}.jj-map .grp a{display:inline-block;padding:6px 12px;border:1px solid #cfc8b8;border-radius:16px;background:#fff;color:#2a2a2a;text-decoration:none;font-size:14px;font-weight:500}.jj-map .grp a:hover{border-color:#1e4d3a;color:#1e4d3a}.jj-map .grp a[aria-current=page]{background:#1e4d3a;color:#fff;border-color:#1e4d3a;font-weight:800}.jj-map .grp a[aria-current=page]::before{content:"▶ ";font-size:11px}.jj-map .ft{font-size:13px;color:#555;margin-top:12px;text-align:center;line-height:1.8}.jj-where{max-width:1200px;margin:0 auto;padding:8px 16px;font-size:14px;color:#2a2a2a;background:#efe9db;border-bottom:1px solid #d9d2c0;display:flex;gap:6px;align-items:center;flex-wrap:wrap;word-break:keep-all}.jj-where a{color:#1e4d3a;text-decoration:none;font-weight:600}.jj-where .now{background:#1e4d3a;color:#fff;padding:2px 10px;border-radius:12px;font-weight:700;font-size:13px}.nav-item.is-current>.nav-top{color:#1e4d3a!important;font-weight:800!important;box-shadow:inset 0 -3px 0 #1e4d3a}.nav-dropdown a.is-current{background:#e6efe9!important;color:#1e4d3a!important;font-weight:700!important}@media(max-width:640px){.jj-map .grp b{min-width:100%}}</style><div class="jj-map"><div class="ttl">집지니 사이트 지도 — 지금 보는 쪽은 ▶ 짙은 녹색</div><div class="grp"><b>시작하기 ·</b><a href="index.html">홈</a><a href="self-interior-agency.html">셀인대행이란</a><a href="request.html">무료 견적 신청</a><a href="prepare.html">사전 준비</a></div><div class="grp"><b>집지니 CAD ·</b><a href="cad.html">집지니 CAD — 무료 공사 계획 도면</a></div><div class="grp"><b>샘플실 ·</b><a href="showroom.html">가양동 샘플실 · 상담 예약</a></div><div class="grp"><b>진행 방식 ·</b><a href="workflow.html">진행 방식 8단계</a><a href="interior-coordinator.html">코디네이터란</a></div><div class="grp"><b>가격·견적 ·</b><a href="pricing.html">가격·코디비</a><a href="interior-price-table.html">실견적 시세표</a><a href="cases/">견적 사례</a><a href="py/">평형별 비용</a><a href="trade/">공종별 비용</a></div><div class="grp"><b>가이드 ·</b><a href="banself-interior.html">반셀프 코디</a><a href="jikyoung-interior.html">직영 인테리어</a><a href="interior-margin-30.html">마진 30%</a><a href="interior-estimate-compare.html">견적서 비교</a><a href="apt-olsuri-cost.html">32평 올수리</a><a href="bathroom-remodel-cost.html">욕실 리모델링</a><a href="interior-scam-types.html">사기 유형</a></div><div class="grp"><b>회사 ·</b><a href="about.html">회사소개</a><a href="faq.html">자주 묻는 질문</a><a href="ai-answers.html">AI에게 물어볼 때</a><a href="sitemap.html">사이트 지도</a></div><div class="ft">서울·경기·인천 수도권 전역 · 자재상·기술자 직거래 · 정찰제 코디비 · 부가세 10% 별도<br>샘플실: <a href="showroom.html" style="color:#1e4d3a;font-weight:600">서울 강서구 공항대로41길 66 세신종합상가 지하 1층 B156호 (가양동)</a> · 상담 예약 010-9806-0422</div></div><script>(function(){try{
+<!--SITENAV--><style>.jj-map{max-width:900px;margin:32px auto 0;padding:22px 16px 26px;border-top:2px solid #d9d2c0;font-family:Pretendard,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;color:#2a2a2a;word-break:keep-all}.jj-map .ttl{font-size:14px;font-weight:800;letter-spacing:1px;color:#33491C;margin-bottom:10px;text-align:center}.jj-map .grp{display:flex;flex-wrap:wrap;gap:6px 8px;align-items:center;margin:6px 0;font-size:14px}.jj-map .grp b{min-width:70px;color:#555;font-weight:700;font-size:13px}.jj-map .grp a{display:inline-block;padding:6px 12px;border:1px solid #C8C4BC;border-radius:4px;background:#fff;color:#2a2a2a;text-decoration:none;font-size:14px;font-weight:500}.jj-map .grp a:hover{border-color:#33491C;color:#33491C}.jj-map .grp a[aria-current=page]{background:#33491C;color:#fff;border-color:#33491C;font-weight:800}.jj-map .grp a[aria-current=page]::before{content:"▶ ";font-size:11px}.jj-map .ft{font-size:13px;color:#555;margin-top:12px;text-align:center;line-height:1.8}.jj-where{max-width:1200px;margin:0 auto;padding:8px 16px;font-size:14px;color:#2a2a2a;background:#EBE5D5;border-bottom:1px solid #d9d2c0;display:flex;gap:6px;align-items:center;flex-wrap:wrap;word-break:keep-all}.jj-where a{color:#33491C;text-decoration:none;font-weight:600}.jj-where .now{background:#33491C;color:#fff;padding:2px 10px;border-radius:4px;font-weight:700;font-size:13px}.nav-item.is-current>.nav-top{color:#33491C!important;font-weight:800!important;box-shadow:inset 0 -3px 0 #33491C}.nav-dropdown a.is-current{background:#E8EEDC!important;color:#33491C!important;font-weight:700!important}@media(max-width:640px){.jj-map .grp b{min-width:100%}}</style><div class="jj-map"><div class="ttl">집지니 사이트 지도 — 지금 보는 쪽은 ▶ 짙은 녹색</div><div class="grp"><b>시작하기 ·</b><a href="index.html">홈</a><a href="self-interior-agency.html">셀인대행이란</a><a href="request.html">무료 견적 신청</a><a href="prepare.html">사전 준비</a></div><div class="grp"><b>집지니 CAD ·</b><a href="cad.html">집지니 CAD — 무료 공사 계획 도면</a></div><div class="grp"><b>샘플실 ·</b><a href="showroom.html">가양동 샘플실 · 상담 예약</a></div><div class="grp"><b>진행 방식 ·</b><a href="workflow.html">진행 방식 8단계</a><a href="interior-coordinator.html">코디네이터란</a></div><div class="grp"><b>가격·견적 ·</b><a href="pricing.html">가격·코디비</a><a href="interior-price-table.html">실견적 시세표</a><a href="cases/">견적 사례</a><a href="py/">평형별 비용</a><a href="trade/">공종별 비용</a></div><div class="grp"><b>가이드 ·</b><a href="banself-interior.html">반셀프 코디</a><a href="jikyoung-interior.html">직영 인테리어</a><a href="interior-margin-30.html">마진 30%</a><a href="interior-estimate-compare.html">견적서 비교</a><a href="apt-olsuri-cost.html">32평 올수리</a><a href="bathroom-remodel-cost.html">욕실 리모델링</a><a href="interior-scam-types.html">사기 유형</a></div><div class="grp"><b>회사 ·</b><a href="about.html">회사소개</a><a href="faq.html">자주 묻는 질문</a><a href="ai-answers.html">AI에게 물어볼 때</a><a href="sitemap.html">사이트 지도</a></div><div class="ft">서울·경기·인천 수도권 전역 · 자재상·기술자 직거래 · 정찰제 코디비 · 부가세 10% 별도<br>샘플실: <a href="showroom.html" style="color:#33491C;font-weight:600">서울 강서구 공항대로41길 66 세신종합상가 지하 1층 B156호 (가양동)</a> · 상담 예약 010-9806-0422</div></div><script>(function(){try{
 var here=location.pathname.replace(/\/index\.html$/,"/");
 var norm=function(h){var a=document.createElement("a");a.href=h;return a.pathname.replace(/\/index\.html$/,"/");};
 var isCur=function(h){var p=norm(h);return p===here||(p!=="/"&&p.slice(-1)==="/"&&here.indexOf(p)===0);};

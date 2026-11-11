@@ -3,7 +3,7 @@
    JJPlanStyle.png(결과, opt, 가로화소=1800) → Promise<dataURL>
    벽은 「방 바깥선을 굵게 긋고 그 위에 방 바닥을 덮는」 방식이라 방 사이 틈이 자연스럽게 벽이 된다. 문·창 자리는 알 수 없어 그리지 않는다(공간 구성도). */
 (function (root) {
-  var INK = '#26302c', PAPER = '#f7f4ee', LINE = '#c9c2b4', ACC = '#2f6b4f', SUBT = '#7a7468';
+  var INK = '#26302c', PAPER = '#f7f4ee', LINE = '#c9c2b4', ACC = '#4F6B2C', SUBT = '#7a7468';
   var FILL = { 거실: '#efe5d3', 방: '#e6ebe3', 주방: '#f2e9dd', 욕실: '#dde7ea', 발코니: '#eef0e9', 현관: '#e4ddd1', 드레스룸: '#ebe4dc', 실외기실: '#ecebe6', 기타: '#efede8', 피트: '#d9d6cd' };
   function esc(t) { return String(t == null ? '' : t).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
   // 가로·세로가 거의 같은 꼭짓점들을 한 줄로 맞춘다(방끼리 벽선이 가지런해진다)

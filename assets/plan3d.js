@@ -77,7 +77,7 @@
           });
         }
         // 이름표 (캔버스 글자 스프라이트)
-        var c0 = M(centroid(r.pts)), area = Math.abs(signedArea(r.pts)) * k * k, cv = document.createElement('canvas'); cv.width = 512; cv.height = 128; var g = cv.getContext('2d'); g.font = 'bold 56px sans-serif'; g.textAlign = 'center'; g.lineWidth = 10; g.strokeStyle = 'rgba(255,255,255,0.9)'; g.fillStyle = '#1a2a20';
+        var c0 = M(centroid(r.pts)), area = Math.abs(signedArea(r.pts)) * k * k, cv = document.createElement('canvas'); cv.width = 512; cv.height = 128; var g = cv.getContext('2d'); g.font = 'bold 56px sans-serif'; g.textAlign = 'center'; g.lineWidth = 10; g.strokeStyle = 'rgba(255,255,255,0.9)'; g.fillStyle = '#232F14';
         var txt = String(r.name || '방') + (mmpp && opt.mmpp ? '  ' + area.toFixed(1) + '㎡' : ''); g.strokeText(txt, 256, 82); g.fillText(txt, 256, 82);
         var tex = new T.CanvasTexture(cv), sp = new T.Sprite(new T.SpriteMaterial({ map: tex, depthTest: false })); sp.position.set(c0[0], 0.35, c0[1]); sp.scale.set(Math.max(2.4, span * 0.34), Math.max(0.6, span * 0.085), 1); scene.add(sp); labels.push(sp);
       });
@@ -101,7 +101,7 @@
       var onKey = function (e) { if (st.mode !== 'walk') return; var m = { ArrowUp: [1, 0], KeyW: [1, 0], ArrowDown: [-1, 0], KeyS: [-1, 0], ArrowLeft: [0, -1], KeyA: [0, -1], ArrowRight: [0, 1], KeyD: [0, 1] }[e.code]; if (m) { e.preventDefault(); step(m[0], m[1]); } };
       W.addEventListener('keydown', onKey);
       // 걷기 단추 (휴대폰)
-      var pad = document.createElement('div'); pad.style.cssText = 'display:none;gap:6px;justify-content:center;margin-top:6px;'; pad.innerHTML = ['앞으로:1:0', '뒤로:-1:0', '왼쪽:0:-1', '오른쪽:0:1'].map(function (s) { var p = s.split(':'); return '<button type="button" data-mv="' + p[1] + ',' + p[2] + '" style="flex:1;max-width:120px;height:38px;border:1.5px solid #1f5e46;border-radius:10px;background:#fff;color:#1f5e46;font:inherit;font-size:13px;font-weight:700;">' + p[0] + '</button>'; }).join(''); el.appendChild(pad);
+      var pad = document.createElement('div'); pad.style.cssText = 'display:none;gap:6px;justify-content:center;margin-top:6px;'; pad.innerHTML = ['앞으로:1:0', '뒤로:-1:0', '왼쪽:0:-1', '오른쪽:0:1'].map(function (s) { var p = s.split(':'); return '<button type="button" data-mv="' + p[1] + ',' + p[2] + '" style="flex:1;max-width:120px;height:38px;border:1.5px solid #4F6B2C;border-radius:10px;background:#fff;color:#4F6B2C;font:inherit;font-size:13px;font-weight:700;">' + p[0] + '</button>'; }).join(''); el.appendChild(pad);
       pad.addEventListener('click', function (e) { var b = e.target.closest('[data-mv]'); if (!b) return; var v = b.getAttribute('data-mv').split(','); step(Number(v[0]), Number(v[1])); });
       var ro = null; try { ro = new ResizeObserver(function () { var w2 = el.clientWidth || width, h2 = Math.max(320, Math.round(w2 * 0.62)); camera.aspect = w2 / h2; camera.updateProjectionMatrix(); renderer.setSize(w2, h2); render(); }); ro.observe(el); } catch (_r) {}
       api.setMode = function (m) { st.mode = m === 'walk' ? 'walk' : 'orbit'; pad.style.display = st.mode === 'walk' ? 'flex' : 'none'; dom.style.cursor = 'grab'; place(); render(); };

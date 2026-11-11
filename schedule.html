@@ -12,7 +12,7 @@
 <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
 <link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@700;800&display=swap" rel="stylesheet">
 <style>
-:root{--charcoal:#2A2A2A;--gray:#6B6B6B;--line:#E2DCCD;--oat:#F5F1E8;--oat-soft:#FBF8F1;--clay:#5B6B2E;--green:#1f6b4a;--white:#fff;
+:root{--charcoal:#2A2A2A;--gray:#6B6B6B;--line:#D9D2C0;--oat:#F5F1E8;--oat-soft:#FBF8F1;--clay:#4F6B2C;--green:#1f6b4a;--white:#fff;
 --serif:'Nanum Myeongjo',serif;--sans:'Pretendard','Apple SD Gothic Neo',sans-serif}
 *{margin:0;padding:0;box-sizing:border-box}
 body{background:var(--oat-soft);font-family:var(--sans);color:var(--charcoal);-webkit-font-smoothing:antialiased;letter-spacing:-.2px}
@@ -34,7 +34,7 @@ h1{font-family:var(--serif);font-weight:800;font-size:25px;line-height:1.4;margi
 .gantt{margin-top:8px;position:relative;height:6px;background:var(--oat);border-radius:3px}.gantt i{position:absolute;top:0;height:100%;border-radius:3px;background:var(--clay);opacity:.75}.ph.done .gantt i{background:var(--green)}
 .share{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:18px}
 .share button,.share a{font:inherit;font-size:14px;font-weight:700;border-radius:12px;padding:14px 8px;text-align:center;text-decoration:none;cursor:pointer;border:1px solid var(--line);background:#fff;color:var(--charcoal)}
-.share .kk{background:#FEE500;border-color:#FEE500;color:#191919;grid-column:1/-1;font-size:15.5px}
+.share .kk{background:#FEE500;border-color:#FEE500;color:#1C1C1C;grid-column:1/-1;font-size:15.5px}
 .cta{display:block;text-align:center;margin-top:10px;background:var(--clay);color:#fff;text-decoration:none;font-weight:700;padding:15px;border-radius:12px;font-size:15px}
 .note{background:var(--oat);border-radius:12px;padding:13px 15px;margin-top:14px;font-size:13px;line-height:1.75;color:#444}
 .foot{font-size:12px;color:var(--gray);text-align:center;margin-top:26px;line-height:1.8}
@@ -78,7 +78,7 @@ h1{font-family:var(--serif);font-weight:800;font-size:25px;line-height:1.4;margi
     var s0=new Date(d.start+'T00:00:00').getTime(),span=Math.max(1,new Date(d.end+'T00:00:00').getTime()-s0+864e5);
     var rows=ph.map(function(p){var st=state(p),l=Math.max(0,(new Date(p.start+'T00:00:00').getTime()-s0)/span*100),w=Math.max(2,days(p.start,p.end)*864e5/span*100);
       return '<div class="ph '+st[0]+'"><div class="d">'+md(p.start)+(p.end&&p.end!==p.start?'<br>~ '+md(p.end):'')+'<small>'+days(p.start,p.end)+'일</small></div><div><b>'+esc(p.label)+'</b><span class="st '+st[0]+'">'+st[1]+'</span>'+
-        (p.trades&&p.trades!==p.label?'<div class="t">'+esc(p.trades)+'</div>':'')+(p.worker?'<div class="t">담당 '+esc(p.worker)+'</div>':'')+(p.memo?'<div class="t" style="color:#1a472a;background:#f2f7f2;border-radius:6px;padding:4px 7px;margin-top:3px;white-space:pre-wrap">📌 '+esc(p.memo)+'</div>':'')+'<div class="gantt"><i style="left:'+l.toFixed(1)+'%;width:'+w.toFixed(1)+'%"></i></div></div></div>'}).join('');
+        (p.trades&&p.trades!==p.label?'<div class="t">'+esc(p.trades)+'</div>':'')+(p.worker?'<div class="t">담당 '+esc(p.worker)+'</div>':'')+(p.memo?'<div class="t" style="color:#33491C;background:#f2f7f2;border-radius:6px;padding:4px 7px;margin-top:3px;white-space:pre-wrap">📌 '+esc(p.memo)+'</div>':'')+'<div class="gantt"><i style="left:'+l.toFixed(1)+'%;width:'+w.toFixed(1)+'%"></i></div></div></div>'}).join('');
     app.innerHTML='<div class="brand">집지니 · 시공 공정표</div><h1>'+esc(d.name||'')+' 고객님 공정표</h1><div class="meta">'+(d.area?esc(d.area)+' · ':'')+md(d.start)+' ~ '+md(d.end)+'<br>마지막 반영 '+esc(d.updated||'')+'</div>'+
       '<div class="sum"><div><span>지금</span><b>'+headline+'</b></div><div><span>공정률</span><b>'+pct+'%</b></div><div><span>완료 공정</span><b>'+doneN+' / '+ph.length+'</b></div><div><span>전체 기간</span><b>'+total+'일</b></div></div><div class="prog" title="계획 '+plan+'%"><i style="width:'+pct+'%"></i><em style="left:'+plan+'%"></em></div><div class="pmeta">공정률 '+pct+'% · 오늘 계획 '+plan+'%'+(d.start<=today&&pct+10<plan?' · 일정보다 늦어지고 있습니다':'')+'</div>'+
       '<div class="card">'+rows+'</div>'+

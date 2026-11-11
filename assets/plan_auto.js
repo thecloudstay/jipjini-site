@@ -137,7 +137,7 @@ function finalize(found, W, H, dataUrl, areaM2, engineName, mmppFix) {
     var o = { name: f.name, kind: f.kind, nm: f.nm || '', pts: f.pts, px: f.px, share: innerPx ? f.px / innerPx : 0 };
     if (mmpp) { o.area = R2(f.px * mmpp * mmpp / 1e6); o.perim = R2(perimPx(f.pts) * mmpp / 1000); var ar = Math.max(f.bw, 1) / Math.max(f.bh, 1); o.w = R1(Math.sqrt(o.area * ar)); o.d = o.w ? R1(o.area / o.w) : 0; }
     return o; });
-  var shapes = rooms.map(function (r) { return { t: 'room', c: '#2f6b4f', name: r.name, pts: r.pts, auto: true }; });
+  var shapes = rooms.map(function (r) { return { t: 'room', c: '#4F6B2C', name: r.name, pts: r.pts, auto: true }; });
   if (mmpp) { var L = Math.round(1000 / mmpp); shapes.push({ t: 'scale', c: '#1d5fd0', x1: Math.round(W * 0.05), y1: Math.round(H * 0.965), x2: Math.round(W * 0.05) + L, y2: Math.round(H * 0.965), mm: 1000, by: mmppFix ? '치수' : '면적' }); }
   var sum = { 방: cnt['방'] || 0, 욕실: cnt['욕실'] || 0, 발코니: cnt['발코니'] || 0 };
   if (mmpp) { var liv = rooms.filter(function (r) { return /^(거실|방|주방|드레스룸|기타)$/.test(r.kind); });
