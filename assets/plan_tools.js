@@ -8,7 +8,7 @@
    학습 모델이 없거나 어느 단계가 실패하면 그 단계만 건너뛰고 앞 단계 결과를 돌려준다. */
 (function (root) {
   var BASE = root.JJ_ASSET_BASE || 'https://jipjini.com/assets/', VEN = null, OCR = null, AI = undefined;
-  var KW = [[/^(A\.?D|P\.?D|P\.?S|E\.?P\.?S|T\.?P\.?S)(\s*[&·\/]\s*(A\.?D|P\.?D|P\.?S))?$|피트|덕트|^PIT$/i, '피트'], [/거\s*[실설]|가족실|living/i, '거실'], [/[침칩템]\s*실|^심1\d$|안\s*방|^방\s*\d|bed\s*room|^room/i, '방'], [/[욕옥]\s*[실스]|^요스$|화장실|bath|toilet|^w\.?c/i, '욕실'], [/[발빌밥필]\s*코\s*[니나]|베란다|다용도|balcony/i, '발코니'], [/실외기/i, '실외기실'],
+  var KW = [[/^(A\.?D|P\.?D|P\.?S|E\.?P\.?S|T\.?P\.?S)(\s*[&·\/]\s*(A\.?D|P\.?D|P\.?S))?$|피트|덕트|^PIT$/i, '피트'], [/거\s*[실설]|가족실|living/i, '거실'], [/[침칩템]\s*실|^심1\d$|안\s*방|^방\s*\d|bed\s*room|^room/i, '방'], [/[욕옥]\s*[실스]|^요스$|화장실|bath|toilet|^w\.?c/i, '욕실'], [/[발빌밥필]\s*코\s*[니나]|베란다|다용도|테\s*라\s*[스쓰]|옥상\s*정원|balcony|terrace/i, '발코니'], [/실외기/i, '실외기실'],
     [/주\s*방|식\s*당|kitchen|dining/i, '주방'], [/[현협]\s*관|entrance/i, '현관'], [/드레스|파우더|dress/i, '드레스룸'], [/팬트리|창고|알파|세탁|보일러|대피|pantry/i, '기타']];
   function script(src) { return new Promise(function (ok, no) { var s = document.createElement('script'); s.src = src; s.onload = function () { ok(); }; s.onerror = function () { no(new Error('불러오지 못했습니다: ' + src)); }; document.head.appendChild(s); }); }
   function needAuto() { return root.JJPlanAuto ? Promise.resolve() : script(BASE + 'plan_auto.js?v=20261110h'); }
@@ -526,6 +526,15 @@
           if (best.cv && best.n >= 3) { keep = best.cv; W = keep.width; H = keep.height; dataUrl = keep.toDataURL('image/jpeg', 0.86); turned = best.deg; return best.items; }
           return items; });
       });
+      // 2026-11-11 낮: 방 이름이 두 줄(「주방」 아래 「식당」)이거나 마루 무늬 위에 있으면 한 덩어리로 묶여 깨진 글자(「중합」「…」)로 읽힌다 — 고정 표본 60장 중 주방 못 찾음 9장.
+      //   이름도 숫자도 아닌 조각의 둘레를 4배로 잘라 다시 읽고, 방 이름이 나오면 더한다(같은 종류 이름이 바로 곁에 있으면 더하지 않는다).
+      ocrJob = ocrJob.then(function (items) { if (opt.ocr === false || !items || !items.length) return items;
+        var kindOfT = function (t) { for (var k = 0; k < KW.length; k++) if (KW[k][0].test(t)) return KW[k][1]; return ''; }, hs = items.map(function (it) { return it.h; }).sort(function (a, b) { return a - b; }), med = hs[hs.length >> 1] || 12;
+        var odd = items.filter(function (it) { var t = String(it.text || ''); return !kindOfT(t) && !/^[\d\s.,:×xX*㎡m²]+$/.test(t) && t.length <= 6 && (it.h > med * 1.5 || !/[가-힣A-Za-z]{2}/.test(t) || /[가-힣]/.test(t)); }).slice(0, 8);
+        return odd.reduce(function (pr, it) { return pr.then(function () { var pad = Math.max(it.h, med) * 1.3, cx0 = Math.max(0, it.x - pad * 1.6), cy0 = Math.max(0, it.y - pad), cw = Math.min(keep.width - cx0, it.w + pad * 3.2), ch = Math.min(keep.height - cy0, it.h + pad * 2), f = 4;
+            var c = document.createElement('canvas'); c.width = Math.max(480, Math.round(cw * f)); c.height = Math.max(200, Math.round(ch * f)); var g = c.getContext('2d'); g.fillStyle = '#fff'; g.fillRect(0, 0, c.width, c.height); g.imageSmoothingQuality = 'high'; var ox = (c.width - cw * f) / 2, oy = (c.height - ch * f) / 2; g.drawImage(keep, cx0, cy0, cw, ch, ox, oy, cw * f, ch * f);
+            return readText(c).then(function (r) { (r || []).forEach(function (t) { var kd = kindOfT(String(t.text || '')); if (!kd) return; var nx = cx0 + (t.x - ox) / f, ny = cy0 + (t.y - oy) / f, nw = t.w / f, nh = t.h / f;
+              var near = items.some(function (q) { return kindOfT(String(q.text || '')) === kd && Math.hypot((q.x + q.w / 2) - (nx + nw / 2), (q.y + q.h / 2) - (ny + nh / 2)) < Math.max(med, nh) * 4; }); if (!near) items.push({ text: t.text, x: nx, y: ny, w: nw, h: nh, conf: t.conf }); }); }, function () {}); }); }, Promise.resolve()).then(function () { return items; }, function () { return items; }); });
       return ocrJob.then(function (items) {
         if (items && items.length) items = mergeLines(items);
         var clean = keep, seedJob = Promise.resolve();
