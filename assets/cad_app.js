@@ -4,7 +4,7 @@
      → 올리기 걸음과 떨어져 있어, 나중에 「우리 집 검색」으로 미리 다시 그려 둔 도면을 받아도 같은 편집기를 그대로 쓴다.
    지키는 선: 올린 원본 그림은 이 기기 밖으로 보내지 않고 보관하지도 않는다(다시 그린 도면 자료와 표시만 localStorage 에 둔다). 인쇄·저장물에는 다시 그린 도면만 들어간다. 바깥 꾸러미 없음. */
 (function (root) {
-  var KEY = 'jj_cad_v2', OLDKEY = 'jj_cad_v1', VER = '20261111c', doc = document, $ = function (id) { return doc.getElementById(id); };
+  var KEY = 'jj_cad_v2', OLDKEY = 'jj_cad_v1', VER = '20261111d', doc = document, $ = function (id) { return doc.getElementById(id); };
   var S = { state: null, file: null, pending: null };
   function esc(t) { return String(t == null ? '' : t).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
   function ev(name) { try { if (root.gtag) root.gtag('event', name); } catch (e) {} }
@@ -113,8 +113,6 @@
     ['dragleave', 'drop'].forEach(function (n) { dropEl.addEventListener(n, function (e) { e.preventDefault(); dropEl.classList.remove('over'); }); });
     dropEl.addEventListener('drop', function (e) { var f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]; pick(f); });
     doc.addEventListener('paste', function (e) { if (!$('pane1').classList.contains('on')) return; var it = (e.clipboardData && e.clipboardData.items) || []; for (var i = 0; i < it.length; i++) if (/^image\//.test(it[i].type)) { pick(it[i].getAsFile()); break; } });
-    $('wayUp').addEventListener('click', function () { $('cadSoon').classList.remove('on'); dropEl.scrollIntoView({ block: 'center', behavior: 'smooth' }); });
-    $('waySearch').addEventListener('click', function () { $('cadSoon').classList.add('on'); ev('cad_search_soon'); });
     $('cadRetry').addEventListener('click', function () { go(1); });
     $('cadAgain').addEventListener('click', function () { S.pending = null; go(1); });
     $('cadFix').addEventListener('click', function () { if (!S.file || !root.JJPlanTools) return; root.JJPlanTools.fixPhoto(S.file).then(function (cv) { if (cv) run(cv); }); });

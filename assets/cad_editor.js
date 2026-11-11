@@ -1,5 +1,6 @@
 /* 집지니 CAD 도면 편집기 (2026-11-11) — 콘솔 도면 편집기(2026-11-10 전면 개편)를 공개 쪽으로 옮긴 것
-   화면 구성과 조작은 콘솔과 같다: 왼쪽 도구 띠 · 가운데 도면 · 오른쪽 작업지시/측정/도면. 공종 7개·기호 34가지·구분 4가지, 겹쳐 보기, 수량표, 작업지시서.
+   화면 구성과 조작은 콘솔과 같다: 왼쪽 도구 띠 · 가운데 도면 · 오른쪽 작업지시/측정/도면. 공종 7개·기호 35가지·구분 4가지, 겹쳐 보기, 수량표, 작업지시서.
+   2026-11-11 덧붙임(공개 쪽만): 기준선(t:'guide', o:'v'|'h' — 방 안 벽에서 벽까지, 기호·선이 붙는다) · 타공 기호(k:'core', dia 50~200, at 천장·벽·바닥) · 안내 줄을 도면 위가 아니라 위쪽 한 줄로.
    도형 자료(t·k·st·f·pts·x·y·x1…·note·name·h·mm·by)와 기호 정의는 콘솔과 같다 → 여기서 만든 도면을 콘솔에서 그대로 열 수 있다.
      덧붙인 칸(콘솔은 무시한다): grp = 한 줄로 놓은 기호 묶음, rot = 기호 방향(도), flip = 문 여는 쪽, kind·a0 = 분석이 준 공간 종류·넓이.
    뺀 것(콘솔 전용): 도면 보관함·여러 장 탭, 주소·단지명으로 도면 찾기, 그림 주소로 넣기, 의뢰 연결·실측 반영·고객 공개, 시공팀 링크·문자, 서버 호출 전부.
@@ -14,7 +15,7 @@
   // 기호: [공종, 이름, 모양(p 점 · l 선 · a 구역), 줄임 글자]
   var SYMS = {
     dl: ['전기', '매입등', 'p', '매'], cl: ['전기', '직부등(방등)', 'p', '직'], pd: ['전기', '펜던트', 'p', '펜'], ll: ['전기', '간접·줄조명', 'l', '간접'], sw: ['전기', '스위치', 'p', '스'], ol: ['전기', '콘센트', 'p', '콘'], od: ['전기', '전용 콘센트', 'p', '전'], db: ['전기', '분전반', 'p', '분'], nt: ['전기', '통신·방송', 'p', '통'], fan: ['전기', '환풍기', 'p', '환'],
-    wt: ['설비', '수전(급수)', 'p', '수'], dr: ['설비', '배수구', 'p', '배'], wc: ['설비', '양변기', 'p', '변'], bs: ['설비', '세면대', 'p', '세'], tub: ['설비', '욕조·샤워 구역', 'a', '욕조'], gas: ['설비', '가스·보일러', 'p', '가'], pipe: ['설비', '배관 이설', 'l', '배관'],
+    wt: ['설비', '수전(급수)', 'p', '수'], dr: ['설비', '배수구', 'p', '배'], wc: ['설비', '양변기', 'p', '변'], bs: ['설비', '세면대', 'p', '세'], tub: ['설비', '욕조·샤워 구역', 'a', '욕조'], gas: ['설비', '가스·보일러', 'p', '가'], pipe: ['설비', '배관 이설', 'l', '배관'], core: ['설비', '타공', 'p', '타공'],
     dmA: ['철거', '철거 구역', 'a', '철거'], dmL: ['철거', '벽·턱 철거', 'l', '철거'], dmP: ['철거', '철거 품목', 'p', '철'],
     wallN: ['목공', '가벽 신설', 'l', '가벽'], mold: ['목공', '몰딩', 'l', '몰딩'], base: ['목공', '걸레받이', 'l', '걸레받이'], ceil: ['목공', '천장 공사', 'a', '천장'], art: ['목공', '벽 마감·아트월', 'l', '벽 마감'], doorN: ['목공', '문·문틀', 'p', '문'],
     tileF: ['타일', '바닥 타일', 'a', '바닥 타일'], tileW: ['타일', '벽 타일', 'l', '벽 타일'],
@@ -23,12 +24,13 @@
   };
   var ST = [['new', '신설'], ['keep', '유지'], ['move', '이설'], ['remove', '철거']];
   var RAIL = [['select', '선택', 'V', 'M5 3l13 8-6 1.6-2.4 6.4z'], ['hand', '화면 이동', 'H', 'M4 12h16M12 4v16M7.5 8.5L4 12l3.5 3.5M16.5 8.5L20 12l-3.5 3.5M8.5 7.5L12 4l3.5 3.5M8.5 16.5L12 20l3.5-3.5'], '재기',
-    ['dim', '길이 재기', 'M', 'M3 12h18M3 7v10M21 7v10'], ['wall', '벽 사이', 'W', 'M4 4v16M20 4v16M7 12h10M9.5 9.5L7 12l2.5 2.5M14.5 9.5L17 12l-2.5 2.5'], ['scale', '척도', 'S', 'M3 16L16 3l5 5L8 21zM7.5 11.5l2 2M10.5 8.5l2 2M13.5 5.5l2 2'], '공간',
+    ['dim', '길이 재기', 'M', 'M3 12h18M3 7v10M21 7v10'], ['wall', '벽 사이', 'W', 'M4 4v16M20 4v16M7 12h10M9.5 9.5L7 12l2.5 2.5M14.5 9.5L17 12l-2.5 2.5'], ['scale', '척도', 'S', 'M3 16L16 3l5 5L8 21zM7.5 11.5l2 2M10.5 8.5l2 2M13.5 5.5l2 2'], '기준',
+    ['guide', '기준선', 'B', 'M2 8h20M9 2v20M6.8 8a2.2 2.2 0 1 0 4.4 0a2.2 2.2 0 1 0-4.4 0'], '공간',
     ['room', '공간 그리기', 'R', 'M4 4h16v16H4zM4 13h9v7'], ['win', '창', 'N', 'M3 9.5h18v5H3zM12 9.5v5'], ['door', '문', 'D', 'M5 20V4h8v16M13 20a8 8 0 0 0 7-8'], '지시',
     ['wk', '작업 기호', 'G', 'M12 4.5a7.5 7.5 0 1 0 0 15a7.5 7.5 0 1 0 0-15zM4.5 12h15M12 4.5v15'], '표시',
     ['arrow', '화살표', 'A', 'M5 19L19 5M10 5h9v9'], ['rect', '사각형', 'Q', 'M4 6h16v12H4z'], ['poly', '다각형', 'Y', 'M12 3l8 6-3 10H7L4 9z'], ['circle', '원', 'C', 'M12 4a8 8 0 1 0 0 16a8 8 0 1 0 0-16z'], ['pen', '펜', 'P', 'M4 20l4-1L19.5 7.5l-3-3L5 16z'], ['text', '글자', 'T', 'M5 6h14M12 6v13'], ['erase', '지우개', 'E', 'M4 15.5L13 6.5l6 6-6.5 6.5H8zM12.5 19H20']];
   // 작업지시서 묶음 = 정밀 의뢰서 공사 항목(01~12)과 같은 이름·순서
-  var CATS = [['01', '사전준비 · 철거', ['dmA', 'dmL', 'dmP']], ['02', '창호', []], ['03', '설비 · 전기', ['wt', 'dr', 'gas', 'pipe', 'dl', 'cl', 'pd', 'll', 'sw', 'ol', 'od', 'db', 'nt', 'fan']], ['04', '목공', ['wallN', 'mold', 'base', 'ceil', 'art', 'doorN']], ['05', '타일', ['tileF', 'tileW']], ['06', '욕실', ['wc', 'bs', 'tub']],
+  var CATS = [['01', '사전준비 · 철거', ['dmA', 'dmL', 'dmP']], ['02', '창호', []], ['03', '설비 · 전기', ['wt', 'dr', 'gas', 'pipe', 'core', 'dl', 'cl', 'pd', 'll', 'sw', 'ol', 'od', 'db', 'nt', 'fan']], ['04', '목공', ['wallN', 'mold', 'base', 'ceil', 'art', 'doorN']], ['05', '타일', ['tileF', 'tileW']], ['06', '욕실', ['wc', 'bs', 'tub']],
     ['07', '도장', ['paint']], ['08', '도배', ['paper']], ['09', '바닥', ['floor']], ['10', '가구 · 현관', ['fur', 'sink', 'shoe']], ['11', '필름', []], ['12', '기타', []]];
   var LOOPK = /^(mold|base|paint|tileW|art)$/;
   function catOf(k) { for (var i = 0; i < CATS.length; i++) if (CATS[i][2].indexOf(k) >= 0) return i; return 11; }
@@ -40,12 +42,12 @@
   // ── 상태
   var EL = null, OPT = {}, shapes = [], W = 1000, H = 700, PAD = 100, K = 2, D0 = 1000, SX = 0, SY = 0, SW = 1000, SH = 700, BG = null, base = {}, baseOk = true, planName = '우리 집';
   var tool = 'select', color = '#d8322e', draft = null, poly = null, scaleP1 = null, ptr = null, pts = {}, pinch = null, space = false;
-  var V = { z: 1, x: 0, y: 0 }, sel = -1, hist = [], redoSt = [], pane = 'work', wk = { trade: '전기', k: 'dl', st: 'new', row: 6, whole: true };
+  var V = { z: 1, x: 0, y: 0 }, sel = -1, hist = [], redoSt = [], pane = 'work', wk = { trade: '전기', k: 'dl', st: 'new', row: 6, whole: true, dia: 100, at: '천장' }, gd = { o: 'x', div: false, nv: 3, nh: 2, half: true, off: '' };
   var hide = {}, nums = true, sheetMode = false, bgOn = false, bgT = 0, saveT = 0, LABELS = [], OBS = [], full = false, grpSeq = 1;
   try { var sv0 = JSON.parse(localStorage.getItem('jj_cad_layers') || 'null'); if (sv0) { hide = sv0.hide || {}; nums = sv0.nums !== false; } } catch (e) {}
   function laySave() { try { localStorage.setItem('jj_cad_layers', JSON.stringify({ hide: hide, nums: nums })); } catch (e) {} }
   function toast(m, type) { if (OPT.toast) OPT.toast(m, type); }
-  function say(t) { var el = $('jjeSay'); if (el) { el.textContent = t || ''; el.style.display = t ? '' : 'none'; } }
+  function say(t) { var el = $('jjeSay'); if (el) el.textContent = t || '도구를 고른 뒤 도면을 누릅니다. 놓은 것은 「선택」으로 눌러 옮기거나 고칩니다.'; }
   function U() { return Math.max(8, D0 / 34); }
 
   // ── 자료 바꾸기: 분석 결과(방 다각형 목록) → 편집기 상태
@@ -87,6 +89,44 @@
   function rooms() { return shapes.filter(function (q) { return q.t === 'room' && q.name && q.pts && q.pts.length >= 3; }); }
   function roomAt(x, y) { var best = null, ba = 1e18; rooms().forEach(function (q) { if (inPoly([x, y], q.pts)) { var a = pxArea(q.pts); if (a < ba) { ba = a; best = q; } } }); return best; }
   function straight(x0, y0, x, y) { var dx = Math.abs(x - x0), dy = Math.abs(y - y0); return dy < dx * 0.12 ? [x, y0] : dx < dy * 0.12 ? [x0, y] : [x, y]; }
+  // ── 기준선(레이저 먹줄): 방 안의 벽에서 벽까지 가는 세로·가로 줄. 기호와 선이 이 줄에 붙는다 (2026-11-11)
+  function spanAt(x, y) { var r = roomAt(x, y); if (!r) return null; var n = r.pts.length, L = -1e9, Rr = 1e9, T = -1e9, B = 1e9;
+    for (var i = 0; i < n; i++) { var a = r.pts[i], b = r.pts[(i + 1) % n];
+      if ((a[1] > y) !== (b[1] > y)) { var xx = a[0] + (b[0] - a[0]) * (y - a[1]) / (b[1] - a[1]); if (xx < x && xx > L) L = xx; if (xx > x && xx < Rr) Rr = xx; }
+      if ((a[0] > x) !== (b[0] > x)) { var yy = a[1] + (b[1] - a[1]) * (x - a[0]) / (b[0] - a[0]); if (yy < y && yy > T) T = yy; if (yy > y && yy < B) B = yy; } }
+    return { r: r, L: L > -1e8 ? L : null, R: Rr < 1e8 ? Rr : null, T: T > -1e8 ? T : null, B: B < 1e8 ? B : null }; }
+  function gExt(q) { var s = spanAt(q.x, q.y), o = U() * 0.3; if (q.o === 'v') return s && s.T != null && s.B != null ? [s.T - o, s.B + o] : [SY, SY + SH]; return s && s.L != null && s.R != null ? [s.L - o, s.R + o] : [SX, SX + SW]; }
+  function gsnap(x, y) { var tol = Math.max(U() * 0.4, 9 / V.z), bx = tol, by = tol, nx = x, ny = y; if (hide['기준선']) return [x, y];
+    shapes.forEach(function (q) { if (q.t !== 'guide') return; var e = gExt(q), d; if (q.o === 'v') { d = Math.abs(q.x - x); if (d < bx && y > e[0] - tol && y < e[1] + tol) { bx = d; nx = q.x; } } else { d = Math.abs(q.y - y); if (d < by && x > e[0] - tol && x < e[1] + tol) { by = d; ny = q.y; } } }); return [nx, ny]; }
+  function gN(v) { return Math.max(1, Math.min(12, Math.round(Number(v) || 1))); }
+  function guideAt(x, y) {
+    var s = spanAt(x, y), mm = mmpp(), out = [], gV = gd.o !== 'h', gH = gd.o !== 'v', i, n, f = function (i, n) { return gd.half ? (i + 0.5) / n : (i + 1) / (n + 1); };
+    if (gd.div) { if (!s || s.L == null || s.R == null || s.T == null || s.B == null) { say('나눌 방 안쪽을 눌러 주세요.'); return null; }
+      if (gV) { n = gN(gd.nv); for (i = 0; i < n; i++) out.push({ t: 'guide', o: 'v', x: R2(s.L + (s.R - s.L) * f(i, n)), y: y }); }
+      if (gH) { n = gN(gd.nh); for (i = 0; i < n; i++) out.push({ t: 'guide', o: 'h', x: x, y: R2(s.T + (s.B - s.T) * f(i, n)) }); }
+      say(s.r.name + '에 기준선 ' + out.length + '줄을 넣었습니다.' + (gV && gH ? ' 줄이 만나는 곳마다 기호를 한 번에 놓을 수 있습니다.' : '')); return out; }
+    var off = Number(gd.off), px = x, py = y, sp;
+    if (off > 0) { if (!mm) { say('척도가 없어 거리를 맞출 수 없습니다. 「측정」에서 척도를 잡아 주세요.'); return null; } if (!s) { say('방 안쪽에서, 기준으로 삼을 벽 가까이를 눌러 주세요.'); return null; }
+      var d = off / mm; if (gV && s.L != null && s.R != null) px = R2((x - s.L) <= (s.R - x) ? s.L + d : s.R - d); if (gH && s.T != null && s.B != null) py = R2((y - s.T) <= (s.B - y) ? s.T + d : s.B - d); say('벽에서 ' + off.toLocaleString('ko-KR') + 'mm 띄운 자리에 기준선을 놓았습니다.'); }
+    else { sp = snapPt(x, y); px = sp[0]; py = sp[1]; say('기준선을 놓았습니다. 「선택」으로 눌러 벽에서 띄울 거리를 숫자로 맞출 수 있습니다.'); }
+    if (gV) out.push({ t: 'guide', o: 'v', x: px, y: y }); if (gH) out.push({ t: 'guide', o: 'h', x: x, y: py }); return out;
+  }
+  // 세로줄과 가로줄이 같은 방 안에서 만나는 점들
+  function gCross() { var vs = [], hs = [], out = []; if (hide['기준선']) return out; shapes.forEach(function (q) { if (q.t === 'guide') (q.o === 'v' ? vs : hs).push(q); });
+    vs.forEach(function (a) { var ra = roomAt(a.x, a.y); if (!ra) return; hs.forEach(function (b) { if (roomAt(b.x, b.y) === ra && roomAt(a.x, b.y) === ra) out.push([a.x, b.y, ra]); }); }); return out; }
+  function gKind() { return SYMS[wk.k] && SYMS[wk.k][2] === 'p' ? wk.k : 'dl'; }
+  function gFill() { var k = gKind(), tol = U() * 0.3, P = gCross().filter(function (p) { return !shapes.some(function (q) { return q.t === 'wk' && q.k === k && q.f === 'p' && Math.hypot(q.x - p[0], q.y - p[1]) < tol; }); });
+    if (!P.length) { toast('놓을 자리가 없습니다. 세로 기준선과 가로 기준선이 같은 방 안에서 만나야 합니다.'); return; } snap(); var gr = [], gi = [];
+    P.forEach(function (p) { var j = gr.indexOf(p[2]); if (j < 0) { gr.push(p[2]); gi.push(grpSeq++); j = gr.length - 1; } var o = { t: 'wk', k: k, st: wk.st === 'remove' ? 'new' : wk.st, f: 'p', x: p[0], y: p[1], grp: gi[j] }; if (k === 'core') { o.dia = wk.dia; o.at = wk.at; } shapes.push(o); });
+    sel = -1; touch(); sideDraw(); say(SYMS[k][1] + ' ' + P.length + '개를 기준선이 만나는 곳에 놓았습니다.'); }
+  function chipB(a, v, on, tx) { return '<button type="button" class="jje-chip ' + (on ? 'on' : '') + '" data-a="' + a + '" data-v="' + v + '">' + tx + '</button>'; }
+  function guidePane() { var nG = shapes.filter(function (q) { return q.t === 'guide'; }).length, nX = gCross().length, k = gKind(), num = function (id, v) { return '<input type="number" id="' + id + '" min="1" max="12" value="' + v + '" style="width:70px">'; }, sp = function (t) { return '<span style="font-size:14.5px;color:#6B6B6B">' + t + '</span>'; };
+    return '<div class="jje-h">기준선 방향</div><div class="jje-chips">' + chipB('gO', 'v', gd.o === 'v', '세로') + chipB('gO', 'h', gd.o === 'h', '가로') + chipB('gO', 'x', gd.o === 'x', '십자') + '</div>' +
+      '<div class="jje-h">놓는 방법</div><div class="jje-chips">' + chipB('gDiv', '0', !gd.div, '한 줄씩') + chipB('gDiv', '1', gd.div, '방을 고르게 나누기') + '</div>' +
+      (gd.div ? '<div class="jje-row">' + (gd.o !== 'h' ? sp('세로') + num('jjeGNv', gd.nv) + sp('줄') : '') + (gd.o !== 'v' ? sp('가로') + num('jjeGNh', gd.nh) + sp('줄') : '') + '</div><div class="jje-chips" style="margin-top:8px">' + chipB('gHalf', '1', gd.half, '벽에서 반 간격') + chipB('gHalf', '0', !gd.half, '모두 같은 간격') + '</div><p class="jje-p">방 안쪽을 한 번 누르면 그 방에 줄이 들어갑니다. 매입등은 보통 「벽에서 반 간격」으로 놓습니다.</p>'
+        : '<div class="jje-row">' + sp('벽에서') + '<input type="number" id="jjeGOff" min="0" step="10" value="' + esc(gd.off) + '" placeholder="비우면 누른 자리" style="width:150px">' + sp('mm') + '</div><p class="jje-p">숫자를 넣고 벽 가까이를 누르면, 가까운 쪽 벽에서 그만큼 띄운 자리에 줄이 놓입니다. 가벽 자리를 잡을 때 씁니다.' + (mmpp() ? '' : ' <span style="color:#b4232a">지금은 척도가 없어 숫자로는 못 놓습니다.</span>') + '</p>') +
+      (nG ? '<div class="jje-h">놓은 기준선 ' + nG + '줄</div><div class="jje-chips">' + (nX ? '<button type="button" class="jje-chip on" data-a="gFill">만나는 곳마다 「' + SYMS[k][1] + '」 놓기 (' + nX + '곳)</button>' : '') + '<button type="button" class="jje-chip" data-a="gClear">기준선 모두 지우기</button></div>' : '') +
+      '<p class="jje-p">기준선 가까이에 기호를 놓거나 선을 그으면 줄에 붙습니다. 숫자는 가까운 벽에서 띄운 거리(mm)이고, 작업지시서 도면에도 같이 찍힙니다. 필요 없으면 「겹쳐 보기」에서 끕니다.</p>'; }
   // 벽·모서리에 붙기: 모서리가 먼저, 다음이 벽선
   function snapPt(x, y) { var tol = Math.max(U() * 0.45, 9 / V.z), best = null, bd = tol; rooms().forEach(function (r) { r.pts.forEach(function (p) { var d = Math.hypot(p[0] - x, p[1] - y); if (d < bd) { bd = d; best = [p[0], p[1]]; } }); }); if (best) return best;
     bd = tol * 0.8; rooms().forEach(function (r) { var n = r.pts.length; for (var i = 0; i < n; i++) { var a = r.pts[i], b = r.pts[(i + 1) % n], dx = b[0] - a[0], dy = b[1] - a[1], L = dx * dx + dy * dy; if (!L) continue; var t = Math.max(0, Math.min(1, ((x - a[0]) * dx + (y - a[1]) * dy) / L)), q = [a[0] + t * dx, a[1] + t * dy], d = Math.hypot(q[0] - x, q[1] - y); if (d < bd) { bd = d; best = [Math.round(q[0]), Math.round(q[1])]; } } });
@@ -105,15 +145,15 @@
     st.textContent = '.jje{--ln:#C8C4BC;--ink:#2A2A2A;--sub:#6B6B6B;--gr:#1e4d3a;--soft:#e6efe9;position:relative;display:flex;flex-direction:column;height:max(640px,calc(100vh - 96px));border:1px solid var(--ln);background:#fff;color:var(--ink);font-size:15px;line-height:1.5;font-family:' + FONT.replace(/"/g, "'") + '}' +
       '.jje *{box-sizing:border-box}.jje button{font-family:inherit;cursor:pointer;color:inherit}.jje.full{position:fixed;inset:0;z-index:400;height:auto;border:0}' +
       '.jje-top{display:flex;align-items:center;gap:8px;padding:6px 10px;border-bottom:1px solid var(--ln);min-height:54px;background:#FBF8F1}.jje-top h3{font-size:17px;font-weight:700;margin:0;white-space:nowrap}.jje-top .nm{color:var(--sub);font-size:14.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1;min-width:0}' +
-      '.jje-b{min-height:40px;padding:0 13px;border:1px solid #9A9A9A;background:#fff;border-radius:6px;font-size:15px;font-weight:600;white-space:nowrap}.jje-b:hover{background:#F5F1E8}.jje-b{color:#2A2A2A;font-family:inherit;cursor:pointer}.jje-b.dark{background:#2A2A2A;border-color:#2A2A2A;color:#F5F1E8}.jje-b.dark:hover{background:#111}.jje-b:disabled{opacity:.4;cursor:default}' +
+      '.jje-b{min-height:40px;padding:0 13px;border:1px solid #9A9A9A;background:#fff;border-radius:2px;font-size:15px;font-weight:600;white-space:nowrap}.jje-b:hover{background:#F5F1E8}.jje-b{color:#2A2A2A;font-family:inherit;cursor:pointer}.jje-b.dark{background:#2A2A2A;border-color:#2A2A2A;color:#F5F1E8}.jje-b.dark:hover{background:#111}.jje-b:disabled{opacity:.4;cursor:default}' +
       '.jje-main{flex:1;display:flex;min-height:0}' +
       '.jje-rail{width:86px;border-right:1px solid var(--ln);overflow-y:auto;padding:6px 5px;display:flex;flex-direction:column;gap:2px;background:#FBF8F1;flex:none}' +
-      '.jje-rail button{border:0;background:transparent;border-radius:6px;padding:7px 2px 6px;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:13px;color:#4a4a4a;line-height:1.2;min-height:52px;flex:none}.jje-rail button:hover{background:#EDE7D8}.jje-rail button.on{background:var(--ink);color:#F5F1E8;font-weight:700}' +
+      '.jje-rail button{border:0;background:transparent;border-radius:2px;padding:7px 2px 6px;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:13px;color:#4a4a4a;line-height:1.2;min-height:52px;flex:none}.jje-rail button:hover{background:#EDE7D8}.jje-rail button.on{background:var(--ink);color:#F5F1E8;font-weight:700}' +
       '.jje-rail svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}.jje-rail .sep{font-size:12px;color:#8a8478;padding:6px 0 1px;text-align:center;border-top:1px solid var(--ln);margin-top:4px;flex:none}.jje-rail .cols{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:6px 14px;justify-items:center;flex:none}.jje-rail .cols span{width:22px;height:22px;border-radius:50%;cursor:pointer}' +
       '.jje-view{flex:1;position:relative;overflow:hidden;background:#dcd8cd;touch-action:none;min-width:0;min-height:0;-webkit-user-select:none;user-select:none}' +
-      '#jjeStage{position:absolute;left:0;top:0;transform-origin:0 0;background:#f7f4ee;box-shadow:0 1px 8px rgba(0,0,0,.16)}#jjeStage img{position:absolute;left:0;top:0;display:none;max-width:none;user-select:none;-webkit-user-drag:none;pointer-events:none}#jjeCv{position:absolute;left:0;top:0;width:100%;height:100%}' +
-      '.jje-float{position:absolute;background:rgba(255,255,255,.96);border:1px solid var(--ln);border-radius:6px;font-size:14px;display:flex;align-items:center;gap:2px;padding:3px;box-shadow:0 1px 4px rgba(0,0,0,.1)}.jje-float button{border:0;background:transparent;border-radius:4px;min-width:40px;height:40px;padding:0 9px;font-size:15px;font-weight:600}.jje-float button:hover{background:#EDE7D8}' +
-      '#jjeSay{position:absolute;left:50%;top:10px;transform:translateX(-50%);max-width:calc(100% - 280px);width:max-content;background:rgba(42,42,42,.93);color:#F5F1E8;padding:8px 14px;border-radius:6px;font-size:15px;line-height:1.4;pointer-events:none;z-index:3;text-align:center}' +
+      '#jjeStage{position:absolute;left:0;top:0;transform-origin:0 0;background:#f7f4ee;box-shadow:0 0 0 1px #c4bfb2}#jjeStage img{position:absolute;left:0;top:0;display:none;max-width:none;user-select:none;-webkit-user-drag:none;pointer-events:none}#jjeCv{position:absolute;left:0;top:0;width:100%;height:100%}' +
+      '.jje-float{position:absolute;background:rgba(255,255,255,.96);border:1px solid #9A9A9A;border-radius:2px;font-size:14px;display:flex;align-items:center;gap:2px;padding:2px}.jje-float button{border:0;background:transparent;border-radius:0;min-width:40px;height:40px;padding:0 9px;font-size:15px;font-weight:600}.jje-float button:hover{background:#EDE7D8}' +
+      '.jje-say{flex:none;display:flex;gap:14px;align-items:center;padding:6px 12px;border-bottom:1px solid var(--ln);background:#fff;font-size:14.5px;line-height:1.45;min-height:37px}.jje-say span{flex:1;min-width:0}.jje-say a{flex:none;color:var(--ink);font-weight:600;text-decoration:underline;text-underline-offset:3px;white-space:nowrap}' +
       '#jjeLayers{position:absolute;left:10px;top:60px;z-index:6;width:262px;max-height:calc(100% - 76px);overflow:auto;background:#fff;border:1px solid var(--ln);border-radius:6px;box-shadow:0 4px 16px rgba(0,0,0,.16);padding:6px 4px;display:none;font-size:15px}' +
       '.jje-lay{display:flex;align-items:center;gap:9px;padding:0 9px;min-height:40px;border-radius:4px;cursor:pointer;user-select:none}.jje-lay:hover{background:#F5F1E8}.jje-lay i{width:10px;height:10px;border-radius:50%;flex:none}.jje-lay .n{flex:1}.jje-lay .ct{color:var(--sub);font-size:13.5px;font-variant-numeric:tabular-nums}' +
       '.jje-sw{width:34px;height:20px;border-radius:10px;background:#bdb8ab;position:relative;flex:none}.jje-sw:after{content:"";position:absolute;left:2px;top:2px;width:16px;height:16px;border-radius:50%;background:#fff;transition:left .12s}.jje-lay.on .jje-sw{background:var(--gr)}.jje-lay.on .jje-sw:after{left:16px}.jje-lay.off .n{color:#9a958a}.jje-layh{font-size:13px;color:#8a8478;padding:8px 9px 2px}' +
@@ -122,11 +162,11 @@
       '.jje-tabs{display:flex;border-bottom:1px solid var(--ln);flex:none}.jje-tabs button{flex:1;border:0;background:transparent;min-height:46px;padding:0 4px;font-size:15.5px;color:var(--sub);border-bottom:3px solid transparent}.jje-tabs button.on{color:var(--ink);font-weight:700;border-bottom-color:var(--ink)}.jje-tabs .fold{display:none;flex:none;width:52px;border-left:1px solid var(--ln)}' +
       '.jje-pane{flex:1;overflow-y:auto;padding:12px 12px 20px;display:none}.jje-pane.on{display:block}' +
       '.jje-h{font-size:13.5px;font-weight:700;color:var(--sub);margin:16px 0 7px}.jje-h:first-child{margin-top:0}' +
-      '.jje-chips{display:flex;flex-wrap:wrap;gap:6px}.jje-chip{border:1px solid #b9b4a8;background:#fff;border-radius:6px;padding:0 11px;min-height:40px;font-size:15px;display:inline-flex;align-items:center;gap:7px;line-height:1.25;text-align:left}.jje-chip:hover{background:#F5F1E8}.jje-chip.on{border-color:var(--ink);background:var(--ink);color:#F5F1E8;font-weight:700}.jje-chip.off{opacity:.45}.jje-chip i{width:10px;height:10px;border-radius:50%;display:inline-block;flex:none}' +
-      '.jje-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}.jje-sym{border:1px solid #b9b4a8;background:#fff;border-radius:6px;min-height:50px;padding:4px 8px 4px 4px;font-size:14.5px;display:flex;align-items:center;gap:6px;line-height:1.25;text-align:left}.jje-sym:hover{background:#F5F1E8}.jje-sym.on{border-color:var(--ink);box-shadow:inset 0 0 0 1.5px var(--ink);background:#F5F1E8;font-weight:700}.jje-sym canvas{width:40px;height:40px;flex:none}' +
-      '.jje-card{border:1.5px solid var(--ink);border-radius:6px;padding:10px;background:#FBF8F1;margin-bottom:14px}.jje-card input,.jje-card select,.jje-pane input[type=text],.jje-pane input[type=number]{font:inherit;font-size:16px;height:42px;padding:0 9px;border:1px solid #8a8478;border-radius:6px;width:100%;background:#fff;color:var(--ink)}' +
+      '.jje-chips{display:flex;flex-wrap:wrap;gap:6px}.jje-chip{border:1px solid #b9b4a8;background:#fff;border-radius:2px;padding:0 11px;min-height:40px;font-size:15px;display:inline-flex;align-items:center;gap:7px;line-height:1.25;text-align:left}.jje-chip:hover{background:#F5F1E8}.jje-chip.on{border-color:var(--ink);background:var(--ink);color:#F5F1E8;font-weight:700}.jje-chip.off{opacity:.45}.jje-chip i{width:4px;height:15px;display:inline-block;flex:none}' +
+      '.jje-grid{display:grid;grid-template-columns:1fr 1fr;column-gap:10px;border-top:1px solid var(--ink)}.jje-sym{border:0;border-bottom:1px solid #DDD7C8;background:#fff;border-radius:0;min-height:46px;padding:2px 4px 2px 0;font-size:14.5px;display:flex;align-items:center;gap:4px;line-height:1.25;text-align:left}.jje-sym:hover{background:#F5F1E8}.jje-sym.on{box-shadow:inset 3px 0 0 var(--ink);background:#EFE9DA;font-weight:700}.jje-sym canvas{width:40px;height:40px;flex:none}' +
+      '.jje-card{border-left:3px solid var(--ink);padding:2px 0 6px 12px;margin-bottom:16px}.jje-card input,.jje-card select,.jje-pane input[type=text],.jje-pane input[type=number]{font:inherit;font-size:16px;height:42px;padding:0 9px;border:1px solid #8a8478;border-radius:2px;width:100%;background:#fff;color:var(--ink)}' +
       '.jje-row{display:flex;gap:8px;align-items:center;margin-top:8px}.jje-row label{font-size:14.5px;color:var(--sub);flex:none;width:44px}' +
-      '.jje-qty{width:100%;border-collapse:collapse;font-size:15px}.jje-qty td{padding:6px 2px;border-bottom:1px solid #DDD7C8}.jje-qty td:last-child{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}.jje-qty tr.tr td{font-weight:700;border-bottom:1.5px solid var(--ink);padding-top:12px}' +
+      '.jje-qty{width:100%;border-collapse:collapse;font-size:15px}.jje-qty td{padding:6px 2px;border-bottom:1px solid #DDD7C8}.jje-qty td:last-child{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}.jje-qty tr.tr td{text-align:left;font-weight:700;border-bottom:1.5px solid var(--ink);padding-top:12px}' +
       '.jje-p{font-size:14.5px;color:var(--sub);line-height:1.6;margin:10px 0 0}' +
       '#jjeSheet{position:fixed;inset:0;z-index:700;background:rgba(26,26,26,.66);overflow:auto;padding:14px}.jjs-bar{max-width:920px;margin:0 auto 10px;display:flex;gap:6px;flex-wrap:wrap;align-items:center}.jjs-bar .sp{flex:1}' +
       '.jjsheet{background:#fff;max-width:920px;margin:0 auto;padding:30px 32px;color:#1c1c1c;font-size:14px;line-height:1.5;font-family:' + FONT.replace(/"/g, "'") + '}.jjsheet *{box-sizing:border-box}' +
@@ -138,7 +178,7 @@
       '#jje3d{position:fixed;inset:0;z-index:710;background:rgba(26,26,26,.66);display:flex;align-items:center;justify-content:center;padding:14px}#jje3d .bx{background:#fff;width:min(980px,100%);max-height:96vh;overflow:auto;padding:12px;border-radius:6px}' +
       '@media (max-width:860px){.jje{height:calc(100vh - 20px);height:calc(100dvh - 20px);font-size:15px}.jje-top{padding:5px 8px;min-height:52px;gap:6px}.jje-top .nm{display:none}.jje-top h3{flex:1;font-size:16px}.jje-b{padding:0 10px;min-height:42px}' +
       '.jje-main{flex-direction:column}.jje-rail{width:auto;flex-direction:row;overflow-x:auto;overflow-y:hidden;border-right:0;border-bottom:1px solid var(--ln);padding:4px;gap:2px}.jje-rail button{min-width:62px;min-height:54px;padding:6px 2px 4px}.jje-rail .sep{display:none}.jje-rail .cols{display:flex;padding:0 8px;align-items:center}' +
-      '.jje-side{width:auto;border-left:0;border-top:1.5px solid var(--ink);height:48px;transition:height .15s}.jje.side-open .jje-side{height:54%}.jje-tabs .fold{display:block}.jje-pane{display:none!important}.jje.side-open .jje-pane.on{display:block!important}#jjeSay{max-width:none;width:auto;left:10px;right:10px;transform:none;top:60px;font-size:14.5px}#jjeLayers{top:54px}}' +
+      '.jje-side{width:auto;border-left:0;border-top:1.5px solid var(--ink);height:48px;transition:height .15s}.jje.side-open .jje-side{height:54%}.jje-tabs .fold{display:block}.jje-pane{display:none!important}.jje.side-open .jje-pane.on{display:block!important}#jjeLayers{top:54px}}' +
       '@media (max-width:640px){#jjeSheet{padding:8px}.jjsheet{padding:14px 12px;font-size:13px}.jjsheet .tb{grid-template-columns:minmax(0,1fr)}.jjsheet .tb .ti{border-right:0;border-bottom:1.5px solid #1c1c1c}.jjsheet th,.jjsheet td{padding:4px 4px;font-size:12.5px}.jjsheet .wide{overflow-x:auto}.jjsheet .wide table{min-width:560px}}' +
       '@media print{#jjeSheet,#jje3d{display:none!important}}';
     doc.head.appendChild(st);
@@ -147,8 +187,9 @@
     EL = el; OPT = opt || {}; css();
     el.innerHTML = '<div class="jje" id="jjeRoot"><div class="jje-top"><h3>집지니 CAD</h3><span class="nm" id="jjeNm"></span>' +
       '<button type="button" class="jje-b" data-a="undo" title="되돌리기">되돌리기</button><button type="button" class="jje-b" data-a="redo" title="다시 하기">다시</button><button type="button" class="jje-b dark" data-a="sheet">작업지시서</button><button type="button" class="jje-b" data-a="full" id="jjeFull">넓게</button></div>' +
+      '<div class="jje-say"><span id="jjeSay"></span><a href="cad-guide.html" target="_blank" rel="noopener">사용법</a></div>' +
       '<div class="jje-main"><div class="jje-rail" id="jjeRail"></div>' +
-      '<div class="jje-view" id="jjeWrap"><div id="jjeStage"><img id="jjeBg" alt=""><canvas id="jjeCv"></canvas></div><div id="jjeSay" style="display:none"></div>' +
+      '<div class="jje-view" id="jjeWrap"><div id="jjeStage"><img id="jjeBg" alt=""><canvas id="jjeCv"></canvas></div>' +
       '<div class="jje-float" style="left:10px;top:10px;z-index:4"><button type="button" data-a="layers" title="공종별로 켜고 끄기">겹쳐 보기</button></div><div id="jjeLayers"></div>' +
       '<div class="jje-float" style="left:10px;bottom:10px;padding:6px 10px;max-width:calc(100% - 250px);font-size:13.5px"><span id="jjeScale"></span></div>' +
       '<div class="jje-float" style="right:10px;bottom:10px"><button type="button" data-a="zoomOut" title="작게" aria-label="작게">－</button><span id="jjeZoom" style="min-width:48px;text-align:center">100%</span><button type="button" data-a="zoomIn" title="크게" aria-label="크게">＋</button><button type="button" data-a="fit">맞춤</button></div><div id="jjeAsk"></div></div>' +
@@ -187,12 +228,12 @@
       '<div class="sep">색</div><div class="cols">' + [['#d8322e', '빨강'], ['#1d5fd0', '파랑'], ['#2f6b4f', '초록'], ['#111827', '검정']].map(function (c) { return '<span title="표시 색: ' + c[1] + '" data-a="color" data-v="' + c[0] + '" style="background:' + c[0] + ';box-shadow:0 0 0 2px #FBF8F1,0 0 0 ' + (color === c[0] ? '4px ' + c[0] : '3px transparent') + '"></span>'; }).join('') + '</div>';
     var w = $('jjeWrap'); if (w) w.style.cursor = tool === 'hand' ? 'grab' : tool === 'select' ? 'default' : 'crosshair'; scaleInfo();
   }
-  var HINT = { select: '', hand: '도면을 끌어 옮깁니다.', scale: '척도: 길이를 아는 두 점을 차례로 누르세요.', room: '공간 그리기: 모서리를 차례로 누르고, 첫 점을 다시 누르면 닫힙니다.', poly: '다각형: 모서리를 차례로 누르고, 첫 점을 다시 누르면 닫힙니다.', rect: '사각형: 끌어서 그립니다.', win: '창: 벽을 따라 끌어 놓으세요.', door: '문: 문 폭만큼 벽을 따라 끌어 놓으세요.', dim: '길이 재기: 잴 곳의 두 점을 끌어 놓으세요.', wall: '벽 사이 재기: 방 안쪽을 누르면 좌우·위아래 벽 사이를 잽니다.', arrow: '화살표: 끌어서 그립니다.', circle: '원: 가운데에서 끌어 그립니다.', pen: '펜: 끌어서 자유롭게 그립니다.', text: '글자: 적을 자리를 누르세요.', erase: '지우개: 지울 것을 누르세요.' };
+  var HINT = { select: '', guide: '기준선: 놓을 자리를 누르세요. 오른쪽에서 방향과 놓는 방법을 고릅니다.', hand: '도면을 끌어 옮깁니다.', scale: '척도: 길이를 아는 두 점을 차례로 누르세요.', room: '공간 그리기: 모서리를 차례로 누르고, 첫 점을 다시 누르면 닫힙니다.', poly: '다각형: 모서리를 차례로 누르고, 첫 점을 다시 누르면 닫힙니다.', rect: '사각형: 끌어서 그립니다.', win: '창: 벽을 따라 끌어 놓으세요.', door: '문: 문 폭만큼 벽을 따라 끌어 놓으세요.', dim: '길이 재기: 잴 곳의 두 점을 끌어 놓으세요.', wall: '벽 사이 재기: 방 안쪽을 누르면 좌우·위아래 벽 사이를 잽니다.', arrow: '화살표: 끌어서 그립니다.', circle: '원: 가운데에서 끌어 그립니다.', pen: '펜: 끌어서 자유롭게 그립니다.', text: '글자: 적을 자리를 누르세요.', erase: '지우개: 지울 것을 누르세요.' };
   function setTool(t) {
-    tool = t; draft = null; poly = null; scaleP1 = null; if (t !== 'select') sel = -1; if (t === 'wk') pane = 'work';
+    tool = t; draft = null; poly = null; scaleP1 = null; if (t !== 'select') sel = -1; if (t === 'wk' || t === 'guide') pane = 'work';
     railDraw(); sideDraw(); redraw(); if (t === 'wk') wkHint(); else say(HINT[t] || '');
     if ((t === 'dim' || t === 'wall') && !mmpp()) say('척도가 없어 길이가 나오지 않습니다. 오른쪽 「측정」에서 전용면적으로 척도를 잡아 주세요.');
-    if (t === 'wk' && root.innerWidth <= 860 && !$('jjeRoot').classList.contains('side-open')) sideOpen(true);
+    if ((t === 'wk' || t === 'guide') && root.innerWidth <= 860 && !$('jjeRoot').classList.contains('side-open')) sideOpen(true);
   }
   function wkHint() { var S = SYMS[wk.k]; if (!S) return; say(S[1] + ' — ' + (S[2] === 'p' ? (wk.row > 1 ? '놓을 자리를 누르세요. 끌면 한 줄에 ' + wk.row + '개가 놓입니다.' : '놓을 자리를 누르세요.') : S[2] === 'l' ? (LOOPK.test(wk.k) ? '벽을 따라 끌어 긋거나, 방 안쪽을 눌러 둘레 전체에 넣으세요.' : '끌어서 그으세요.') : (wk.whole ? '공간 안쪽을 누르세요.' : '모서리를 차례로 누르고 첫 점을 다시 누르세요.'))); }
   function sideOpen(on) { var atFit = Math.abs(V.z - (V.fit || V.z)) < 1e-6; $('jjeRoot').classList.toggle('side-open', on); sideDraw(); if (atFit) setTimeout(fit, 180); }   /* 확대해 보던 중이면 화면을 그대로 둔다 */
@@ -217,7 +258,7 @@
     el.innerHTML = '<div style="display:flex;align-items:center;gap:6px;padding:2px 6px 4px 9px"><b style="flex:1">겹쳐 보기</b><button type="button" class="jje-chip" data-a="layAll">모두 켜기</button><button type="button" class="jje-chip" data-a="layers">닫기</button></div>' +
       '<div class="jje-layh">도면</div>' + row('바탕', '집지니 도면 바탕', '#26302c', '', !hide['바탕']) + row('공간', '공간 이름·면적', '#2f6b4f', n(function (q) { return q.t === 'room'; }), !hide['공간']) + row('창·문', '창·문', '#1d5fd0', n(function (q) { return q.t === 'win' || q.t === 'door'; }), !hide['창·문']) + row('치수', '치수·척도', '#111827', n(function (q) { return q.t === 'dim' || q.t === 'scale'; }), !hide['치수']) +
       '<div class="jje-layh">작업지시</div>' + TRADES.map(function (t) { return row(t[0], t[0], t[1], n(function (q) { return q.t === 'wk' && (SYMS[q.k] || [''])[0] === t[0]; }), !hide[t[0]]); }).join('') + row('번호', '기호 번호', '#64748b', '', nums) +
-      '<div class="jje-layh">그 밖</div>' + row('표시', '표시·글자', '#d8322e', n(function (q) { return /^(circle|arrow|pen|text|rect|poly)$/.test(q.t); }), !hide['표시']) + row('무늬', '집지니 비침 무늬', '#2f6b4f', '', hide['무늬'] === false);
+      '<div class="jje-layh">그 밖</div>' + row('기준선', '기준선', '#d11a2a', n(function (q) { return q.t === 'guide'; }), !hide['기준선']) + row('표시', '표시·글자', '#d8322e', n(function (q) { return /^(circle|arrow|pen|text|rect|poly)$/.test(q.t); }), !hide['표시']) + row('무늬', '집지니 비침 무늬', '#2f6b4f', '', hide['무늬'] === false);
   }
   function layToggle(key) { if (key === '번호') nums = !nums; else if (key === '무늬') hide[key] = hide[key] === false; else hide[key] = !hide[key]; sel = -1; laySave(); layDraw(); redraw(); propDraw(); sideDraw(); if (/^(바탕|공간|창·문|무늬|치수)$/.test(key)) bgApply(); }
 
@@ -257,16 +298,17 @@
   // ── 누르기·끌기
   function XY(ev) { var cv = $('jjeCv'), r = cv.getBoundingClientRect(); return [Math.round((ev.clientX - r.left) * SW / r.width + SX), Math.round((ev.clientY - r.top) * SH / r.height + SY)]; }
   function dist(q, x, y) {
+    if (q.t === 'guide') { var ge = gExt(q); return q.o === 'v' ? segD(x, y, [q.x, ge[0]], [q.x, ge[1]]) : segD(x, y, [ge[0], q.y], [ge[1], q.y]); }
     if (q.t === 'room' || q.t === 'poly') return polyD(x, y, q.pts, true); if (q.t === 'rect') return polyD(x, y, [[q.x1, q.y1], [q.x2, q.y1], [q.x2, q.y2], [q.x1, q.y2]], true); if (q.t === 'wk') return q.f === 'p' ? Math.hypot(q.x - x, q.y - y) : polyD(x, y, q.pts, q.f === 'a');
     if ('x1' in q) return segD(x, y, [q.x1, q.y1], [q.x2, q.y2]); if (q.t === 'pen') return polyD(x, y, q.pts, false); if (q.t === 'circle') return Math.abs(Math.hypot(q.x - x, q.y - y) - q.r); return Math.hypot(q.x - x, q.y - y);
   }
-  function visible(q) { if (q.t === 'room') return !hide['공간']; if (q.t === 'dim' || q.t === 'scale') return !hide['치수']; if (q.t === 'win' || q.t === 'door') return !hide['창·문']; if (q.t === 'wk') return !hide[(SYMS[q.k] || [''])[0]]; return !hide['표시']; }
+  function visible(q) { if (q.t === 'room') return !hide['공간']; if (q.t === 'dim' || q.t === 'scale') return !hide['치수']; if (q.t === 'win' || q.t === 'door') return !hide['창·문']; if (q.t === 'wk') return !hide[(SYMS[q.k] || [''])[0]]; if (q.t === 'guide') return !hide['기준선']; return !hide['표시']; }
   function hit(x, y) {   // 가까운 선·점이 먼저, 없으면 눌린 구역(작업 구역 → 공간)
-    var u = U(), bi = -1, bd = Math.max(u * 1.0, 14 / V.z), i, q; shapes.forEach(function (q, i) { if (!visible(q)) return; var d = dist(q, x, y); if (q.t === 'wk' && q.f === 'p') d -= u * 0.5; if (q.t === 'room' || (q.t === 'wk' && (q.f === 'a' || q.loop))) d += u * 0.5; if (d < bd) { bd = d; bi = i; } }); if (bi >= 0) return bi;
+    var u = U(), bi = -1, bd = Math.max(u * 1.0, 14 / V.z), i, q; shapes.forEach(function (q, i) { if (!visible(q)) return; var d = dist(q, x, y); if (q.t === 'wk' && q.f === 'p') d -= u * 0.5; if (q.t === 'room' || (q.t === 'wk' && (q.f === 'a' || q.loop))) d += u * 0.5; if (q.t === 'guide') d += u * 0.3; if (d < bd) { bd = d; bi = i; } }); if (bi >= 0) return bi;
     for (i = shapes.length - 1; i >= 0; i--) { q = shapes[i]; if (q.t === 'wk' && q.f === 'a' && visible(q) && inPoly([x, y], q.pts)) return i; }
     for (i = shapes.length - 1; i >= 0; i--) { q = shapes[i]; if (q.t === 'room' && q.name && visible(q) && inPoly([x, y], q.pts)) return i; } return -1;
   }
-  function shift(q, dx, dy) { if (!q) return; if (q.pts) q.pts = q.pts.map(function (p) { return [p[0] + dx, p[1] + dy]; }); if ('x1' in q) { q.x1 += dx; q.y1 += dy; q.x2 += dx; q.y2 += dy; } if ('x' in q) { q.x += dx; q.y += dy; } if (q.t === 'room') delete q.a0; }
+  function shift(q, dx, dy) { if (!q) return; if (q.t === 'guide') { if (q.o === 'v') q.x += dx; else q.y += dy; return; } if (q.pts) q.pts = q.pts.map(function (p) { return [p[0] + dx, p[1] + dy]; }); if ('x1' in q) { q.x1 += dx; q.y1 += dy; q.x2 += dx; q.y2 += dy; } if ('x' in q) { q.x += dx; q.y += dy; } if (q.t === 'room') delete q.a0; }
   function onDown(ev) {
     if (ev.target.closest && ev.target.closest('#jjeAsk,.jje-float,#jjeLayers')) return; if (!shapes.length) return;
     pts[ev.pointerId] = [ev.clientX, ev.clientY]; var ids = Object.keys(pts);
@@ -281,8 +323,8 @@
     var S = tool === 'wk' ? SYMS[wk.k] : null, sp = snapPt(x, y);
     if (tool === 'win' || tool === 'door') draft = { t: tool, c: tool === 'win' ? '#1d5fd0' : '#b06a00', x1: sp[0], y1: sp[1], x2: sp[0], y2: sp[1] };
     else if (tool === 'pen') draft = { t: 'pen', c: color, pts: [[x, y]] }; else if (tool === 'circle') draft = { t: 'circle', c: color, x: x, y: y, r: 0 }; else if (tool === 'arrow' || tool === 'rect') draft = { t: tool, c: color, x1: x, y1: y, x2: x, y2: y }; else if (tool === 'dim') draft = { t: 'dim', c: '#111827', x1: sp[0], y1: sp[1], x2: sp[0], y2: sp[1] };
-    else if (S && S[2] === 'l') draft = { t: 'wk', k: wk.k, st: wk.st, f: 'l', pts: [[sp[0], sp[1]], [sp[0], sp[1]]] };
-    else if (S && S[2] === 'p') draft = { t: '_row', k: wk.k, st: wk.st, a: [x, y], b: [x, y] }; else draft = null;
+    else if (S && S[2] === 'l') { sp = gsnap(sp[0], sp[1]); draft = { t: 'wk', k: wk.k, st: wk.st, f: 'l', pts: [[sp[0], sp[1]], [sp[0], sp[1]]] }; }
+    else if (S && S[2] === 'p') { sp = gsnap(x, y); draft = { t: '_row', k: wk.k, st: wk.st, a: [sp[0], sp[1]], b: [sp[0], sp[1]] }; } else draft = null;
     if (draft) redraw();
   }
   function rowPts(d) { var n = Math.max(1, Math.min(40, Math.round(Number(wk.row) || 1))); if (n < 2 || Math.hypot(d.b[0] - d.a[0], d.b[1] - d.a[1]) < U() * 1.2) return [d.a]; var out = []; for (var i = 0; i < n; i++) out.push([Math.round(d.a[0] + (d.b[0] - d.a[0]) * i / (n - 1)), Math.round(d.a[1] + (d.b[1] - d.a[1]) * i / (n - 1))]); return out; }
@@ -298,7 +340,7 @@
     if (!draft) return; var sp;
     if (draft.t === 'win' || draft.t === 'door') { sp = snapPt(x, y); sp = straight(draft.x1, draft.y1, sp[0], sp[1]); draft.x2 = sp[0]; draft.y2 = sp[1]; } else if (draft.t === 'arrow' || draft.t === 'rect') { draft.x2 = x; draft.y2 = y; } else if (draft.t === 'pen') draft.pts.push([x, y]); else if (draft.t === 'circle') draft.r = Math.round(Math.hypot(x - draft.x, y - draft.y));
     else if (draft.t === 'dim') { sp = snapPt(x, y); sp = straight(draft.x1, draft.y1, sp[0], sp[1]); draft.x2 = sp[0]; draft.y2 = sp[1]; }
-    else if (draft.t === 'wk') { sp = snapPt(x, y); draft.pts[1] = straight(draft.pts[0][0], draft.pts[0][1], sp[0], sp[1]); } else if (draft.t === '_row') draft.b = straight(draft.a[0], draft.a[1], x, y);
+    else if (draft.t === 'wk') { sp = snapPt(x, y); sp = gsnap(sp[0], sp[1]); draft.pts[1] = straight(draft.pts[0][0], draft.pts[0][1], sp[0], sp[1]); } else if (draft.t === '_row') { sp = gsnap(x, y); draft.b = straight(draft.a[0], draft.a[1], sp[0], sp[1]); }
     redraw();
   }
   function polyClose() { if (!poly || poly.pts.length < 3) return; var sh = poly; poly = null; snap(); if (sh.t === 'room') sh.name = '방' + (shapes.filter(function (q) { return q.t === 'room'; }).length + 1); shapes.push(sh); sel = shapes.length - 1; if (sh.t !== 'wk') { tool = 'select'; railDraw(); say(''); } touch(sh.t === 'room'); if (sh.t === 'room') { pane = 'work'; sideDraw(); propDraw(true); } else propDraw(); }
@@ -314,9 +356,9 @@
     if (!ptr || ev.pointerId !== ptr.id) return; var P = ptr; ptr = null; if (P.pan && !(P.newSel && !P.moved)) return;
     var u = U(), sh = null, many = null, roomCh = false;
     if (tool === 'select' && P.newSel && !P.moved && root.innerWidth <= 860) { pane = 'work'; sideOpen(true); return; }   // 좁은 화면: 눌러 고르면(끌지 않았을 때만) 아래 칸을 펴서 고칠 것을 보여 준다
-    if (tool === 'select') { if (P.snap) { var sr = shapes[sel]; if (sr && sr.t === 'room') { roomCh = true; if (P.vi == null) magnet(sr); } touch(roomCh); propDraw(); } return; }
+    if (tool === 'select') { if (P.snap) { var sr = shapes[sel]; if (sr && sr.t === 'room') { roomCh = true; if (P.vi == null) magnet(sr); } if (sr && sr.t === 'wk' && sr.f === 'p') { var gq = gsnap(sr.x, sr.y); sr.x = gq[0]; sr.y = gq[1]; } touch(roomCh); propDraw(); } return; }
     if (draft && (draft.t === 'win' || draft.t === 'door')) { sh = draft; if (!P.moved || Math.hypot(sh.x2 - sh.x1, sh.y2 - sh.y1) < u * 0.5) { sh = null; say((tool === 'win' ? '창' : '문') + '은 벽을 따라 끌어서 놓습니다.'); } else { sh.h = sh.t === 'win' ? 1200 : 2100; sh.name = sh.t === 'win' ? '창' : '문'; } }
-    else if (draft && draft.t === '_row') { var rp = rowPts(draft), g = rp.length > 1 ? grpSeq++ : 0; many = rp.map(function (p) { var o = { t: 'wk', k: draft.k, st: draft.st, f: 'p', x: p[0], y: p[1] }; if (g) o.grp = g; if (draft.k === 'wc' || draft.k === 'bs') o.rot = autoRot(p[0], p[1]); return o; }); }
+    else if (draft && draft.t === '_row') { var rp = rowPts(draft), g = rp.length > 1 ? grpSeq++ : 0; many = rp.map(function (p) { var o = { t: 'wk', k: draft.k, st: draft.st, f: 'p', x: p[0], y: p[1] }; if (g) o.grp = g; if (draft.k === 'wc' || draft.k === 'bs') o.rot = autoRot(p[0], p[1]); if (draft.k === 'core') { o.dia = wk.dia; o.at = wk.at; } return o; }); }
     else if (draft && draft.t === 'wk') { sh = P.moved && Math.hypot(draft.pts[1][0] - draft.pts[0][0], draft.pts[1][1] - draft.pts[0][1]) > u * 0.6 ? draft : null;
       if (!sh) { var rm = LOOPK.test(draft.k) ? roomAt(P.x0, P.y0) : null; if (rm) { sh = { t: 'wk', k: draft.k, st: draft.st, f: 'l', pts: rm.pts.concat([rm.pts[0]]).map(function (p) { return [p[0], p[1]]; }), loop: true }; say(rm.name + ' 둘레 전체에 넣었습니다. (문 폭은 빼지 않은 길이)'); } else say('선 기호는 끌어서 긋습니다.' + (LOOPK.test(draft.k) ? ' 방 안쪽을 한 번 누르면 둘레 전체에 들어갑니다.' : '')); } }
     else if (draft) { sh = draft; if (sh.t === 'circle' && sh.r < 6) sh.r = u * 2; if ((sh.t === 'arrow' || sh.t === 'dim' || sh.t === 'rect') && (!P.moved || Math.hypot(sh.x2 - sh.x1, sh.y2 - sh.y1) < u * 0.3)) sh = null; if (sh && sh.t === 'pen' && sh.pts.length < 2) sh = null; }
@@ -326,11 +368,12 @@
       else if (!poly) poly = isWk ? { t: 'wk', k: wk.k, st: wk.st, f: 'a', pts: [q0] } : tool === 'poly' ? { t: 'poly', c: color, pts: [q0] } : { t: 'room', c: '#2f6b4f', pts: [q0], name: '' };
       else { var f = poly.pts[0]; if (poly.pts.length >= 3 && Math.hypot(f[0] - P.x0, f[1] - P.y0) < Math.max(u * 1.1, 18 / V.z)) { draft = null; polyClose(); return; } poly.pts.push(q0); }
       if (poly) say('모서리 ' + poly.pts.length + '개 — 첫 점을 다시 누르면 닫힙니다.'); }
+    else if (tool === 'guide') { many = guideAt(P.x0, P.y0); if (many && !many.length) many = null; }
     else if (tool === 'wall') { var ds = wallSpan(P.x0, P.y0); if (!ds.length) say('방 안쪽을 눌러 주세요.'); else many = ds; }
     else if (tool === 'text') { var px = P.x0, py = P.y0; ask('적을 글자', '', function (s) { if (!s.trim()) return; snap(); shapes.push({ t: 'text', c: color, x: px, y: py, s: s.trim().slice(0, 60) }); sel = -1; touch(); }); }
     else if (tool === 'erase') { var bi = hit(P.x0, P.y0); if (bi >= 0) { snap(); var rc = shapes[bi].t === 'room'; shapes.splice(bi, 1); sel = -1; touch(rc); } }
     draft = null;
-    if (sh || many) { snap(); if (sh) shapes.push(sh); else many.forEach(function (q) { shapes.push(q); }); sel = -1; touch(); } else redraw();
+    if (sh || many) { snap(); if (sh) shapes.push(sh); else many.forEach(function (q) { shapes.push(q); }); sel = -1; touch(); if (tool === 'guide') sideDraw(); } else redraw();
   }
   function onDbl(ev) {   // 선택한 공간·구역의 변을 두 번 누르면 꼭짓점 추가, 꼭짓점을 두 번 누르면 빼기
     if (tool !== 'select') return; var s = shapes[sel]; if (!s || !s.pts || !(s.t === 'room' || s.t === 'poly' || (s.t === 'wk' && s.f === 'a'))) return; var p = XY(ev), x = p[0], y = p[1], u = U(), vi = -1;
@@ -395,6 +438,7 @@
     else if (k === 'wc') { bR(-r * 0.78, -r * 1.2, r * 1.56, r * 0.56); bk(function () { g.ellipse(0, r * 0.22, r * 0.64, r * 0.9, 0, 0, Math.PI * 2); }); Rc(-r * 0.78, -r * 1.2, r * 1.56, r * 0.56); El(0, r * 0.22, r * 0.64, r * 0.9); El(0, r * 0.32, r * 0.4, r * 0.6); }
     else if (k === 'bs') { bk(function () { g.rect(-r * 1.1, -r * 0.78, r * 2.2, r * 1.56); }); g.beginPath(); var rw = r * 1.1, rh = r * 0.78, rr = r * 0.28; g.moveTo(-rw, -rh); g.lineTo(rw, -rh); g.lineTo(rw, rh - rr); g.arcTo(rw, rh, rw - rr, rh, rr); g.lineTo(-rw + rr, rh); g.arcTo(-rw, rh, -rw, rh - rr, rr); g.closePath(); g.stroke(); El(0, r * 0.1, r * 0.74, r * 0.46); C(0, -r * 0.52, r * 0.1, 1); }
     else if (k === 'gas') { bR(-r * 0.8, -r * 1.0, r * 1.6, r * 1.8); Rc(-r * 0.8, -r * 1.0, r * 1.6, r * 1.8); C(0, -r * 0.2, r * 0.42); Ln(-r * 0.4, r * 0.8, -r * 0.4, r * 1.25, r * 0.4, r * 0.8, r * 0.4, r * 1.25); g.beginPath(); g.moveTo(0, -r * 0.45); g.quadraticCurveTo(r * 0.3, -r * 0.1, 0, r * 0.05); g.quadraticCurveTo(-r * 0.3, -r * 0.1, 0, -r * 0.45); g.fill(); }
+    else if (k === 'core') { bC(r); C(0, 0, r); Ln(-r * 1.4, 0, r * 1.4, 0, 0, -r * 1.4, 0, r * 1.4); g.beginPath(); g.moveTo(0, 0); g.arc(0, 0, r, -Math.PI / 2, 0); g.closePath(); g.fill(); g.beginPath(); g.moveTo(0, 0); g.arc(0, 0, r, Math.PI / 2, Math.PI); g.closePath(); g.fill(); }
     else if (k === 'dmP') { bR(-r * 0.8, -r * 0.8, r * 1.6, r * 1.6); g.save(); g.setLineDash([r * 0.3, r * 0.2]); Rc(-r * 0.8, -r * 0.8, r * 1.6, r * 1.6); g.restore(); Ln(-r * 0.5, -r * 0.5, r * 0.5, r * 0.5, r * 0.5, -r * 0.5, -r * 0.5, r * 0.5); }
     else if (k === 'doorN') { bk(function () { g.moveTo(-r * 0.9, r * 0.8); g.lineTo(-r * 0.9, -r * 0.9); g.arc(-r * 0.9, r * 0.8, r * 1.7, -Math.PI / 2, 0); g.closePath(); }); Ln(-r * 0.9, r * 0.8, -r * 0.9, -r * 0.9, -r * 1.05, r * 0.8, r * 0.95, r * 0.8); g.save(); g.lineWidth = g.lineWidth * 0.6; g.beginPath(); g.arc(-r * 0.9, r * 0.8, r * 1.7, -Math.PI / 2, 0); g.stroke(); g.restore(); }
     else { var S = SYMS[k] || ['', '', '', '?']; bC(r * 0.8); C(0, 0, r * 0.8); g.font = '700 ' + (r * 0.9).toFixed(1) + 'px ' + FONT; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillStyle = col; g.fillText(S[3], 0, r * 0.05); }
@@ -405,11 +449,11 @@
   function drawWk(g, q, u, no, ord) {
     var S = SYMS[q.k] || ['표시', '표시', q.f || 'p', '?'], bc = tradeColor(S[0]), col = q.st === 'keep' ? '#7b7f86' : q.st === 'remove' ? '#b4232a' : bc, mm = mmpp(), stTx = q.st && q.st !== 'new' && !(q.st === 'remove' && S[0] === '철거') ? ST.filter(function (s) { return s[0] === q.st; })[0][1] + ' ' : '', showNo = no && (nums || sheetMode), k = q.k, x, y, r, c0;
     g.strokeStyle = col; g.fillStyle = col;
-    if (q.f === 'p') { r = u * 0.56; x = q.x; y = q.y; g.lineWidth = Math.max(1.1, u / 13); g._dash = q.st === 'move' ? [u * 0.16, u * 0.12] : null; symDraw(g, k, x, y, r, q.rot || 0); g._dash = null;
+    if (q.f === 'p') { r = k === 'core' ? u * (0.3 + 0.0022 * Math.max(50, Math.min(200, q.dia || 100))) : u * 0.56; x = q.x; y = q.y; g.lineWidth = Math.max(1.1, u / 13); g._dash = q.st === 'move' ? [u * 0.16, u * 0.12] : null; symDraw(g, k, x, y, r, q.rot || 0); g._dash = null;
       if (q.st === 'remove' && k !== 'dmP') { g.save(); g.strokeStyle = '#b4232a'; g.lineWidth = Math.max(1.6, u / 8); g.lineCap = 'round'; g.beginPath(); g.moveTo(x - r * 1.15, y - r * 1.15); g.lineTo(x + r * 1.15, y + r * 1.15); g.moveTo(x + r * 1.15, y - r * 1.15); g.lineTo(x - r * 1.15, y + r * 1.15); g.stroke(); g.restore(); }
       else if (q.st === 'move') { g.save(); g.setLineDash([]); g.lineWidth = Math.max(1.1, u / 13); var ax = x + r * 1.15, ay = y + r * 1.15; g.beginPath(); g.moveTo(ax - r * 0.2, ay - r * 0.2); g.lineTo(ax + r * 0.75, ay + r * 0.75); g.stroke(); arrowHead(g, ax + r * 0.95, ay + r * 0.95, Math.PI / 4, r * 0.6); g.restore(); }
       if (showNo) { var w = tagW(g, String(no), u), o = r * 1.05 + u * 0.2, c = place([[x + o, y - o], [x - o, y - o], [x + o, y + o * (q.st === 'move' ? 1.9 : 1)], [x - o, y + o], [x, y - o * 1.45], [x, y + o * 1.45]], w, u * 0.66); tag(g, String(no), c[0], c[1], u, bc); }
-      if (q.note) label(g, String(q.note).length > 14 ? String(q.note).slice(0, 13) + '…' : String(q.note), [[x, y + r * 2.0], [x, y - r * 2.0], [x + r * 3, y], [x - r * 3, y], [x, y + r * 3]], u, '#374151', '', 0.42);
+      var nt = k === 'core' ? 'Ø' + (q.dia || 100) + ' ' + (q.at || '벽') + (q.note ? ' · ' + q.note : '') : String(q.note || ''); if (nt) label(g, nt.length > 18 ? nt.slice(0, 17) + '…' : nt, [[x, y + r * 2.0], [x, y - r * 2.0], [x + r * 3, y], [x - r * 3, y], [x, y + r * 3]], u, k === 'core' ? bc : '#374151', '', k === 'core' ? 0.46 : 0.42);
       return; }
     if (q.f === 'l') { var P = q.pts; if (q.loop && P.length > 3) { P = inset(P.slice(0, -1), u * (0.2 + 0.2 * (ord || 0))); P = P.concat([P[0]]); }
       var a = P[0], b = P[P.length - 1]; g.lineCap = 'butt'; g.lineJoin = 'miter'; g.setLineDash([]);
@@ -460,6 +504,9 @@
       var r10 = Math.round(Ld * mm / 10) * 10, txd = mm ? r10.toLocaleString('ko-KR') : '척도 없음', mxd = (q.x1 + q.x2) / 2, myd = (q.y1 + q.y2) / 2; var dc = []; [0.5, 0.25, 0.75, 0.12, 0.88].forEach(function (t) { var ax = q.x1 + (q.x2 - q.x1) * t, ay = q.y1 + (q.y2 - q.y1) * t; dc.push([ax - dy * u * 0.55, ay + dx * u * 0.55], [ax + dy * u * 0.55, ay - dx * u * 0.55]); }); label(g, txd, dc, u, mm ? '#111827' : '#b4232a', '', 0.5); }
     else if (q.t === 'win') { g.strokeStyle = '#1d5fd0'; g.lineWidth = Math.max(3, u / 3); g.lineCap = 'butt'; g.beginPath(); g.moveTo(q.x1, q.y1); g.lineTo(q.x2, q.y2); g.stroke(); g.strokeStyle = '#fff'; g.lineWidth = Math.max(1, u / 9); g.beginPath(); g.moveTo(q.x1, q.y1); g.lineTo(q.x2, q.y2); g.stroke(); }
     else if (q.t === 'door') drawDoor(g, q, u);
+    else if (q.t === 'guide') { var ge = gExt(q), gv = q.o === 'v', sg = spanAt(q.x, q.y), gc = '#d11a2a'; g.strokeStyle = gc; g.lineCap = 'butt'; g.lineWidth = Math.max(0.9, u / 18); g.setLineDash([u * 0.55, u * 0.12, u * 0.07, u * 0.12]); g.beginPath(); if (gv) { g.moveTo(q.x, ge[0]); g.lineTo(q.x, ge[1]); } else { g.moveTo(ge[0], q.y); g.lineTo(ge[1], q.y); } g.stroke(); g.setLineDash([]);
+      if (mm && sg) { var a1 = gv ? sg.L : sg.T, b1 = gv ? sg.R : sg.B, pv = gv ? q.x : q.y, both = !sheetMode && shapes[sel] === q, gtx = function (px) { return (Math.round(px * mm / 10) * 10).toLocaleString('ko-KR'); }, gl = function (m0, tx) { label(g, tx, gv ? [[m0, q.y], [m0, q.y - u * 0.9], [m0, q.y + u * 0.9], [m0, q.y - u * 1.8], [m0, q.y + u * 1.8]] : [[q.x, m0], [q.x - u * 1.5, m0], [q.x + u * 1.5, m0], [q.x - u * 3, m0], [q.x + u * 3, m0]], u, gc, '', 0.4); };
+        if (a1 != null && b1 != null) { var nearA = pv - a1 <= b1 - pv; if ((nearA || both) && pv - a1 > u * 0.5) gl((a1 + pv) / 2, gtx(pv - a1)); if ((!nearA || both) && b1 - pv > u * 0.5) gl((pv + b1) / 2, gtx(b1 - pv)); } } }
     else if (q.t === 'circle') { g.beginPath(); g.arc(q.x, q.y, Math.max(1, q.r), 0, Math.PI * 2); g.stroke(); }
     else if (q.t === 'rect') { g.lineJoin = 'miter'; g.globalAlpha = 0.06; g.fillRect(Math.min(q.x1, q.x2), Math.min(q.y1, q.y2), Math.abs(q.x2 - q.x1), Math.abs(q.y2 - q.y1)); g.globalAlpha = 1; g.strokeRect(Math.min(q.x1, q.x2), Math.min(q.y1, q.y2), Math.abs(q.x2 - q.x1), Math.abs(q.y2 - q.y1)); }
     else if (q.t === 'poly') { pathOf(g, q.pts, q.pts.length > 2); if (q.pts.length > 2) { g.globalAlpha = 0.06; g.fill(); g.globalAlpha = 1; } g.stroke(); }
@@ -481,7 +528,7 @@
   function redraw() {
     var cv = $('jjeCv'); if (!cv || !cv.width) return; var g = cv.getContext('2d'); g.setTransform(1, 0, 0, 1, 0, 0); g.clearRect(0, 0, cv.width, cv.height); g.setTransform(K, 0, 0, K, -SX * K, -SY * K);
     var u = U(); paint(g);
-    if (draft && draft.t === '_row') rowPts(draft).forEach(function (p) { drawOne(g, { t: 'wk', k: draft.k, st: draft.st, f: 'p', x: p[0], y: p[1], rot: (draft.k === 'wc' || draft.k === 'bs') ? autoRot(p[0], p[1]) : 0 }, u); }); else if (draft) drawOne(g, draft, u);
+    if (draft && draft.t === '_row') rowPts(draft).forEach(function (p) { drawOne(g, { t: 'wk', k: draft.k, st: draft.st, f: 'p', x: p[0], y: p[1], dia: wk.dia, at: wk.at, rot: (draft.k === 'wc' || draft.k === 'bs') ? autoRot(p[0], p[1]) : 0 }, u); }); else if (draft) drawOne(g, draft, u);
     if (poly) { drawOne(g, poly, u); g.save(); g.fillStyle = '#fff'; g.strokeStyle = '#1d5fd0'; g.lineWidth = Math.max(1.5, u / 9); poly.pts.forEach(function (p, i) { g.beginPath(); g.arc(p[0], p[1], u * (i ? 0.2 : 0.34), 0, Math.PI * 2); g.fill(); g.stroke(); }); g.restore(); }
     if (scaleP1) { g.save(); g.fillStyle = '#1d5fd0'; g.beginPath(); g.arc(scaleP1[0], scaleP1[1], u * 0.26, 0, Math.PI * 2); g.fill(); g.restore(); }
     var s = shapes[sel]; if (s && tool === 'select') { g.save(); g.strokeStyle = '#1d5fd0'; g.fillStyle = '#fff'; g.lineWidth = Math.max(1.2, u / 12); var hs = Math.max(u * 0.2, 5 / V.z), box = function (p) { g.beginPath(); g.rect(p[0] - hs, p[1] - hs, hs * 2, hs * 2); g.fill(); g.stroke(); };
@@ -502,12 +549,15 @@
       '<div class="jje-h">내보내기</div><div class="jje-chips"><button type="button" class="jje-chip" data-a="sheet">작업지시서</button><button type="button" class="jje-chip" data-a="styled">집지니 도면 그림 저장</button><button type="button" class="jje-chip" data-a="png">지금 화면 그대로 그림 저장</button><button type="button" class="jje-chip" data-a="v3d">입체로 보기</button></div>' +
       '<div class="jje-h">정리</div><div class="jje-chips"><button type="button" class="jje-chip" data-a="clear">작업 기호·표시 모두 지우기</button><button type="button" class="jje-chip" data-a="restart" style="color:#b4232a">다른 도면으로 처음부터</button></div>' +
       '<p class="jje-p">도면과 표시는 이 기기(브라우저)에만 저장됩니다. 서버로 보내지 않습니다.</p>'; return; }
-    var syms = Object.keys(SYMS).filter(function (k) { return SYMS[k][0] === wk.trade; }), cur = SYMS[wk.k] || [], on = tool === 'wk';
+    if (tool === 'guide') { $('jjePaneWork').innerHTML = '<div id="jjeProp"></div>' + guidePane(); propDraw(); return; }
+    var syms = Object.keys(SYMS).filter(function (k) { return SYMS[k][0] === wk.trade; }), cur = SYMS[wk.k] || [], on = tool === 'wk', nX = on && cur[2] === 'p' ? gCross().length : 0;
     $('jjePaneWork').innerHTML = '<div id="jjeProp"></div>' +
       '<div class="jje-h">공종</div><div class="jje-chips">' + TRADES.map(function (t) { return '<button type="button" class="jje-chip ' + (wk.trade === t[0] ? 'on' : '') + (hide[t[0]] ? ' off' : '') + '" data-a="trade" data-v="' + t[0] + '"><i style="background:' + t[1] + '"></i>' + t[0] + '</button>'; }).join('') + '</div>' +
       '<div class="jje-h">기호 — 고른 뒤 도면에 놓습니다</div><div class="jje-grid">' + syms.map(function (k) { return '<button type="button" class="jje-sym ' + (on && wk.k === k ? 'on' : '') + '" data-a="sym" data-v="' + k + '"><canvas width="80" height="80" data-ic="' + k + '"></canvas><span>' + SYMS[k][1] + '</span></button>'; }).join('') + '</div>' +
       '<div class="jje-h">구분</div><div class="jje-chips">' + ST.map(function (s) { return '<button type="button" class="jje-chip ' + (wk.st === s[0] ? 'on' : '') + '" data-a="st" data-v="' + s[0] + '">' + s[1] + '</button>'; }).join('') + '</div>' +
       (on && cur[2] === 'p' ? '<div class="jje-row"><label style="width:auto">끌어서 한 줄에</label><input type="number" id="jjeRow" min="1" max="40" value="' + wk.row + '" style="width:76px"><span style="font-size:14.5px;color:#6B6B6B">개 고르게 놓기</span></div>' : '') +
+      (on && wk.k === 'core' ? '<div class="jje-h">타공 지름 (mm)</div><div class="jje-chips">' + [50, 65, 75, 100, 125, 150, 200].map(function (d) { return chipB('cdia', d, wk.dia === d, 'Ø' + d); }).join('') + '</div><div class="jje-row"><label style="width:auto">직접 넣기</label><input type="number" id="jjeDia" min="50" max="200" step="5" value="' + wk.dia + '" style="width:90px"><span style="font-size:14.5px;color:#6B6B6B">50~200</span></div><div class="jje-h">타공할 곳</div><div class="jje-chips">' + ['천장', '벽', '바닥'].map(function (t) { return chipB('cat', t, wk.at === t, t); }).join('') + '</div>' : '') +
+      (nX ? '<div class="jje-chips" style="margin-top:8px"><button type="button" class="jje-chip" data-a="gFill">기준선이 만나는 곳마다 놓기 (' + nX + '곳)</button></div>' : '') +
       (on && cur[2] === 'a' ? '<div class="jje-chips" style="margin-top:8px"><button type="button" class="jje-chip ' + (wk.whole ? 'on' : '') + '" data-a="whole" data-v="1">공간 통째로</button><button type="button" class="jje-chip ' + (!wk.whole ? 'on' : '') + '" data-a="whole" data-v="0">직접 그리기</button></div>' : '') +
       (on && cur[2] === 'l' ? '<p class="jje-p">벽을 따라 끌어서 긋습니다. 거의 가로·세로이면 반듯하게 맞춥니다.' + (LOOPK.test(wk.k) ? ' 방 안쪽을 한 번 누르면 그 방 둘레 전체에 들어갑니다.' : '') + '</p>' : '') +
       '<div class="jje-h">수량표</div><div id="jjeQty"></div>' +
@@ -526,7 +576,10 @@
     var row = function (lb, html) { return '<div class="jje-row"><label>' + lb + '</label>' + html + '</div>'; }, inp = function (key, v, ph, type) { return '<input ' + (type ? 'type="' + type + '" ' : 'type="text" ') + 'data-p="' + key + '" value="' + esc(v == null ? '' : v) + '" placeholder="' + (ph || '') + '">'; }, title = '', body = '';
     if (s.t === 'room') { title = '공간 이름 고치기'; body = row('이름', inp('name', s.name)) + '<div class="jje-chips" style="margin-top:8px">' + ['거실', '안방', '방2', '방3', '주방', '욕실1', '욕실2', '현관', '발코니', '드레스룸', '다용도실'].map(function (n) { return '<button type="button" class="jje-chip" data-a="rname" data-v="' + n + '">' + n + '</button>'; }).join('') + '</div>'; }
     else if (s.t === 'win' || s.t === 'door') { title = s.t === 'win' ? '창' : '문'; body = row('이름', inp('name', s.name, s.t === 'win' ? '거실 큰 창' : '안방문')) + row('높이', inp('h', s.h, 'mm', 'number')) + (s.t === 'door' ? '<div class="jje-chips" style="margin-top:8px"><button type="button" class="jje-chip" data-a="flip">여는 쪽 바꾸기</button><button type="button" class="jje-chip" data-a="swap">경첩 쪽 바꾸기</button></div>' : ''); }
-    else if (s.t === 'wk') { var S = SYMS[s.k] || ['', '표시']; title = S[0] + ' · ' + S[1]; body = '<div class="jje-chips" style="margin-top:8px">' + ST.map(function (x) { return '<button type="button" class="jje-chip ' + ((s.st || 'new') === x[0] ? 'on' : '') + '" data-a="pst" data-v="' + x[0] + '">' + x[1] + '</button>'; }).join('') + '</div>' + row('메모', inp('note', s.note, '예: 3구 · 바닥에서 300')) + (s.f === 'p' && (s.k === 'wc' || s.k === 'bs' || s.k === 'doorN' || s.k === 'sw' || s.k === 'wt') ? '<div class="jje-chips" style="margin-top:8px"><button type="button" class="jje-chip" data-a="rot">방향 돌리기</button></div>' : ''); }
+    else if (s.t === 'wk') { var S = SYMS[s.k] || ['', '표시']; title = S[0] + ' · ' + S[1]; body = '<div class="jje-chips" style="margin-top:8px">' + ST.map(function (x) { return '<button type="button" class="jje-chip ' + ((s.st || 'new') === x[0] ? 'on' : '') + '" data-a="pst" data-v="' + x[0] + '">' + x[1] + '</button>'; }).join('') + '</div>' + row('메모', inp('note', s.note, '예: 3구 · 바닥에서 300')) + (s.f === 'p' && (s.k === 'wc' || s.k === 'bs' || s.k === 'doorN' || s.k === 'sw' || s.k === 'wt') ? '<div class="jje-chips" style="margin-top:8px"><button type="button" class="jje-chip" data-a="rot">방향 돌리기</button></div>' : '') +
+      (s.k === 'core' ? row('지름', inp('dia', s.dia || 100, '50~200', 'number')) + '<div class="jje-chips" style="margin-top:8px">' + [50, 75, 100, 125, 150, 200].map(function (d) { return chipB('pdia', d, (s.dia || 100) === d, 'Ø' + d); }).join('') + '</div><div class="jje-chips" style="margin-top:8px">' + ['천장', '벽', '바닥'].map(function (t) { return chipB('pat', t, (s.at || '벽') === t, t); }).join('') + '</div>' : ''); }
+    else if (s.t === 'guide') { var gv = s.o === 'v', sg = spanAt(s.x, s.y), gm = mmpp(), gA = sg ? (gv ? sg.L : sg.T) : null, gB = sg ? (gv ? sg.R : sg.B) : null, pv = gv ? s.x : s.y, grow = function (lb, key, px) { return '<div class="jje-row"><label style="width:104px">' + lb + '</label>' + inp(key, Math.round(px * gm / 10) * 10, 'mm', 'number') + '</div>'; }; title = '기준선 · ' + (gv ? '세로' : '가로');
+      body = gm && gA != null && gB != null ? grow(gv ? '왼쪽 벽에서' : '위쪽 벽에서', 'gA', pv - gA) + grow(gv ? '오른쪽 벽에서' : '아래쪽 벽에서', 'gB', gB - pv) + '<p class="jje-p">숫자(mm)를 고치면 줄이 그 자리로 옮겨집니다.</p>' : '<p class="jje-p">' + (gm ? '방 안에 놓인 기준선만 벽에서 띄운 거리를 맞출 수 있습니다.' : '척도가 없어 거리를 맞출 수 없습니다. 「측정」에서 척도를 잡아 주세요.') + '</p>'; }
     else if (s.t === 'text') { title = '글자'; body = row('글자', inp('s', s.s)); }
     else if (s.t === 'dim') { title = '치수'; var mm = mmpp(); body = '<div style="font-size:16px;margin-top:6px">' + (mm ? Math.round(Math.hypot(s.x2 - s.x1, s.y2 - s.y1) * mm).toLocaleString('ko-KR') + ' mm' : '척도 없음') + '</div>'; }
     else if (s.t === 'scale') { title = '척도'; body = row('길이', inp('mm', s.mm, 'mm', 'number')); }
@@ -534,7 +587,10 @@
     el.innerHTML = '<div class="jje-card"><div style="display:flex;align-items:center;gap:6px"><b style="flex:1;font-size:15.5px">' + esc(title) + '</b><button type="button" class="jje-chip" data-a="dup">복제</button><button type="button" class="jje-chip" data-a="del" style="color:#b4232a">지우기</button></div>' + body + '</div>';
     if (focusName && root.innerWidth > 860) setTimeout(function () { var i = el.querySelector('[data-p=name]'); if (i) { try { i.focus(); i.select(); } catch (e) {} } }, 40);
   }
-  function propSet(key, v) { var s = shapes[sel]; if (!s) return; if (key === 'h' || key === 'mm') { var n = Number(v); if (n > 0) s[key] = n; if (key === 'mm') { baseOk = false; shapes.forEach(function (q) { delete q.a0; }); } } else if (key === 'name') { s.name = String(v).trim().slice(0, 16) || s.name; if (s.t === 'room') s.kind = kindOf(s.name); } else s[key] = String(v).slice(0, 60); redraw(); qtyDraw(); if (s.t === 'room' || s.t === 'win' || key === 'mm') bgSoon(); saveSoon(); }
+  function propSet(key, v) { var s = shapes[sel]; if (!s) return;
+    if (key === 'gA' || key === 'gB') { var sg = spanAt(s.x, s.y), gm = mmpp(), n0 = Number(v), gv = s.o === 'v'; if (!sg || !gm || v === '' || !(n0 >= 0)) return; var A = gv ? sg.L : sg.T, B = gv ? sg.R : sg.B; if (A == null || B == null) return; var np = key === 'gA' ? A + n0 / gm : B - n0 / gm; if (np <= A || np >= B) return; if (gv) s.x = R2(np); else s.y = R2(np); var ot = EL.querySelector('[data-p=' + (key === 'gA' ? 'gB' : 'gA') + ']'); if (ot) ot.value = Math.round((key === 'gA' ? B - np : np - A) * gm / 10) * 10; redraw(); saveSoon(); return; }
+    if (key === 'dia') { var dn = Math.round(Number(v)); if (dn >= 50 && dn <= 200) { s.dia = dn; redraw(); qtyDraw(); saveSoon(); } return; }
+    if (key === 'h' || key === 'mm') { var n = Number(v); if (n > 0) s[key] = n; if (key === 'mm') { baseOk = false; shapes.forEach(function (q) { delete q.a0; }); } } else if (key === 'name') { s.name = String(v).trim().slice(0, 16) || s.name; if (s.t === 'room') s.kind = kindOf(s.name); } else s[key] = String(v).slice(0, 60); redraw(); qtyDraw(); if (s.t === 'room' || s.t === 'win' || key === 'mm') bgSoon(); saveSoon(); }
 
   // ── 수량표·작업지시서
   function workRows() {
@@ -543,7 +599,7 @@
       if (q.f === 'p') { cx = q.x; cy = q.y; } else if (q.f === 'l') { cx = (q.pts[0][0] + q.pts[q.pts.length - 1][0]) / 2; cy = (q.pts[0][1] + q.pts[q.pts.length - 1][1]) / 2; if (q.loop) { c0 = centroid(q.pts.slice(0, -1)); cx = c0[0]; cy = c0[1]; } qty = mm ? R2(lineLen(q.pts) * mm / 1000) : 0; unit = 'm'; }
       else { c0 = centroid(q.pts); cx = c0[0]; cy = c0[1]; qty = mm ? R2(pxArea(q.pts) * mm * mm / 1e6) : 0; unit = '㎡'; }
       var room = roomAt(cx, cy); if (!room) { var bd = U() * 3; rooms().forEach(function (r) { var d = polyD(cx, cy, r.pts, true); if (d < bd) { bd = d; room = r; } }); }
-      var st = q.st || 'new', row = { i: i, no: N.nos[i], trade: S[0], cat: catOf(q.k), k: q.k, f: q.f, label: S[1], st: st, stLabel: ST.filter(function (x) { return x[0] === st; })[0][1], room: room ? room.name : '', qty: qty, unit: unit, n: 1, note: q.note || '' };
+      var st = q.st || 'new', row = { i: i, no: N.nos[i], trade: S[0], cat: catOf(q.k), k: q.k, f: q.f, label: q.k === 'core' ? '타공 Ø' + (q.dia || 100) + ' ' + (q.at || '벽') : S[1], st: st, stLabel: ST.filter(function (x) { return x[0] === st; })[0][1], room: room ? room.name : '', qty: qty, unit: unit, n: 1, note: q.note || '' };
       if (byNo[row.no]) { var b = byNo[row.no]; b.qty = R2(b.qty + qty); b.n++; if (row.note && b.note.indexOf(row.note) < 0) b.note += (b.note ? ', ' : '') + row.note; if (row.room && b.room.split('·').indexOf(row.room) < 0) b.room += (b.room ? '·' : '') + row.room; return; }
       byNo[row.no] = row; out.push(row); });
     out.sort(function (a, b) { return a.no - b.no; }); return out;
@@ -553,7 +609,7 @@
   function qtyDraw() {
     var el = $('jjeQty'); if (!el) return; var sum = workSum(workRows());
     if (!sum.length) { el.innerHTML = '<p class="jje-p" style="margin:0">아직 놓은 기호가 없습니다. 위에서 공종과 기호를 골라 도면에 놓으면 여기에 개수·길이·면적이 모입니다.</p>'; return; }
-    var h = '<table class="jje-qty">'; TRADES.forEach(function (t) { var L = sum.filter(function (s) { return s.trade === t[0]; }); if (!L.length) return; h += '<tr class="tr"><td colspan="2"><i style="display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;background:' + t[1] + '"></i>' + t[0] + '</td></tr>'; L.forEach(function (s) { h += '<tr><td>' + esc(s.label) + (s.stLabel !== '신설' ? ' <span style="color:#6B6B6B">' + s.stLabel + '</span>' : '') + '</td><td>' + qtyTx(s) + '</td></tr>'; }); });
+    var h = '<table class="jje-qty">'; TRADES.forEach(function (t) { var L = sum.filter(function (s) { return s.trade === t[0]; }); if (!L.length) return; h += '<tr class="tr"><td colspan="2"><i style="display:inline-block;width:4px;height:13px;vertical-align:-2px;margin-right:7px;background:' + t[1] + '"></i>' + t[0] + '</td></tr>'; L.forEach(function (s) { h += '<tr><td>' + esc(s.label) + (s.stLabel !== '신설' ? ' <span style="color:#6B6B6B">' + s.stLabel + '</span>' : '') + '</td><td>' + qtyTx(s) + '</td></tr>'; }); });
     el.innerHTML = h + '</table>' + (mmpp() ? '' : '<p class="jje-p" style="color:#b4232a">척도가 없어 길이·면적은 비어 있습니다. 「측정」에서 척도를 잡아 주세요.</p>');
   }
   function today() { var d = new Date(); return d.getFullYear() + '. ' + (d.getMonth() + 1) + '. ' + d.getDate() + '.'; }
@@ -576,7 +632,7 @@
     if (!B) { fin(null); return; } var s = B.svg.replace('fill="#f7f4ee"/>', 'fill="#ffffff"/>').replace('background:#f7f4ee', 'background:#ffffff');
     var im = new Image(); im.onload = function () { fin(im); }; im.onerror = function () { fin(null); }; im.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(s);
   }
-  function legendIcons(rows) { var seen = {}, out = []; rows.forEach(function (r) { if (seen[r.k]) return; seen[r.k] = 1; var c = doc.createElement('canvas'); c.width = 66; c.height = 66; icon(c, r.k, 'new'); var u = ''; try { u = c.toDataURL('image/png'); } catch (e) {} out.push({ k: r.k, label: r.label, url: u }); }); return out; }
+  function legendIcons(rows) { var seen = {}, out = []; rows.forEach(function (r) { if (seen[r.k]) return; seen[r.k] = 1; var c = doc.createElement('canvas'); c.width = 66; c.height = 66; icon(c, r.k, 'new'); var u = ''; try { u = c.toDataURL('image/png'); } catch (e) {} out.push({ k: r.k, label: (SYMS[r.k] || [0, r.label])[1], url: u }); }); return out; }
   var SH = null;
   function sheet(ci) {
     var all = workRows(); if (!all.length) { toast('놓은 작업 기호가 없습니다. 「작업지시」에서 기호를 골라 도면에 놓아 주세요.'); return; }
@@ -589,7 +645,7 @@
       var lg = legendIcons(rows), h = '';
       h += '<div class="tb"><div class="ti"><h2>작업지시서</h2><div class="s">' + esc(planName) + ' · ' + esc(ttl) + '</div></div><dl><dt>작성일</dt><dd>' + today() + '</dd><dt>공종</dt><dd>' + esc(ttl) + '</dd><dt>지시</dt><dd>' + rows.length + '건</dd><dt>도면</dt><dd>집지니 CAD · 축척 없음' + (mm ? ' (치수 단위 mm)' : '') + '</dd></dl></div>';
       if (url) h += '<img class="dw" src="' + url + '" alt="공사 계획 도면">';
-      h += '<div class="lg"><b>범례</b>' + lg.map(function (x) { return '<span>' + (x.url ? '<img src="' + x.url + '" alt="">' : '') + esc(x.label) + '</span>'; }).join('') + '<span style="color:#555">회색 = 유지 · 점선과 화살표 = 이설 · 붉은 가위표 = 철거 · 번호 = 아래 지시 목록의 번호</span></div>';
+      h += '<div class="lg"><b>범례</b>' + lg.map(function (x) { return '<span>' + (x.url ? '<img src="' + x.url + '" alt="">' : '') + esc(x.label) + '</span>'; }).join('') + '<span style="color:#555">회색 = 유지 · 점선과 화살표 = 이설 · 붉은 가위표 = 철거 · 번호 = 아래 지시 목록의 번호' + (shapes.some(function (q) { return q.t === 'guide' && visible(q); }) ? ' · 붉은 일점쇄선 = 기준선(숫자는 가까운 벽에서 띄운 거리 mm)' : '') + '</span></div>';
       h += '<h3>수량표</h3><table><tr><th style="width:120px">공종</th><th>항목</th><th class="c" style="width:60px">구분</th><th class="r" style="width:90px">수량</th><th class="c" style="width:50px">단위</th></tr>';
       CATS.forEach(function (c, i) { var L = sum.filter(function (s) { return s.cat === i; }); L.forEach(function (s, j) { h += '<tr>' + (j ? '' : '<td rowspan="' + L.length + '"><b>' + c[0] + ' ' + c[1] + '</b></td>') + '<td>' + esc(s.label) + '</td><td class="c">' + s.stLabel + '</td><td class="r">' + (s.unit === '개' ? s.qty : (s.qty || '—')) + '</td><td class="c">' + s.unit + '</td></tr>'; }); });
       h += '</table>' + (mm ? '' : '<div class="ft">척도가 없어 길이·면적 수량은 비어 있습니다.</div>');
@@ -675,6 +731,10 @@
     else if (a === 'trade') { if (hide[v]) { hide[v] = false; laySave(); layDraw(); } wk.trade = v; if ((SYMS[wk.k] || [])[0] !== v) wk.k = Object.keys(SYMS).filter(function (k) { return SYMS[k][0] === v; })[0]; if (v === '철거') wk.st = 'remove'; else if (wk.st === 'remove') wk.st = 'new'; if (tool === 'wk') { tool = 'select'; railDraw(); say(''); } sideDraw(); redraw(); }
     else if (a === 'sym') { wk.k = v; wk.trade = SYMS[v][0]; if (hide[wk.trade]) { hide[wk.trade] = false; laySave(); layDraw(); } if (SYMS[v][0] === '철거') wk.st = 'remove'; setTool('wk'); if (root.innerWidth <= 860) sideOpen(false); }
     else if (a === 'st') { wk.st = v; sideDraw(); }
+    else if (a === 'gO') { gd.o = v; sideDraw(); } else if (a === 'gDiv') { gd.div = v === '1'; sideDraw(); say(gd.div ? '기준선: 나눌 방 안쪽을 누르세요.' : HINT.guide); } else if (a === 'gHalf') { gd.half = v === '1'; sideDraw(); }
+    else if (a === 'gFill') gFill(); else if (a === 'gClear') { snap(); shapes = shapes.filter(function (q) { return q.t !== 'guide'; }); sel = -1; touch(); sideDraw(); }
+    else if (a === 'cdia') { wk.dia = Number(v); sideDraw(); } else if (a === 'cat') { wk.at = v; sideDraw(); }
+    else if (a === 'pdia' && s) { snap(); s.dia = Number(v); touch(); propDraw(); } else if (a === 'pat' && s) { snap(); s.at = v; touch(); propDraw(); }
     else if (a === 'whole') { wk.whole = v === '1'; poly = null; sideDraw(); wkHint(); }
     else if (a === 'rname' && s) { snap(); propSet('name', v); propDraw(); }
     else if (a === 'pst' && s) { snap(); s.st = v; touch(); propDraw(); }
@@ -687,7 +747,7 @@
     else if (a === 'clear') { if (!shapes.some(function (q) { return !/^(room|win|door|scale)$/.test(q.t); })) return; if (!root.confirm('작업 기호와 표시를 모두 지울까요? (「되돌리기」로 되살릴 수 있습니다)')) return; snap(); shapes = shapes.filter(function (q) { return /^(room|win|door|scale)$/.test(q.t); }); sel = -1; touch(); propDraw(); }
     else if (a === 'restart') { if (OPT.onRestart) OPT.onRestart(); }
   }
-  function onInput(ev) { var t = ev.target; if (t.id === 'jjeRow') { wk.row = Math.max(1, Math.min(40, Number(t.value) || 1)); if (tool === 'wk') wkHint(); } else if (t.id === 'jjeName') { planName = t.value.trim().slice(0, 30) || '우리 집'; $('jjeNm').textContent = planName; saveSoon(); } else if (t.getAttribute && t.getAttribute('data-p')) propSet(t.getAttribute('data-p'), t.value); }
+  function onInput(ev) { var t = ev.target; if (t.id === 'jjeGNv') gd.nv = gN(t.value); else if (t.id === 'jjeGNh') gd.nh = gN(t.value); else if (t.id === 'jjeGOff') gd.off = t.value; else if (t.id === 'jjeDia') { var dv = Math.round(Number(t.value)); if (dv >= 50 && dv <= 200) wk.dia = dv; } else if (t.id === 'jjeRow') { wk.row = Math.max(1, Math.min(40, Number(t.value) || 1)); if (tool === 'wk') wkHint(); } else if (t.id === 'jjeName') { planName = t.value.trim().slice(0, 30) || '우리 집'; $('jjeNm').textContent = planName; saveSoon(); } else if (t.getAttribute && t.getAttribute('data-p')) propSet(t.getAttribute('data-p'), t.value); }
   function leave() { if (full) { full = false; applyFull(); } var s = $('jjeSheet'); if (s) s.remove(); }
 
   root.JJCadEditor = { mount: mount, open: open, fromPlan: fromPlan, fromV1: fromV1, getState: getState, leave: leave, SYMS: SYMS, TRADES: TRADES, CATS: CATS,
