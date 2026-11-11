@@ -472,11 +472,16 @@
       for (k = 0; k < N - w; k++) { var la = lab[k]; if (!isBlue(la)) continue; [k % w < w - 1 ? lab[k + 1] : 0, lab[k + w]].forEach(   /* 바로 맞닿은 칸만 — 두 칸 건너까지 보면 줄인 그림에서 얇은 벽 너머의 다른 욕실과 합쳐져 욕실이 1개로 줄었다(106장 중 4장) */function (lb) { if (lb !== la && isBlue(lb)) { var key = Math.min(la, lb) + '|' + Math.max(la, lb); adj[key] = (adj[key] || 0) + 1; } }); }
       var to = {}, root2 = function (x) { while (to[x]) x = to[x]; return x; }; Object.keys(adj).forEach(function (key) { if (adj[key] < Math.max(4, U * 0.5)) return; var pr = key.split('|'), a = root2(Number(pr[0])), b3 = root2(Number(pr[1])); if (a === b3) return; var named = kindOf[a] ? a : kindOf[b3] ? b3 : ((cntL[a] || 0) >= (cntL[b3] || 0) ? a : b3), other = named === a ? b3 : a; to[other] = named; });
       if (Object.keys(to).length) for (k = 0; k < N; k++) { var l9 = lab[k]; if (to[l9]) lab[k] = root2(l9); } })();
+    // (2.45) 2026-11-12 새벽: 이름표 없는 도면(네이버 양식 대부분)은 욕실 이름이 이 뒤 단계(바깥선을 딴 다음)에서야 붙어서, 아래 욕실 넓히기 (2.5)~(2.7)이 통째로 건너뛰어졌다 — 욕조가 빠지던 뿌리.
+    //   글자가 없어도 「칸의 40% 넘게 파랗고 크기가 욕실만 한 칸」은 여기서 욕실로 보고 넓히기를 태운다(이름은 붙이지 않는다 — 이름은 뒤 단계가 그대로 정한다).
+    var bathLike = {}; (function () { var c = {}, bl = {}, k; for (k = 0; k < N; k++) { var l = lab[k]; if (l < 2) continue; c[l] = (c[l] || 0) + 1; var o = k * 4, r = d[o], g2 = d[o + 1], b = d[o + 2]; if (b - r >= 10 && g2 - r >= 3 && Math.min(r, g2, b) > 185) bl[l] = (bl[l] || 0) + 1; }
+      Object.keys(c).forEach(function (l) { if (kindOf[l] === '욕실' || ((!kindOf[l] || kindOf[l] === '기타') && (bl[l] || 0) >= c[l] * 0.4 && c[l] >= U * U * 0.5 && c[l] <= U * U * 8)) bathLike[l] = 1; }); })();
+    var isBathL = function (l) { return l >= 2 && bathLike[l] === 1; };
     // (2.5) 2026-11-11 저녁: 욕조·샤워 칸 합치기 — 욕실 안의 욕조·샤워 칸막이 선(가는 선)에 욕실이 둘로 갈려, 한쪽만 욕실로 남고 나머지는 이름 없는 칸이 됐다.
     //   채점 3단계 150장에서 욕실 모양 겹침이 평균 48%(침실 80·마루 79)였고 「욕실 크기 2~9㎡」가 68장 틀렸다. 가는 선(또는 선 없이)으로 욕실과 맞닿은 이름 없는 작은 칸은 그 욕실에 합친다. 굵은 벽 너머의 칸(피트·대피공간)은 그대로 둔다.
     (function () { var cnt = {}, k, share = {}, gap = {}, thinMax = Math.max(2, Math.round(U * tv('tubLine', 0.07))), look = thinMax + 4;
       for (k = 0; k < N; k++) { var l = lab[k]; if (l >= 2) cnt[l] = (cnt[l] || 0) + 1; }
-      var cand = function (l) { return l >= 2 && (!kindOf[l] || kindOf[l] === '기타') && (cnt[l] || 0) <= U * U * tv('tubMax', 2.6); }, isBath = function (l) { return l >= 2 && kindOf[l] === '욕실'; };
+      var cand = function (l) { return l >= 2 && (!kindOf[l] || kindOf[l] === '기타') && (cnt[l] || 0) <= U * U * tv('tubMax', 2.6); }, isBath = isBathL;
       var pass = function (step, lineOf) { for (var p = 0; p < N; p++) { var a = lab[p]; if (a < 2) continue; var q = p + step, t = 0; if (q >= N || lineOf(q) !== lineOf(p)) continue; if (lab[q] === a) continue;
           while (q < N && lineOf(q) === lineOf(p) && lab[q] < 2 && t <= look) { q += step; t++; } if (q >= N || lineOf(q) !== lineOf(p) || t > look) continue; var b = lab[q]; if (b < 2 || b === a) continue;
           var B = isBath(a) && cand(b) ? a : isBath(b) && cand(a) ? b : 0; if (!B) continue; var C = B === a ? b : a, key = B + '|' + C; share[key] = (share[key] || 0) + 1; gap[key] = (gap[key] || 0) + t; } };
@@ -489,7 +494,7 @@
     // (2.6) 2026-11-11 밤: 욕실을 벽까지 채우기 — 네이버 양식은 욕실 바닥만 파랗고 변기·세면대·세면대 받침·욕조·문 여는 자리는 희게 그린다.
     //   32장에서 재 보니 파란 바닥은 실제 욕실 넓이의 절반 남짓(벽까지의 넓이 ÷ 파랑 = 1.4~2.4배)이었다. 욕실 모양 겹침이 낮고 「욕실 크기」가 작게 나오는 뿌리다.
     //   욕실 칸에서 흰 자리·가는 선을 타고 번지되, 굵은 벽·다른 바닥색·그림 바깥(가장자리에서 흰색으로 이어진 곳)·이름 있는 방은 넘지 않는다.
-    (function () { var k, o, cnt = {}, anyBath = false; for (k = 0; k < N; k++) { var l = lab[k]; if (l >= 2) { cnt[l] = (cnt[l] || 0) + 1; if (kindOf[l] === '욕실') anyBath = true; } } if (!anyBath) return;
+    (function () { var k, o, cnt = {}, anyBath = false; for (k = 0; k < N; k++) { var l = lab[k]; if (l >= 2) { cnt[l] = (cnt[l] || 0) + 1; if (isBathL(l)) anyBath = true; } } if (!anyBath) return;
       var T = Math.max(3, Math.round(U * tv('bathWall', 0.09))), cl = new Uint8Array(N);   // 1 흰색 · 2 가는 선(어두움) · 3 흐린 회색 · 4 파랑 · 5 굵은 벽 · 6 다른 바닥색
       for (k = 0; k < N; k++) { o = k * 4; var r = d[o], g2 = d[o + 1], b = d[o + 2], mx = Math.max(r, g2, b), mn = Math.min(r, g2, b); cl[k] = mx < 110 ? 2 : (b - r >= 10 && g2 - r >= 3 && mn > 185) ? 4 : mn > 232 ? 1 : (mx - mn < 14 || (b >= r && mx - mn < 44)) ? 3 : 6; }   /* 가는 선이 파랑·흰색과 섞인 푸르스름한 회색도 선으로 본다(따뜻한 색 = 다른 바닥) */
       // 굵은 벽: 어두운 화소 가운데 가로로도 세로로도 T 화소 넘게 이어진 것
@@ -506,10 +511,10 @@
       for (k = 0; k < N; k++) blk[k] = (cl[k] === 5 || cl[k] === 6 || ext[k]) ? 1 : 0;
       for (y = 0; y < h; y++) { var rs = 0; for (x = 0; x < w; x++) { rs += blk[y * w + x]; sat[(y + 1) * W1 + x + 1] = sat[y * W1 + x + 1] + rs; } }
       var clear = function (p) { var px = p % w, py = (p / w) | 0, ax = Math.max(0, px - R), bx = Math.min(w - 1, px + R), ay = Math.max(0, py - R), by = Math.min(h - 1, py + R); return sat[(by + 1) * W1 + bx + 1] - sat[ay * W1 + bx + 1] - sat[(by + 1) * W1 + ax] + sat[ay * W1 + ax] === 0; };
-      var donor = function (l) { return l < 2 || !kindOf[l] || /^(기타|거실|주방|복도)$/.test(kindOf[l]); }, labs = Object.keys(cnt).filter(function (l) { return kindOf[l] === '욕실'; });
+      var donor = function (l) { return l < 2 || !kindOf[l] || /^(기타|거실|주방|복도)$/.test(kindOf[l]); }, labs = Object.keys(cnt).filter(function (l) { return isBathL(Number(l)); });
       labs.forEach(function (ls) { var B = Number(ls), x0 = w, x1 = 0, y0 = h, y1 = 0, qd = [], k2; for (k2 = 0; k2 < N; k2++) if (lab[k2] === B) { var qx = k2 % w, qy = (k2 / w) | 0; if (qx < x0) x0 = qx; if (qx > x1) x1 = qx; if (qy < y0) y0 = qy; if (qy > y1) y1 = qy; qd.push(k2); }
         var mg = Math.round(Math.sqrt(qd.length) * tv('bathReach', 1.0)); x0 = Math.max(0, x0 - mg); x1 = Math.min(w - 1, x1 + mg); y0 = Math.max(0, y0 - mg); y1 = Math.min(h - 1, y1 + mg);
-        var core = [], seen = {}, a0 = 0, base = qd.length, ok = function (n) { return !blk[n] && kindOf[lab[n]] !== '욕실' && donor(lab[n]) && !(cl[n] === 4 && lab[n] >= 2); };
+        var core = [], seen = {}, a0 = 0, base = qd.length, ok = function (n) { return !blk[n] && !isBathL(lab[n]) && donor(lab[n]) && !(cl[n] === 4 && lab[n] >= 2); };
         // ① 넓은 길로만 번진다
         while (a0 < qd.length) { var p = qd[a0++], px = p % w, py = (p / w) | 0, nb = [px > x0 ? p - 1 : -1, px < x1 ? p + 1 : -1, py > y0 ? p - w : -1, py < y1 ? p + w : -1];
           for (var b3 = 0; b3 < 4; b3++) { var n = nb[b3]; if (n < 0 || seen[n] || lab[n] === B) continue; if (!ok(n) || !clear(n)) continue; seen[n] = 1; qd.push(n); core.push(n); } }
@@ -518,6 +523,20 @@
         while (a1 < fr.length) { var p2 = fr[a1++], d2 = dist[p2]; if (d2 >= R) continue; var px2 = p2 % w, py2 = (p2 / w) | 0, nb2 = [px2 > x0 ? p2 - 1 : -1, px2 < x1 ? p2 + 1 : -1, py2 > y0 ? p2 - w : -1, py2 < y1 ? p2 + w : -1];
           for (var b4 = 0; b4 < 4; b4++) { var n3 = nb2[b4]; if (n3 < 0 || dist[n3] !== undefined || lab[n3] === B) continue; if (!ok(n3)) continue; dist[n3] = d2 + 1; fr.push(n3); if (!seen[n3]) { seen[n3] = 1; got.push(n3); } } }
         if (!got.length || got.length > base * tv('bathGrow', 2.2) || base + got.length > U * U * tv('bathMax', 9)) return;   // 너무 많이 번지면 샌 것이다 — 그대로 둔다
+        got.forEach(function (n2) { lab[n2] = B; wall[n2] = 0; }); });
+      // (2.7) 2026-11-12 새벽: 욕조까지 넓히기 — (2.6)은 문 틈으로 새지 않게 「폭 1m 안 되는 목은 안 지나간다」로 막았는데, 욕조도 폭이 0.7m라 같이 막혀 욕조가 빠졌다(원인).
+      //   문 틈은 학습 모델·문 찾기가 그어 둔 막음 선(wall 인데 어두운 화소가 아닌 자리)으로 막고, 목 제한 없이 번진다. 새는 것은 세 가지로 거른다:
+      //   ① 번진 뒤 넓이가 욕실 크기를 넘으면 버림 ② 번진 자리의 절반 넘게가 흰색(기구·문 여는 자리)이어야 함 ③ 원래 욕실의 1.3배 넘게 늘면 버림.
+      var syn = new Uint8Array(N), dbar = new Uint8Array(N); for (k = 0; k < N; k++) if (wall[k] && (cl[k] === 1 || cl[k] === 4 || cl[k] === 6)) syn[k] = 1;   // 문 막음 선: 벽 표시인데 그림에는 선이 없는 자리
+      for (k = w; k < N - w; k++) if (syn[k] || (wall[k] && (syn[k - 1] || syn[k + 1] || syn[k - w] || syn[k + w]))) dbar[k] = 1;
+      labs.forEach(function (ls) { var B = Number(ls), qd = [], k2, x0 = w, x1 = 0, y0 = h, y1 = 0; for (k2 = 0; k2 < N; k2++) if (lab[k2] === B) { var qx = k2 % w, qy = (k2 / w) | 0; if (qx < x0) x0 = qx; if (qx > x1) x1 = qx; if (qy < y0) y0 = qy; if (qy > y1) y1 = qy; qd.push(k2); }
+        if (!qd.length) return; var base = qd.length, mg = Math.round(Math.sqrt(base) * tv('tubReach', 0.8)); x0 = Math.max(0, x0 - mg); x1 = Math.min(w - 1, x1 + mg); y0 = Math.max(0, y0 - mg); y1 = Math.min(h - 1, y1 + mg);
+        var seen = {}, got = [], a0 = 0, white = 0, ok = function (n) { return !blk[n] && !dbar[n] && !isBathL(lab[n]) && donor(lab[n]) && !(cl[n] === 4 && lab[n] >= 2); };
+        while (a0 < qd.length) { var p = qd[a0++], px = p % w, py = (p / w) | 0, nb = [px > x0 ? p - 1 : -1, px < x1 ? p + 1 : -1, py > y0 ? p - w : -1, py < y1 ? p + w : -1];
+          for (var b3 = 0; b3 < 4; b3++) { var n = nb[b3]; if (n < 0 || seen[n] || lab[n] === B) continue; if (!ok(n)) continue; seen[n] = 1; qd.push(n); got.push(n); if (cl[n] === 1) white++; if (got.length > base * 3) { if (root.JJ_LOG) root.JJ_LOG.push({ t: 'tub-넘침', B: B, base: base }); return; } } }
+        if (root.JJ_LOG) root.JJ_LOG.push({ t: 'tub?', B: B, base: Math.round(base / U / U * 10) / 10, got: Math.round(got.length / U / U * 10) / 10, white: Math.round(white / Math.max(1, got.length) * 100) });
+        if (got.length < U * U * 0.08 || got.length > base * tv('tubGrow', 0) || base + got.length > U * U * tv('bathMax', 9) || white < got.length * tv('tubWhite', 0.5)) return;
+        if (root.JJ_LOG) root.JJ_LOG.push({ t: 'tub', B: B, base: base, got: got.length, white: white });
         got.forEach(function (n2) { lab[n2] = B; wall[n2] = 0; }); }); })();
     // 방마다 바깥선
     // 한 이름표가 여러 조각으로 흩어져 있으면 가장 큰 조각에서 바깥선을 딴다(작은 조각에서 따면 공간이 통째로 사라진다 — R-114-B 의 주방)
@@ -549,7 +568,7 @@
     //   파란 바닥이 있는 도면이면 「파란 칸 = 욕실」이 정답이다. 이름이 안 읽힌 칸을 선 밀도로 욕실이라 어림하던 것(드레스룸·현관·대피공간까지 욕실이 됨)을 이 도면에서는 쓰지 않는다.
     (function () { var blueN = {}, tot = 0, k; for (k = 0; k < N; k++) { var o = k * 4, r = d[o], g2 = d[o + 1], b = d[o + 2]; if (b - r >= 10 && g2 - r >= 3 && Math.min(r, g2, b) > 185) { tot++; var l = lab[k]; if (l >= 2) blueN[l] = (blueN[l] || 0) + 1; } }
       if (tot < N * 0.002) return; var any = 0;
-      found.forEach(function (f) { var bf = (blueN[f.l] || 0) / Math.max(1, cnt[f.l] || 1); f.blue = bf; if (bf >= 0.4 && (f.guess || !f.kind || f.kind === '욕실')) { if (f.guess) f.nm = undefined; f.kind = '욕실'; f.sure = true; any++; } });
+      found.forEach(function (f) { var bf = (blueN[f.l] || 0) / Math.max(1, cnt[f.l] || 1); f.blue = bf; if ((bf >= 0.4 || (bathLike[f.l] === 1 && bf >= 0.15)) /* 벽까지 넓힌 욕실은 파란 몫이 40% 아래로 내려간다 — 넓히기 전에 욕실로 본 칸이면 그대로 욕실 */ && (f.guess || !f.kind || f.kind === '욕실')) { if (f.guess) f.nm = undefined; f.kind = '욕실'; f.sure = true; any++; } });
       if (!any) return; found.blueStyle = true;
       found.forEach(function (f) { if (f.kind === '욕실' && f.guess && !f.sure) f.kind = '기타'; }); })();
     found = found.filter(function (f) { return f.kind === '피트' || (cnt[f.l] || 0) / (U * U) >= 0.6; });   // 0.6㎡ 안 되는 이름 붙은 조각(글자 둘레 자투리)은 공간이 아니다
