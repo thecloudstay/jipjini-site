@@ -107,23 +107,24 @@
   // ── 공법 (2026-11-11): 자재가 아니라 「어떻게 시공하나」를 고른다. 기호마다 시공 순서대로 [칸, 이름, [[값, 이름, 도면에 적는 짧은 글]…], 보이는 조건(의뢰서 키), 기본값 고르기]. 따로 없으면 첫째 값이 기본.
   //   기본 공법은 mdef['기호.칸'], 그 자리만 다른 공법은 도형의 m 칸. 치수는 도형의 hm(높이)·wm(폭)·tk(두께) mm.
   var P12 = [['1', '1겹(1P)', '1P'], ['2', '2겹(2P)', '2P']], PUT = [['line', '줄퍼티', ''], ['all', '올퍼티', '올퍼티'], ['none', '퍼티 없음', '']],
-    JNT = ['joint', '줄눈', [['cement', '시멘트 줄눈', ''], ['epoxy', '에폭시 계열 줄눈', ''], ['urea', '폴리우레아 줄눈', '']]], PAT = ['pat', '붙임 무늬', [['grid', '정줄', ''], ['brick', '엇줄', '엇줄'], ['herr', '헤링본', '헤링본']]], OLDT = ['old', '기존 타일', [['strip', '철거 후 시공', ''], ['over', '덧방', '덧방']]];
+    JNT = ['joint', '줄눈', [['cement', '시멘트 줄눈', ''], ['epoxy', '에폭시 계열 줄눈', ''], ['urea', '폴리우레아 줄눈', '']]], PAT = ['pat', '붙임 무늬', [['grid', '정줄', ''], ['brick', '엇줄', '엇줄'], ['herr', '헤링본', '헤링본']]], OLDT = ['old', '기존 타일', [['strip', '철거 후 시공', ''], ['over', '덧방', '덧방']]], TSZ = ['size', '타일 크기', [['mid', '300×600 · 600각', ''], ['big', '600×1200 이상 큰 타일', '대형'], ['small', '소형 · 모자이크', '소형']]];
   var METH = {
-    sash: [['how', '방식', [['full', '틀째 교체', ''], ['glass', '유리만 교체', '유리만']]]],
+    dmL: [['kind', '벽 종류', [['dry', '가벽(석고·목재)', ''], ['brick', '조적벽', '조적'], ['conc', '콘크리트 비내력벽', '콘크리트']]]],
+    sash: [['how', '방식', [['full', '틀째 교체', ''], ['glass', '유리만 교체', '유리만']]], ['seal', '틀 둘레', [['foam', '폼 채움 + 실리콘', ''], ['mortar', '폼 + 몰탈 사춤 + 실리콘', '']]]],
     pipe: [['how', '배관', [['chase', '홈파기 매립', '매립'], ['open', '노출', '노출']]]],
     wire: [['how', '배선', [['ceil', '천장 속', '천장 속'], ['chase', '벽 홈파기 매립', '매립'], ['mold', '노출 몰드', '몰드']]]],
     ins: [['kind', '방식', [['ebo', '이보드 본드 붙임', '이보드'], ['frame', '각재 틀 + 압출법 단열판 + 석고', '압출+석고'], ['foam', '우레탄 뿜칠', '우레탄']]]],
-    wallN: [['frame', '틀', [['wood', '각재 틀', ''], ['steel', '경량 철골 틀', '경량']]], ['side', '붙이는 면', [['2', '양면', '양면'], ['1', '한 면', '한면']]], ['ply', '석고보드', P12], ['fill', '속 채움', [['no', '없음', ''], ['yes', '흡음재 채움', '흡음']]], ['back', '보강', [['no', '없음', ''], ['yes', '합판 보강', '합판']]]],
-    ceil: [['frame', '틀', [['wood', '각재 틀', ''], ['steel', '경량 철골 틀', '경량'], ['keep', '기존 틀 유지', '기존 틀']]], ['ply', '석고보드', P12], ['board', '보드 종류', [['std', '일반 보드', ''], ['wet', '방수 보드', '방수'], ['fire', '방화 보드', '방화']]], ['edge', '가장자리', [['mold', '몰딩', ''], ['none', '무몰딩', '무몰딩'], ['minus', '마이너스 몰딩', '마이너스']]]],
+    wallN: [['frame', '틀', [['wood', '각재 틀', ''], ['steel', '경량 철골 틀', '경량']]], ['pitch', '세로 틀 간격', [['450', '간격 450', ''], ['300', '간격 300', ''], ['600', '간격 600', '']]], ['floor', '바닥 고정', [['foam', '본드·폼 고정(바닥 못 금지)', ''], ['anchor', '앙카 고정(난방 없는 바닥)', '']]], ['side', '붙이는 면', [['2', '양면', '양면'], ['1', '한 면', '한면']]], ['ply', '석고보드', P12], ['fill', '속 채움', [['no', '없음', ''], ['yes', '흡음재 채움', '흡음']]], ['back', '보강', [['no', '없음', ''], ['yes', '합판 보강', '합판']]]],
+    ceil: [['frame', '틀', [['wood', '각재 틀', ''], ['steel', '경량 철골 틀', '경량'], ['keep', '기존 틀 유지', '기존 틀']]], ['pitch', '반자틀 간격', [['300', '간격 300', ''], ['450', '간격 450', '']]], ['ply', '석고보드', P12], ['board', '보드 종류', [['std', '일반 보드', ''], ['wet', '방수 보드', '방수'], ['fire', '방화 보드', '방화']]], ['edge', '가장자리', [['mold', '몰딩', ''], ['none', '무몰딩', '무몰딩'], ['minus', '마이너스 몰딩', '마이너스']]]],
     doorN: [['frame', '문틀', [['new', '문틀 교체', ''], ['film', '필름 덧씌움', '필름']]], ['trim', '문선', [['std', '일반 문선', ''], ['9', '9mm 문선', '9mm'], ['none', '무문선', '무문선']]]],
-    wp: [['kind', '방수', [['liq', '액체방수', '액체'], ['coat1', '도막방수 1회', '도막 1회'], ['coat2', '도막방수 2회', '도막 2회'], ['both', '액체방수 + 도막방수', '액체+도막']]], ['corner', '모서리 보강', [['yes', '모서리 보강', ''], ['no', '안 함', '']]]],
+    wp: [['kind', '방수', [['liq', '액체방수', '액체'], ['coat1', '도막방수 1회', '도막 1회'], ['coat2', '도막방수 2회', '도막 2회'], ['both', '액체방수 + 도막방수', '액체+도막']]], ['corner', '모서리 보강', [['yes', '모서리 보강', ''], ['no', '안 함', '']]], ['test', '담수 시험', [['yes', '담수 시험 뒤 타일', ''], ['no', '안 함', '']]]],
     zen: [['top', '윗면', [['tile', '윗면 타일 마감', ''], ['stone', '인조대리석 상판', '상판']]]],
-    tileW: [OLDT, ['set', '붙임', [['press', '압착', '압착'], ['press2', '개량압착', '개량압착'], ['mortar', '떠발이', '떠발이'], ['bond', '본드', '본드'], ['epoxy', '에폭시', '에폭시']]], JNT, PAT],
-    tileF: [OLDT, ['set', '붙임', [['press', '압착', '압착'], ['press2', '개량압착', '개량압착'], ['sand', '사모래 물매 후 붙임', '사모래'], ['epoxy', '에폭시', '에폭시']]], JNT, PAT],
+    tileW: [OLDT, TSZ, ['set', '붙임', [['press', '압착', '압착'], ['press2', '개량압착', '개량압착'], ['mortar', '떠발이', '떠발이'], ['bond', '본드', '본드'], ['epoxy', '에폭시', '에폭시']]], JNT, PAT],
+    tileF: [OLDT, TSZ, ['set', '붙임', [['press', '압착', '압착'], ['press2', '개량압착', '개량압착'], ['sand', '사모래 물매 후 붙임', '사모래'], ['epoxy', '에폭시', '에폭시']]], JNT, PAT],
     edge: [['kind', '마감', [['sus', '코너비드 스테인리스', '비드 스텐'], ['al', '코너비드 알루미늄', '비드 알루'], ['pvc', '코너비드 플라스틱', '비드 플라'], ['jolly', '졸리컷 45도', '졸리컷'], ['butt', '맞댐', '맞댐']]]],
     paint: [['prep', '바탕', PUT], ['how', '칠', [['roll', '롤러·붓', ''], ['spray', '뿜칠', '뿜칠']]], ['coat', '횟수', [['2', '2회 칠', ''], ['3', '3회 칠', '3회']]]],
-    paper: [['old', '기존 벽지', [['strip', '기존 벽지 제거', ''], ['over', '덧방', '덧방']]], ['prep', '바탕', PUT], ['bead', '모서리', [['no', '각대 없음', ''], ['yes', '코너비드(각대)', '각대']]], ['lining', '초배', [['float', '부직포 띄움', '띄움'], ['tri', '삼중지', '삼중지'], ['neba', '네바리', '네바리'], ['none', '초배 없음(밀착)', '밀착']], null, function (key) { return /hapji/.test(key) ? 'none' : 'float'; }]],
-    floor: [['sub', '바탕', [['asis', '그대로', ''], ['strip', '기존 철거·본드 갈아내기', '철거'], ['level', '수평 몰탈', '수평']]], ['lay', '장판 붙임', [['edge', '가장자리 본드', ''], ['full', '온통 접착', '온통']], /janpan/], ['weld', '장판 이음', [['no', '맞댐', ''], ['yes', '이음 용착', '용착']], /janpan/], ['fix', '마루 시공', [['glue', '접착 시공', '접착'], ['click', '조립 시공(깔개 깔고)', '조립']], /maru/]],
+    paper: [['area', '범위', [['both', '벽 + 천장', ''], ['wall', '벽만', '벽만'], ['ceil', '천장만', '천장만']]], ['old', '기존 벽지', [['strip', '기존 벽지 제거', ''], ['over', '덧방', '덧방']]], ['prep', '바탕', PUT], ['fix', '바탕 보수', [['no', '없음', ''], ['mold', '곰팡이 제거·방지 처리', '곰팡이'], ['joint', '석고 이음 보강(망사테이프)', '']]], ['bead', '모서리', [['no', '각대 없음', ''], ['yes', '코너비드(각대)', '각대']]], ['lining', '초배', [['float', '부직포 띄움', '띄움'], ['tri', '삼중지', '삼중지'], ['neba', '네바리', '네바리'], ['none', '초배 없음(밀착)', '밀착']], null, function (key) { return /hapji/.test(key) ? 'none' : 'float'; }]],
+    floor: [['sub', '바탕', [['asis', '그대로', ''], ['strip', '기존 철거·본드 갈아내기', '철거'], ['level', '수평 몰탈', '수평']]], ['lay', '장판 붙임', [['edge', '가장자리 본드', ''], ['full', '온통 접착', '온통']], /janpan/], ['weld', '장판 이음', [['no', '맞댐', ''], ['yes', '이음 용착', '용착']], /janpan/], ['skirt', '장판 가장자리', [['base', '걸레받이로 마감', ''], ['up', '굽도리 꺾어올림', '굽도리']], /janpan/], ['fix', '마루 시공', [['glue', '접착 시공', '접착'], ['click', '조립 시공(깔개 깔고)', '조립']], /maru/]],
     base: [['kind', '방식', [['std', '일반', ''], ['minus', '마이너스 걸레받이', '마이너스']]]]
   };
   function mOpts(k, key) { return (METH[k] || []).filter(function (o) { return !o[3] || o[3].test(key || ''); }); }
@@ -138,7 +139,7 @@
   // 공법에 딸린 물량: [이름, 수량, 단위]. 도면에서 바로 나오는 것만 낸다(㎡당 소요량 같은 계수는 넣지 않는다).
   //   석고보드 한 장 900×1800 = 1.62㎡, 시멘트 벽돌 반 장 쌓기(0.5B) ㎡당 75장 · 한 장 쌓기(1.0B) 149장 — 건축 표준 수치
   function mExtra(q, c) { var k = q.k, o = [], g = function (id) { return mGet(q, id); }, n, v;
-    if (k === 'paper') { if (g('old') === 'strip') o.push(['기존 벽지 제거', c.qty, '㎡']); if (g('prep') === 'all') o.push(['올퍼티', c.qty, '㎡']); if (g('bead') === 'yes') { n = cornersOut(q.pts); if (n) o.push(['코너비드(각대) · 볼록 모서리', n * c.Hm, 'm']); } v = g('lining'); if (v !== 'none') o.push([(v === 'float' ? '부직포' : v === 'tri' ? '삼중지' : '네바리') + ' 초배 · 벽', c.wall, '㎡']); }
+    if (k === 'paper') { if (g('old') === 'strip') o.push(['기존 벽지 제거', c.qty, '㎡']); if (g('prep') === 'all') o.push(['올퍼티', c.qty, '㎡']); if (g('bead') === 'yes') { n = cornersOut(q.pts); if (n) o.push(['코너비드(각대) · 볼록 모서리', n * c.Hm, 'm']); } v = g('lining'); if (v !== 'none' && c.wall > 0) o.push([(v === 'float' ? '부직포' : v === 'tri' ? '삼중지' : '네바리') + ' 초배 · 벽', c.wall, '㎡']); }
     else if (k === 'paint') { if (g('prep') === 'all') o.push(['올퍼티', c.qty, '㎡']); }
     else if (k === 'tileW' || k === 'tileF') { if (g('old') === 'strip') o.push(['기존 타일 철거', c.qty, '㎡']); if (g('set') === 'sand') o.push(['사모래 물매 바탕', c.qty, '㎡']); }
     else if (k === 'zen') { var w = (q.wm || 150) / 1000, B1 = (q.wm || 150) >= 180; o.push(['조적 ' + (B1 ? '한 장 쌓기' : '반 장 쌓기'), c.L * c.h, '㎡'], ['시멘트 벽돌', Math.ceil(c.L * c.h * (B1 ? 149 : 75)), '장']); if (g('top') === 'tile') o.push(['타일 붙임 · 앞면과 윗면', c.L * c.h + c.L * w, '㎡']); else o.push(['타일 붙임 · 앞면', c.L * c.h, '㎡'], ['상판', c.L, 'm']); }
@@ -152,10 +153,19 @@
   function mDrop(q) { var k = q.k, a = [], v; if (k === 'wallN' || k === 'ceil') a.push('석고보드'); else if (k === 'zen') { a.push('벽돌'); if (mGet(q, 'top') === 'tile') a.push('상판'); }
     else if (k === 'tileW' || k === 'tileF') { v = mGet(q, 'set'); if (v !== 'bond') a.push('압착본드'); if (v === 'bond' || v === 'epoxy' || v === 'mortar' || v === 'sand') a.push('압착시멘트'); v = mGet(q, 'joint'); a.push(v === 'cement' ? '에폭시 줄눈' : '^줄눈'); if (shapes.some(function (x) { return x.t === 'wk' && x.k === 'edge'; })) a.push('코너비트'); }
     return a.length ? new RegExp(a.join('|')) : null; }
+  // 실무에서 말이 안 되거나 빠뜨리기 쉬운 조합 알림 (2026-11-11). 막지는 않고 붉은 글로 알려 준다.
+  function mWarn(q) { if (q.t !== 'wk' || !METH[q.k]) return []; var k = q.k, w = [], g = function (id) { return mGet(q, id); }, key = reqKey(q), rm = shapeRoom(q), kd = rm ? (rm.kind || kindOf(rm.name)) : '', has = function (kk) { return shapes.some(function (x) { return x.t === 'wk' && x.k === kk && (!rm || shapeRoom(x) === rm); }); };
+    if (k === 'paper') { if (/silk/.test(key) && g('old') === 'over') w.push('실크 벽지는 덧방하지 않습니다. 기존 벽지를 제거해야 합니다.'); if (/hapji/.test(key) && g('lining') === 'float') w.push('합지에 부직포 띄움 초배는 드뭅니다. 맞는지 확인하세요.'); }
+    else if (k === 'tileW' || k === 'tileF') { var st = g('set'); if (g('old') === 'over' && (st === 'mortar' || st === 'sand')) w.push('덧방에는 떠발이·사모래 붙임을 쓰지 않습니다. 압착·본드·에폭시 가운데 고르세요.'); if (st === 'bond' && (k === 'tileF' || kd === '욕실')) w.push('본드 붙임은 바닥과 물 닿는 곳에 쓰지 않습니다.'); if (g('size') === 'big' && st !== 'press2' && st !== 'epoxy') w.push('600×1200 이상 큰 타일은 개량압착이나 에폭시로 붙입니다.'); if (kd === '욕실' && g('old') === 'strip' && !has('wp')) w.push('철거 후 시공인데 이 욕실에 방수 구역이 없습니다.'); }
+    else if (k === 'zen') { if (!has('wp')) w.push('젠다이를 쌓는 욕실에 방수 구역이 없습니다.'); }
+    else if (k === 'dmL') { if (g('kind') === 'conc') w.push('콘크리트 벽 철거는 관리사무소와 구청에 먼저 확인해야 하는 공사입니다.'); }
+    else if (k === 'floor') { if (/maru/.test(key) && g('sub') === 'asis') w.push('기존 바닥이 장판이나 마루면 걷어 내고 본드를 갈아내야 강마루를 붙일 수 있습니다. 바탕을 확인하세요.'); }
+    return w; }
+  function warnAll() { var o = [], seen = {}; shapes.forEach(function (q) { if (q.t !== 'wk') return; var rm = shapeRoom(q); mWarn(q).forEach(function (t) { var id = (rm ? rm.name : '') + t; if (seen[id]) return; seen[id] = 1; o.push((rm ? rm.name + ' ' : '') + SYMS[q.k][1] + ' — ' + t); }); }); return o; }
   function takeEx(r) { return r.exo.map(function (n) { var e = r.ex[n]; return n + ' ' + (e[1] === '장' ? Math.ceil(e[0] - 1e-6) : takeNum(R2(e[0]))) + e[1]; }).join(' · '); }
   function mSel(attr, id, o, v) { return '<div class="jje-row jje-mrow"><label>' + o[1] + '</label><select ' + attr + '="' + id + '">' + o[2].map(function (c) { return '<option value="' + c[0] + '"' + (c[0] === v ? ' selected' : '') + '>' + c[1] + '</option>'; }).join('') + '</select></div>'; }
   function methPane() { var k = wk.k, key = rqPick[k] || (Array.isArray(REQ[k]) ? REQ[k][0] : ''), os = mOpts(k, key), q = { k: k }; if (!os.length) return '';
-    return '<div class="jje-h">공법 — 시공 순서대로</div>' + os.map(function (o) { return mSel('data-m', k + '.' + o[0], o, mVal(q, o, key)); }).join('') + '<p class="jje-p" style="margin-top:6px">여기서 고른 공법이 ' + SYMS[k][1] + '의 기본입니다. 한 자리만 다르게 하려면 놓은 뒤 「선택」으로 눌러 바꿉니다.</p>'; }
+    return '<div class="jje-h">공법 — 시공 순서대로</div>' + os.map(function (o) { return mSel('data-m', k + '.' + o[0], o, mVal(q, o, key)); }).join('') + '<p class="jje-p" style="margin-top:6px">여기서 고른 공법으로 다음부터 놓입니다. 이미 놓은 자리는 「선택」으로 눌러 바꿉니다.</p>'; }
   function mapLoad(cb) { if (MAP) return cb(); if (mapState === 'load') return; mapState = 'load'; var done = function (ok) { mapState = ok ? 'ok' : 'fail'; cb(); };
     try { fetch('data/takeoff-map.json?v=20261111').then(function (r) { return r.ok ? r.json() : null; }).then(function (j) { if (j && j.items) MAP = j; done(!!MAP); }, function () { done(false); }); } catch (e) { done(false); } }
   function shapeCenter(q) { if (q.f === 'p') return [q.x, q.y]; if (q.f === 'l') return q.loop ? centroid(q.pts.slice(0, -1)) : [(q.pts[0][0] + q.pts[q.pts.length - 1][0]) / 2, (q.pts[0][1] + q.pts[q.pts.length - 1][1]) / 2]; return centroid(q.pts); }
@@ -166,7 +176,9 @@
   function reqCands(k, x, y) { var c = REQ[k]; if (typeof c === 'function') { var r = roomAt(x, y); return c(r ? (r.kind || kindOf(r.name)) : ''); } return c || []; }
   function reqKey(q) { if (q.rq) return q.rq; var key = reqCandsOf(q)[0] || ''; if ((q.k === 'sw' || q.k === 'ol' || q.k === 'od') && q.st === 'move') key = 'lighting.outletMove'; return key; }
   function reqLabel(key) { var it = MAP && MAP.items[key]; return it ? it.label.replace(/\s*\(.*\)$/, '') : key; }
-  function rqStamp(q) { if (q && q.t === 'wk' && rqPick[q.k] && reqCandsOf(q).indexOf(rqPick[q.k]) >= 0) q.rq = rqPick[q.k]; return q; }
+  function rqStamp(q) { if (q && q.t === 'wk' && rqPick[q.k] && reqCandsOf(q).indexOf(rqPick[q.k]) >= 0) q.rq = rqPick[q.k];
+    // 놓는 순간의 공법을 도형에 적어 둔다 — 나중에 기본 공법을 바꿔도 이미 놓은 자리는 바뀌지 않는다
+    if (q && q.t === 'wk' && METH[q.k]) METH[q.k].forEach(function (o) { var v = mdef[q.k + '.' + o[0]]; if (v) { q.m = q.m || {}; if (!q.m[o[0]]) q.m[o[0]] = v; } }); return q; }
   function takeRows() {
     var mm = mmpp(), Hm = ceilH / 1000, M = measureAll(), by = {}, order = [], bathSeen = {};
     shapes.forEach(function (q) { if (q.t !== 'wk') return; var S = SYMS[q.k]; if (!S) return; var st = q.st || 'new'; if (st === 'keep' || (st === 'remove' && S[0] !== '철거')) return;
@@ -180,7 +192,7 @@
       else { A = mm ? pxArea(q.pts) * mm * mm / 1e6 : 0; unit = '㎡'; var pm = polyMeasure(q, mm); per = pm ? pm.perim : 0;
         if (q.k === 'wp') { h = (q.hm || 1200) / 1000; qty = 1; unit = '개소'; how = '바닥 ' + R2(A) + '㎡ + 벽 ' + R2(per * h) + '㎡ (둘레 ' + R2(per) + 'm × 올림 ' + R2(h) + 'm)'; }
         else if (q.k === 'paper' || q.k === 'paint') { var open = 0; if (rm && M && Math.abs(pxArea(rm.pts) - pxArea(q.pts)) < pxArea(rm.pts) * 0.1) { var mr = M.rooms.filter(function (r) { return r.name === rm.name; })[0]; if (mr) open = mr.openM2 || 0; }
-          wall = Math.max(0, per * Hm - open); qty = wall + A; how = '벽 ' + R2(wall) + '㎡ (둘레 ' + R2(per) + 'm × ' + Hm + 'm − 창·문 ' + R2(open) + '㎡) + 천장 ' + R2(A) + '㎡'; } else qty = A; }
+          wall = Math.max(0, per * Hm - open); var ar = mGet(q, 'area') || 'both', hw = '벽 ' + R2(wall) + '㎡ (둘레 ' + R2(per) + 'm × ' + Hm + 'm − 창·문 ' + R2(open) + '㎡)', hc = '천장 ' + R2(A) + '㎡'; if (ar === 'wall') { qty = wall; how = hw; } else if (ar === 'ceil') { qty = A; how = hc; wall = 0; } else { qty = wall + A; how = hw + ' + ' + hc; } } else qty = A; }
       var mt = mText(q), id = (key || ('_' + q.k + (q.k === 'core' ? (q.dia || 100) + (q.at || '벽') : ''))) + '|' + mt, b = by[id];
       if (!b) { b = by[id] = { key: key, k: q.k, label: it ? it.label : key ? key : (q.k === 'core' ? '타공 Ø' + (q.dia || 100) + ' ' + (q.at || '벽') : S[1]), work: it ? it.work : '', qty: 0, unit: unit, rooms: [], how: [], it: it || null, meth: mt, ex: {}, exo: [], drop: mDrop(q), noBom: q.k === 'ins' && mGet(q, 'kind') !== 'frame' }; order.push(id); }
       b.qty += qty; if (rname && b.rooms.indexOf(rname) < 0) b.rooms.push(rname); if (how) { how = (rname ? rname + ' — ' : '') + how; if (b.how.indexOf(how) < 0) b.how.push(how); }
@@ -200,6 +212,7 @@
     if (!MAP) { el.innerHTML = '<p class="jje-p" style="margin:0">' + (mapState === 'fail' ? '물량 기준표를 불러오지 못했습니다. 인터넷 연결을 확인하고 「물량」을 다시 눌러 주세요.' : '물량 기준표를 불러오고 있습니다…') + '</p>'; if (mapState !== 'fail') mapLoad(function () { if (pane === 'take') takeDraw(); }); else mapState = ''; return; }
     var rows = takeRows(), mm = mmpp(), h = '<div class="jje-row" style="margin-top:0"><label style="width:auto">천장 높이</label><input type="number" id="jjeCeil" min="2000" max="3500" step="10" value="' + ceilH + '" style="width:104px"><span style="font-size:14.5px;color:#6B6B6B">mm · 벽 면적 계산에 씁니다</span></div>';
     if (!mm) h += '<p class="jje-p" style="color:#b4232a">척도가 없어 면적·길이 물량은 0으로 나옵니다. 「측정」에서 척도를 잡아 주세요.</p>';
+    var wa = warnAll(); if (wa.length) h += '<div class="jje-h" style="color:#b4232a">확인할 것 ' + wa.length + '건</div>' + wa.map(function (t) { return '<p class="jje-p" style="color:#b4232a;margin:0 0 4px">' + esc(t) + '</p>'; }).join('');
     h += '<div class="jje-h">물량표 — 공사 순서</div>';
     if (!rows.length) h += '<p class="jje-p" style="margin:0">아직 놓은 기호가 없습니다. 「작업지시」에서 기호를 놓으면 의뢰서 항목별 물량이 여기에 모입니다.</p>';
     else { h += '<table class="jje-qty jje-take">'; CATS.forEach(function (c, i) { var R = rows.filter(function (r) { return takeCat(r) === i; }); if (!R.length) return; h += '<tr class="tr"><td colspan="2">' + c[0] + ' ' + esc(c[1]) + '</td></tr>';
@@ -722,6 +735,7 @@
         else if (s.k === 'wp') o += row2('벽 올림 mm', inp('hm', s.hm || '', '비우면 1200', 'number'));
         else if (s.k === 'edge') o += row2('높이 mm', inp('hm', s.hm || '', '비우면 천장 높이', 'number'));
         else if (s.k === 'ins') o += row2('두께 T', inp('tk', s.tk || '', '비우면 이보드 23 · 압출 50', 'number'));
+        mWarn(s).forEach(function (t) { o += '<p class="jje-p" style="color:#b4232a;margin-top:8px">확인: ' + esc(t) + '</p>'; });
         return o; })() +
       (s.k === 'core' ? row('지름', inp('dia', s.dia || 100, '50~200', 'number')) + '<div class="jje-chips" style="margin-top:8px">' + [50, 75, 100, 125, 150, 200].map(function (d) { return chipB('pdia', d, (s.dia || 100) === d, 'Ø' + d); }).join('') + '</div><div class="jje-chips" style="margin-top:8px">' + ['천장', '벽', '바닥'].map(function (t) { return chipB('pat', t, (s.at || '벽') === t, t); }).join('') + '</div>' : ''); }
     else if (s.t === 'guide') { var gv = s.o === 'v', sg = spanAt(s.x, s.y), gm = mmpp(), gA = sg ? (gv ? sg.L : sg.T) : null, gB = sg ? (gv ? sg.R : sg.B) : null, pv = gv ? s.x : s.y, grow = function (lb, key, px) { return '<div class="jje-row"><label style="width:104px">' + lb + '</label>' + inp(key, Math.round(px * gm / 10) * 10, 'mm', 'number') + '</div>'; }; title = '기준선 · ' + (gv ? '세로' : '가로');
@@ -898,10 +912,10 @@
   }
   function onInput(ev) { var t = ev.target, ma = t.getAttribute && t.getAttribute('data-m'), mp = t.getAttribute && t.getAttribute('data-pm'), ms = shapes[sel];
     if (ma) { if (mdef[ma] !== t.value) { mdef[ma] = t.value; redraw(); qtyDraw(); saveSoon(); } return; }
-    if (mp) { if (ms && !(ms.m && ms.m[mp] === t.value)) { snap(); ms.m = ms.m || {}; ms.m[mp] = t.value; touch(); } return; }
+    if (mp) { if (ms) { if (!(ms.m && ms.m[mp] === t.value)) { snap(); ms.m = ms.m || {}; ms.m[mp] = t.value; touch(); } if (ev.type === 'change') propDraw(); } return; }
     if (t.id === 'jjeCeil') { var cv = Math.round(Number(t.value)); if (cv >= 2000 && cv <= 3500) { ceilH = cv; if (ev.type === 'change') takeDraw(); saveSoon(); } return; } if (t.getAttribute && t.getAttribute('data-chk')) { var ck = t.getAttribute('data-chk'); if (t.checked) chk[ck] = true; else delete chk[ck]; takeDraw(); saveSoon(); return; } if (t.id === 'jjeGNv') gd.nv = gN(t.value); else if (t.id === 'jjeGNh') gd.nh = gN(t.value); else if (t.id === 'jjeGOff') gd.off = t.value; else if (t.id === 'jjeDia') { var dv = Math.round(Number(t.value)); if (dv >= 50 && dv <= 200) wk.dia = dv; } else if (t.id === 'jjeRow') { wk.row = Math.max(1, Math.min(40, Number(t.value) || 1)); if (tool === 'wk') wkHint(); } else if (t.id === 'jjeName') { planName = t.value.trim().slice(0, 30) || '우리 집'; $('jjeNm').textContent = planName; saveSoon(); } else if (t.getAttribute && t.getAttribute('data-p')) propSet(t.getAttribute('data-p'), t.value); }
   function leave() { if (full) { full = false; applyFull(); } var s = $('jjeSheet'); if (s) s.remove(); }
 
   root.JJCadEditor = { mount: mount, open: open, fromPlan: fromPlan, fromV1: fromV1, getState: getState, leave: leave, SYMS: SYMS, TRADES: TRADES, CATS: CATS,
-    _test: { shapes: function () { return shapes; }, take: takeRows, takeText: takeText, rows: workRows, sum: function () { return workSum(workRows()); }, toClient: function (x, y) { var r = $('jjeCv').getBoundingClientRect(); return [r.left + (x - SX) * r.width / SW, r.top + (y - SY) * r.height / SH]; }, mmpp: mmpp, view: function () { return V; } } };
+    _test: { shapes: function () { return shapes; }, warn: warnAll, take: takeRows, takeText: takeText, rows: workRows, sum: function () { return workSum(workRows()); }, toClient: function (x, y) { var r = $('jjeCv').getBoundingClientRect(); return [r.left + (x - SX) * r.width / SW, r.top + (y - SY) * r.height / SH]; }, mmpp: mmpp, view: function () { return V; } } };
 })(window);
