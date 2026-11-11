@@ -103,6 +103,25 @@
     drop(); S.state = null; if (root.JJCadEditor) root.JJCadEditor.leave(); $('cadResume').classList.remove('on'); go(1);
   }
 
+  // ───── 단지 평면으로 시작 (우리 아파트 찾기에서 넘어옴: cad.html?apt=단지코드&n=단지이름) ─────
+  //   data/plans/<단지코드>.json = { 단지, 평형: [{ 이름, 전용, plan }] } — plan 은 집지니가 다시 그린 도면(방 다각형)이고 원본 그림은 들어 있지 않다.
+  function aptInit() {
+    var m = /[?&]apt=([A-Za-z0-9]+)/.exec(root.location.search), box = $('cadApt'); if (!m || !box) return;
+    var nm = ''; try { nm = decodeURIComponent((/[?&]n=([^&]+)/.exec(root.location.search) || [])[1] || ''); } catch (e) {}
+    var none = function () { box.hidden = false; box.innerHTML = '<h3>' + esc(nm || '고르신 단지') + '</h3><p>이 단지 평면은 아직 준비 중입니다. 아래에 평면도 그림을 올리시면 바로 시작할 수 있습니다. 그림이 없으면 전용면적만 적고 예시 평면으로 시작하셔도 됩니다.</p>'; };
+    root.fetch('data/plans/' + m[1] + '.json').then(function (r) { if (!r.ok) throw 0; return r.json(); }).then(function (j) {
+      if (!j || !j.평형 || !j.평형.length) return none();
+      box.hidden = false;
+      box.innerHTML = '<h3>' + esc(j.단지 || nm) + '</h3><p>집지니가 다시 그려 둔 평면입니다. 우리 집 평형을 고르면 바로 열립니다. 실제 집과 다른 곳은 열린 뒤에 고칠 수 있습니다.</p>' +
+        '<table><thead><tr><th>평형</th><th>전용면적</th><th>방 · 욕실</th><th></th></tr></thead><tbody>' + j.평형.map(function (t, i) {
+          var rs = (t.plan && t.plan.rooms) || [], c = function (k) { return rs.filter(function (q) { return q.kind === k; }).length; };
+          return '<tr><td>' + esc(t.이름) + '</td><td>' + (t.전용 ? esc(t.전용) + '㎡' : '–') + '</td><td>방 ' + (c('방') + c('안방')) + ' · 욕실 ' + c('욕실') + '</td><td><button type="button" class="cbtn dark" data-i="' + i + '">이 평면 열기</button></td></tr>';
+        }).join('') + '</tbody></table>';
+      box.addEventListener('click', function (e) { var b = e.target.closest('button[data-i]'); if (!b) return; var t = j.평형[+b.getAttribute('data-i')]; if (!t || !t.plan) return;
+        ev('cad_apt_open'); if (t.전용) $('cadM2').value = t.전용; S.pending = t.plan; go(2); $('cadWait').hidden = true; $('cadFail').hidden = true; showResult({ 글자: { 방이름: 1 } }); });
+    }).catch(none);
+  }
+
   // ───── 이어 붙이기 ─────
   function init() {
     var file = $('cadFile'), dropEl = $('cadDrop');
@@ -121,6 +140,7 @@
       // 누르는 순간에만: 공간·면적·고른 공사·작업 목록을 의뢰서 주소에 실어 보낸다(그림·도면 파일은 보내지 않는다)
       try { var pk = root.JJCadEditor && root.JJCadEditor.quote && root.JJCadEditor.quote(); if (pk && (pk.r.length || pk.c)) { var enc = function (o) { return btoa(unescape(encodeURIComponent(JSON.stringify(o)))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''); }, b = enc(pk); if (b.length > 5200) { pk.t = pk.t.slice(0, 250) + ' …(이하 줄임)'; b = enc(pk); } if (b.length > 5200) { pk.t = ''; b = enc(pk); } this.href = REQ_URL + '&cad=' + b; } } catch (e) { this.href = 'request.html'; } });
     $('cadNew').addEventListener('click', restart);
+    aptInit();
     load(function (old) {
       if (!old) return; var d = new Date(old.at || Date.now()), nr = old.shapes.filter(function (q) { return q.t === 'room'; }).length, nw = old.shapes.filter(function (q) { return q.t === 'wk'; }).length;
       $('cadResumeInfo').textContent = '공간 ' + nr + '곳 도면 · 작업 기호 ' + nw + '개 · ' + (d.getMonth() + 1) + '월 ' + d.getDate() + '일에 하던 작업';

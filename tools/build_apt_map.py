@@ -13,7 +13,8 @@ from shapely.geometry import shape, mapping
 from shapely.ops import unary_union
 
 SRC, GEO = sys.argv[1], sys.argv[2]
-READY = set(json.load(open(sys.argv[3], encoding="utf-8"))) if len(sys.argv) > 3 else set()
+_rp = sys.argv[3] if len(sys.argv) > 3 else os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "data", "plans", "index.json")
+READY = set(json.load(open(_rp, encoding="utf-8"))) if os.path.exists(_rp) else set()      # 도면 준비됨: data/plans 에 집지니 도면이 있는 단지
 OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "data", "apt")
 SD = {"서울특별시": "11", "인천광역시": "23", "경기도": "31"}
 SHORT = {"서울특별시": "서울", "인천광역시": "인천", "경기도": "경기"}
@@ -77,6 +78,8 @@ for m in master:
     hh = m.get("households") or led.get("세대수") or 0
     row = {"c": code, "n": m.get("complexName") or "", "g": (m.get("sigungu") or ""), "d": m.get("eupmyeon") or "", "s": st,
            "h": int(hh or 0), "y": str(m.get("useApprovalDay") or led.get("사용승인") or "")[:4], "p": int(led.get("평형수") or 0) if st else 0}
+    if st == 2:
+        row["r"] = len(json.load(open(os.path.join(os.path.dirname(_rp), code + ".json"), encoding="utf-8"))["평형"])
     if m.get("roadAddress"):
         row["a"] = m["roadAddress"]
     if code in coords:

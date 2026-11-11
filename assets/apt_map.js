@@ -105,11 +105,11 @@
     return h;
   }
   function detail(x) {
-    var go = x.s === 2 ? '<a class="apt-go" href="cad.html?apt=' + encodeURIComponent(x.c) + '" data-ev="apt_open">이 단지 평면으로 꾸미기</a>'
-      : '<a class="apt-go" href="cad.html?from=apt&amp;apt=' + encodeURIComponent(x.c) + '" data-ev="apt_start">' + (x.s === 1 ? '평수로 먼저 시작하기' : '평면 사진이나 평수로 시작하기') + '</a>';
+    var go = x.s === 2 ? '<a class="apt-go" href="cad.html?apt=' + encodeURIComponent(x.c) + '&amp;n=' + encodeURIComponent(x.n) + '" data-ev="apt_open">이 단지 평면으로 꾸미기</a>'
+      : '<a class="apt-go" href="cad.html?from=apt&amp;apt=' + encodeURIComponent(x.c) + '&amp;n=' + encodeURIComponent(x.n) + '" data-ev="apt_start">' + (x.s === 1 ? '평수로 먼저 시작하기' : '평면 사진이나 평수로 시작하기') + '</a>';
     var wish = x.s === 2 ? '' : '<button class="apt-ln" data-wish="' + x.c + '">이 단지 먼저 열어 달라고 알리기</button>';
     return '<tr class="apt-det"><td colspan="5"><dl><dt>상태</dt><dd>' + ST[x.s] + '</dd><dt>세대수</dt><dd>' + (x.h ? num(x.h) + '세대' : '자료 없음') + '</dd><dt>사용승인</dt><dd>' + (x.y ? x.y + '년' : '자료 없음') + '</dd><dt>평형</dt><dd>' + (x.p ? x.p + '개 확보' : '–') + '</dd></dl>' +
-      '<p>' + ST_HELP[x.s] + '</p><div class="apt-act">' + go + wish + '<a class="apt-ln" href="request.html">상담부터 받기</a></div></td></tr>';
+      '<p>' + ST_HELP[x.s] + (x.s === 2 && x.r ? ' 지금은 평형 ' + x.r + '개가 열려 있습니다.' : '') + '</p><div class="apt-act">' + go + wish + '<a class="apt-ln" href="request.html">상담부터 받기</a></div></td></tr>';
   }
   function table(rows, withRegion) {
     if (!rows.length) return '<p class="apt-empty">해당하는 단지가 없습니다.</p>';
