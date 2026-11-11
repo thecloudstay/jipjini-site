@@ -24,7 +24,7 @@
   gtag('js', new Date());
   (function(){try{if(/[?&]jj_staff=1/.test(location.search))localStorage.setItem('jj_staff','1');if(/[?&]jj_staff=0/.test(location.search))localStorage.removeItem('jj_staff');if(localStorage.getItem('jj_staff'))window['ga-disable-G-35EM7T3M9W']=true}catch(e){}})();gtag('config', 'G-35EM7T3M9W');
 </script>
-<link rel="stylesheet" href="assets/apt_map.css?v=20261111t">
+<link rel="stylesheet" href="assets/apt_map.css?v=20261111u">
 </head>
 <body>
 <nav class="nav">
@@ -87,7 +87,7 @@
   </header>
 
   <div class="apt-bar">
-    <label class="apt-find"><span>단지 이름</span><input id="aptQ" type="search" placeholder="예: 송도 더샵, 래미안" autocomplete="off"></label>
+    <div class="apt-findbox"><label class="apt-find"><span>단지 · 주소</span><input id="aptQ" type="search" placeholder="단지 이름이나 주소 (예: 래미안, 송도동, 새문안로3길 23)" autocomplete="off"></label><button type="button" id="aptAddrBtn" class="apt-addr">주소로 찾기</button><p id="aptAddrMsg" class="apt-addrmsg" aria-live="polite"></p></div>
     <ul class="apt-legend" id="aptLegend"></ul>
   </div>
 
@@ -117,7 +117,7 @@
     <p class="apt-note" id="aptSrc"></p>
   </section>
 </main>
-<script src="assets/site_config.js?v=20261111t"></script>
-<script src="assets/apt_map.js?v=20261111t"></script>
+<script src="assets/site_config.js?v=20261111u"></script>
+<script src="assets/apt_map.js?v=20261111u"></script>
 </body>
 </html>

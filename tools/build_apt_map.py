@@ -77,6 +77,8 @@ for m in master:
     hh = m.get("households") or led.get("세대수") or 0
     row = {"c": code, "n": m.get("complexName") or "", "g": (m.get("sigungu") or ""), "d": m.get("eupmyeon") or "", "s": st,
            "h": int(hh or 0), "y": str(m.get("useApprovalDay") or led.get("사용승인") or "")[:4], "p": int(led.get("평형수") or 0) if st else 0}
+    if m.get("roadAddress"):
+        row["a"] = m["roadAddress"]
     if code in coords:
         row["ll"] = [round(coords[code][0], 5), round(coords[code][1], 5)]
     reg["rows"].append(row)

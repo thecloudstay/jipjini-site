@@ -7,7 +7,7 @@
 .apt-lead b{font-weight:600;color:var(--ol-d);font-variant-numeric:tabular-nums}
 .apt-bar{display:flex;flex-wrap:wrap;gap:14px 28px;align-items:flex-end;justify-content:space-between;padding:16px 0;border-bottom:1px solid var(--line)}
 .apt-find{display:flex;align-items:baseline;gap:10px;font-size:14px;color:var(--mute)}
-.apt-find input{width:260px;max-width:60vw;border:0;border-bottom:1px solid var(--ink);background:transparent;padding:6px 2px;font:inherit;font-size:16px;color:var(--ink);outline:none;border-radius:0}
+.apt-find input{width:340px;max-width:60vw;border:0;border-bottom:1px solid var(--ink);background:transparent;padding:6px 2px;font:inherit;font-size:16px;color:var(--ink);outline:none;border-radius:0}
 .apt-find input:focus{border-bottom:2px solid var(--ol)}
 .apt-legend{list-style:none;display:flex;flex-wrap:wrap;gap:6px 20px;margin:0;padding:0;font-size:13.5px}
 .apt-legend li{display:flex;align-items:center;gap:7px}
@@ -71,3 +71,8 @@
 .apt-sig{max-width:720px;margin:14px 0 0;padding:10px 0 0 14px;border-left:3px solid var(--ol);font-size:14.5px;line-height:1.75;color:#3D3D3D}
 .apt-sig b{font-family:'Noto Serif KR',serif;font-weight:500;font-size:18px;color:var(--ink);display:block;margin-bottom:2px}
 .apt-sig a{color:var(--ol-d);text-underline-offset:3px}
+
+.apt-findbox{display:flex;flex-wrap:wrap;align-items:flex-end;gap:8px 14px}
+.apt-addr{appearance:none;border:1px solid var(--ink);background:#fff;color:var(--ink);font:inherit;font-size:14px;padding:7px 14px;cursor:pointer}
+.apt-addr:hover{background:var(--ink);color:#fff}
+.apt-addrmsg{flex-basis:100%;margin:0;font-size:13px;color:var(--mute);min-height:1em}
