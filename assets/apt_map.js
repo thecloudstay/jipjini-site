@@ -1,0 +1,196 @@
+/* 우리 아파트 찾기 — 시군구 지도(직접 그림) + 단지 목록. 카카오 열쇠가 있으면 구역 안 단지를 카카오 지도에도 찍는다.
+   자료: data/apt/index.json(구역·경계·숫자), data/apt/<구역번호>.json(단지 목록). tools/build_apt_map.py 가 만든다.
+   단지 상태 s: 2 도면 준비됨 · 1 준비 중(평면 확보) · 0 예정 */
+(function () {
+  'use strict';
+  var $ = function (id) { return document.getElementById(id); };
+  var NS = 'http://www.w3.org/2000/svg';
+  var IDX = null, CACHE = {}, CUR = null, TAB = 'all', OPEN = '', SHOWN = 60, ALL = null;
+  var ST = ['예정', '준비 중', '도면 준비됨'];
+  var ST_HELP = ['아직 평면을 확보하지 못한 단지입니다. 평수나 평면 사진으로 시작하실 수 있습니다.',
+    '평면은 확보했고 집지니 도면으로 옮기는 중입니다. 열리기 전에는 평수로 먼저 시작하실 수 있습니다.',
+    '이 단지 평면이 집지니 도면으로 준비되어 있습니다.'];
+  var num = function (n) { return (n || 0).toLocaleString('ko-KR'); };
+  var esc = function (s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); };
+  function track(name, p) { try { if (window.gtag) window.gtag('event', name, p || {}); } catch (e) {} }
+
+  // 지도 틀: 수도권만. 먼 섬(백령도 등)은 그림 밖으로 둔다.
+  var BOX = { x0: 126.08, x1: 127.9, y0: 36.86, y1: 38.32 }, KX = Math.cos(37.55 * Math.PI / 180), SC = 520;
+  var W = Math.round((BOX.x1 - BOX.x0) * KX * SC), H = Math.round((BOX.y1 - BOX.y0) * SC);
+  function px(p) { return [((p[0] - BOX.x0) * KX * SC), ((BOX.y1 - p[1]) * SC)]; }
+  function shade(r) {                      // 평면 확보 비율 → 종이색에서 올리브로
+    var t = Math.min(1, r / 0.35), a = [237, 233, 221], b = [91, 107, 46];
+    return 'rgb(' + a.map(function (v, i) { return Math.round(v + (b[i] - v) * t); }).join(',') + ')';
+  }
+  function el(tag, at, txt) { var e = document.createElementNS(NS, tag); for (var k in at) e.setAttribute(k, at[k]); if (txt != null) e.textContent = txt; return e; }
+
+  var VIEW = null, GEOM = [];
+  function drawMap() {
+    var svg = $('aptSvg'); svg.innerHTML = '';
+    var gA = el('g', {}), gL = el('g', { id: 'aptLabels' }); GEOM = [];
+    IDX.구역.forEach(function (r) {
+      var tot = r.수[0] + r.수[1] + r.수[2], have = r.수[1] + r.수[2], ratio = tot ? have / tot : 0;
+      var d = r.경계.map(function (ring) { return 'M' + ring.map(function (p) { var q = px(p); return q[0].toFixed(1) + ' ' + q[1].toFixed(1); }).join('L') + 'Z'; }).join('');
+      var path = el('path', { d: d, fill: shade(ratio), 'class': 'rg', tabindex: 0, 'data-id': r.id, role: 'button', 'aria-label': r.짧은시도 + ' ' + r.이름 + ' 단지 ' + tot + '곳, 평면 확보 ' + have + '곳' });
+      path.appendChild(el('title', {}, r.짧은시도 + ' ' + r.이름 + ' — 단지 ' + num(tot) + '곳 · 평면 확보 ' + num(have) + '곳'));
+      gA.appendChild(path);
+      var xs = [], ys = []; r.경계.forEach(function (ring) { ring.forEach(function (p) { var q = px(p); xs.push(q[0]); ys.push(q[1]); }); });
+      GEOM.push({ r: r, x0: Math.min.apply(0, xs), x1: Math.max.apply(0, xs), y0: Math.min.apply(0, ys), y1: Math.max.apply(0, ys), c: px(r.가운데), have: have, tot: tot, dark: ratio > 0.2 });
+    });
+    svg.appendChild(gA); svg.appendChild(gL);
+    svg.addEventListener('click', function (e) { var t = e.target.closest('.rg'); if (t) pick(t.getAttribute('data-id')); });
+    svg.addEventListener('keydown', function (e) { if ((e.key === 'Enter' || e.key === ' ') && e.target.classList.contains('rg')) { e.preventDefault(); pick(e.target.getAttribute('data-id')); } });
+    setView('전체');
+  }
+  // 보는 범위: 전체 · 서울 · 인천 · 경기. 서울은 구가 작아 전체 그림에서는 이름이 겹치므로 따로 크게 본다.
+  function setView(name) {
+    var g = GEOM.filter(function (m) { return name === '전체' || m.r.짧은시도 === name; }).filter(function (m) { return m.c[0] > 0; });
+    var x0 = Math.max(0, Math.min.apply(0, g.map(function (m) { return m.x0; }))), x1 = Math.min(W, Math.max.apply(0, g.map(function (m) { return m.x1; })));
+    var y0 = Math.max(0, Math.min.apply(0, g.map(function (m) { return m.y0; }))), y1 = Math.min(H, Math.max.apply(0, g.map(function (m) { return m.y1; })));
+    var pad = (x1 - x0) * 0.04; x0 -= pad; x1 += pad; y0 -= pad; y1 += pad;
+    VIEW = { x: x0, y: y0, w: x1 - x0, h: y1 - y0, name: name };
+    $('aptSvg').setAttribute('viewBox', [x0, y0, x1 - x0, y1 - y0].map(function (v) { return v.toFixed(1); }).join(' '));
+    labels();
+    Array.prototype.forEach.call(document.querySelectorAll('#aptView button'), function (b) { b.classList.toggle('on', b.getAttribute('data-v') === name); });
+  }
+  function labels() {
+    var gL = $('aptLabels'), box = $('aptSvg').getBoundingClientRect(), k = (box.width || 560) / VIEW.w, f = 11 / k; gL.innerHTML = '';
+    Array.prototype.forEach.call(document.querySelectorAll('.rg'), function (p) { p.style.strokeWidth = (p.classList.contains('on') ? 2 : 0.9) / k; });
+    GEOM.forEach(function (m) {
+      var bw = (m.x1 - m.x0) * k, bh = (m.y1 - m.y0) * k, c = m.c;
+      if (c[0] < VIEW.x || c[0] > VIEW.x + VIEW.w || c[1] < VIEW.y || c[1] > VIEW.y + VIEW.h) return;
+      var nm = m.r.이름.replace(/^.+시 ?(.+구)$/, '$1');
+      if (bw < nm.length * 11 + 6 || bh < 20) return;
+      var two = bh > 36;
+      gL.appendChild(el('text', { x: c[0].toFixed(1), y: (c[1] + (two ? -1 : 3.5) / k).toFixed(1), 'class': 'rl' + (m.dark ? ' w' : ''), 'font-size': f.toFixed(2) }, nm));
+      if (two) gL.appendChild(el('text', { x: c[0].toFixed(1), y: (c[1] + 11 / k).toFixed(1), 'class': 'rl n' + (m.dark ? ' w' : ''), 'font-size': (f * 0.9).toFixed(2) }, m.have + '/' + m.tot));
+    });
+  }
+  window.addEventListener('resize', function () { if (VIEW) labels(); });
+
+  function legend() {
+    var s = IDX.합계;
+    $('aptLegend').innerHTML = [2, 1, 0].map(function (k) { return '<li><span class="mk s' + k + '"></span>' + ST[k] + ' <b>' + num(s[k]) + '</b>곳</li>'; }).join('');
+    $('aptAll').textContent = num(s[0] + s[1] + s[2]); $('aptHave').textContent = num(s[1] + s[2]);
+    $('aptSrc').textContent = '단지 목록: ' + IDX.출처 + ' · ' + IDX.만든날 + ' 기준. 평면 확보 수는 날마다 늘어납니다. 구역 경계는 2018년 기준이라 그 뒤 나뉜 구(인천 검단·영종·제물포, 부천·화성의 구)는 옛 경계로 묶어 보여 드립니다.';
+  }
+
+  function load(id, cb) {
+    if (CACHE[id]) return cb(CACHE[id]);
+    fetch('data/apt/' + id + '.json').then(function (r) { return r.json(); }).then(function (j) { CACHE[id] = j; cb(j); }).catch(function () { cb([]); });
+  }
+  function region(id) { return IDX.구역.filter(function (r) { return r.id === id; })[0]; }
+
+  function pick(id, openCode) {
+    CUR = id; TAB = 'all'; OPEN = openCode || ''; SHOWN = 60;
+    Array.prototype.forEach.call(document.querySelectorAll('.rg'), function (p) { p.classList.toggle('on', p.getAttribute('data-id') === id); });
+    var r = region(id); if (VIEW.name !== '전체' && VIEW.name !== r.짧은시도) setView(r.짧은시도); else labels(); track('apt_region', { region: r.짧은시도 + ' ' + r.이름 });
+    load(id, function (rows) { side(r, rows); kakao(r, rows); if (window.innerWidth < 880) $('aptSide').scrollIntoView({ behavior: 'smooth', block: 'start' }); });
+  }
+
+  function side(r, rows) {
+    var tot = rows.length, n2 = r.수[2], n1 = r.수[1];
+    $('aptSideTtl').textContent = r.짧은시도 + ' ' + r.이름;
+    $('aptSideSub').innerHTML = '단지 <b>' + num(tot) + '</b>곳 · 도면 준비됨 <b>' + num(n2) + '</b> · 준비 중 <b>' + num(n1) + '</b> · 예정 <b>' + num(r.수[0]) + '</b>';
+    $('aptTop').innerHTML = '<div class="apt-ratio" aria-hidden="true"><i class="r2" style="width:' + (tot ? n2 / tot * 100 : 0) + '%"></i><i class="r1" style="width:' + (tot ? n1 / tot * 100 : 0) + '%"></i></div>' +
+      '<div class="apt-tabs"><button data-t="all" class="on">전체 ' + num(tot) + '</button><button data-t="have">평면 확보 ' + num(n1 + n2) + '</button></div>';
+    list(rows);
+  }
+
+  function rowHtml(x, withRegion) {
+    var h = '<tr class="row' + (OPEN === x.c ? ' on' : '') + '" data-c="' + x.c + '"' + (x.rid ? ' data-r="' + x.rid + '"' : '') + '><td><span class="mk s' + x.s + '" title="' + ST[x.s] + '"></span></td>' +
+      '<td><span class="nm">' + esc(x.n) + '</span><br><span class="dg">' + esc((withRegion ? x.rn + ' ' : '') + x.d) + '</span></td>' +
+      '<td class="num">' + (x.h ? num(x.h) : '–') + '</td><td class="num hide-s">' + (x.y || '–') + '</td><td class="num">' + (x.p ? x.p + '개' : '–') + '</td></tr>';
+    if (OPEN === x.c) h += detail(x);
+    return h;
+  }
+  function detail(x) {
+    var go = x.s === 2 ? '<a class="apt-go" href="cad.html?apt=' + encodeURIComponent(x.c) + '" data-ev="apt_open">이 단지 평면으로 꾸미기</a>'
+      : '<a class="apt-go" href="cad.html?from=apt&amp;apt=' + encodeURIComponent(x.c) + '" data-ev="apt_start">' + (x.s === 1 ? '평수로 먼저 시작하기' : '평면 사진이나 평수로 시작하기') + '</a>';
+    var wish = x.s === 2 ? '' : '<button class="apt-ln" data-wish="' + x.c + '">이 단지 먼저 열어 달라고 알리기</button>';
+    return '<tr class="apt-det"><td colspan="5"><dl><dt>상태</dt><dd>' + ST[x.s] + '</dd><dt>세대수</dt><dd>' + (x.h ? num(x.h) + '세대' : '자료 없음') + '</dd><dt>사용승인</dt><dd>' + (x.y ? x.y + '년' : '자료 없음') + '</dd><dt>평형</dt><dd>' + (x.p ? x.p + '개 확보' : '–') + '</dd></dl>' +
+      '<p>' + ST_HELP[x.s] + '</p><div class="apt-act">' + go + wish + '<a class="apt-ln" href="request.html">상담부터 받기</a></div></td></tr>';
+  }
+  function table(rows, withRegion) {
+    if (!rows.length) return '<p class="apt-empty">해당하는 단지가 없습니다.</p>';
+    var cut = rows.slice(0, SHOWN);
+    return '<table class="apt-tbl"><thead><tr><th></th><th>단지</th><th class="num">세대</th><th class="num hide-s">사용승인</th><th class="num">평형</th></tr></thead><tbody>' +
+      cut.map(function (x) { return rowHtml(x, withRegion); }).join('') + '</tbody></table>' +
+      (rows.length > SHOWN ? '<p class="apt-more"><button class="apt-ln" data-more="1">' + num(rows.length - SHOWN) + '곳 더 보기</button></p>' : '');
+  }
+  var LAST = { rows: [], withRegion: false };
+  function list(rows, withRegion) {
+    LAST = { rows: rows, withRegion: !!withRegion };
+    var v = TAB === 'have' ? rows.filter(function (x) { return x.s > 0; }) : rows;
+    $('aptList').innerHTML = table(v, withRegion);
+  }
+
+  $('aptSide').addEventListener('click', function (e) {
+    var t = e.target, b;
+    if ((b = t.closest('[data-t]'))) { TAB = b.getAttribute('data-t'); SHOWN = 60; Array.prototype.forEach.call(document.querySelectorAll('.apt-tabs button'), function (x) { x.classList.toggle('on', x === b); }); return list(LAST.rows, LAST.withRegion); }
+    if (t.closest('[data-more]')) { SHOWN += 120; return list(LAST.rows, LAST.withRegion); }
+    if ((b = t.closest('[data-wish]'))) { track('apt_wish', { apt: b.getAttribute('data-wish') }); b.outerHTML = '<span class="apt-ln" style="text-decoration:none;color:#3E4A1F">알려 주셔서 고맙습니다. 요청이 많은 단지부터 엽니다.</span>'; return; }
+    if ((b = t.closest('[data-ev]'))) { track(b.getAttribute('data-ev'), { apt: OPEN }); return; }
+    if ((b = t.closest('tr.row'))) { var c = b.getAttribute('data-c'); OPEN = OPEN === c ? '' : c; if (OPEN) track('apt_pick', { apt: c }); list(LAST.rows, LAST.withRegion); }
+  });
+
+  // 단지 이름 찾기: 처음 찾을 때 구역 파일을 모두 받는다(합쳐 1.3MB쯤).
+  var qT = 0;
+  function loadAll(cb) {
+    if (ALL) return cb(ALL);
+    var left = IDX.구역.length, out = [];
+    IDX.구역.forEach(function (r) { load(r.id, function (rows) { rows.forEach(function (x) { x.rid = r.id; x.rn = r.짧은시도 + ' ' + r.이름; out.push(x); }); if (!--left) { ALL = out; cb(out); } }); });
+  }
+  $('aptQ').addEventListener('input', function () {
+    var q = this.value.replace(/\s+/g, '').toLowerCase(); clearTimeout(qT);
+    if (q.length < 2) { if (CUR) pick(CUR); return; }
+    qT = setTimeout(function () {
+      loadAll(function (all) {
+        var hit = all.filter(function (x) { return (x.n + x.d + x.g).replace(/\s+/g, '').toLowerCase().indexOf(q) >= 0; }).sort(function (a, b) { return b.s - a.s || b.h - a.h; });
+        TAB = 'all'; SHOWN = 60; OPEN = '';
+        $('aptSideTtl').textContent = '「' + $('aptQ').value.trim() + '」 찾은 단지';
+        $('aptSideSub').innerHTML = '<b>' + num(hit.length) + '</b>곳 · 평면 확보 <b>' + num(hit.filter(function (x) { return x.s > 0; }).length) + '</b>곳';
+        $('aptTop').innerHTML = ''; list(hit, true); track('apt_search', { q: $('aptQ').value.trim().slice(0, 30) });
+      });
+    }, 220);
+  });
+
+  // 카카오 지도: 열쇠가 있고 좌표가 있는 단지만. 수도권 밖으로는 못 나가게 잠근다.
+  var KMAP = null, KOV = [];
+  function kakaoReady(cb) {
+    if (!window.JJ_KAKAO_KEY) return;
+    if (window.kakao && window.kakao.maps && window.kakao.maps.Map) return cb();
+    if (kakaoReady.q) return kakaoReady.q.push(cb);
+    kakaoReady.q = [cb];
+    var s = document.createElement('script'); s.src = 'https://dapi.kakao.com/v2/maps/sdk.js?autoload=false&appkey=' + encodeURIComponent(window.JJ_KAKAO_KEY);
+    s.onload = function () { window.kakao.maps.load(function () { kakaoReady.q.forEach(function (f) { f(); }); kakaoReady.q = null; }); };
+    document.head.appendChild(s);
+  }
+  function kakao(r, rows) {
+    var pts = rows.filter(function (x) { return x.ll; }); if (!window.JJ_KAKAO_KEY || !pts.length) return;
+    kakaoReady(function () {
+      var K = window.kakao.maps, box = $('aptKakao'); box.hidden = false;
+      if (!KMAP) {
+        KMAP = new K.Map(box, { center: new K.LatLng(r.가운데[1], r.가운데[0]), level: 7 }); KMAP.setMaxLevel(11);
+        var lim = new K.LatLngBounds(new K.LatLng(BOX.y0, BOX.x0), new K.LatLng(BOX.y1, BOX.x1));
+        K.event.addListener(KMAP, 'idle', function () { var c = KMAP.getCenter(); if (!lim.contain(c)) KMAP.setCenter(new K.LatLng(Math.min(BOX.y1, Math.max(BOX.y0, c.getLat())), Math.min(BOX.x1, Math.max(BOX.x0, c.getLng())))); });
+      }
+      KOV.forEach(function (o) { o.setMap(null); }); KOV = [];
+      var b = new K.LatLngBounds();
+      pts.forEach(function (x) {
+        var pos = new K.LatLng(x.ll[0], x.ll[1]); b.extend(pos);
+        var d = document.createElement('button'); d.className = 'mk s' + x.s; d.title = x.n + ' · ' + ST[x.s]; d.style.cssText = 'width:' + (x.s ? 14 : 10) + 'px;height:' + (x.s ? 14 : 10) + 'px;padding:0;cursor:pointer';
+        d.onclick = function () { OPEN = x.c; list(LAST.rows, LAST.withRegion); var tr = document.querySelector('tr.row.on'); if (tr) tr.scrollIntoView({ block: 'center', behavior: 'smooth' }); };
+        var ov = new K.CustomOverlay({ position: pos, content: d, yAnchor: 0.5, zIndex: x.s + 1 }); ov.setMap(KMAP); KOV.push(ov);
+      });
+      KMAP.relayout(); KMAP.setBounds(b);
+    });
+  }
+
+  $('aptView').addEventListener('click', function (e) { var b = e.target.closest('button'); if (b) setView(b.getAttribute('data-v')); });
+
+  fetch('data/apt/index.json').then(function (r) { return r.json(); }).then(function (j) {
+    IDX = j; legend(); drawMap();
+    var m = /[?&]r=(\d+)/.exec(location.search); if (m && region(m[1])) pick(m[1]);
+  }).catch(function () { $('aptSideSub').textContent = '지도 자료를 불러오지 못했습니다. 잠시 뒤 다시 열어 주세요.'; });
+})();
