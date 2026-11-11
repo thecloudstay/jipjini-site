@@ -58,7 +58,7 @@
   function fromPlan(p) {
     var sh = [], xs = [], ys = [];
     (p.rooms || []).forEach(function (m) { if (!m.pts || m.pts.length < 3) return; m.pts.forEach(function (q) { xs.push(q[0]); ys.push(q[1]); });
-      var o = { t: 'room', c: '#2f6b4f', name: m.name || '공간', pts: m.pts.map(function (q) { return [Math.round(q[0]), Math.round(q[1])]; }), auto: true, kind: m.kind || kindOf(m.name) }; if (m.area) o.a0 = { area: m.area, w: m.w || 0, d: m.d || 0 }; sh.push(o); });
+      var o = { t: 'room', c: '#4F6B2C', name: m.name || '공간', pts: m.pts.map(function (q) { return [Math.round(q[0]), Math.round(q[1])]; }), auto: true, kind: m.kind || kindOf(m.name) }; if (m.area) o.a0 = { area: m.area, w: m.w || 0, d: m.d || 0 }; sh.push(o); });
     if (!xs.length) return null;
     var Wd = p.W || Math.max.apply(null, xs) + Math.min.apply(null, xs), Ht = p.H || Math.max.apply(null, ys) + Math.min.apply(null, ys);
     (p.창 || []).forEach(function (w) { sh.push({ t: 'win', c: '#1d5fd0', x1: Math.round(w.x1), y1: Math.round(w.y1), x2: Math.round(w.x2), y2: Math.round(w.y2), h: w.h_mm || 1200, name: (w.종류 || '창') + (w.안 ? ' ' + w.안 : ''), auto: true }); });
@@ -73,7 +73,7 @@
     (o.marks || []).forEach(function (m) { try {
       if (m.t === '철거' && m.a && m.b) { if (Math.hypot(m.a[0] - m.b[0], m.a[1] - m.b[1]) < 1) st.shapes.push({ t: 'wk', k: 'dmP', st: 'remove', f: 'p', x: m.a[0], y: m.a[1], note: m.text || '' }); else st.shapes.push({ t: 'wk', k: 'dmL', st: 'remove', f: 'l', pts: [m.a, m.b], note: m.text || '' }); }
       else if (m.t === '메모' && m.p) st.shapes.push({ t: 'text', c: '#111827', x: m.p[0], y: m.p[1], s: m.text || '작업 지시' });
-      else if (m.t === '공사') { var p = m.box ? [[m.box[0], m.box[1]], [m.box[2], m.box[1]], [m.box[2], m.box[3]], [m.box[0], m.box[3]]] : (rooms[m.room] && rooms[m.room].pts); if (!p) return; var c = centroid(p); st.shapes.push({ t: 'poly', c: '#2f6b4f', pts: p.map(function (q) { return [q[0], q[1]]; }) }); st.shapes.push({ t: 'text', c: '#2f6b4f', x: c[0], y: c[1], s: m.text || '공사' }); }
+      else if (m.t === '공사') { var p = m.box ? [[m.box[0], m.box[1]], [m.box[2], m.box[1]], [m.box[2], m.box[3]], [m.box[0], m.box[3]]] : (rooms[m.room] && rooms[m.room].pts); if (!p) return; var c = centroid(p); st.shapes.push({ t: 'poly', c: '#4F6B2C', pts: p.map(function (q) { return [q[0], q[1]]; }) }); st.shapes.push({ t: 'text', c: '#4F6B2C', x: c[0], y: c[1], s: m.text || '공사' }); }
     } catch (e) {} });
     return st;
   }
@@ -362,7 +362,7 @@
   // ── 화면 틀
   function css() {
     if ($('jjeCss')) return; var st = doc.createElement('style'); st.id = 'jjeCss';
-    st.textContent = '.jje{--ln:#C8C4BC;--ink:#2A2A2A;--sub:#6B6B6B;--gr:#1e4d3a;--soft:#e6efe9;position:relative;display:flex;flex-direction:column;height:max(640px,calc(100vh - 96px));border:1px solid var(--ln);background:#fff;color:var(--ink);font-size:15px;line-height:1.5;font-family:' + FONT.replace(/"/g, "'") + '}' +
+    st.textContent = '.jje{--ln:#C8C4BC;--ink:#2A2A2A;--sub:#6B6B6B;--gr:#33491C;--soft:#E8EEDC;position:relative;display:flex;flex-direction:column;height:max(640px,calc(100vh - 96px));border:1px solid var(--ln);background:#fff;color:var(--ink);font-size:15px;line-height:1.5;font-family:' + FONT.replace(/"/g, "'") + '}' +
       '.jje *{box-sizing:border-box}.jje button{font-family:inherit;cursor:pointer;color:inherit}.jje.full{position:fixed;inset:0;z-index:400;height:auto;border:0}' +
       '.jje-top{display:flex;align-items:center;gap:8px;padding:6px 10px;border-bottom:1px solid var(--ln);min-height:54px;background:#FBF8F1}.jje-top h3{font-size:17px;font-weight:700;margin:0;white-space:nowrap}.jje-top .nm{color:var(--sub);font-size:14.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1;min-width:0}' +
       '.jje-b{min-height:40px;padding:0 13px;border:1px solid #9A9A9A;background:#fff;border-radius:2px;font-size:15px;font-weight:600;white-space:nowrap}.jje-b:hover{background:#F5F1E8}.jje-b{color:#2A2A2A;font-family:inherit;cursor:pointer}.jje-b.dark{background:#2A2A2A;border-color:#2A2A2A;color:#F5F1E8}.jje-b.dark:hover{background:#111}.jje-b:disabled{opacity:.4;cursor:default}' +
@@ -450,7 +450,7 @@
   function railDraw() {
     var el = $('jjeRail'); if (!el) return;
     el.innerHTML = RAIL.map(function (t) { return typeof t === 'string' ? '<div class="sep">' + t + '</div>' : '<button type="button" class="' + (tool === t[0] ? 'on' : '') + '" data-a="tool" data-v="' + t[0] + '" title="' + t[1] + '"><svg viewBox="0 0 24 24"><path d="' + t[3] + '"/></svg>' + t[1] + '</button>'; }).join('') +
-      '<div class="sep">색</div><div class="cols">' + [['#d8322e', '빨강'], ['#1d5fd0', '파랑'], ['#2f6b4f', '초록'], ['#111827', '검정']].map(function (c) { return '<span title="표시 색: ' + c[1] + '" data-a="color" data-v="' + c[0] + '" style="background:' + c[0] + ';box-shadow:0 0 0 2px #FBF8F1,0 0 0 ' + (color === c[0] ? '4px ' + c[0] : '3px transparent') + '"></span>'; }).join('') + '</div>';
+      '<div class="sep">색</div><div class="cols">' + [['#d8322e', '빨강'], ['#1d5fd0', '파랑'], ['#4F6B2C', '초록'], ['#111827', '검정']].map(function (c) { return '<span title="표시 색: ' + c[1] + '" data-a="color" data-v="' + c[0] + '" style="background:' + c[0] + ';box-shadow:0 0 0 2px #FBF8F1,0 0 0 ' + (color === c[0] ? '4px ' + c[0] : '3px transparent') + '"></span>'; }).join('') + '</div>';
     var w = $('jjeWrap'); if (w) w.style.cursor = tool === 'hand' ? 'grab' : tool === 'select' ? 'default' : 'crosshair'; scaleInfo();
   }
   var HINT = { select: '', guide: '기준선: 놓을 자리를 누르세요. 오른쪽에서 방향과 놓는 방법을 고릅니다.', hand: '도면을 끌어 옮깁니다.', scale: '척도: 길이를 아는 두 점을 차례로 누르세요.', room: '공간 그리기: 모서리를 차례로 누르고, 첫 점을 다시 누르면 닫힙니다.', poly: '다각형: 모서리를 차례로 누르고, 첫 점을 다시 누르면 닫힙니다.', rect: '사각형: 끌어서 그립니다.', win: '창: 벽을 따라 끌어 놓으세요.', door: '문: 문 폭만큼 벽을 따라 끌어 놓으세요.', dim: '길이 재기: 잴 곳의 두 점을 끌어 놓으세요.', wall: '벽 사이 재기: 방 안쪽을 누르면 좌우·위아래 벽 사이를 잽니다.', arrow: '화살표: 끌어서 그립니다.', circle: '원: 가운데에서 끌어 그립니다.', pen: '펜: 끌어서 자유롭게 그립니다.', text: '글자: 적을 자리를 누르세요.', erase: '지우개: 지울 것을 누르세요.' };
@@ -481,9 +481,9 @@
     var el = $('jjeLayers'); if (!el || el.style.display !== 'block') return;
     var n = function (f) { return shapes.filter(f).length; }, row = function (key, name, col, cnt, on) { return '<div class="jje-lay ' + (on ? 'on' : 'off') + '" data-a="lay" data-v="' + key + '"><i style="background:' + col + '"></i><span class="n">' + name + '</span>' + (cnt === '' ? '' : '<span class="ct">' + cnt + '</span>') + '<span class="jje-sw"></span></div>'; };
     el.innerHTML = '<div style="display:flex;align-items:center;gap:6px;padding:2px 6px 4px 9px"><b style="flex:1">겹쳐 보기</b><button type="button" class="jje-chip" data-a="layAll">모두 켜기</button><button type="button" class="jje-chip" data-a="layers">닫기</button></div>' +
-      '<div class="jje-layh">도면</div>' + row('바탕', '집지니 도면 바탕', '#26302c', '', !hide['바탕']) + row('공간', '공간 이름·면적', '#2f6b4f', n(function (q) { return q.t === 'room'; }), !hide['공간']) + row('창·문', '창·문', '#1d5fd0', n(function (q) { return q.t === 'win' || q.t === 'door'; }), !hide['창·문']) + row('치수', '치수·척도', '#111827', n(function (q) { return q.t === 'dim' || q.t === 'scale'; }), !hide['치수']) +
+      '<div class="jje-layh">도면</div>' + row('바탕', '집지니 도면 바탕', '#26302c', '', !hide['바탕']) + row('공간', '공간 이름·면적', '#4F6B2C', n(function (q) { return q.t === 'room'; }), !hide['공간']) + row('창·문', '창·문', '#1d5fd0', n(function (q) { return q.t === 'win' || q.t === 'door'; }), !hide['창·문']) + row('치수', '치수·척도', '#111827', n(function (q) { return q.t === 'dim' || q.t === 'scale'; }), !hide['치수']) +
       '<div class="jje-layh">작업지시</div>' + TRADES.map(function (t) { return row(t[0], t[0], t[1], n(function (q) { return q.t === 'wk' && (SYMS[q.k] || [''])[0] === t[0]; }), !hide[t[0]]); }).join('') + row('번호', '기호 번호', '#64748b', '', nums) +
-      '<div class="jje-layh">그 밖</div>' + row('기준선', '기준선', '#d11a2a', n(function (q) { return q.t === 'guide'; }), !hide['기준선']) + row('표시', '표시·글자', '#d8322e', n(function (q) { return /^(circle|arrow|pen|text|rect|poly)$/.test(q.t); }), !hide['표시']) + row('무늬', '집지니 비침 무늬', '#2f6b4f', '', hide['무늬'] === false);
+      '<div class="jje-layh">그 밖</div>' + row('기준선', '기준선', '#d11a2a', n(function (q) { return q.t === 'guide'; }), !hide['기준선']) + row('표시', '표시·글자', '#d8322e', n(function (q) { return /^(circle|arrow|pen|text|rect|poly)$/.test(q.t); }), !hide['표시']) + row('무늬', '집지니 비침 무늬', '#4F6B2C', '', hide['무늬'] === false);
   }
   function layToggle(key) { if (key === '번호') nums = !nums; else if (key === '무늬') hide[key] = hide[key] === false; else hide[key] = !hide[key]; sel = -1; laySave(); layDraw(); redraw(); propDraw(); sideDraw(); if (/^(바탕|공간|창·문|무늬|치수)$/.test(key)) bgApply(); }
 
@@ -590,7 +590,7 @@
     else if (tool === 'scale') { if (!scaleP1) { scaleP1 = snapPt(P.x0, P.y0); say('척도: 둘째 점을 누르세요.'); } else { var p1 = scaleP1, p2 = snapPt(P.x0, P.y0); scaleP1 = null; ask('두 점 사이 실제 길이(mm) — 예: 도면에 적힌 3600', '3600', function (v) { var mm = Number(String(v).replace(/[^0-9.]/g, '')); if (!(mm > 0)) return; snap(); shapes = shapes.filter(function (q) { return q.t !== 'scale'; }); shapes.forEach(function (q) { delete q.a0; }); shapes.push({ t: 'scale', c: '#1d5fd0', x1: p1[0], y1: p1[1], x2: p2[0], y2: p2[1], mm: mm }); baseOk = false; touch(); setTool('select'); }); } }
     else if (tool === 'room' || tool === 'poly' || (tool === 'wk' && SYMS[wk.k] && SYMS[wk.k][2] === 'a')) { var isWk = tool === 'wk', q0 = tool === 'poly' ? [P.x0, P.y0] : snapPt(P.x0, P.y0);
       if (isWk && wk.whole && !poly) { var r = roomAt(P.x0, P.y0); if (!r) say('공간 안쪽을 눌러 주세요. 공간의 일부만이면 오른쪽에서 「직접 그리기」를 고르세요.'); else if (shapes.some(function (q) { return q.t === 'wk' && q.k === wk.k && q.f === 'a' && q.pts.length === r.pts.length && Math.abs(pxArea(q.pts) - pxArea(r.pts)) < 2 && inPoly(centroid(q.pts), r.pts); })) say(r.name + '에는 이미 ' + SYMS[wk.k][1] + '이(가) 있습니다.'); else { sh = { t: 'wk', k: wk.k, st: wk.st, f: 'a', pts: r.pts.map(function (p) { return [p[0], p[1]]; }) }; say(r.name + ' 전체에 넣었습니다.'); } }
-      else if (!poly) poly = isWk ? { t: 'wk', k: wk.k, st: wk.st, f: 'a', pts: [q0] } : tool === 'poly' ? { t: 'poly', c: color, pts: [q0] } : { t: 'room', c: '#2f6b4f', pts: [q0], name: '' };
+      else if (!poly) poly = isWk ? { t: 'wk', k: wk.k, st: wk.st, f: 'a', pts: [q0] } : tool === 'poly' ? { t: 'poly', c: color, pts: [q0] } : { t: 'room', c: '#4F6B2C', pts: [q0], name: '' };
       else { var f = poly.pts[0]; if (poly.pts.length >= 3 && Math.hypot(f[0] - P.x0, f[1] - P.y0) < Math.max(u * 1.1, 18 / V.z)) { draft = null; polyClose(); return; } poly.pts.push(q0); }
       if (poly) say('모서리 ' + poly.pts.length + '개 — 첫 점을 다시 누르면 닫힙니다.'); }
     else if (tool === 'guide') { many = guideAt(P.x0, P.y0); if (many && !many.length) many = null; }
@@ -724,7 +724,7 @@
     g.save(); g.strokeStyle = q.c || '#d8322e'; g.fillStyle = q.c || '#d8322e'; g.lineWidth = Math.max(1.6, u / 8); g.lineCap = 'round'; g.lineJoin = 'round';
     var mm = mmpp(), lab = function (tx, x, y, sz) { g.font = '700 ' + (u * (sz || 0.6)).toFixed(1) + 'px ' + FONT; g.lineWidth = Math.max(3, u / 4); g.strokeStyle = '#fff'; g.strokeText(tx, x, y); g.fillText(tx, x, y); };
     if (q.t === 'wk') drawWk(g, q, u, no, ord);
-    else if (q.t === 'room') { var rc = q.c || '#2f6b4f'; pathOf(g, q.pts, !!q.name); g.strokeStyle = rc; g.lineWidth = Math.max(1.6, u / 9); g.stroke();
+    else if (q.t === 'room') { var rc = q.c || '#4F6B2C'; pathOf(g, q.pts, !!q.name); g.strokeStyle = rc; g.lineWidth = Math.max(1.6, u / 9); g.stroke();
       if (q.name) { g.globalAlpha = 0.06; g.fillStyle = rc; g.fill(); g.globalAlpha = 1; var m = polyMeasure(q, mm), c0 = centroid(q.pts); g.fillStyle = rc; g.textAlign = 'center'; if (!bgOn) lab(q.name + (m ? ' ' + m.area.toFixed(1) + '㎡' : ''), c0[0], c0[1], 0.62); g.textAlign = 'start';
         if (mm && !sheetMode && (shapes[sel] === q || allLen)) { var n = q.pts.length; for (var i = 0; i < n; i++) { var a = q.pts[i], b = q.pts[(i + 1) % n], L = Math.hypot(b[0] - a[0], b[1] - a[1]); if (L < u * 2.2) continue; var mx = (a[0] + b[0]) / 2, my = (a[1] + b[1]) / 2, nx = (b[1] - a[1]) / L, ny = -(b[0] - a[0]) / L, inw = (c0[0] - mx) * nx + (c0[1] - my) * ny > 0 ? 1 : -1; g.fillStyle = '#444'; g.textAlign = 'center'; lab((L * mm / 1000).toFixed(2), mx + nx * inw * u * 0.7, my + ny * inw * u * 0.7 + u * 0.18, 0.46); } } } }
     else if (q.t === 'scale') { var sx = Math.hypot(q.x2 - q.x1, q.y2 - q.y1) || 1, kx = (q.x2 - q.x1) / sx, ky = (q.y2 - q.y1) / sx, tk = u * 0.2; g.strokeStyle = '#26302c'; g.fillStyle = '#26302c'; g.lineCap = 'butt'; g.lineWidth = Math.max(1, u / 14); g.beginPath(); g.moveTo(q.x1, q.y1); g.lineTo(q.x2, q.y2); g.moveTo(q.x1 + ky * tk, q.y1 - kx * tk); g.lineTo(q.x1 - ky * tk, q.y1 + kx * tk); g.moveTo(q.x2 + ky * tk, q.y2 - kx * tk); g.lineTo(q.x2 - ky * tk, q.y2 + kx * tk); g.stroke(); g.font = '600 ' + (u * 0.44).toFixed(1) + 'px ' + FONT; g.textAlign = 'center'; g.fillText(q.mm >= 1000 ? R2(q.mm / 1000) + 'm' : q.mm + 'mm', (q.x1 + q.x2) / 2, (q.y1 + q.y2) / 2 - u * 0.3); }
