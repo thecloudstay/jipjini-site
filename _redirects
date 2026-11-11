@@ -1,4 +1,10 @@
 # 코디 콘솔 바로가기 (2026-10-03) — 긴 앱스 스크립트 주소 대신 jipjini.com/console
 /console   https://script.google.com/macros/s/AKfycbzxm4mmZs1yVJPa3T-wb0cdJbEUMPYl6dDKtQNSNmJy4nEsCholrEnPAN8e0JfAtOV99A/exec  302
 /admin     https://script.google.com/macros/s/AKfycbzxm4mmZs1yVJPa3T-wb0cdJbEUMPYl6dDKtQNSNmJy4nEsCholrEnPAN8e0JfAtOV99A/exec  302
+# 끝 글자가 빠진 주소·짧은 주소로 와도 맞는 쪽으로 (2026-11-11)
+/apt.htm          /apt.html          301
+/apt              /apt.html          301
+/how-we-work.htm  /how-we-work.html  301
+/how-we-work      /how-we-work.html  301
+/cad.htm          /cad.html          301
 /*  https://jipjini.com/:splat  301!
