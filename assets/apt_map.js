@@ -85,7 +85,7 @@
     CUR = id; TAB = 'all'; OPEN = openCode || ''; SHOWN = 60;
     Array.prototype.forEach.call(document.querySelectorAll('.rg'), function (p) { p.classList.toggle('on', p.getAttribute('data-id') === id); });
     var r = region(id); if (VIEW.name !== '전체' && VIEW.name !== r.짧은시도) setView(r.짧은시도); else labels(); track('apt_region', { region: r.짧은시도 + ' ' + r.이름 });
-    load(id, function (rows) { side(r, rows); kakao(r, rows); if (window.innerWidth < 880) $('aptSide').scrollIntoView({ behavior: 'smooth', block: 'start' }); });
+    load(id, function (rows) { side(r, rows); kakao(r); if (window.innerWidth < 880) $('aptSide').scrollIntoView({ behavior: 'smooth', block: 'start' }); });
   }
 
   function side(r, rows) {
@@ -155,8 +155,8 @@
     }, 220);
   });
 
-  // 카카오 지도: 열쇠가 있고 좌표가 있는 단지만. 수도권 밖으로는 못 나가게 잠근다.
-  var KMAP = null, KOV = [];
+  // 카카오 지도. 멀리서는 구역마다 「평면 확보 / 전체」 숫자를, 가까이서는 단지마다 핀을 찍는다. 수도권 밖으로는 못 나가게 잠근다.
+  var KMAP = null, KOV = [], KPIN = null, RBOX = null, KT = 0;
   function kakaoReady(cb) {
     if (!window.JJ_KAKAO_KEY) return;
     if (window.kakao && window.kakao.maps && window.kakao.maps.Map) return cb();
@@ -166,52 +166,84 @@
     s.onload = function () { window.kakao.maps.load(function () { kakaoReady.q.forEach(function (f) { f(); }); kakaoReady.q = null; }); };
     document.head.appendChild(s);
   }
-  function kakao(r, rows) {
+  function kmap(center, level) {
+    var K = window.kakao.maps, box = $('aptKakao'); box.hidden = false;
+    if (!KMAP) {
+      KMAP = new K.Map(box, { center: center || new K.LatLng(37.5, 126.95), level: level || 10 }); KMAP.setMaxLevel(11);
+      KMAP.addControl(new K.ZoomControl(), K.ControlPosition.RIGHT);
+      var lim = new K.LatLngBounds(new K.LatLng(BOX.y0, BOX.x0), new K.LatLng(BOX.y1, BOX.x1));
+      K.event.addListener(KMAP, 'idle', function () {
+        var c = KMAP.getCenter(); if (!lim.contain(c)) return KMAP.setCenter(new K.LatLng(Math.min(BOX.y1, Math.max(BOX.y0, c.getLat())), Math.min(BOX.x1, Math.max(BOX.x0, c.getLng()))));
+        clearTimeout(KT); KT = setTimeout(pins, 120);
+      });
+      RBOX = IDX.구역.map(function (r) { var xs = [], ys = []; r.경계.forEach(function (g) { g.forEach(function (q) { xs.push(q[0]); ys.push(q[1]); }); }); return { r: r, x0: Math.min.apply(0, xs), x1: Math.max.apply(0, xs), y0: Math.min.apply(0, ys), y1: Math.max.apply(0, ys) }; });
+      pins();
+    } else if (center) { KMAP.relayout(); if (level) KMAP.setLevel(level); KMAP.setCenter(center); }
+    return KMAP;
+  }
+  function pins() {
+    if (!KMAP) return; var K = window.kakao.maps, lv = KMAP.getLevel(), bd = KMAP.getBounds(), sw = bd.getSouthWest(), ne = bd.getNorthEast();
+    var x0 = sw.getLng(), x1 = ne.getLng(), y0 = sw.getLat(), y1 = ne.getLat();
+    var hitR = RBOX.filter(function (b) { return b.x1 > x0 && b.x0 < x1 && b.y1 > y0 && b.y0 < y1; });
+    var wipe = function () { KOV.forEach(function (o) { o.setMap(null); }); KOV = []; };
+    $('aptCapK').textContent = lv >= 8 ? '구역의 숫자는 「평면 확보 / 전체 단지」입니다. 누르거나 확대하면 단지마다 핀이 보입니다.' : '진한 핀은 도면 준비됨, 연한 핀은 준비 중, 희끗한 핀은 예정입니다. 핀을 누르면 단지 정보가 열립니다.';
+    if (lv >= 8) {                                   // 멀리: 구역 숫자
+      wipe();
+      hitR.forEach(function (b) {
+        var r = b.r, tot = r.수[0] + r.수[1] + r.수[2], have = r.수[1] + r.수[2]; if (r.가운데[0] < x0 || r.가운데[0] > x1 || r.가운데[1] < y0 || r.가운데[1] > y1) return;
+        var d = document.createElement('button'); d.className = 'kreg' + (have ? ' has' : ''); d.innerHTML = '<b>' + esc(r.이름.replace(/^.+시 ?(.+구)$/, '$1')) + '</b><span>' + have + ' / ' + num(tot) + '</span>';
+        d.onclick = function () { pick(r.id); };
+        var ov = new K.CustomOverlay({ position: new K.LatLng(r.가운데[1], r.가운데[0]), content: d, yAnchor: 0.5, zIndex: have ? 2 : 1 }); ov.setMap(KMAP); KOV.push(ov);
+      });
+      return;
+    }
+    var left = hitR.length, all = []; if (!left) return wipe();
+    hitR.forEach(function (b) { load(b.r.id, function (rows) { rows.forEach(function (x) { if (x.ll && x.ll[1] > x0 && x.ll[1] < x1 && x.ll[0] > y0 && x.ll[0] < y1) { x.rid = b.r.id; all.push(x); } }); if (!--left) draw(); }); });
+    function draw() {
+      wipe(); all.sort(function (p, q) { return q.s - p.s || q.h - p.h; });
+      var cut = all.slice(0, 700), named = lv <= 4;
+      cut.forEach(function (x) {
+        var d = document.createElement('button'); d.className = 'kpin s' + x.s + (OPEN === x.c ? ' on' : ''); d.title = x.n + ' · ' + ST[x.s];
+        d.innerHTML = '<i></i>' + (named || OPEN === x.c ? '<span>' + esc(x.n.replace(/아파트$/, '')) + '</span>' : '');
+        d.onclick = function () { openFromMap(x); };
+        var ov = new K.CustomOverlay({ position: new K.LatLng(x.ll[0], x.ll[1]), content: d, yAnchor: 0.5, xAnchor: 0, zIndex: OPEN === x.c ? 9 : x.s + 1 }); ov.setMap(KMAP); KOV.push(ov);
+      });
+      if (all.length > cut.length) $('aptCapK').textContent += ' 이 범위에는 단지가 ' + num(all.length) + '곳 있어 세대수 큰 순으로 ' + cut.length + '곳만 보입니다. 확대하면 더 나옵니다.';
+    }
+  }
+  function openFromMap(x) {
+    var r = region(x.rid); OPEN = x.c; track('apt_pick', { apt: x.c, from: 'map' });
+    var show = function (rows) { CUR = r.id; side(r, rows); SHOWN = Math.max(60, rows.findIndex(function (y) { return y.c === x.c; }) + 5); list(rows); var tr = document.querySelector('tr.row.on'); if (tr) tr.scrollIntoView({ block: 'center', behavior: 'smooth' }); pins(); };
+    load(r.id, show);
+  }
+  function kakao(r) {
     if (!window.JJ_KAKAO_KEY) return;
-    var pts = rows.filter(function (x) { return x.ll; });
-    kakaoReady(function () {
-      var K = window.kakao.maps, box = $('aptKakao'); box.hidden = false;
-      if (!KMAP) {
-        KMAP = new K.Map(box, { center: new K.LatLng(r.가운데[1], r.가운데[0]), level: 8 }); KMAP.setMaxLevel(11);
-        var lim = new K.LatLngBounds(new K.LatLng(BOX.y0, BOX.x0), new K.LatLng(BOX.y1, BOX.x1));
-        K.event.addListener(KMAP, 'idle', function () { var c = KMAP.getCenter(); if (!lim.contain(c)) KMAP.setCenter(new K.LatLng(Math.min(BOX.y1, Math.max(BOX.y0, c.getLat())), Math.min(BOX.x1, Math.max(BOX.x0, c.getLng())))); });
-      }
-      KOV.forEach(function (o) { o.setMap(null); }); KOV = [];
-      KMAP.relayout();
-      if (!pts.length) { KMAP.setLevel(8); KMAP.setCenter(new K.LatLng(r.가운데[1], r.가운데[0])); return; }
-      var b = new K.LatLngBounds();
-      pts.forEach(function (x) { var pos = new K.LatLng(x.ll[0], x.ll[1]); b.extend(pos); dot(x, pos); });
-      KMAP.setBounds(b);
-    });
+    kakaoReady(function () { var K = window.kakao.maps; kmap(new K.LatLng(r.가운데[1], r.가운데[0]), 7); });
   }
-  function dot(x, pos) {
-    var K = window.kakao.maps, d = document.createElement('button'); d.className = 'mk s' + x.s; d.title = x.n + ' · ' + ST[x.s]; d.style.cssText = 'width:' + (x.s ? 14 : 11) + 'px;height:' + (x.s ? 14 : 11) + 'px;padding:0;cursor:pointer;box-shadow:0 0 0 2px #fff';
-    d.onclick = function () { OPEN = x.c; list(LAST.rows, LAST.withRegion); var tr = document.querySelector('tr.row.on'); if (tr) tr.scrollIntoView({ block: 'center', behavior: 'smooth' }); };
-    var ov = new K.CustomOverlay({ position: pos, content: d, yAnchor: 0.5, zIndex: x.s + 1 }); ov.setMap(KMAP); KOV.push(ov); return ov;
-  }
-  // 단지를 고르면 그 단지 한 곳만 카카오 장소 찾기로 자리를 찾아 지도를 옮긴다(누를 때마다 한 번, 찾은 자리는 이 브라우저에 적어 둔다).
+  // 단지를 고르면 지도를 그 자리로 옮긴다. 좌표가 없는 단지만 카카오 장소 찾기로 한 번 찾고, 찾은 자리는 이 브라우저에 적어 둔다.
   function locate(x) {
     if (!window.JJ_KAKAO_KEY || !x) return;
     kakaoReady(function () {
-      var K = window.kakao.maps, box = $('aptKakao'); box.hidden = false; if (!KMAP) { KMAP = new K.Map(box, { center: new K.LatLng(37.55, 126.98), level: 8 }); KMAP.setMaxLevel(11); }
-      var go = function (ll) { var pos = new K.LatLng(ll[0], ll[1]); KMAP.relayout(); KMAP.setLevel(4); KMAP.setCenter(pos); if (!x.ll) { x.ll = ll; dot(x, pos); } };
+      var K = window.kakao.maps, S = K.services;
+      var go = function (ll) { x.ll = ll; if (!x.rid) x.rid = CUR; kmap(new K.LatLng(ll[0], ll[1]), 4); pins(); };
       var key = 'jj_apt_ll_' + x.c, mem = null; try { mem = JSON.parse(localStorage.getItem(key) || 'null'); } catch (e) {}
-      if (x.ll) return go(x.ll); if (mem) return go(mem);
-      if (!K.services) return;
+      if (x.ll) return go(x.ll); if (mem) return go(mem); if (!S) return;
       var keep = function (ll) { if (ll[0] < BOX.y0 || ll[0] > BOX.y1 || ll[1] < BOX.x0 || ll[1] > BOX.x1) return; try { localStorage.setItem(key, JSON.stringify(ll)); } catch (e) {} go(ll); };
       var byName = function () {
         var reg = region(x.rid || CUR), opt = { size: 15 }; if (reg) { opt.location = new K.LatLng(reg.가운데[1], reg.가운데[0]); opt.radius = 20000; }
-        new K.services.Places().keywordSearch((x.d + ' ' + x.n).trim(), function (res, st) {
-          if (st !== K.services.Status.OK || !res.length) return;
-          var score = function (p) { return (/아파트/.test(p.category_name || '') ? 4 : 0) + ((p.address_name || '').indexOf(x.d) >= 0 ? 3 : 0) + (p.place_name.replace(/\s/g, '').indexOf(x.n.replace(/\s|아파트$/g, '').slice(0, 6)) >= 0 ? 2 : 0) - (/분양|모델하우스|상가|부동산|관리사무소/.test(p.place_name + (p.category_name || '')) ? 5 : 0); };
-          var hit = res.slice().sort(function (p, q) { return score(q) - score(p); })[0]; if (score(hit) < 3) return;
+        new S.Places().keywordSearch((x.d + ' ' + x.n).trim(), function (res, st) {
+          if (st !== S.Status.OK || !res.length) return;
+          var k6 = x.n.replace(/\s|아파트$/g, '').slice(0, 6);
+          var score = function (p) { return (/아파트/.test(p.category_name || '') ? 4 : 0) + ((p.address_name || '').indexOf(x.d) >= 0 ? 3 : 0) + (p.place_name.replace(/\s/g, '').indexOf(k6) >= 0 ? 2 : 0) - (/분양|모델하우스|상가|부동산|관리사무소|어린이집|경로당/.test(p.place_name + (p.category_name || '')) ? 5 : 0); };
+          var hit = res.slice().sort(function (p, q) { return score(q) - score(p); })[0]; if (score(hit) < 5) return;
           keep([+hit.y, +hit.x]);
         }, opt);
       };
-      if (x.a) new K.services.Geocoder().addressSearch(x.a, function (res, st) { if (st === K.services.Status.OK && res.length) keep([+res[0].y, +res[0].x]); else byName(); });
+      if (x.a) new S.Geocoder().addressSearch(x.a, function (res, st) { if (st === S.Status.OK && res.length) keep([+res[0].y, +res[0].x]); else byName(); });
       else byName();
     });
   }
+
 
   // 주소·동 이름으로 찾기: 카카오 주소 찾기 → 그 자리가 속한 구역과 동의 단지 목록을 보여 주고 지도를 옮긴다.
   function inRing(pt, ring) { var c = false; for (var i = 0, j = ring.length - 1; i < ring.length; j = i++) { var a = ring[i], b = ring[j]; if ((a[1] > pt[1]) !== (b[1] > pt[1]) && pt[0] < (b[0] - a[0]) * (pt[1] - a[1]) / (b[1] - a[1]) + a[0]) c = !c; } return c; }
@@ -233,11 +265,10 @@
           $('aptSideTtl').textContent = near.length ? r.짧은시도 + ' ' + r.이름 + ' ' + dong : r.짧은시도 + ' ' + r.이름;
           $('aptSideSub').innerHTML = '「' + esc(label) + '」 근처 · 단지 <b>' + num(show.length) + '</b>곳 · 평면 확보 <b>' + num(show.filter(function (x) { return x.s > 0; }).length) + '</b>곳' + (near.length ? '' : ' (그 동에는 올려 둔 단지가 없어 구역 전체를 보여 드립니다)');
           $('aptTop').innerHTML = ''; list(show);
-          var box = $('aptKakao'); box.hidden = false; if (!KMAP) { KMAP = new K.Map(box, { center: new K.LatLng(lat, lng), level: 5 }); KMAP.setMaxLevel(11); }
-          KOV.forEach(function (o) { o.setMap(null); }); KOV = []; KMAP.relayout(); KMAP.setLevel(5); KMAP.setCenter(new K.LatLng(lat, lng));
-          var pin = document.createElement('div'); pin.style.cssText = 'width:14px;height:14px;border:2px solid #2A2A2A;background:#fff;transform:rotate(45deg)'; pin.title = label;
-          var ov = new K.CustomOverlay({ position: new K.LatLng(lat, lng), content: pin, yAnchor: 0.5 }); ov.setMap(KMAP); KOV.push(ov);
-          show.forEach(function (x) { if (x.ll) dot(x, new K.LatLng(x.ll[0], x.ll[1])); });
+          kmap(new K.LatLng(lat, lng), 5);
+          if (KPIN) KPIN.setMap(null);
+          var pin = document.createElement('div'); pin.className = 'kfind'; pin.title = label;
+          KPIN = new K.CustomOverlay({ position: new K.LatLng(lat, lng), content: pin, yAnchor: 1, zIndex: 20 }); KPIN.setMap(KMAP);
           if (window.innerWidth < 880) $('aptSide').scrollIntoView({ behavior: 'smooth', block: 'start' });
         });
       };
@@ -258,7 +289,7 @@
 
   fetch('data/apt/index.json').then(function (r) { return r.json(); }).then(function (j) {
     IDX = j; legend(); drawMap();
-    if (window.JJ_KAKAO_KEY) kakaoReady(function () { var K = window.kakao.maps, box = $('aptKakao'); box.hidden = false; if (!KMAP) { KMAP = new K.Map(box, { center: new K.LatLng(37.52, 126.93), level: 10 }); KMAP.setMaxLevel(11); } });
+    if (window.JJ_KAKAO_KEY) kakaoReady(function () { kmap(); });
     var m = /[?&]r=(\d+)/.exec(location.search); if (m && region(m[1])) pick(m[1]);
   }).catch(function () { $('aptSideSub').textContent = '지도 자료를 불러오지 못했습니다. 잠시 뒤 다시 열어 주세요.'; });
 })();
