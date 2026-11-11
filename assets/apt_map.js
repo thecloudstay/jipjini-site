@@ -131,7 +131,7 @@
     if (t.closest('[data-more]')) { SHOWN += 120; return list(LAST.rows, LAST.withRegion); }
     if ((b = t.closest('[data-wish]'))) { track('apt_wish', { apt: b.getAttribute('data-wish') }); b.outerHTML = '<span class="apt-ln" style="text-decoration:none;color:#3E4A1F">알려 주셔서 고맙습니다. 요청이 많은 단지부터 엽니다.</span>'; return; }
     if ((b = t.closest('[data-ev]'))) { track(b.getAttribute('data-ev'), { apt: OPEN }); return; }
-    if ((b = t.closest('tr.row'))) { var c = b.getAttribute('data-c'); OPEN = OPEN === c ? '' : c; if (OPEN) track('apt_pick', { apt: c }); list(LAST.rows, LAST.withRegion); }
+    if ((b = t.closest('tr.row'))) { var c = b.getAttribute('data-c'); OPEN = OPEN === c ? '' : c; if (OPEN) { track('apt_pick', { apt: c }); locate(LAST.rows.filter(function (x) { return x.c === c; })[0]); } list(LAST.rows, LAST.withRegion); }
   });
 
   // 단지 이름 찾기: 처음 찾을 때 구역 파일을 모두 받는다(합쳐 1.3MB쯤).
@@ -162,28 +162,48 @@
     if (window.kakao && window.kakao.maps && window.kakao.maps.Map) return cb();
     if (kakaoReady.q) return kakaoReady.q.push(cb);
     kakaoReady.q = [cb];
-    var s = document.createElement('script'); s.src = 'https://dapi.kakao.com/v2/maps/sdk.js?autoload=false&appkey=' + encodeURIComponent(window.JJ_KAKAO_KEY);
+    var s = document.createElement('script'); s.src = 'https://dapi.kakao.com/v2/maps/sdk.js?autoload=false&libraries=services&appkey=' + encodeURIComponent(window.JJ_KAKAO_KEY);
     s.onload = function () { window.kakao.maps.load(function () { kakaoReady.q.forEach(function (f) { f(); }); kakaoReady.q = null; }); };
     document.head.appendChild(s);
   }
   function kakao(r, rows) {
-    var pts = rows.filter(function (x) { return x.ll; }); if (!window.JJ_KAKAO_KEY || !pts.length) return;
+    if (!window.JJ_KAKAO_KEY) return;
+    var pts = rows.filter(function (x) { return x.ll; });
     kakaoReady(function () {
       var K = window.kakao.maps, box = $('aptKakao'); box.hidden = false;
       if (!KMAP) {
-        KMAP = new K.Map(box, { center: new K.LatLng(r.가운데[1], r.가운데[0]), level: 7 }); KMAP.setMaxLevel(11);
+        KMAP = new K.Map(box, { center: new K.LatLng(r.가운데[1], r.가운데[0]), level: 8 }); KMAP.setMaxLevel(11);
         var lim = new K.LatLngBounds(new K.LatLng(BOX.y0, BOX.x0), new K.LatLng(BOX.y1, BOX.x1));
         K.event.addListener(KMAP, 'idle', function () { var c = KMAP.getCenter(); if (!lim.contain(c)) KMAP.setCenter(new K.LatLng(Math.min(BOX.y1, Math.max(BOX.y0, c.getLat())), Math.min(BOX.x1, Math.max(BOX.x0, c.getLng())))); });
       }
       KOV.forEach(function (o) { o.setMap(null); }); KOV = [];
+      KMAP.relayout();
+      if (!pts.length) { KMAP.setLevel(8); KMAP.setCenter(new K.LatLng(r.가운데[1], r.가운데[0])); return; }
       var b = new K.LatLngBounds();
-      pts.forEach(function (x) {
-        var pos = new K.LatLng(x.ll[0], x.ll[1]); b.extend(pos);
-        var d = document.createElement('button'); d.className = 'mk s' + x.s; d.title = x.n + ' · ' + ST[x.s]; d.style.cssText = 'width:' + (x.s ? 14 : 10) + 'px;height:' + (x.s ? 14 : 10) + 'px;padding:0;cursor:pointer';
-        d.onclick = function () { OPEN = x.c; list(LAST.rows, LAST.withRegion); var tr = document.querySelector('tr.row.on'); if (tr) tr.scrollIntoView({ block: 'center', behavior: 'smooth' }); };
-        var ov = new K.CustomOverlay({ position: pos, content: d, yAnchor: 0.5, zIndex: x.s + 1 }); ov.setMap(KMAP); KOV.push(ov);
-      });
-      KMAP.relayout(); KMAP.setBounds(b);
+      pts.forEach(function (x) { var pos = new K.LatLng(x.ll[0], x.ll[1]); b.extend(pos); dot(x, pos); });
+      KMAP.setBounds(b);
+    });
+  }
+  function dot(x, pos) {
+    var K = window.kakao.maps, d = document.createElement('button'); d.className = 'mk s' + x.s; d.title = x.n + ' · ' + ST[x.s]; d.style.cssText = 'width:' + (x.s ? 14 : 11) + 'px;height:' + (x.s ? 14 : 11) + 'px;padding:0;cursor:pointer;box-shadow:0 0 0 2px #fff';
+    d.onclick = function () { OPEN = x.c; list(LAST.rows, LAST.withRegion); var tr = document.querySelector('tr.row.on'); if (tr) tr.scrollIntoView({ block: 'center', behavior: 'smooth' }); };
+    var ov = new K.CustomOverlay({ position: pos, content: d, yAnchor: 0.5, zIndex: x.s + 1 }); ov.setMap(KMAP); KOV.push(ov); return ov;
+  }
+  // 단지를 고르면 그 단지 한 곳만 카카오 장소 찾기로 자리를 찾아 지도를 옮긴다(누를 때마다 한 번, 찾은 자리는 이 브라우저에 적어 둔다).
+  function locate(x) {
+    if (!window.JJ_KAKAO_KEY || !x) return;
+    kakaoReady(function () {
+      var K = window.kakao.maps, box = $('aptKakao'); box.hidden = false; if (!KMAP) { KMAP = new K.Map(box, { center: new K.LatLng(37.55, 126.98), level: 8 }); KMAP.setMaxLevel(11); }
+      var go = function (ll) { var pos = new K.LatLng(ll[0], ll[1]); KMAP.relayout(); KMAP.setLevel(4); KMAP.setCenter(pos); if (!x.ll) { x.ll = ll; dot(x, pos); } };
+      var key = 'jj_apt_ll_' + x.c, mem = null; try { mem = JSON.parse(localStorage.getItem(key) || 'null'); } catch (e) {}
+      if (x.ll) return go(x.ll); if (mem) return go(mem);
+      if (!K.services) return;
+      new K.services.Places().keywordSearch((x.g + ' ' + x.d + ' ' + x.n).trim(), function (res, st) {
+        if (st !== K.services.Status.OK || !res.length) return;
+        var hit = res.filter(function (p) { return /아파트|주거/.test(p.category_name || ''); })[0] || res[0], ll = [+hit.y, +hit.x];
+        if (ll[0] < BOX.y0 || ll[0] > BOX.y1 || ll[1] < BOX.x0 || ll[1] > BOX.x1) return;
+        try { localStorage.setItem(key, JSON.stringify(ll)); } catch (e) {} go(ll);
+      }, { size: 5 });
     });
   }
 
