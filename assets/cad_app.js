@@ -4,7 +4,7 @@
      → 올리기 걸음과 떨어져 있어, 나중에 「우리 집 검색」으로 미리 다시 그려 둔 도면을 받아도 같은 편집기를 그대로 쓴다.
    지키는 선: 올린 원본 그림은 이 기기 밖으로 보내지 않고 보관하지도 않는다(다시 그린 도면 자료와 표시만 localStorage 에 둔다). 인쇄·저장물에는 다시 그린 도면만 들어간다. 바깥 꾸러미 없음. */
 (function (root) {
-  var KEY = 'jj_cad_v2', OLDKEY = 'jj_cad_v1', VER = '20261111k', doc = document, $ = function (id) { return doc.getElementById(id); };
+  var KEY = 'jj_cad_v2', OLDKEY = 'jj_cad_v1', VER = '20261111l', REQ_URL = 'https://script.google.com/macros/s/AKfycbzxm4mmZs1yVJPa3T-wb0cdJbEUMPYl6dDKtQNSNmJy4nEsCholrEnPAN8e0JfAtOV99A/exec?type=request_form', doc = document, $ = function (id) { return doc.getElementById(id); };
   var S = { state: null, file: null, pending: null };
   function esc(t) { return String(t == null ? '' : t).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
   function ev(name) { try { if (root.gtag) root.gtag('event', name); } catch (e) {} }
@@ -117,7 +117,9 @@
     $('cadAgain').addEventListener('click', function () { S.pending = null; go(1); });
     $('cadFix').addEventListener('click', function () { if (!S.file || !root.JJPlanTools) return; root.JJPlanTools.fixPhoto(S.file).then(function (cv) { if (cv) run(cv); }); });
     $('cadStart').addEventListener('click', function () { if (S.pending) { ev('cad_edit_start'); open(S.pending); S.pending = null; } });
-    $('cadQuote').addEventListener('click', function () { ev('cad_quote_click'); });
+    $('cadQuote').addEventListener('click', function () { ev('cad_quote_click');
+      // 누르는 순간에만: 공간·면적·고른 공사·작업 목록을 의뢰서 주소에 실어 보낸다(그림·도면 파일은 보내지 않는다)
+      try { var pk = root.JJCadEditor && root.JJCadEditor.quote && root.JJCadEditor.quote(); if (pk && (pk.r.length || pk.c)) { var enc = function (o) { return btoa(unescape(encodeURIComponent(JSON.stringify(o)))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''); }, b = enc(pk); if (b.length > 5200) { pk.t = pk.t.slice(0, 250) + ' …(이하 줄임)'; b = enc(pk); } if (b.length > 5200) { pk.t = ''; b = enc(pk); } this.href = REQ_URL + '&cad=' + b; } } catch (e) { this.href = 'request.html'; } });
     $('cadNew').addEventListener('click', restart);
     load(function (old) {
       if (!old) return; var d = new Date(old.at || Date.now()), nr = old.shapes.filter(function (q) { return q.t === 'room'; }).length, nw = old.shapes.filter(function (q) { return q.t === 'wk'; }).length;
