@@ -59,8 +59,8 @@ for f in geo["features"]:
 master = json.load(open(os.path.join(SRC, "public_complex_master.json"), encoding="utf-8"))
 ledger = {r["단지코드"]: r for r in json.load(open(os.path.join(SRC, "plan_ledger.json"), encoding="utf-8"))}
 coords = {}
-cp = os.path.join(SRC, "apt_coords.json")
-if os.path.exists(cp):
+cp = next((q for q in (os.path.join(SRC, "jipjini_apt_coords.json"), os.path.join(SRC, "apt_coords.json")) if os.path.exists(q)), "")
+if cp:
     coords = json.load(open(cp, encoding="utf-8"))
 miss = collections.Counter()
 for m in master:
