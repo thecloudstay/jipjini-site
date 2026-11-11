@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="naver-site-verification" content="c251139cf29944ffe603d11ecf58e973d448a8fa" />
+<title>집지니 CAD 사용법 — 기호 놓기 · 기준선 · 타공 · 작업지시서 | 집지니</title>
+<meta name="description" content="집지니 CAD 사용법. 평면도 올리기, 등·콘센트 같은 작업 기호 놓기, 기준선으로 매입등 간격과 가벽 자리 맞추기, 타공 자리 표시, 작업지시서 인쇄까지 실제 화면 사진으로 설명합니다.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.34.0/dist/tabler-icons.min.css">
+<link rel="stylesheet" href="css/style.css">
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-35EM7T3M9W"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  (function(){try{if(/[?&]jj_staff=1/.test(location.search))localStorage.setItem('jj_staff','1');if(/[?&]jj_staff=0/.test(location.search))localStorage.removeItem('jj_staff');if(localStorage.getItem('jj_staff'))window['ga-disable-G-35EM7T3M9W']=true}catch(e){}})();gtag('config', 'G-35EM7T3M9W');
+</script>
+<link rel="canonical" href="https://jipjini.com/cad-guide.html">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="집지니 · Direct Coordi">
+<meta property="og:locale" content="ko_KR">
+<meta property="og:title" content="집지니 CAD 사용법">
+<meta property="og:description" content="기호 놓기, 기준선, 타공, 작업지시서까지 실제 화면 사진으로 설명합니다.">
+<meta property="og:url" content="https://jipjini.com/cad-guide.html">
+<meta property="og:image" content="https://jipjini.com/assets/cad-guide/work.jpg">
+<style>body,p,li,td,th,h1,h2,h3,h4,dd,dt,blockquote,figcaption{word-break:keep-all;overflow-wrap:break-word}</style>
+<style>
+/* 집지니 CAD 사용법 (2026-11-11) — 인쇄물처럼: 왼쪽에 작은 설명, 오른쪽에 글과 실제 화면 사진 */
+.cg{max-width:1080px;margin:0 auto;padding:30px 20px 60px;font-size:17.5px;line-height:1.75;color:#2A2A2A}
+.cg a{color:inherit;text-decoration:underline;text-underline-offset:3px}
+.cg h1{font-family:'Noto Serif KR',serif;font-weight:500;font-size:34px;letter-spacing:-.6px;line-height:1.3;margin:0}
+.cg .lead{font-size:19px;margin:12px 0 0;max-width:740px}
+.cg-head{padding:8px 0 22px;border-bottom:2px solid #2A2A2A}
+.cg-toc{margin:0;padding:14px 0;list-style:none;border-bottom:1px solid #C8C4BC;display:flex;flex-wrap:wrap;gap:4px 22px;font-size:16px}
+.cg-sec{display:grid;grid-template-columns:210px minmax(0,1fr);gap:34px;padding:34px 0 30px;border-bottom:1px solid #C8C4BC}
+.cg-side{font-size:15px;color:#6B6B6B;line-height:1.65}
+.cg-side b{display:block;font-family:'Noto Serif KR',serif;font-weight:500;font-size:30px;color:#2A2A2A;line-height:1;margin-bottom:10px}
+.cg-sec h2{font-family:'Noto Serif KR',serif;font-weight:500;font-size:24px;letter-spacing:-.4px;line-height:1.4;margin:0 0 12px;text-align:left}
+.cg-sec p{margin:0 0 12px}
+.cg-sec ol{margin:0 0 14px;padding-left:24px}
+.cg-sec ol li{padding:2px 0 2px 4px}
+.cg-fig{margin:18px 0 6px}
+.cg-fig img{display:block;width:100%;height:auto;border:1px solid #C8C4BC;background:#fff}
+.cg-fig figcaption{font-size:14.5px;color:#6B6B6B;margin-top:7px;line-height:1.55}
+.cg-fig.narrow{max-width:560px}
+.cg-tbl{width:100%;border-collapse:collapse;border-top:2px solid #2A2A2A;margin:6px 0 14px;font-size:16.5px}
+.cg-tbl th,.cg-tbl td{text-align:left;vertical-align:top;padding:8px 12px 8px 0;border-bottom:1px solid #C8C4BC;font-weight:400;line-height:1.55}
+.cg-tbl th{font-weight:700;font-size:15.5px}
+.cg-tbl td:first-child{width:30%;font-weight:600}
+.cg-go{margin-top:30px;display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+.cg-btn{min-height:50px;padding:11px 24px;border:1.5px solid #2A2A2A;background:#2A2A2A;color:#F5F1E8!important;font-size:17.5px;font-weight:600;border-radius:2px;display:inline-flex;align-items:center;text-decoration:none!important}
+@media (max-width:760px){.cg{font-size:17px;padding:20px 16px 44px}.cg h1{font-size:28px}.cg-sec{grid-template-columns:minmax(0,1fr);gap:8px;padding:26px 0 22px}.cg-side b{display:inline;font-size:20px;margin-right:8px}.cg-sec h2{font-size:21px}}
+@media print{.nav,.jj-map,.jj-where,#jjc-btn,#jjc-box,.cg-go{display:none!important}.cg-sec{break-inside:avoid}}
+</style>
+</head>
+<body>
+<nav class="nav">
+  <a href="index.html" class="logo">
+    <div class="logo-box">집</div>
+    <span class="logo-text">집지니</span>
+    <span class="logo-tag">DIRECT COORDI</span>
+  </a>
+  <button class="nav-toggle" aria-label="메뉴" onclick="document.querySelector('.nav-menu').classList.toggle('open')"><i class="ti ti-menu-2"></i></button>
+  <div class="nav-menu">
+    <div class="nav-item">
+      <a href="index.html" class="nav-top">홈</a>
+      <div class="nav-dropdown">
+        <a href="index.html#concept">서비스 소개</a>
+        <a href="self-interior-agency.html">셀인대행이란</a>
+        <a href="index.html#market">3가지 선택지</a>
+        <a href="index.html#eligibility">의뢰 가능 범위</a>
+        <a href="index.html#quote-form">정밀 의뢰서 신청</a>
+      </div>
+    </div>
+    <div class="nav-item active">
+      <a href="cad.html" class="nav-top">집지니 CAD</a>
+    </div>
+    <div class="nav-item">
+      <a href="showroom.html" class="nav-top">샘플실</a>
+      <div class="nav-dropdown">
+        <a href="showroom.html">샘플실 · 가양동 상담 예약</a>
+      </div>
+    </div>
+    <div class="nav-item">
+      <a href="workflow.html" class="nav-top">프로세스</a>
+      <div class="nav-dropdown">
+        <a href="workflow.html#flows">4가지 흐름 차이</a>
+        <a href="workflow.html#how">8단계 안내 (업무 흐름)</a>
+        <a href="https://blog.naver.com/cloudstay_" target="_blank" rel="noopener">코디 포트폴리오 (네이버 블로그)</a>
+        <a href="workflow.html#pm-guide">PM 필요성 가이드</a>
+        <a href="workflow.html#procurement">자재 조달 방법</a>
+      </div>
+    </div>
+    <div class="nav-item">
+      <a href="pricing.html" class="nav-top">가격·견적</a>
+      <div class="nav-dropdown">
+        <a href="pricing.html#pricing">정찰가 공시</a>
+        <a href="pricing.html#sample">견적서 샘플</a>
+        <a href="/cases/">견적 사례 모음</a>
+        <a href="pricing.html#refund">환불 정책</a>
+        <a href="pricing.html#as">12개월 A/S</a>
+      </div>
+    </div>
+    <div class="nav-item">
+      <a href="about.html" class="nav-top">회사소개</a>
+      <div class="nav-dropdown">
+        <a href="about.html#story">사업 동기</a>
+        <a href="about.html#ceo">왜 집지니인가</a>
+        <a href="about.html#faq">자주 묻는 질문</a>
+        <a href="sitemap.html">사이트 지도</a>
+      </div>
+    </div>
+    <div class="nav-item">
+      <a href="payment.html" class="nav-top">코디비용 결제</a>
+    </div>
+    <a class="nav-phone" href="https://pf.kakao.com/_NjpxhC/chat" target="_blank" rel="noopener"><i class="ti ti-message-circle"></i>카톡 상담</a>
+  </div>
+</nav>
+
+<main class="cg">
+  <div class="cg-head">
+    <h1>집지니 CAD 사용법</h1>
+    <p class="lead">평면도를 올린 뒤 작업지시서를 뽑기까지의 순서입니다. 화면 사진은 모두 예시 도면(84㎡)을 넣고 실제 화면을 찍은 것입니다.</p>
+  </div>
+  <ul class="cg-toc">
+    <li><a href="#s1">1. 도면 올리기</a></li><li><a href="#s2">2. 화면 보는 법</a></li><li><a href="#s3">3. 작업 기호 놓기</a></li><li><a href="#s4">4. 기준선</a></li><li><a href="#s5">5. 타공</a></li><li><a href="#s6">6. 치수 재기</a></li><li><a href="#s7">7. 작업지시서</a></li><li><a href="#s8">8. 안 되는 것</a></li>
+  </ul>
+
+  <section class="cg-sec" id="s1">
+    <div class="cg-side"><b>1</b>도면은 올린 기기 안에서만 읽습니다. 집지니 서버로 보내지 않습니다.</div>
+    <div>
+      <h2>도면 올리기</h2>
+      <ol>
+        <li>부동산 앱에서 우리 단지 평면도를 화면에 꽉 차게 띄워 갈무리합니다.</li>
+        <li><a href="cad.html">집지니 CAD</a>에서 「그림 고르기」를 누르거나, 그림을 끌어다 놓습니다.</li>
+        <li>전용면적을 알면 같이 넣습니다. 방 크기와 길이가 더 정확해집니다.</li>
+        <li>15~30초 뒤 집지니가 다시 그린 도면이 나옵니다. 「이 도면으로 공사 계획 시작」을 누릅니다.</li>
+      </ol>
+      <p>방 이름이 다르게 읽혔으면 편집 화면에서 그 방을 눌러 이름을 고칩니다. 문이 빠졌으면 왼쪽 「문」 도구로 문 폭만큼 벽을 따라 끌어 놓습니다.</p>
+    </div>
+  </section>
+
+  <section class="cg-sec" id="s2">
+    <div class="cg-side"><b>2</b>휴대전화에서는 도구가 위쪽 한 줄로, 오른쪽 칸이 아래쪽 서랍으로 바뀝니다.</div>
+    <div>
+      <h2>화면 보는 법</h2>
+      <figure class="cg-fig"><img src="assets/cad-guide/screen.jpg" alt="집지니 CAD 편집 화면. 왼쪽 도구 띠, 가운데 도면, 오른쪽 작업지시 칸" loading="lazy" width="1700" height="1081"><figcaption>그림 1. 편집 화면. 왼쪽이 도구, 가운데가 도면, 오른쪽이 작업지시·측정·도면 칸</figcaption></figure>
+      <table class="cg-tbl">
+        <tr><td>맨 윗줄</td><td>되돌리기, 다시, 작업지시서, 넓게(화면 가득 펴기)</td></tr>
+        <tr><td>안내 줄</td><td>지금 고른 도구로 무엇을 누르면 되는지 한 줄로 알려 줍니다.</td></tr>
+        <tr><td>왼쪽 도구</td><td>선택·화면 이동, 길이 재기, 기준선, 공간·창·문 그리기, 작업 기호, 화살표·글자 같은 표시</td></tr>
+        <tr><td>오른쪽 칸</td><td>공종과 기호를 고르는 곳입니다. 놓은 것을 「선택」으로 누르면 여기에서 고치거나 지웁니다. 아래에 수량표가 쌓입니다.</td></tr>
+        <tr><td>겹쳐 보기</td><td>공종별로 켜고 끕니다. 전기만 남기고 보거나, 기준선만 끌 수 있습니다.</td></tr>
+      </table>
+      <p>확대는 마우스 바퀴나 두 손가락 벌리기, 화면 옮기기는 빈 곳을 끌면 됩니다. 「맞춤」을 누르면 도면이 화면에 꽉 차게 돌아옵니다.</p>
+    </div>
+  </section>
+
+  <section class="cg-sec" id="s3">
+    <div class="cg-side"><b>3</b>공종은 철거·설비·전기·목공·타일·도장·도배·가구 일곱 가지, 기호는 서른다섯 가지입니다.</div>
+    <div>
+      <h2>작업 기호 놓기</h2>
+      <ol>
+        <li>오른쪽에서 공종을 고르고, 그 아래에서 기호를 고릅니다.</li>
+        <li>「구분」에서 신설·유지·이설·철거 가운데 하나를 고릅니다.</li>
+        <li>도면을 누릅니다. 기호 모양에 따라 놓는 법이 다릅니다.</li>
+      </ol>
+      <table class="cg-tbl">
+        <tr><th>기호 모양</th><th>놓는 법</th></tr>
+        <tr><td>점 (등·콘센트·수전)</td><td>놓을 자리를 누릅니다. 끌면 한 줄에 정한 개수만큼 고르게 놓입니다.</td></tr>
+        <tr><td>선 (가벽·몰딩·배관)</td><td>벽을 따라 끌어 긋습니다. 몰딩·걸레받이는 방 안쪽을 한 번 누르면 둘레 전체에 들어갑니다.</td></tr>
+        <tr><td>구역 (철거·타일·도배)</td><td>공간 안쪽을 누르면 그 공간 전체에 들어갑니다. 일부만이면 「직접 그리기」로 모서리를 찍습니다.</td></tr>
+      </table>
+      <p>놓은 기호는 「선택」으로 눌러 옮기고, 오른쪽에서 메모(예: 3구 · 바닥에서 300)를 적습니다. 메모는 작업지시서의 「지시 내용」 칸에 그대로 들어갑니다.</p>
+    </div>
+  </section>
+
+  <section class="cg-sec" id="s4">
+    <div class="cg-side"><b>4</b>현장에서 레이저 먹줄을 띄워 놓고 기구 자리를 잡는 것과 같은 방식입니다. 척도가 잡혀 있어야 숫자가 나옵니다.</div>
+    <div>
+      <h2>기준선으로 줄 맞추기</h2>
+      <p>왼쪽 「기준선」을 누르면 오른쪽 칸이 기준선 설정으로 바뀝니다. 방향은 세로·가로·십자, 놓는 방법은 두 가지입니다.</p>
+      <p><b>매입등을 같은 간격으로 놓을 때</b></p>
+      <ol>
+        <li>「방을 고르게 나누기」를 고르고 세로·가로 줄 수를 넣습니다. 예: 세로 3줄, 가로 2줄.</li>
+        <li>방 안쪽을 한 번 누릅니다. 그 방에 줄이 들어가고, 줄마다 가까운 벽에서 띄운 거리(mm)가 적힙니다.</li>
+        <li>「만나는 곳마다 매입등 놓기」를 누릅니다.</li>
+      </ol>
+      <figure class="cg-fig"><img src="assets/cad-guide/guide-divide.jpg" alt="거실을 세로 3줄 가로 2줄 기준선으로 나눈 화면" loading="lazy" width="1700" height="1081"><figcaption>그림 2. 거실을 세로 3줄·가로 2줄로 나눈 모습. 「벽에서 반 간격」이라 세로줄은 양 끝 벽에서 800, 줄 사이는 1,600입니다</figcaption></figure><figure class="cg-fig"><img src="assets/cad-guide/guide-lights.jpg" alt="기준선이 만나는 여섯 곳에 매입등이 놓인 화면" loading="lazy" width="1700" height="1081"><figcaption>그림 3. 줄이 만나는 여섯 곳에 매입등을 한 번에 놓은 모습</figcaption></figure>
+      <p>다른 기호도 같습니다. 직부등이나 타공을 먼저 고른 뒤 기준선으로 돌아오면 단추 이름이 그 기호로 바뀝니다. 기호를 손으로 놓을 때도 기준선 가까이에서는 줄에 붙습니다.</p>
+      <p><b>가벽 자리를 잡을 때</b></p>
+      <ol>
+        <li>방향을 「세로」(또는 가로)로, 놓는 방법을 「한 줄씩」으로 둡니다.</li>
+        <li>「벽에서 ○○ mm」 칸에 띄울 거리를 넣습니다. 예: 900.</li>
+        <li>기준으로 삼을 벽 가까이를 누릅니다. 가까운 쪽 벽에서 그만큼 띄운 자리에 줄이 놓입니다.</li>
+        <li>공종 「목공」의 「가벽 신설」을 골라 줄을 따라 끌어 긋습니다. 선이 줄에 붙습니다.</li>
+      </ol>
+      <figure class="cg-fig"><img src="assets/cad-guide/guide-wall.jpg" alt="안방 왼쪽 벽에서 900 띄운 기준선 위에 가벽을 그은 화면" loading="lazy" width="1700" height="1081"><figcaption>그림 4. 안방 왼쪽 벽에서 900 띄운 기준선을 따라 가벽을 그은 모습</figcaption></figure>
+      <p>놓은 기준선은 「선택」으로 누르면 양쪽 벽까지의 거리가 나옵니다. 숫자를 고치면 줄이 그 자리로 옮겨집니다.</p>
+      <figure class="cg-fig"><img src="assets/cad-guide/guide-number.jpg" alt="기준선을 골라 벽에서 띄운 거리를 숫자로 고치는 화면" loading="lazy" width="1700" height="1081"><figcaption>그림 5. 기준선을 고르면 위·아래(또는 왼쪽·오른쪽) 벽에서 띄운 거리를 숫자로 고칠 수 있습니다</figcaption></figure>
+    </div>
+  </section>
+
+  <section class="cg-sec" id="s5">
+    <div class="cg-side"><b>5</b>배관·환기·에어컨 배관 구멍처럼 코어 작업이 필요한 자리를 표시합니다.</div>
+    <div>
+      <h2>타공 자리 표시</h2>
+      <ol>
+        <li>공종 「설비」에서 「타공」을 고릅니다.</li>
+        <li>지름을 고릅니다. Ø50·65·75·100·125·150·200 가운데 고르거나 50~200 사이 숫자를 직접 넣습니다.</li>
+        <li>타공할 곳을 천장·벽·바닥 가운데 고릅니다.</li>
+        <li>도면에서 구멍 자리를 누릅니다.</li>
+      </ol>
+      <figure class="cg-fig"><img src="assets/cad-guide/core.jpg" alt="타공 지름과 타공할 곳을 고르는 화면. 도면에 Ø150 벽, Ø100 천장, Ø65 바닥 타공이 표시되어 있다" loading="lazy" width="1700" height="1081"><figcaption>그림 6. 거실 벽 Ø150, 욕실 천장 Ø100, 주방 바닥 Ø65 타공을 놓은 모습</figcaption></figure>
+      <p>기호 옆에 「Ø100 천장」처럼 지름과 위치가 적히고, 수량표에는 지름·위치별로 따로 셉니다. 높이처럼 더 적을 것은 메모에 씁니다(예: 바닥에서 2,100).</p>
+    </div>
+  </section>
+
+  <section class="cg-sec" id="s6">
+    <div class="cg-side"><b>6</b>도면의 치수는 어림값입니다. 자재 주문 전에는 현장에서 다시 잽니다.</div>
+    <div>
+      <h2>치수 재기와 척도</h2>
+      <table class="cg-tbl">
+        <tr><td>길이 재기</td><td>잴 두 점을 끌면 길이(mm)가 적힙니다. 벽 모서리 가까이에서는 모서리에 붙습니다.</td></tr>
+        <tr><td>벽 사이</td><td>방 안쪽을 누르면 좌우·위아래 벽 사이를 한 번에 잽니다.</td></tr>
+        <tr><td>척도</td><td>길이가 나오지 않으면 척도가 없는 것입니다. 오른쪽 「측정」에서 전용면적을 넣거나, 길이를 아는 두 점을 찍어 잡습니다.</td></tr>
+      </table>
+    </div>
+  </section>
+
+  <section class="cg-sec" id="s7">
+    <div class="cg-side"><b>7</b>번호는 도면의 번호와 지시 목록의 번호가 같습니다. 작업자는 번호만 보고 자리를 찾습니다.</div>
+    <div>
+      <h2>작업지시서 뽑기</h2>
+      <p>맨 윗줄 「작업지시서」를 누르면 도면·범례·수량표·공종별 지시 목록이 한 장으로 나옵니다. 위쪽에서 공종을 고르면 그 공종 것만 따로 뽑습니다. 전기 기사에게는 전기만, 목수에게는 목공만 건넬 수 있습니다.</p>
+      <table class="cg-tbl">
+        <tr><td>인쇄</td><td>A4 세로로 인쇄합니다.</td></tr>
+        <tr><td>그림으로 저장</td><td>한 장짜리 그림으로 내려받습니다. 카카오톡으로 보내기 좋습니다.</td></tr>
+        <tr><td>글로 복사</td><td>지시 목록을 글로 복사합니다. 문자에 붙여 넣습니다.</td></tr>
+      </table>
+      <figure class="cg-fig narrow"><img src="assets/cad-guide/sheet.jpg" alt="작업지시서. 위에 도면, 아래에 범례와 수량표, 공종별 지시 목록" loading="lazy" width="1700" height="3033"><figcaption>그림 7. 위 예시로 뽑은 작업지시서. 기준선과 벽에서 띄운 거리도 도면에 같이 찍힙니다</figcaption></figure>
+    </div>
+  </section>
+
+  <section class="cg-sec" id="s8">
+    <div class="cg-side"><b>8</b>미리 알고 쓰시는 편이 낫습니다.</div>
+    <div>
+      <h2>안 되는 것</h2>
+      <table class="cg-tbl">
+        <tr><td>정밀 도면</td><td>부동산 평면도를 읽어 다시 그린 참고용 도면입니다. 벽 두께, 문·창의 정확한 위치는 현장 실측과 다를 수 있습니다.</td></tr>
+        <tr><td>읽지 못하는 그림</td><td>비스듬히 찍은 사진, 손 그림, 여러 세대가 한 장에 든 도면은 잘 읽지 못합니다.</td></tr>
+        <tr><td>다른 기기에서 이어 하기</td><td>도면은 올린 기기의 브라우저에만 남습니다. 다른 기기로 옮기려면 그림으로 저장해 보내야 합니다.</td></tr>
+        <tr><td>입면·천장도</td><td>평면만 다룹니다. 타공 높이나 스위치 높이는 메모로 적습니다.</td></tr>
+      </table>
+      <div class="cg-go"><a class="cg-btn" href="cad.html">집지니 CAD 열기</a><a href="request.html">도면을 붙여 견적 의뢰하기</a></div>
+    </div>
+  </section>
+</main>
+<script>
+(function () { var menu = document.querySelector('.nav-menu'); if (menu) menu.addEventListener('click', function (e) { if (e.target.tagName === 'A') menu.classList.remove('open'); }); })();
+</script>
+<!--SITENAV--><style>.jj-map{max-width:900px;margin:32px auto 0;padding:22px 16px 26px;border-top:2px solid #d9d2c0;font-family:Pretendard,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;color:#2a2a2a;word-break:keep-all}.jj-map .ttl{font-size:14px;font-weight:800;letter-spacing:1px;color:#1e4d3a;margin-bottom:10px;text-align:center}.jj-map .grp{display:flex;flex-wrap:wrap;gap:6px 8px;align-items:center;margin:6px 0;font-size:14px}.jj-map .grp b{min-width:70px;color:#555;font-weight:700;font-size:13px}.jj-map .grp a{display:inline-block;padding:6px 12px;border:1px solid #cfc8b8;border-radius:16px;background:#fff;color:#2a2a2a;text-decoration:none;font-size:14px;font-weight:500}.jj-map .grp a:hover{border-color:#1e4d3a;color:#1e4d3a}.jj-map .grp a[aria-current=page]{background:#1e4d3a;color:#fff;border-color:#1e4d3a;font-weight:800}.jj-map .grp a[aria-current=page]::before{content:"▶ ";font-size:11px}.jj-map .ft{font-size:13px;color:#555;margin-top:12px;text-align:center;line-height:1.8}.jj-where{max-width:1200px;margin:0 auto;padding:8px 16px;font-size:14px;color:#2a2a2a;background:#efe9db;border-bottom:1px solid #d9d2c0;display:flex;gap:6px;align-items:center;flex-wrap:wrap;word-break:keep-all}.jj-where a{color:#1e4d3a;text-decoration:none;font-weight:600}.jj-where .now{background:#1e4d3a;color:#fff;padding:2px 10px;border-radius:12px;font-weight:700;font-size:13px}.nav-item.is-current>.nav-top{color:#1e4d3a!important;font-weight:800!important;box-shadow:inset 0 -3px 0 #1e4d3a}.nav-dropdown a.is-current{background:#e6efe9!important;color:#1e4d3a!important;font-weight:700!important}@media(max-width:640px){.jj-map .grp b{min-width:100%}}</style><div class="jj-map"><div class="ttl">집지니 사이트 지도 — 지금 보는 쪽은 ▶ 짙은 녹색</div><div class="grp"><b>시작하기 ·</b><a href="index.html">홈</a><a href="self-interior-agency.html">셀인대행이란</a><a href="request.html">무료 견적 신청</a><a href="prepare.html">사전 준비</a></div><div class="grp"><b>집지니 CAD ·</b><a href="cad.html">집지니 CAD — 무료 공사 계획 도면</a></div><div class="grp"><b>샘플실 ·</b><a href="showroom.html">가양동 샘플실 · 상담 예약</a></div><div class="grp"><b>진행 방식 ·</b><a href="workflow.html">진행 방식 8단계</a><a href="interior-coordinator.html">코디네이터란</a></div><div class="grp"><b>가격·견적 ·</b><a href="pricing.html">가격·코디비</a><a href="interior-price-table.html">실견적 시세표</a><a href="cases/">견적 사례</a><a href="py/">평형별 비용</a><a href="trade/">공종별 비용</a></div><div class="grp"><b>가이드 ·</b><a href="banself-interior.html">반셀프 코디</a><a href="jikyoung-interior.html">직영 인테리어</a><a href="interior-margin-30.html">마진 30%</a><a href="interior-estimate-compare.html">견적서 비교</a><a href="apt-olsuri-cost.html">32평 올수리</a><a href="bathroom-remodel-cost.html">욕실 리모델링</a><a href="interior-scam-types.html">사기 유형</a></div><div class="grp"><b>회사 ·</b><a href="about.html">회사소개</a><a href="faq.html">자주 묻는 질문</a><a href="ai-answers.html">AI에게 물어볼 때</a><a href="sitemap.html">사이트 지도</a></div><div class="ft">서울·경기·인천 수도권 전역 · 자재상·기술자 직거래 · 정찰제 코디비 · 부가세 10% 별도<br>샘플실: <a href="showroom.html" style="color:#1e4d3a;font-weight:600">서울 강서구 공항대로41길 66 세신종합상가 지하 1층 B156호 (가양동)</a> · 상담 예약 010-9806-0422</div></div><script>(function(){try{
+var here=location.pathname.replace(/\/index\.html$/,"/");
+var norm=function(h){var a=document.createElement("a");a.href=h;return a.pathname.replace(/\/index\.html$/,"/");};
+var isCur=function(h){var p=norm(h);return p===here||(p!=="/"&&p.slice(-1)==="/"&&here.indexOf(p)===0);};
+var map=document.querySelector(".jj-map"),curName="",grpName="";
+if(map){map.querySelectorAll(".grp").forEach(function(g){g.querySelectorAll("a").forEach(function(a){if(isCur(a.getAttribute("href"))){a.setAttribute("aria-current","page");if(!curName){curName=a.textContent;var b=g.querySelector("b");grpName=b?b.textContent.replace(/\s*[·:]\s*$/,""):"";}}});});}
+document.querySelectorAll(".nav-item").forEach(function(it){var top=it.querySelector(".nav-top"),hit=false;it.querySelectorAll("a").forEach(function(a){var h=a.getAttribute("href")||"";if(h.indexOf("http")===0)return;if(norm(h)===here){hit=true;if(a!==top)a.classList.add("is-current");}});it.classList.remove("active");if(hit)it.classList.add("is-current");});
+if(here!=="/"&&!document.querySelector(".jj-where")){var ttl=curName||(document.title.split(/[|—–]/)[0]||"").trim();var up=location.pathname.split("/").length>2?"../":"";
+var bar=document.createElement("div");bar.className="jj-where";bar.innerHTML='<a href="'+up+'index.html">홈</a><span>›</span>'+(grpName?'<span>'+grpName+'</span><span>›</span>':'')+'<span class="now">지금 보는 쪽 · '+ttl+'</span>';
+var hdr=document.querySelector("header, .site-header, nav.site-nav, .navbar, .nav");if(hdr)hdr.insertAdjacentElement("afterend",bar);else document.body.insertBefore(bar,document.body.firstChild);}
+}catch(e){}})();</script><!--/SITENAV-->
+<script src="assets/chatbot.js" defer></script>
+</body>
+</html>
