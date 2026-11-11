@@ -76,3 +76,7 @@
 .apt-addr{appearance:none;border:1px solid var(--ink);background:#fff;color:var(--ink);font:inherit;font-size:14px;padding:7px 14px;cursor:pointer}
 .apt-addr:hover{background:var(--ink);color:#fff}
 .apt-addrmsg{flex-basis:100%;margin:0;font-size:13px;color:var(--mute);min-height:1em}
+
+/* 읽기 쉬움 기준 */
+.apt h1,.apt h2,.tw h1,.tw h2{text-wrap:balance}
+.apt p,.apt td,.apt li,.tw p,.tw td,.tw li,.tw figcaption{text-wrap:pretty;word-break:keep-all}

@@ -3055,3 +3055,16 @@ table td, table th { font-size: 15px; }
 .foot a { color: #33413a; }
 /* 안내·주석 */
 .quote-table-notice, .callout, .note { color: var(--jp-charcoal-soft); }
+
+
+/* ── 읽기 쉬움 기준 (2026-11-11) ─────────────────────────────
+   낱말 가운데에서 줄이 끊기지 않게, 제목은 줄 길이를 고르게, 본문은 마지막 줄에 한두 낱말만 남지 않게.
+   문장 하나는 한 줄(또는 한 덩어리)로, 문단 사이는 본문 줄 높이만큼 띄운다. 새 쪽을 만들 때도 이 기준을 따른다. */
+h1,h2,h3,h4,.hero-headline{text-wrap:balance;word-break:keep-all}
+p,li,dd,dt,td,th,figcaption,blockquote,label,summary{text-wrap:pretty;word-break:keep-all;overflow-wrap:break-word}
+p+p{margin-top:.85em}
+li+li{margin-top:.3em}
+.hero-lead{text-wrap:balance}
+.hero-lead>span{display:block}
+.hero-lead>span+span{margin-top:.35em}
+@media(max-width:600px){.hero-lead{font-size:16px!important;line-height:1.7!important;padding:0 4px}}

@@ -36,3 +36,7 @@
 .tw-cta .go{background:var(--ol);color:#fff;border:1px solid var(--ol-d);padding:13px 24px;font-weight:600;text-decoration:none}
 .tw-cta .ln{color:var(--ink);text-underline-offset:3px}
 @media(max-width:860px){.tw{padding:88px 16px 60px}.tw h1{font-size:27px}.tw-sec{grid-template-columns:1fr;gap:18px;padding:30px 0;margin-top:30px}.tw-sum td:first-child{width:56px}}
+
+/* 읽기 쉬움 기준 */
+.apt h1,.apt h2,.tw h1,.tw h2{text-wrap:balance}
+.apt p,.apt td,.apt li,.tw p,.tw td,.tw li,.tw figcaption{text-wrap:pretty;word-break:keep-all}
