@@ -240,8 +240,9 @@ def trace(path, plan):
         cor=[reg[:q,:q].mean(),reg[:q,-q:].mean(),reg[-q:,-q:].mean(),reg[-q:,:q].mean()]   # 왼위 오른위 오른아래 왼아래
         fc=int(np.argmin(cor)); hc=(fc+2)%4   # 가장 빈 모서리(호 바깥) 맞은편이 경첩
         # 문 모양: 경첩 모서리는 꽉 차고, 붙은 두 모서리 중 하나(벽 쪽)는 차고 다른 하나(문짝 끝, 호가 닿는 곳)는 반쯤 찬다 — 2026-11-12 반쯤 찬 쪽을 버리던 것 고침
-        adj=sorted([cor[(hc+1)%4],cor[(hc+3)%4]])
-        if cor[fc]>0.3 or cor[hc]<0.6 or adj[1]<0.6 or adj[0]<0.35: continue
+        #   경첩 모서리도 문짝 선이 파고들어 반쯤만 찰 때가 있다(157 평형 침실) → 빈 모서리 하나 + 나머지 셋 평균 0.7·최소 0.35
+        three=[cor[k] for k in range(4) if k!=fc]
+        if cor[fc]>0.3 or sum(three)/3<0.7 or min(three)<0.35: continue
         C=[(x,y),(x+w_,y),(x+w_,y+h_),(x,y+h_)]
         n1,n2=(hc+1)%4,(hc+3)%4      # 경첩에 붙은 두 모서리
         def outside_white(k):        # 경첩→k 변의 바깥쪽(원 반대편) 3~8화소가 흰 틈인가
