@@ -263,23 +263,32 @@ def diag_windows(img, mm):
         if min(a,abs(a-90),180-a)<15: continue
         segs.append((x1,y1,x2,y2,a))
     out=[]; tb=thin>0
-    def hit(px,py):
-        x,y=int(round(px)),int(round(py)); return 0<=x<tb.shape[1] and 0<=y<tb.shape[0] and tb[max(0,y-1):y+2,max(0,x-1):x+2].any()
+    # 2026-11-12 하네스 학습 2판: 네이버 창 기호는 가는 선 두 줄(화소 고정 간격) — 허프는 두 줄을 한 줄로 합쳐 버린다(106A)
+    #   → 찾은 비스듬한 선을 따라 수직 단면을 잘라 「가는 선이 두 줄 이상 지나가는가」를 본다. 단면의 6할 넘게 두 줄이면 창.
+    def profile(px,py,nx,ny):
+        runs=[]; cur=None
+        for o in range(-10,11):
+            x,y=int(round(px+nx*o)),int(round(py+ny*o))
+            on=0<=x<tb.shape[1] and 0<=y<tb.shape[0] and tb[y,x]
+            if on and cur is None: cur=[o,o]
+            elif on: cur[1]=o
+            elif cur is not None: runs.append(cur); cur=None
+        if cur is not None: runs.append(cur)
+        return runs
     for (x1,y1,x2,y2,a) in segs:
         dx,dy=x2-x1,y2-y1; Ln=np.hypot(dx,dy) or 1; ux,uy=dx/Ln,dy/Ln; nx,ny=-uy,ux
-        ts=np.linspace(0,Ln,max(8,int(Ln/2)))
-        best=None
-        for sgn in (1,-1):   # 같은 쪽으로 3~15화소 떨어진 나란한 선(창 띠의 다른 쪽 틀)
-            for off in range(3,16):
-                f=np.mean([hit(x1+ux*t+nx*off*sgn,y1+uy*t+ny*off*sgn) for t in ts])
-                if f>=0.6 and (best is None or off>best[0]): best=(off,sgn)
-        if not best: continue
-        off,sgn=best; cx0,cy0=x1+nx*off*sgn/2,y1+ny*off*sgn/2; p0=(cx0,cy0); p1=(cx0+dx,cy0+dy)
+        good=[]
+        for t in np.linspace(2,Ln-2,max(8,int(Ln/3))):
+            r=profile(x1+ux*t,y1+uy*t,nx,ny)
+            if len(r)>=2 and r[-1][1]-r[0][0]>=3: good.append((r[0][0],r[-1][1]))
+        if len(good)<0.6*max(8,int(Ln/3)): continue
+        lo=float(np.median([g[0] for g in good])); hi=float(np.median([g[1] for g in good])); mid=(lo+hi)/2.0
+        p0=(x1+nx*mid,y1+ny*mid); p1=(x2+nx*mid,y2+ny*mid)
         def touch(p):
             x,y=int(p[0]),int(p[1]); b=wall[max(0,y-9):y+10,max(0,x-9):x+10]; return b.size and b.mean()>0.05
-        if not(touch(p0) and touch(p1)) or Ln*mm<600: continue
+        if not(touch(p0) or touch(p1)) or Ln*mm<600: continue
         if any(np.hypot(o[0]-p0[0],o[1]-p0[1])<12 and np.hypot(o[2]-p1[0],o[3]-p1[1])<12 for o in out): continue
-        out.append([round(float(p0[0]),1),round(float(p0[1]),1),round(float(p1[0]),1),round(float(p1[1]),1),int(round(off*mm))])
+        out.append([round(float(p0[0]),1),round(float(p0[1]),1),round(float(p1[0]),1),round(float(p1[1]),1),int(round(max(3,hi-lo)*mm))])
     return out
 
 # ── 모서리 잇기(2026-11-12 대표 지시 「조금씩 문제 있는 것 싹 다 분석」 — 205TEA·157 모서리 네모 구멍): 짧은 벽 조각을 버리며
