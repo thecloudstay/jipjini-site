@@ -15,14 +15,14 @@
     'JJ-WIN-DOUBLE': [L0([0, -500], [1000, -500]), L0([1000, -500], [1000, 500]), L0([1000, 500], [0, 500]), L0([0, 500], [0, -500]), L0([0, -120], [1000, -120]), L0([0, 120], [1000, 120]), { k: 'attdef', tag: 'WIDTH', prompt: '창 폭(mm)', p: [0, -700] }, { k: 'attdef', tag: 'TYPE', prompt: '창 종류', p: [0, -800] }],
     'JJ-EVTR': [L0([0, 0], [1000, 0]), L0([1000, 0], [1000, 1000]), L0([1000, 1000], [0, 1000]), L0([0, 1000], [0, 0]), L0([0, 0], [1000, 1000]), L0([1000, 0], [0, 1000])]
   };
-  var VERSION = '20261112zm';
+  var VERSION = '20261112zn';
   function u(s) { return String(s == null ? '' : s).replace(/[^\x20-\x7e]/g, function (c) { var h = c.charCodeAt(0).toString(16).toUpperCase(); return '\\U+' + ('0000' + h).slice(-4); }); }
   function W() { this.o = []; }
   W.prototype.g = function (code, val) { this.o.push(String(code), typeof val === 'number' ? (Math.round(val * 1000) / 1000).toString() : String(val)); return this; };
   W.prototype.text = function () { return this.o.join('\r\n') + '\r\n'; };
 
   function inpoly(x, y, pts) { var c = false; for (var i = 0, n = pts.length; i < n; i++) { var a = pts[i], b = pts[(i + 1) % n]; if ((a[1] > y) !== (b[1] > y) && x < (b[0] - a[0]) * (y - a[1]) / ((b[1] - a[1]) || 1e-9) + a[0]) c = !c; } return c; }
-  function kindOf(nm) { nm = String(nm || ''); if (/욕실|화장실/.test(nm)) return '욕실'; if (/현관/.test(nm)) return '현관'; if (/드레스|옷방/.test(nm)) return '드레스룸'; if (/피트|PD/.test(nm)) return '피트'; if (/다용도|세탁/.test(nm)) return '다용도'; if (/발코니/.test(nm)) return '발코니'; if (/거실/.test(nm)) return '거실'; if (/주방|식당/.test(nm)) return '주방'; return '방'; }
+  function kindOf(nm) { nm = String(nm || ''); if (/욕실|화장실/.test(nm)) return '욕실'; if (/현관/.test(nm)) return '현관'; if (/드레스|옷방/.test(nm)) return '드레스룸'; if (/피트|PD/.test(nm)) return '피트'; if (/다용도|세탁/.test(nm)) return '다용도'; if (/발코니/.test(nm)) return '발코니'; if (/거실|리빙/.test(nm)) return '거실'; if (/주방|식당/.test(nm)) return '주방'; return '방'; }
 
   // ── 1단계: 편집기 상태 → 중립 도면 목록(실제 mm, 캐드 좌표 y 위로). 교환용·고유 형식·다시 읽기가 모두 이것 하나를 쓴다
   function model(state, opt) {
@@ -233,5 +233,5 @@
     var out = new Uint8Array(len), p = 0; parts.forEach(function (b) { out.set(b, p); p += b.length; }); return out;
   }
 
-  root.JJCadIO = { pdf: pdf, model: model, dxf: dxf, dwg: dwg, parseDXF: parseDXF, toPlan: toPlan, rasterize: rasterize, open: open, writeDXF: writeDXF, LAYERS: LAYERS, BLOCKS: BLOCKS, version: VERSION };
+  root.JJCadIO = { kindOf: kindOf, pdf: pdf, model: model, dxf: dxf, dwg: dwg, parseDXF: parseDXF, toPlan: toPlan, rasterize: rasterize, open: open, writeDXF: writeDXF, LAYERS: LAYERS, BLOCKS: BLOCKS, version: VERSION };
 })(typeof window !== 'undefined' ? window : this);
