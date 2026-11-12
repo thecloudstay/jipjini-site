@@ -133,3 +133,12 @@
 .kpin.jt.on i{width:30px;height:30px;line-height:26px;font-size:15px;background:#2A2A2A;box-shadow:0 0 0 2px var(--ol)}
 .kpin.jt.on::before{top:30px;border-top-color:#2A2A2A}
 .kpin.jt.on span{left:calc(50% + 20px);top:4px;background:#2A2A2A;color:#fff}
+
+/* 바탕 지도: 카카오 그림 조각만 종이색 흑백으로(표시·경계선은 그대로 또렷하게) */
+.apt-kakao{border:1px solid #2A2A2A;background:#F1EDE4}
+.apt-kakao img[src*="kakaocdn.net/api"],.apt-kakao img[src*="daumcdn.net/map"]{filter:grayscale(1) sepia(.22) contrast(.8) brightness(1.08)}
+.kzoom{position:relative;height:0;z-index:5}
+.kzoom button{position:absolute;right:10px;width:34px;height:34px;border:1px solid #2A2A2A;background:#F5F1E8;color:#2A2A2A;font:600 19px/30px Pretendard,sans-serif;cursor:pointer;padding:0}
+.kzoom button:first-child{top:10px}.kzoom button:last-child{top:44px;border-top:0}
+.kzoom button:hover{background:#2A2A2A;color:#F5F1E8}
+.kzoom:has(+.apt-kakao[hidden]){display:none}
