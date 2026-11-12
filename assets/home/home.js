@@ -21,13 +21,10 @@
                 : '<line class="win" x1="' + ((a + c) / 2) + '" y1="' + b + '" x2="' + ((a + c) / 2) + '" y2="' + d + '" stroke="#1F5E2E" stroke-width="3"/>'); });
     (G.창선 || []).forEach(function (q) { var hz = q[0] === 'h';
       h.push('<line class="win" x1="' + (hz ? q[2] : q[1]) + '" y1="' + (hz ? q[1] : q[2]) + '" x2="' + (hz ? q[3] : q[1]) + '" y2="' + (hz ? q[1] : q[3]) + '" stroke="#1F5E2E" stroke-width="3"/>'); });
-    (p.rooms || []).forEach(function (r) {
-      if (!/거실|안방|방|주방|욕실/.test(r.kind || r.name || '')) return;
-      var sx = 0, sy = 0; r.pts.forEach(function (q) { sx += q[0]; sy += q[1]; });
-      h.push('<text class="rm" x="' + (sx / r.pts.length).toFixed(0) + '" y="' + (sy / r.pts.length + 5).toFixed(0) + '" fill="#6B6F68" font-size="15" text-anchor="middle" font-family="Pretendard,sans-serif">' + esc(r.name) + (r.area ? ' ' + r.area.toFixed(1) + '㎡' : '') + '</text>');
-    });
     h.push('</svg>'); return h.join('');
   }
+  // 방 좌표와 벽 그림의 자리 맞춤이 평면마다 달라, 그린 뒤 벽 크기에 맞춰 화면 틀을 다시 잡는다
+  function fit(el) { var v = el && el.querySelector('svg'), w = v && v.querySelector('.wall'); if (!w) return; try { var b = w.getBBox(), m = Math.max(b.width, b.height) * 0.04; v.setAttribute('viewBox', [b.x - m, b.y - m, b.width + 2 * m, b.height + 2 * m].map(function (x) { return x.toFixed(1); }).join(' ')); } catch (e) {} }
   function getPlan(c) { return fetch('data/plans/' + c + '.json').then(function (r) { if (!r.ok) throw 0; return r.json(); }); }
 
   /* ── 숫자 ── */
@@ -40,13 +37,20 @@
     if (L.length > 1) { var a = L[L.length - 1], b = L[L.length - 2]; if (a.단지 > b.단지) document.querySelector('.stats .hot span').textContent = '도면 열림 · 어제보다 +' + num(a.단지 - b.단지); }
   }).catch(function () {});
 
-  /* ── 실견적 셋 ── */
+  /* ── 실견적 점그래프: 평형(가로) × 공사비(세로), 점 크기 = 공종 수 ── */
   fetch('data/real-quotes.json').then(function (r) { return r.json(); }).then(function (d) {
-    var C = d.cases.filter(function (c) { return c.contracted && c.sections.length >= 12 && c.py >= 20; }).slice(0, 3);
-    $('caseList').innerHTML = C.map(function (c) {
-      var man = Math.round(c.total / 1e4), pp = Math.round(c.total / c.py / 1e4);
-      return '<div class="cs"><p class="r">' + esc(c.region) + ' · ' + c.py + '평 ' + esc(c.type) + ' · ' + c.ymd.slice(0, 4) + '.' + c.ymd.slice(4, 6) + '</p><p class="t">' + num(man) + '만 원<small>부가세 별도</small></p><p class="m">평당 약 <b>' + num(pp) + '만 원</b> · ' + c.sections.length + '개 공종 · 단가 전부 공개</p></div>';
-    }).join('');
+    var C = d.cases.filter(function (c) { return c.total > 5e6 && c.py >= 15; });
+    $('nCase').textContent = d.cases.length;
+    var full = C.filter(function (c) { return c.sections.length >= 12; }), pp = full.reduce(function (s, c) { return s + c.total / c.py; }, 0) / full.length / 1e4;
+    $('caseCap').textContent = '점 하나가 견적서 한 장 · 12공종 넘는 전체 수리 평당 평균 약 ' + num(Math.round(pp)) + '만 원 · 공급가, 부가세 별도';
+    var W = 640, H = 300, X = function (v) { return 40 + (v - 10) / 55 * (W - 60); }, Y = function (v) { return H - 20 - v / 7000 * (H - 40); }, h = [];
+    h.push('<svg viewBox="0 0 ' + W + ' ' + H + '" font-family="Pretendard,sans-serif">');
+    [0, 2000, 4000, 6000].forEach(function (v) { h.push('<line x1="40" x2="' + (W - 10) + '" y1="' + Y(v) + '" y2="' + Y(v) + '" stroke="#E2E4DF"/><text x="34" y="' + (Y(v) + 4) + '" font-size="11" fill="#9A9E97" text-anchor="end">' + (v ? num(v / 1000) + '천만' : '0') + '</text>'); });
+    [20, 30, 40, 50, 60].forEach(function (v) { h.push('<text x="' + X(v) + '" y="' + (H) + '" font-size="11" fill="#9A9E97" text-anchor="middle">' + v + '평</text>'); });
+    C.forEach(function (c, i) { var r = 5 + c.sections.length * .55, man = Math.round(c.total / 1e4);
+      h.push('<g class="pt" style="--d:' + (i * 0.08) + 's"><circle cx="' + X(c.py) + '" cy="' + Y(man) + '" r="' + r + '" fill="#1F5E2E" fill-opacity=".85" stroke="#fff" stroke-width="2"><title>' + esc(c.region) + ' ' + c.py + '평 · ' + num(man) + '만 원 · ' + c.sections.length + '공종</title></circle></g>'); });
+    var top = C.slice().sort(function (a, b) { return b.total - a.total; })[0];
+    h.push('</svg>'); $('caseChart').innerHTML = h.join('');
   }).catch(function () {});
 
   /* ── 지도 ── */
@@ -112,7 +116,7 @@
       go.textContent = '이 도면으로 꾸미기'; go.href = 'cad.html?apt=' + encodeURIComponent(x.c) + '&n=' + encodeURIComponent(x.n);
       $('cardPv').innerHTML = '<p class="none">도면을 불러오는 중</p>'; $('cardM').textContent = '';
       getPlan(x.c).then(function (d) { if (OPEN !== x.c) return; var t = d.평형[0], s = t.plan.sum || {};
-        $('cardPv').innerHTML = planSVG(t.plan);
+        $('cardPv').innerHTML = planSVG(t.plan); fit($('cardPv'));
         $('cardM').textContent = '평형 ' + d.평형.map(function (q) { return q.이름; }).join(' · ') + ' · 전용 ' + (t.전용 || '') + '㎡ · 방 ' + (s.방 || '-') + ' · 욕실 ' + (s.욕실 || '-') + ' · 원본 대조 ' + t.점수 + '점';
       }).catch(function () { $('cardPv').innerHTML = '<p class="none">도면을 불러오지 못했습니다</p>'; });
     } else {
@@ -141,6 +145,7 @@
   document.addEventListener('click', function (e) { if (!$('find').contains(e.target)) $('hits').hidden = true; });
 
   /* ── 기능 그림: 보일 때 움직인다 ── */
-  getPlan('A10025531').then(function (d) { $('planVis').innerHTML = planSVG(d.평형[0].plan, 'hero'); see($('planVis')); }).catch(function () {});
+  getPlan('A10025531').then(function (d) { ['planVis', 'planVis2'].forEach(function (id) { var e = $(id); if (!e) return; e.innerHTML = planSVG(d.평형[0].plan, 'psvg'); fit(e); see(e); }); }).catch(function () {});
+  see($('bars'));
   function see(el) { if (!('IntersectionObserver' in window)) return el.classList.add('go'); new IntersectionObserver(function (E, o) { E.forEach(function (e) { if (e.isIntersecting) { el.classList.add('go'); o.disconnect(); } }); }, { threshold: .35 }).observe(el); }
 })();
