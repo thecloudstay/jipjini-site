@@ -391,8 +391,8 @@ def entry_doors(img, sash, doors, rooms, wseg, mm, H, W):
 #   2판: ① 곧은 선(가로·세로로 10화소 넘게 곧은 것)을 먼저 빼 호만 남기고 ② 호의 네모 모서리를 경첩으로 맞춘 뒤(4분의 1 원 각도 채움 0.6 이상)
 #        ③ 닫힌 쪽 = 두 끝 가운데 그 너머로 검은 벽 띠가 이어지는 끝(문틀 옆 벽). 문 자리와 겹치는 「창」(문틀 띠를 창으로 읽은 것)은 지운다.
 def front_doors(img, rooms, doors, sash, wall, mm, H, W):
-    ent=[r for r in rooms if r.get('kind')=='현관' and len(r['pts'])>=3]
-    if not ent: return doors, sash
+    ent=[r for r in rooms if r.get('kind')=='현관' and len(r['pts'])>=3]; jw=[]
+    if not ent: return doors, sash, jw
     hsv=cv2.cvtColor(img,cv2.COLOR_BGR2HSV); v=hsv[...,2].astype(int); s=hsv[...,1].astype(int)
     thin=((((v<135)&((s<70)|(v<75)))|((v<205)&(s<30)))&~(cv2.dilate(wall.astype(np.uint8),np.ones((3,3),np.uint8))>0)).astype(np.uint8)
     straight=cv2.morphologyEx(thin,cv2.MORPH_OPEN,np.ones((1,10),np.uint8))|cv2.morphologyEx(thin,cv2.MORPH_OPEN,np.ones((10,1),np.uint8))
@@ -408,8 +408,9 @@ def front_doors(img, rooms, doors, sash, wall, mm, H, W):
         near=cv2.dilate(rm,np.ones((int(500/mm)|1,)*2,np.uint8))>0
         # 2026-11-12 고침(93·105·101·205TEA 현관문 빠짐 R10): ① 현관 둘레에 방문 등 다른 문이 하나라도 있으면 건너뛰었다 → 같은 자리 문만 겹침으로 본다(아래)
         #   ② 찾는 띠가 현관 다각형 밖 40화소뿐이라 벽 두께·문틀 띠 너머 바깥으로 열린 호 끝이 잘려 원 맞추기에서 떨어졌다 → 벽·문틀 몫 25화소를 더 본다
-        if any(near[min(H-1,max(0,int((d['y1']+d['y2'])/2))),min(W-1,max(0,int((d['x1']+d['x2'])/2)))] for d in doors): continue
+        has=any(near[min(H-1,max(0,int((d['y1']+d['y2'])/2))),min(W-1,max(0,int((d['x1']+d['x2'])/2)))] for d in doors)   # 둘레에 문이 있으면 새로 찾지는 않되, 아래 창 정리는 한다(205TEA)
         zone=(cv2.dilate(rm,np.ones(((2*NV_DOOR_R+70)|1,)*2,np.uint8))>0)&~(cv2.erode(rm,np.ones((5,5),np.uint8))>0)
+        if has: zone=np.zeros_like(zone)
         n,lab,st,_=cv2.connectedComponentsWithStats((arc&zone).astype(np.uint8),connectivity=8); cands=[]
         for j in range(1,n):
             x,y,w_,h_,a_=st[j]
@@ -434,18 +435,22 @@ def front_doors(img, rooms, doors, sash, wall, mm, H, W):
         for span,hx,hy,R,sx,sy in sorted(cands,reverse=True):
           if _front_one(P,hx,hy,R,sx,sy,v,W,H,doors): break
         # 현관문 자리의 창은 문 길이만큼만 잘라 낸다(통째로 지우면 긴 창의 나머지가 비어 외벽이 샌다 — 46A)
-        for d in [d for d in doors if d.get('현관')]:
+        for d in [d for d in doors if d.get('현관') or abs(cv2.pointPolygonTest(P,((d['x1']+d['x2'])/2.0,(d['y1']+d['y2'])/2.0),True))<=25]:   # 현관 경계 위 문이면 일반 호 문도(205TEA)
             dx0,dx1=sorted([d['x1'],d['x2']]); dy0,dy1=sorted([d['y1'],d['y2']]); out_=[]
+            # 2026-11-12 고침(46A·93·205TEA·203A R10 「현관 창」): 문틀 띠는 문보다 길어 잘라 낸 나머지가 현관 바깥 경계 창으로 남았다
+            #   → 현관 바깥 경계에는 창이 없다(R10) — 나머지는 벽(외벽 두께)으로 바꾼다
             for q in sash:
                 if not(q[1]<dx1+4 and q[3]>dx0-4 and q[2]<dy1+4 and q[4]>dy0-4): out_.append(q); continue
                 if q[0]=='h':
-                    if dx0-2-q[1]>=6: out_.append(['h',q[1],q[2],dx0-2,q[4]])
-                    if q[3]-(dx1+2)>=6: out_.append(['h',dx1+2,q[2],q[3],q[4]])
+                    c_=(q[2]+q[4])/2.0
+                    if dx0-q[1]>=2: jw.append(['h',float(q[1]),float(dx0),c_,JJ_EXT_MM])
+                    if q[3]-dx1>=2: jw.append(['h',float(dx1),float(q[3]),c_,JJ_EXT_MM])
                 else:
-                    if dy0-2-q[2]>=6: out_.append(['v',q[1],q[2],q[3],dy0-2])
-                    if q[4]-(dy1+2)>=6: out_.append(['v',q[1],dy1+2,q[3],q[4]])
+                    c_=(q[1]+q[3])/2.0
+                    if dy0-q[2]>=2: jw.append(['v',float(q[2]),float(dy0),c_,JJ_EXT_MM])
+                    if q[4]-dy1>=2: jw.append(['v',float(dy1),float(q[4]),c_,JJ_EXT_MM])
             sash=out_
-    return doors, sash
+    return doors, sash, jw
 def _front_one(P,hx,hy,R,sx,sy,v,W,H,doors):
     if True:
         e1=(int(round(hx+sx*R)),hy); e2=(hx,int(round(hy+sy*R)))
@@ -860,7 +865,7 @@ def trace(path, plan):
     doors=safe_doors(doors,rooms,wseg,sash_out,mm,H,W)   # 건물 밖으로 난 문(창을 문으로 잘못 읽은 것 포함)은 그리지 않는다 — 안전   # 주방 샷시는 그리지 않는다(대표 지시 2026-11-12 「주방 … 샷시 모두 삭제」)
     sash_out=close_openings(bgr,wseg,sash_out,doors,rooms,mm,H,W)
     sash_out,doors=entry_doors(bgr,sash_out,doors,rooms,wseg,mm,H,W)
-    doors,sash_out=front_doors(bgr,rooms,doors,sash_out,wall,mm,H,W)   # 밖으로 여는 현관문(호가 집 밖) — 하네스 학습 2판 2026-11-12   # 현관 둘레 「창」 = 현관문(2026-11-12)   # 창을 벽 사이에 딱 맞추고, 못 찾은 창(발코니 안쪽 창 등)을 틈에서 찾는다
+    doors,sash_out,_jw=front_doors(bgr,rooms,doors,sash_out,wall,mm,H,W); wseg=wseg+_jw   # 밖으로 여는 현관문(호가 집 밖) — 하네스 학습 2판 2026-11-12   # 현관 둘레 「창」 = 현관문(2026-11-12)   # 창을 벽 사이에 딱 맞추고, 못 찾은 창(발코니 안쪽 창 등)을 틈에서 찾는다
     wseg=fill_jambs(wseg,sash_out,doors,mm)   # 문틀 띠 자리 틈 메우기(하네스 첫 바퀴 R1)
     _wall_d=wall_path_from_segs(wseg,sash_out,doors,mm)
     try: _diag=diag_walls(wall,wseg,mm,bld)
