@@ -661,6 +661,7 @@ def _simplify(P):
         o=c
     return o
 def square_rooms(rooms, mm):
+    T=max(3.0,120.0/mm)
     for r in rooms:
         P=[list(map(int,q)) for q in (r.get('pts') or [])]
         if len(P)<4 or r.get('kind')=='공용': continue
@@ -670,7 +671,10 @@ def square_rooms(rooms, mm):
             if not J: break
             t,i=J[0]; n=len(P); a,b=P[i],P[(i+1)%n]
             if t=='사선':
-                dx=abs(b[0]-a[0]); dy=abs(b[1]-a[1]); P.insert(i+1,[a[0],b[1]] if dx<dy else [b[0],a[1]])
+                dx=abs(b[0]-a[0]); dy=abs(b[1]-a[1])
+                if min(dx,dy)<=T:   # 거의 가로·세로인데 1~5화소 기운 변(2026-11-13 컴퓨터 40장에서 남은 R15 의 대부분) → 두 끝을 한 줄에
+                    k=1 if dx>dy else 0; m=int(round((a[k]+b[k])/2)); a[k]=m; b[k]=m
+                else: P.insert(i+1,[a[0],b[1]] if dx<dy else [b[0],a[1]])
             else:
                 pa,pb=P[i-1],P[(i+2)%n]; la=abs(a[0]-pa[0])+abs(a[1]-pa[1]); lb=abs(pb[0]-b[0])+abs(pb[1]-b[1])
                 k=1 if a[0]==b[0] else 0   # 짧은 세로 토막이면 앞뒤 가로 변의 y(k=1)를, 가로 토막이면 x(k=0)를 긴 쪽에 맞춘다

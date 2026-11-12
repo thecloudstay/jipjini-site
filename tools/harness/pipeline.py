@@ -133,7 +133,7 @@ def run(imgdir, roomsf, outdir, csvf=None):
             new = [d for d in diffs if d['표식'] not in known]
             left = collections.Counter(x[0] for x in chk0)
             if any(left[s] for s in SAFETY): state = '출고보류'
-            elif any(v for r, v in left.items() if r not in WARN) or len(new) >= 3: state = '예외'
+            elif any(v for r, v in left.items() if r not in WARN) or len(new) >= 3 or left['R8'] >= 2: state = '예외'   # 2026-11-13: 창 없는 방이 둘 이상이면 경고가 아니라 예외(송도자이하버뷰2 158C 창 0개인데 통과)
             else: state = '통과'
             sc, miss, extra = score(f, q)
             if sc is not None: sc = max(0, round(sc - 2*len(diffs) - penalty(chk0), 1))   # 원본과 다른 곳(창·문틀·가는 선 놓침 등, 무시로 정한 모양 뺌) 한 곳마다 2점

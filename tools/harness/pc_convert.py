@@ -197,7 +197,7 @@ def one(f, k, plan, known):
     left = collections.Counter(x[0] for x in chk)
     if any(left[s] for s in pipeline.SAFETY):
         state = "출고보류"
-    elif any(v for r_, v in left.items() if r_ not in pipeline.WARN) or len(new) >= 3:
+    elif any(v for r_, v in left.items() if r_ not in pipeline.WARN) or len(new) >= 3 or left["R8"] >= 2:   # 창 없는 방 둘 이상 = 예외(2026-11-13)
         state = "예외"
     else:
         state = "통과"
