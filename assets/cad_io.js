@@ -45,6 +45,29 @@
     var txt = function (lay, s, p, h, center) { E.push({ k: 'text', lay: lay, s: String(s), p: p, h: h, center: !!center }); };
     var ins = function (name, lay, p, sx, sy, rot, attrs) { E.push({ k: 'insert', name: name, lay: lay, p: p, sx: sx, sy: sy, rot: rot, attrs: attrs || null }); };
     var solid = function (lay, q) { E.push({ k: 'solid', lay: lay, q: q }); };
+    // 다각형 → 삼각형(귀 자르기, 오목한 모양도 됨) — 2026-11-12 벽 외곽선 다각형 채움용
+    var ears = function (P0) {
+      var P = P0.slice(), out = [], area = 0, i;
+      for (i = 0; i < P.length; i++) { var a = P[i], b = P[(i + 1) % P.length]; area += a[0] * b[1] - b[0] * a[1]; }
+      if (area < 0) P.reverse();
+      var cross = function (a, b, c) { return (b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0]); };
+      var inside = function (p, a, b, c) { return cross(a, b, p) >= 0 && cross(b, c, p) >= 0 && cross(c, a, p) >= 0; };
+      var guard = P.length * P.length + 10;
+      while (P.length > 3 && guard-- > 0) {
+        var cut = false;
+        for (i = 0; i < P.length; i++) {
+          var a = P[(i + P.length - 1) % P.length], b = P[i], c = P[(i + 1) % P.length];
+          if (cross(a, b, c) <= 0) continue;
+          var ok = true;
+          for (var j = 0; j < P.length && ok; j++) { var q = P[j]; if (q !== a && q !== b && q !== c && inside(q, a, b, c)) ok = false; }
+          if (!ok) continue;
+          out.push([a, b, c]); P.splice(i, 1); cut = true; break;
+        }
+        if (!cut) break;
+      }
+      if (P.length === 3) out.push([P[0], P[1], P[2]]);
+      return out;
+    };
     var cnt = { 벽: 0, 문: 0, 창: 0, 방: 0 };
     // 벽(집지니 표준 두께): 바탕 평면 자료의 벽선
     var G = base && base.그림, wthick = {};
@@ -59,7 +82,7 @@
         var q = [[d[0] + nx, d[1] + ny], [d[2] + nx, d[3] + ny], [d[2] - nx, d[3] - ny], [d[0] - nx, d[1] - ny]].map(function (p) { return P(p[0], p[1]); });
         poly(WALL_LAYER[d[4]] || 'A-WALL-PRTN', q, true); solid('A-WALL-PATT', q); cnt.벽++; });
       (G.벽윤곽 || []).forEach(function (P_) { if (P_.length < 3) return; var q = P_.map(function (p) { return P(p[0], p[1]); });   // 2026-11-12 남은 벽 외곽선(계단·곡선·조금 기운 벽)
-        poly('A-WALL-EXTR', q, true); solid('A-WALL-PATT', q); cnt.벽++; });
+        poly('A-WALL-EXTR', q, true); ears(q).forEach(function (t) { solid('A-WALL-PATT', [t[0], t[1], t[2], t[2]]); }); cnt.벽++; });   /* 채움(솔리드)은 꼭짓점 4개까지 → 삼각형으로 나눔 */
       (G.사선창 || []).forEach(function (d) { var dx = d[2] - d[0], dy = d[3] - d[1], L = Math.hypot(dx, dy) || 1, hT = Math.max(2, d[4] / bm / 2), nx = -dy / L, ny = dx / L;   // 2026-11-12 비스듬한 창(틀 + 두 줄, A-GLAZ)
         var at = function (x, y, o) { return P(x + nx * o, y + ny * o); };
         poly('A-GLAZ', [at(d[0], d[1], hT), at(d[2], d[3], hT), at(d[2], d[3], -hT), at(d[0], d[1], -hT)], true);
