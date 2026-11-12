@@ -22,7 +22,7 @@
 <meta name="twitter:image" content="https://jipjini.com/og-cover.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
-<link rel="stylesheet" href="assets/home/home.css?v=20261112e">
+<link rel="stylesheet" href="assets/home/home.css?v=20261112h">
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-35EM7T3M9W"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
@@ -39,28 +39,37 @@
   <a href="./" class="brand"><span class="mark">집</span><b>집지니</b></a>
   <nav class="links">
     <a href="#map">지도</a>
-    <a href="#flow">어떻게</a>
-    <a href="#engine">기능</a>
-    <a href="#cases">견적 사례</a>
+    <a href="#how">30%의 이유</a>
+    <a href="#sys">6가지 시스템</a>
+    <a href="#effect">효과</a>
     <a href="#ask" class="go">무료 견적</a>
   </nav>
 </header>
 
-<!-- 1. 한 줄 + 찾기 -->
+<!-- 1. 한 줄 -->
 <section class="hero">
-  <p class="ask0">아직도 견적서 세 장 놓고 뭐가 다른지 모르십니까?</p>
-  <h1>인테리어 값,<br><em>도면</em>이 계산합니다.</h1>
-  <form class="find" id="find" autocomplete="off">
-    <input id="q" type="search" placeholder="우리 아파트 이름" aria-label="아파트 이름">
-    <button type="submit">도면 열기</button>
-    <ul id="hits" hidden></ul>
-  </form>
+  <h1>인테리어 비용,<br><em>지금 바로 30%</em> 낮춰 드립니다.</h1>
+  <div class="hn">
+    <div><b>−30%</b><span>같은 자재 · 같은 기술자</span></div>
+    <div><b id="nAll">10,242</b><span>수도권 아파트 단지</span></div>
+    <div><b>24시간</b><span>무료 견적서</span></div>
+  </div>
+  <a class="btn big" href="#map">우리 집 비용 확인하기 ↓</a>
 </section>
 
+<!-- 2. 지도 -->
 <section class="mapsec" id="map">
+  <div class="mh">
+    <h2>지도에서 우리 집 비용,<br><em>30% 낮추러</em> 가 볼까요?</h2>
+    <form class="find" id="find" autocomplete="off">
+      <input id="q" type="search" placeholder="우리 아파트 이름" aria-label="아파트 이름">
+      <button type="submit">찾기</button>
+      <ul id="hits" hidden></ul>
+    </form>
+  </div>
   <div class="mapw">
     <div id="hmap" class="hmap"></div>
-    <p class="maphint">초록 「집」 핀은 도면이 열린 단지입니다. 눌러 보세요.</p>
+    <p class="maphint">초록 「집」 핀 = 도면이 열린 단지</p>
     <aside class="card" id="card" hidden>
       <button class="x" id="cardX" aria-label="닫기">×</button>
       <p class="cg" id="cardG"></p>
@@ -71,83 +80,95 @@
     </aside>
   </div>
   <div class="stats">
-    <div><b id="nAll">10,242</b><span>지도에 올린 수도권 단지</span></div>
+    <div><b id="nAll2">10,242</b><span>지도에 올린 단지</span></div>
     <div><b id="nHave">679</b><span>평면 확보</span></div>
     <div class="hot"><b id="nOpen">53</b><span>도면 열림 · 매일 늘어남</span></div>
-    <div><b>20~30%</b><span>같은 시공, 낮아진 값</span></div>
   </div>
 </section>
 
-<!-- 2. 시스템 흐름도: 평면도 한 장에서 입주까지 -->
-<section class="flow" id="flow">
-  <h2>평면도 한 장에서 입주까지,<br><em>사람 손 대신 시스템</em>이 돕니다.</h2>
-  <ol class="pipe">
-    <li><figure><img src="assets/start/step1.jpg" alt="" loading="lazy"></figure><b>단지 찾기</b><i>10초</i></li>
-    <li><figure class="pp" id="planVis"></figure><b>도면 자동 변환</b><i>즉시</i></li>
-    <li><figure><img src="assets/home/plan-first.jpg" alt="" loading="lazy"></figure><b>바꿀 곳 찍기</b><i>5분</i></li>
-    <li><figure><img src="assets/home/f-takeoff.jpg" alt="" loading="lazy"></figure><b>물량 자동 산출</b><i>즉시</i></li>
-    <li><figure><img src="assets/home/f-console.jpg" alt="" loading="lazy"></figure><b>견적서 작성</b><i>24시간</i></li>
-    <li><figure><img src="assets/home/shot-sheet.jpg" alt="" loading="lazy"></figure><b>작업지시서</b><i>공정마다</i></li>
-    <li><figure><img src="assets/home/f-schedule.jpg" alt="" loading="lazy"></figure><b>휴대폰으로 확인</b><i>실시간</i></li>
+<!-- 3. 30%는 어디서 나오나: 구조 도식 -->
+<section class="how" id="how">
+  <h2>30%는 어디서 나올까요?</h2>
+  <p class="lead">턴키 견적 안에는 공사비 말고도 <b>보이지 않는 비용</b>이 들어 있습니다.</p>
+  <div class="stack" id="stack">
+    <div class="sr">
+      <span class="sl">턴키<br><small>통째로 맡기기</small></span>
+      <div class="sb2">
+        <i class="real" style="--w:65%">실제 공사비<small>자재 · 인건비</small></i>
+        <i class="hid" style="--w:35%"><b class="hm">숨은 비용</b><span>업체 마진</span><span>리스크</span><span>하자 보수</span><span>사후 관리</span><span>잔손</span><span>직원 · 임대료</span></i>
+      </div>
+      <b class="sv">100</b>
+    </div>
+    <div class="sr">
+      <span class="sl">직영 · 셀프<br><small>내가 다 하기</small></span>
+      <div class="sb2"><i class="real" style="--w:55%">실제 공사비</i><i class="me0" style="--w:45%">최대 40~50%↓<em> · 대신 관리·하자·위험을 모두 직접</em></i></div>
+      <b class="sv">50~60</b>
+    </div>
+    <div class="sr me">
+      <span class="sl">집지니<br><small>코디네이팅 시스템</small></span>
+      <div class="sb2"><i class="real" style="--w:62%">실제 공사비</i><i class="codi" style="--w:8%">코디</i><i class="cut" style="--w:30%">−30%<em> 거품 제거</em></i></div>
+      <b class="sv">70</b>
+    </div>
+  </div>
+  <p class="note">턴키 견적을 100으로 놓은 구조 예시 · 비율은 현장과 업체마다 다릅니다 · 부가세 별도</p>
+</section>
+
+<!-- 4. 그걸 가능하게 하는 6가지 시스템 -->
+<section class="sys" id="sys">
+  <h2>그걸 가능하게 하는<br><em>집지니 6가지 시스템</em></h2>
+  <p class="lead">견적부터 시공자 관리까지, 사람 감 대신 시스템이 잡습니다. 초보도, 셀프 인테리어도 그대로 쓰면 됩니다.</p>
+  <ol class="pipe six">
+    <li><figure><img src="assets/home/f-console.jpg" alt="" loading="lazy"></figure><b>견적</b><i>24시간</i><span>실측 그대로 자동 작성</span></li>
+    <li><figure class="pp" id="planVis"></figure><b>도면</b><i>즉시</i><span>평면도 → 공사 도면</span></li>
+    <li><figure><img src="assets/home/f-cad.jpg" alt="" loading="lazy"></figure><b>공사 계획</b><i>5분</i><span>바꿀 곳을 도면에 찍기</span></li>
+    <li><figure><img src="assets/home/f-takeoff.jpg" alt="" loading="lazy"></figure><b>자재 · 물량 산출</b><i>17공종</i><span>면적·길이·개수 자동</span></li>
+    <li><figure><img src="assets/home/shot-sheet.jpg" alt="" loading="lazy"></figure><b>시공 지시</b><i>도면 1장</i><span>말 대신 작업지시서</span></li>
+    <li><figure><img src="assets/home/f-schedule.jpg" alt="" loading="lazy"></figure><b>시공자 관리</b><i>실시간</i><span>공정·사진·정산 확인</span></li>
   </ol>
 </section>
 
-<!-- 3. 값: 막대로 -->
-<section class="cost" id="why">
-  <div class="ct">
-    <h2>통째로 맡기면<br><em>2,000만 원</em>은 어디로 갈까요?</h2>
-    <p class="cap">32평 전체 수리 예시 · 어림값 · 부가세 별도</p>
-  </div>
-  <div class="bars" id="bars">
-    <div class="bar"><span>통째로 맡기기</span><div class="bt"><i class="w" style="--w:69%"></i><i class="m" style="--w:31%"></i></div><b>6,500만</b></div>
-    <div class="bar"><span>혼자 다 하기</span><div class="bt"><i class="w" style="--w:54%"></i></div><b>3,500만</b></div>
-    <div class="bar me"><span>집지니</span><div class="bt"><i class="w" style="--w:66%"></i></div><b>4,000만대</b></div>
-    <div class="lg"><span><i class="w"></i>자재·인건비</span><span><i class="m"></i>업체 몫(견적서에 안 보임)</span></div>
-  </div>
-</section>
-
-<!-- 4. 기능 여섯: 질문 한 줄 + 숫자 + 실제 화면 -->
-<section class="engine" id="engine">
-  <h2>집지니 안의 <em>여섯 가지 기술</em></h2>
-  <div class="tiles">
-    <article><figure class="pp st" id="planVis2"></figure><p class="q">아직도 줄자 들고 실측 다니세요?</p><div class="k"><em>98.8%</em><span>도면 자동 변환 · 벽 인식률</span></div></article>
-    <article><figure><img src="assets/home/f-cad.jpg" alt="집지니 CAD" loading="lazy"></figure><p class="q">아직 손 그림으로 공사 설명하세요?</p><div class="k"><em>0원</em><span>집지니 CAD · 설치 없이</span></div></article>
-    <article><figure><img src="assets/home/f-takeoff.jpg" alt="물량 자동 산출" loading="lazy"></figure><p class="q">도배 몇 ㎡인지 알고 견적 받으셨나요?</p><div class="k"><em>17공종</em><span>물량 자동 산출</span></div></article>
-    <article><figure><img src="assets/home/shot-sheet.jpg" alt="작업지시서" loading="lazy"></figure><p class="q">「그렇게 말 안 하셨잖아요」 들어 보셨죠?</p><div class="k"><em>1장</em><span>작업지시서 · 도면으로 지시</span></div></article>
-    <article><figure><img src="assets/home/f-schedule.jpg" alt="고객 진행 화면" loading="lazy"></figure><p class="q">공사 잘 되나, 또 전화하세요?</p><div class="k"><em>실시간</em><span>고객 진행 화면 · 공정·사진</span></div></article>
-    <article><figure><img src="assets/home/f-console.jpg" alt="운영 콘솔" loading="lazy"></figure><p class="q">견적서 하나에 일주일 기다리셨나요?</p><div class="k"><em>24시간</em><span>운영 콘솔 · 견적 자동 작성</span></div></article>
+<!-- 5. 지금 vs 집지니 -->
+<section class="asis" id="asis">
+  <h2>지금까지의 인테리어 vs <em>집지니</em></h2>
+  <div class="ab">
+    <div class="ah"><span></span><b class="was">지금까지</b><b class="now">집지니</b></div>
+    <div class="ar"><span>견적</span><p class="was">업체마다 총액만, 며칠 기다림</p><p class="now">공종·단가 한 줄씩, 24시간</p></div>
+    <div class="ar"><span>도면</span><p class="was">없거나 손 그림</p><p class="now">평면도에서 자동으로 공사 도면</p></div>
+    <div class="ar"><span>물량</span><p class="was">업체 말을 믿을 수밖에</p><p class="now">도면에서 자동 산출, 부풀림이 보임</p></div>
+    <div class="ar"><span>시공 지시</span><p class="was">말 · 전화 → 엇갈림, 재시공</p><p class="now">작업지시서 한 장</p></div>
+    <div class="ar"><span>공사 확인</span><p class="was">매일 현장에 가거나 전화</p><p class="now">휴대폰으로 공정 · 사진</p></div>
+    <div class="ar"><span>비용</span><p class="was">100</p><p class="now"><b>70</b></p></div>
   </div>
 </section>
 
-<!-- 5. 두려움 → 막는 장치 -->
-<section class="guard">
-  <h2>인테리어가 망하는 이유,<br><em>미리 막아 둡니다.</em></h2>
-  <div class="gl">
-    <div><s>눈탱이 견적</s><b>단가 100% 공개</b></div>
-    <div><s>공사 중 실수</s><b>도면으로 지시 · 하자는 시공자 책임</b></div>
-    <div><s>선금 떼임</s><b>공정 확인 뒤 지급</b></div>
-    <div><s>끝없는 추가 비용</s><b>한 줄씩 보이는 견적서</b></div>
-    <div><s>현장 깜깜이</s><b>공정마다 사진</b></div>
+<!-- 6. 기대 효과 + 실견적 -->
+<section class="effect" id="effect">
+  <h2>결과적으로</h2>
+  <div class="ef">
+    <div><b>30%<small>↓</small></b><span>공사비</span></div>
+    <div><b>24<small>시간</small></b><span>견적서 받는 데</span></div>
+    <div><b>100<small>%</small></b><span>단가 공개</span></div>
+    <div><b>0<small>원</small></b><span>도면 · 견적 비용</span></div>
+  </div>
+  <div class="proof">
+    <div class="ct">
+      <h3>실제 견적 <span id="nCase">14</span>건으로 확인하세요</h3>
+      <p class="cap" id="caseCap">평형별 공사비 · 공급가 · 부가세 별도</p>
+      <a class="more" href="cases/">견적서 전부 보기 →</a>
+    </div>
+    <div class="chart" id="caseChart"></div>
   </div>
 </section>
 
-<!-- 6. 실견적 점그래프 -->
-<section class="cases" id="cases">
-  <div class="ct">
-    <h2>진짜 그 값에 되나요?<br><em>실제 견적 <span id="nCase">14</span>건</em>을 공개합니다.</h2>
-    <p class="cap" id="caseCap">평형별 공사비 · 공급가 · 부가세 별도</p>
-    <a class="more" href="cases/">견적서 전부 보기 →</a>
-  </div>
-  <div class="chart" id="caseChart"></div>
-</section>
-
-<!-- 7. 무료 견적 -->
+<!-- 7. 지금 바로 -->
 <section class="ask" id="ask">
-  <h2>견적서는 무료입니다.<br>받아 보고 정하십시오.</h2>
-  <div class="go2">
-    <a class="btn big" href="request.html" target="_blank" rel="noopener" data-ev="home_request">무료 견적 받기 · 5분</a>
-    <a class="btn line" href="https://pf.kakao.com/_NjpxhC/chat" target="_blank" rel="noopener" data-ev="home_kakao">카톡 상담</a>
+  <h2>지금 바로 써 볼까요?</h2>
+  <div class="go3">
+    <a href="#map" data-go="find"><b>1</b>우리 집 도면 찾기<small>10초 · 무료</small></a>
+    <a href="cad.html"><b>2</b>바꿀 곳 찍고 물량 보기<small>집지니 CAD · 무료</small></a>
+    <a href="request.html" target="_blank" rel="noopener" data-ev="home_request"><b>3</b>견적서 받기<small>24시간 · 무료</small></a>
   </div>
+  <a class="kk" href="https://pf.kakao.com/_NjpxhC/chat" target="_blank" rel="noopener" data-ev="home_kakao">카톡으로 먼저 물어보기 →</a>
 </section>
 
 <footer class="foot">
@@ -158,7 +179,7 @@
 </footer>
 
 <script src="assets/site_config.js"></script>
-<script src="assets/home/home.js?v=20261112e"></script>
+<script src="assets/home/home.js?v=20261112f"></script>
 <script src="assets/chatbot.js" defer></script>
 </body>
 </html>
