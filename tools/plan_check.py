@@ -164,6 +164,10 @@ def rules(img, p):
         rm = np.zeros((H, W), np.uint8); cv2.fillPoly(rm, [poly(r)], 1); ring = cv2.dilate(rm, np.ones((int(500/mm) | 1,)*2, np.uint8)) > 0
         has = any(ring[min(H-1, max(0, int((q['y1']+q['y2'])/2))), min(W-1, max(0, int((q['x1']+q['x2'])/2)))] for q in G['문'])
         P = np.array(r['pts']); cx_, cy_ = P.mean(0)
+        # 2026-11-12 규칙 바로잡음(130·178 눈으로 확인): 방 다각형이 벽 안쪽 면보다 안으로 들어가 제자리 현관문이 250mm 밖으로 밀린다
+        #   → 현관 다각형에서 24화소 안이고 문짝 끝이 현관 밖으로 더 멀리 나가는(바깥여닫이) 문도 현관문이다 — 옆방 문(안으로 여는)은 안 셈
+        Pf = P.reshape(-1, 1, 2).astype(np.float32); dist = lambda x, y: cv2.pointPolygonTest(Pf, (float(x), float(y)), True)
+        has = has or any(-24 <= dist((q['x1']+q['x2'])/2, (q['y1']+q['y2'])/2) and dist(q.get('cx', 0), q.get('cy', 0)) < dist((q['x1']+q['x2'])/2, (q['y1']+q['y2'])/2) - 8 and dist((q['x1']+q['x2'])/2, (q['y1']+q['y2'])/2) <= 4 for q in G['문'])
         if not has: out.append(['R10', r.get('name'), int(cx_), int(cy_)])
         for ax, x0, y0, x1, y1 in G['샷시']:
             mx, my = int((x0+x1)/2), int((y0+y1)/2)

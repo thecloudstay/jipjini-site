@@ -410,7 +410,7 @@ def front_doors(img, rooms, doors, sash, wall, mm, H, W):
         #   ② 찾는 띠가 현관 다각형 밖 40화소뿐이라 벽 두께·문틀 띠 너머 바깥으로 열린 호 끝이 잘려 원 맞추기에서 떨어졌다 → 벽·문틀 몫 25화소를 더 본다
         has=any(near[min(H-1,max(0,int((d['y1']+d['y2'])/2))),min(W-1,max(0,int((d['x1']+d['x2'])/2)))] for d in doors)   # 둘레에 문이 있으면 새로 찾지는 않되, 아래 창 정리는 한다(205TEA)
         zone=(cv2.dilate(rm,np.ones(((2*NV_DOOR_R+70)|1,)*2,np.uint8))>0)&~(cv2.erode(rm,np.ones((5,5),np.uint8))>0)
-        if has: zone=np.zeros_like(zone)
+        if has: zone=np.zeros_like(zone)   # 둘레 문을 없애고 찾으면 108A·100A 에 엉뚱한 현관문이 들어가 외벽이 샜다(2026-11-12 시도 버림) — 156B 는 다음에
         n,lab,st,_=cv2.connectedComponentsWithStats((arc&zone).astype(np.uint8),connectivity=8); cands=[]
         for j in range(1,n):
             x,y,w_,h_,a_=st[j]
