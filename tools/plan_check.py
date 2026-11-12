@@ -61,6 +61,8 @@ def _struct(G, mm, H, W, door_w=5):
         else: cv2.rectangle(m, (int(c-h), int(a)-1), (int(c+h), int(b)+1), 1, -1)
     for ax, x0, y0, x1, y1 in G['샷시']: cv2.rectangle(m, (x0, y0), (x1, y1), 1, -1)
     for q in G['문']: cv2.line(m, (int(q['x1']), int(q['y1'])), (int(q['x2']), int(q['y2'])), 1, door_w)
+    for x1, y1, x2, y2, t in G.get('사선벽') or []: cv2.line(m, (int(x1), int(y1)), (int(x2), int(y2)), 1, max(3, int(round(t / mm))))   # 2026-11-12 비스듬한 벽도 구조(빠뜨려 외벽 터짐으로 셌다)
+    for x1, y1, x2, y2, t in G.get('사선창') or []: cv2.line(m, (int(x1), int(y1)), (int(x2), int(y2)), 1, max(3, int(round(t / mm))))
     return m
 def rules(img, p):
     """img: BGR 그림(없으면 R6·R7 생략). 돌려줌: [[규칙, 이름, x, y], ...]"""

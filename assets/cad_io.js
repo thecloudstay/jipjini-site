@@ -55,6 +55,9 @@
         var q = pts.map(function (p) { return P(p[0], p[1]); }), lay = WALL_LAYER[t] || 'A-WALL-PRTN';
         poly(lay, q, true); solid('A-WALL-PATT', q);
         cnt.벽++; });
+      (G.사선벽 || []).forEach(function (d) { var dx = d[2] - d[0], dy = d[3] - d[1], L = Math.hypot(dx, dy) || 1, hT = d[4] / bm / 2, nx = -dy / L * hT, ny = dx / L * hT;   // 2026-11-12 비스듬한 벽
+        var q = [[d[0] + nx, d[1] + ny], [d[2] + nx, d[3] + ny], [d[2] - nx, d[3] - ny], [d[0] - nx, d[1] - ny]].map(function (p) { return P(p[0], p[1]); });
+        poly(WALL_LAYER[d[4]] || 'A-WALL-PRTN', q, true); solid('A-WALL-PATT', q); cnt.벽++; });
     }
     var rooms = shapes.filter(function (q) { return q.t === 'room' && q.pts && q.pts.length >= 3; });
     // 문: 경첩 자리에 기호, 방 종류별 표준 폭(네이버 문은 화소 고정이라 그림 폭을 쓰지 않는다 — naver_rules.md)
