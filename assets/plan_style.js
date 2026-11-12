@@ -130,7 +130,8 @@
     if (G) { var tr0 = ' transform="translate(' + ox.toFixed(1) + ' ' + oy.toFixed(1) + ')"';
       // 2026-11-12 대표 지적 「외곽 밖으로 튀어나간 선을 정리」: 따라 그린 벽·선은 외곽선(+벽 두께 절반) 안쪽만 보이게 자른다
       var mk = '';
-      if (hull && !G.공용 && !G.먹) { h.push('<mask id="' + id + 'k" maskUnits="userSpaceOnUse"><polygon points="' + pts(hull) + '" fill="#fff" stroke="#fff" stroke-width="' + (T * 1.1).toFixed(1) + '" stroke-linejoin="miter"/></mask>'); mk = ' mask="url(#' + id + 'k)"'; }
+      if (false) {   // 2026-11-12 공용부 외곽까지 원본 벽 그대로 — 자르지 않는다
+        h.push('<mask id="' + id + 'k" maskUnits="userSpaceOnUse"><polygon points="' + pts(hull) + '" fill="#fff" stroke="#fff" stroke-width="' + (T * 1.1).toFixed(1) + '" stroke-linejoin="miter"/></mask>'); mk = ' mask="url(#' + id + 'k)"'; }
       h.push('<g' + mk + '>');
       if (G.선) h.push('<path d="' + G.선 + '" fill="#5a5a55" stroke="#5a5a55" stroke-width="0.9" stroke-linejoin="round" fill-rule="evenodd"' + tr0 + '/>');
       if (!G.샷시 && !G.먹) (G.창선 || []).forEach(function (q) { var x1 = q[0] === 'h' ? q[2] : q[1], y1 = q[0] === 'h' ? q[1] : q[2], x2 = q[0] === 'h' ? q[3] : q[1], y2 = q[0] === 'h' ? q[1] : q[3]; h.push('<line x1="' + (x1 + ox).toFixed(1) + '" y1="' + (y1 + oy).toFixed(1) + '" x2="' + (x2 + ox).toFixed(1) + '" y2="' + (y2 + oy).toFixed(1) + '" stroke="' + INK + '" stroke-width="' + (TW * 0.16).toFixed(2) + '"/>'); });   // 샷시·창: 원본에서 읽은 직선 그대로

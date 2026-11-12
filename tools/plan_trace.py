@@ -151,6 +151,34 @@ def trace(path, plan):
         else: pts=band[int(a):int(b)+1,int(c)]
         if bathmask[int((c if t=='h' else (a+b)/2)), int(((a+b)/2) if t=='h' else c)]: continue
         if pts.mean()>0.9: win.append([t,float(c),int(a),int(b)])
+    # 문 더 찾기(2026-11-12 「도어 위치·방향은 원본 그대로」): 흰 4분의 1 원으로 못 찾은 문을 가는 선(호 + 문짝 선)에서 찾는다
+    raw=(((v<135)&((s<70)|(v<75)))|((v<205)&(s<30)))&bld
+    tl=raw&~(cv2.dilate(wall.astype(np.uint8),np.ones((5,5),np.uint8))>0)
+    tl=cv2.morphologyEx(tl.astype(np.uint8),cv2.MORPH_CLOSE,np.ones((3,3),np.uint8))
+    na,la,sa,_=cv2.connectedComponentsWithStats(tl,connectivity=8)
+    def near_door(x0,y0,x1,y1):
+        for dd in doors:
+            ax0,ax1=sorted([dd['x1'],dd['x2'],dd['cx']])[0::2]; ay0,ay1=sorted([dd['y1'],dd['y2'],dd['cy']])[0::2]
+            if x0<ax1+4 and x1>ax0-4 and y0<ay1+4 and y1>ay0-4: return True
+        return False
+    for j in range(1,na):
+        x,y,w_,h_,a_=sa[j]
+        if not(520<=w_*mm<=1300 and 520<=h_*mm<=1300 and 0.75<=w_/h_<=1.33): continue
+        if a_>w_*h_*0.35: continue
+        if near_door(x,y,x+w_,y+h_): continue
+        ys,xs=np.where(la[y:y+h_,x:x+w_]==j); xs=xs+x; ys=ys+y; R=(w_+h_)/2.0
+        C=[(x,y),(x+w_-1,y),(x+w_-1,y+h_-1),(x,y+h_-1)]; best=None
+        for k,(cx0,cy0) in enumerate(C):
+            dist=np.hypot(xs-cx0,ys-cy0); arc=np.mean(np.abs(dist-R)<=max(2.5,R*0.08))
+            if best is None or arc>best[0]: best=(arc,k)
+        if best[0]<0.35: continue
+        hc=best[1]; a1,a2=(hc+1)%4,(hc+3)%4
+        def edge_cnt(k):
+            (px,py),(qx,qy)=C[hc],C[k]
+            if py==qy: return np.sum((np.abs(ys-py)<=2))
+            return np.sum((np.abs(xs-px)<=2))
+        leaf,op=(a1,a2) if edge_cnt(a1)>=edge_cnt(a2) else (a2,a1)
+        doors.append({'x1':int(C[hc][0]),'y1':int(C[hc][1]),'x2':int(C[op][0]),'y2':int(C[op][1]),'cx':int(C[leaf][0]),'cy':int(C[leaf][1]),'호':1})
     # 샷시·창(대표 지적 2026-11-12 「샷시가 빠졌다」): 벽 줄 안의 끊긴 틈 = 창. 벽을 가로·세로로 이어 붙여 메운 뒤 원래 벽을 빼면 틈만 남는다
     K=max(9,int(2600/mm)); sash=[]
     dz=np.zeros((H,W),bool)
@@ -164,4 +192,4 @@ def trace(path, plan):
             x,y,w_,h_,a_=sg[j]; Lp,Sp=(w_,h_) if ax=='h' else (h_,w_)
             if Lp*mm<400 or Sp<3 or Sp*mm>400 or a_<w_*h_*0.7: continue
             sash.append([ax,int(x),int(y),int(x+w_),int(y+h_)])
-    return {'먹':meok,'샷시':sash,'문':doors,'공용칸':publab,'틀':[int(bx),int(by),int(bx+bw0),int(by+bh0)],'공용':pubd,'벽':rect_path(wall,1.0),'칸':cells,'창선':win,'기구':objs}
+    return {'샷시':sash,'문':doors,'공용칸':publab,'틀':[int(bx),int(by),int(bx+bw0),int(by+bh0)],'공용':pubd,'벽':rect_path(wall,1.0),'칸':cells,'창선':win,'기구':objs}
