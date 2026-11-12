@@ -24,9 +24,9 @@
       d -= Math.abs(y - (y0 + y1) / 2) * 0.05 + Math.abs(x - (x0 + x1) / 2) * 0.05; if (d > bd) { bd = d; best = [x, y]; } }
     return { x: best[0], y: best[1], room: Math.max(0, bd), w: x1 - x0, h: y1 - y0 }; }
   // 방 다각형들 → 반듯한 외곽선(가로·세로 변만). 칸 단위로 칠해 키우고(벽 두께 절반) 메우고(벽 두께 1.5배까지의 틈) 바깥 테두리를 따라간다.
-  function rectHull(rooms, T, D) {
+  function rectHull(rooms, T, D, mm) {
     var st = Math.max(1, D / 500), xs = [], ys = []; rooms.forEach(function (o) { o.p.forEach(function (q) { xs.push(q[0]); ys.push(q[1]); }); });
-    var g = Math.ceil(T * 3 / st) + 2, x0 = Math.min.apply(null, xs) - g * st, y0 = Math.min.apply(null, ys) - g * st, nx = Math.ceil((Math.max.apply(null, xs) - x0) / st) + g + 1, ny = Math.ceil((Math.max.apply(null, ys) - y0) / st) + g + 1, N = nx * ny, a = new Uint8Array(N), i, j, k;
+    var CL = Math.max(T * 1.5, mm ? 1500 / mm : D * 0.12), g = Math.ceil(T * 3 / st) + 2, x0 = Math.min.apply(null, xs) - g * st, y0 = Math.min.apply(null, ys) - g * st, nx = Math.ceil((Math.max.apply(null, xs) - x0) / st) + g + 1, ny = Math.ceil((Math.max.apply(null, ys) - y0) / st) + g + 1, N = nx * ny, a = new Uint8Array(N), i, j, k;
     var inP = function (x, y, P) { var c = false; for (var m = 0, n = P.length - 1; m < P.length; n = m++) { if (((P[m][1] > y) !== (P[n][1] > y)) && (x < (P[n][0] - P[m][0]) * (y - P[m][1]) / (P[n][1] - P[m][1]) + P[m][0])) c = !c; } return c; };
     rooms.forEach(function (o) { var px = o.p.map(function (q) { return q[0]; }), py = o.p.map(function (q) { return q[1]; }), i0 = Math.max(0, Math.floor((Math.min.apply(null, px) - x0) / st)), i1 = Math.min(nx - 1, Math.ceil((Math.max.apply(null, px) - x0) / st)), j0 = Math.max(0, Math.floor((Math.min.apply(null, py) - y0) / st)), j1 = Math.min(ny - 1, Math.ceil((Math.max.apply(null, py) - y0) / st));
       for (j = j0; j <= j1; j++) for (i = i0; i <= i1; i++) if (inP(x0 + (i + 0.5) * st, y0 + (j + 0.5) * st, o.p)) a[j * nx + i] = 1; });
@@ -35,6 +35,13 @@
     var rC = Math.max(1, Math.round(T * 1.5 / st)), rH = Math.max(1, Math.round(T * 0.3 / st));
     var c1 = grow(a, rC, 1), inv = new Uint8Array(N); for (k = 0; k < N; k++) inv[k] = c1[k] ? 0 : 1; var e1 = grow(inv, rC, 1); for (k = 0; k < N; k++) a[k] = e1[k] ? 0 : 1;   // 닫기: 좁은 틈 메우기
     a = grow(a, rH, 1);                                                                                                  // 벽 바깥면까지
+    // 2026-11-12 대표 원칙 「평면도는 기본이 직사각 외곽, 일부러 움푹 판 아파트는 없다 — 파여 보이는 곳은 피트·PD 같은 설비 공간을 잘못 잡은 것」:
+    //   집이 차지한 네모 안의 빈 곳을 덩어리별로 보고, 좁은 쪽 폭이 3m 미만이면 메운다(설비 공간). 3m 넘게 꺾인 집(탑상형 ㄱ자)만 꺾인 대로 둔다.
+    (function () { var bi0 = nx, bi1 = -1, bj0 = ny, bj1 = -1; for (j = 0; j < ny; j++) for (i = 0; i < nx; i++) if (a[j * nx + i]) { if (i < bi0) bi0 = i; if (i > bi1) bi1 = i; if (j < bj0) bj0 = j; if (j > bj1) bj1 = j; } if (bi1 < 0) return;
+      var seen = new Uint8Array(N), lim = CL * 2 / st; for (j = bj0; j <= bj1; j++) for (i = bi0; i <= bi1; i++) { var s0 = j * nx + i; if (a[s0] || seen[s0]) continue; var comp = [], st2 = [s0], ci0 = i, ci1 = i, cj0 = j, cj1 = j; seen[s0] = 1;
+        while (st2.length) { var kk = st2.pop(), ki = kk % nx, kj = (kk / nx) | 0; comp.push(kk); if (ki < ci0) ci0 = ki; if (ki > ci1) ci1 = ki; if (kj < cj0) cj0 = kj; if (kj > cj1) cj1 = kj;
+          [[ki - 1, kj], [ki + 1, kj], [ki, kj - 1], [ki, kj + 1]].forEach(function (v) { if (v[0] < bi0 || v[0] > bi1 || v[1] < bj0 || v[1] > bj1) return; var n2 = v[1] * nx + v[0]; if (!a[n2] && !seen[n2]) { seen[n2] = 1; st2.push(n2); } }); }
+        if (Math.min(ci1 - ci0 + 1, cj1 - cj0 + 1) < lim) comp.forEach(function (kk) { a[kk] = 1; }); } })();
     var out = new Uint8Array(N), q = []; for (i = 0; i < nx; i++) { q.push(i, (ny - 1) * nx + i); } for (j = 0; j < ny; j++) { q.push(j * nx, j * nx + nx - 1); }   // 안쪽 구멍 메우기: 바깥에서 닿는 빈칸만 바깥
     while (q.length) { k = q.pop(); if (out[k] || a[k]) continue; out[k] = 1; var ci = k % nx, cj = (k / nx) | 0; if (ci > 0) q.push(k - 1); if (ci < nx - 1) q.push(k + 1); if (cj > 0) q.push(k - nx); if (cj < ny - 1) q.push(k + nx); }
     var on = function (ii, jj) { return ii >= 0 && jj >= 0 && ii < nx && jj < ny && !out[jj * nx + ii]; };
@@ -58,7 +65,7 @@
     var mm = Number(r.mmpp) || 0, T = mm ? Math.max(D * 0.006, 190 / mm) : D * 0.014, Tb = T * 0.45;   // 벽 굵기: 척도를 알면 약 190mm
     // 2026-11-12 대표 지적 「외곽이 구멍 나고 찌그러진다」: 원본 그림을 따라 딴 외곽선은 창·문 자리에서 끊기고 비스듬히 꺾여 들어왔다(원인).
     //   외곽선은 그림에서 따지 않고, 반듯하게 고친 방들을 합친 모양에서 다시 만든다 — 방을 벽 두께 절반만큼 키워 합치고, 벽 두께보다 좁은 틈·구멍은 메우고, 가로·세로 변만 남긴다.
-    if (rooms.length >= 2) { try { var rh = rectHull(rooms, T, D); if (rh && rh.length >= 4) hull = rh; } catch (_h) {} }
+    if (rooms.length >= 2) { try { var rh = rectHull(rooms, T, D, mm); if (rh && rh.length >= 4) hull = rh; } catch (_h) {} }
     var pad = D * 0.11, head = D * 0.15, foot = D * 0.2, VW = bw + pad * 2, VH = bh + pad * 2 + head + foot, ox = pad - bx0, oy = pad + head - by0, fs = D / 38, id = 'jj' + Math.round(bx0 + by1 + rooms.length * 7);
     var bare = opt.bare && opt.bare.W ? opt.bare : null; if (bare) { VW = bare.W; VH = bare.H; ox = 0; oy = 0; }   // 편집 바탕용: 머리·발 없이 원본 그림과 같은 자리·크기로 그린다(표시가 그대로 겹친다)
     var pts = function (p) { return p.map(function (q) { return (q[0] + ox).toFixed(1) + ',' + (q[1] + oy).toFixed(1); }).join(' '); };
