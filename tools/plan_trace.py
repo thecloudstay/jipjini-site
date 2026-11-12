@@ -665,6 +665,33 @@ def trace_rest(wall, wseg, diag, sash, mm, bld, H, W):
             c=cv2.approxPolyDP(c,1.0,True).reshape(-1,2)
             if len(c)>=3: out.append([[int(px),int(py)] for px,py in c])
     return out
+# ── 이음점 닫기(2026-11-12 기술조사: 리우 외 「래스터→벡터 평면도」의 이음점 완결 — 모든 벽 끝은 다른 벽·창·문에 닿아야 한다)
+#   우리 도면의 벽·창·문 덩어리 사이에 가로·세로 13화소 안의 틈이 남아 외벽이 샌다(남은 R1) → 서로 다른 두 덩어리를 잇는 틈이고
+#   그 틈 자리에 원본 선(검정·회색 선)이 6할 넘게 있으면 벽으로 채운다(다각형). 원본에 선이 없는 틈(문 자리 등)은 두지 않는다
+def close_junctions(G, bgr, mm, H, W):
+    import plan_check
+    S=plan_check._struct(G,mm,H,W).astype(np.uint8)
+    for P_ in G.get('벽윤곽') or []: cv2.fillPoly(S,[np.array(P_,np.int32)],1)
+    n,lab=cv2.connectedComponents(S,connectivity=8)
+    hsv=cv2.cvtColor(bgr,cv2.COLOR_BGR2HSV); v=hsv[...,2].astype(int); s=hsv[...,1].astype(int)
+    ink=cv2.dilate((v<110).astype(np.uint8),np.ones((3,3),np.uint8))>0
+    add=[]
+    for k_ in ((1,13),(13,1)):
+        N=(cv2.morphologyEx(S,cv2.MORPH_CLOSE,np.ones(k_,np.uint8))>0)&(S==0)
+        m,ln,st,_=cv2.connectedComponentsWithStats(N.astype(np.uint8),connectivity=4)
+        for j in range(1,m):
+            x,y,w_,h_,a_=st[j]
+            if a_<3: continue
+            sub=(ln[y:y+h_,x:x+w_]==j)
+            if ink[y:y+h_,x:x+w_][sub].mean()<0.6: continue
+            # 틈 가운데 줄이 반 넘게 흰색이면 창·문틀 띠 속이다 — 벽으로 채우지 않는다(첫 시도: 놓친 세로 창 띠를 벽으로 채움)
+            cl=v[y:y+h_,x+w_//2] if h_>=w_ else v[y+h_//2,x:x+w_]
+            if (cl>225).mean()>0.5: continue
+            ring=cv2.dilate(sub.astype(np.uint8),np.ones((3,3),np.uint8))>0
+            y0,x0=max(0,y-1),max(0,x-1); L_=lab[y0:y+h_+1,x0:x+w_+1]; R_=np.zeros_like(L_,bool); R_[y-y0:y-y0+h_,x-x0:x-x0+w_]=ring[:L_.shape[0]-(y-y0),:L_.shape[1]-(x-x0)]
+            # (「서로 다른 두 덩어리」 조건은 뺌 — 외곽은 한 덩어리라 새는 틈도 같은 덩어리 두 끝 사이에 있다)
+            add.append([[int(x),int(y)],[int(x+w_),int(y)],[int(x+w_),int(y+h_)],[int(x),int(y+h_)]])
+    return add
 def trace(path, plan):
     bgr=cv2.imread(path); H,W=bgr.shape[:2]; mm=plan.get('mmpp') or 23.0
     hsv=cv2.cvtColor(bgr,cv2.COLOR_BGR2HSV); v=hsv[...,2].astype(int); s=hsv[...,1].astype(int)
@@ -969,6 +996,8 @@ def trace(path, plan):
     try: _rest=trace_rest(wall,wseg,_diag,sash_out,mm,bld,H,W)
     except Exception: _rest=[]
     G_={'벽선':wseg,'샷시':sash_out,'문':doors,'틀':[int(bx),int(by),int(bx+bw0),int(by+bh0)],'사선벽':_diag,'사선창':_dwin,'벽윤곽':_rest}
+    try: _rest=_rest+close_junctions(G_,bgr,mm,H,W); G_['벽윤곽']=_rest
+    except Exception: pass
     try: fit_rooms(plan['rooms'],G_,mm,H,W)
     except Exception: pass
     try:   # 변환할 때마다 규칙 점검(tools/plan_check.py RULES) — 어긴 곳을 자료에 남긴다
