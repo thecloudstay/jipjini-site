@@ -936,7 +936,7 @@
     if (pane === 'meas') { $('jjePaneMeas').innerHTML = '<div class="jje-h">척도</div><div class="jje-chips"><button type="button" class="jje-chip" data-a="scaleArea">전용면적으로 척도 맞추기</button><button type="button" class="jje-chip" data-a="tool" data-v="scale">두 점으로 척도 잡기</button></div><div class="jje-h">재기</div><div class="jje-chips"><button type="button" class="jje-chip" data-a="tool" data-v="dim">길이 재기</button><button type="button" class="jje-chip" data-a="tool" data-v="wall">벽 사이 재기</button><button type="button" class="jje-chip" data-a="measShow">공간별 넓이·수량 보기</button><button type="button" class="jje-chip ' + (allLen ? 'on' : '') + '" data-a="allLen">모든 방 벽 길이 보기</button></div><div id="jjeMeas" style="margin-top:12px;font-size:15px;line-height:1.7"></div>' +
       '<p class="jje-p">길이 재기는 두 점을 끌면 길이(mm)가 적힙니다. 벽 모서리 가까이에서는 모서리에 붙습니다. 벽 사이 재기는 방 안쪽을 누르면 좌우·위아래 벽 사이를 한 번에 잽니다. 도면의 치수는 어림값이며 현장 실측으로 확정합니다.</p>'; return; }
     if (pane === 'info') { $('jjePaneInfo').innerHTML = '<div class="jje-h">도면 이름</div><input type="text" id="jjeName" maxlength="30" value="' + esc(planName) + '" placeholder="예: 우리 집 84㎡">' +
-      '<div class="jje-h">내보내기</div><div class="jje-chips"><button type="button" class="jje-chip" data-a="sheet">작업지시서</button><button type="button" class="jje-chip" data-a="styled">집지니 도면 그림 저장</button><button type="button" class="jje-chip" data-a="png">지금 화면 그대로 그림 저장</button><button type="button" class="jje-chip" data-a="v3d">입체로 보기</button></div>' +
+      '<div class="jje-h">내보내기</div><div class="jje-chips"><button type="button" class="jje-chip" data-a="sheet">작업지시서</button><button type="button" class="jje-chip" data-a="styled">집지니 도면 그림 저장</button><button type="button" class="jje-chip" data-a="png">지금 화면 그대로 그림 저장</button><button type="button" class="jje-chip" data-a="v3d">입체로 보기</button><button type="button" class="jje-chip" data-a="cadfile" title="오토캐드 등 캐드 프로그램에서 바로 여는 교환용 파일(층·문·창 기호 포함)">캐드 파일로 저장</button></div>' +
       '<div class="jje-h">정리</div><div class="jje-chips"><button type="button" class="jje-chip" data-a="clear">작업 기호·표시 모두 지우기</button><button type="button" class="jje-chip" data-a="restart" style="color:#b4232a">다른 도면으로 처음부터</button></div>' +
       '<p class="jje-p">도면과 표시는 이 기기(브라우저)에만 저장됩니다. 서버로 보내지 않습니다.</p>'; return; }
     if (tool === 'guide') { $('jjePaneWork').innerHTML = '<div id="jjeProp"></div>' + guidePane(); propDraw(); return; }
@@ -1100,6 +1100,13 @@
     };
     if (S0.url) { im.onload = function () { go(im); }; im.onerror = function () { go(null); }; im.src = S0.url; } else go(null);
   }
+  // 캐드 파일로 저장(2026-11-12 대표 지시 「집지니 캐드 기능 전부 캐드와 연동」): 층·문·창 기호·방 경계·면적을 실제 mm 로 — assets/cad_io.js
+  function cadSave() { var IO = root.JJCadIO; if (!IO) { toast('캐드 저장 기능을 불러오지 못했습니다. 새로 고친 뒤 다시 눌러 주세요.'); return; }
+    var r = null; try { r = IO.dxf(getState(), { title: planName }); } catch (e) { r = null; }
+    if (!r) { toast('축척(1m 막대)이 없어 실제 크기로 저장할 수 없습니다. 축척을 먼저 맞춰 주세요.'); return; }
+    var url = URL.createObjectURL(new Blob([r.text], { type: 'application/dxf' })), a = doc.createElement('a'); a.href = url; a.download = (planName || '집지니도면').replace(/[\\/:*?"<>|]/g, '') + '.dxf'; doc.body.appendChild(a); a.click();
+    setTimeout(function () { a.remove(); URL.revokeObjectURL(url); }, 1500);
+    toast('캐드 파일로 저장했습니다(벽 ' + r.count.벽 + ' · 문 ' + r.count.문 + ' · 창 ' + r.count.창 + ' · 방 ' + r.count.방 + '). 오토캐드에서 바로 열립니다.'); }
   function download(c, name) { var done = function (url) { var a = doc.createElement('a'); a.href = url; a.download = name; doc.body.appendChild(a); a.click(); setTimeout(function () { a.remove(); if (/^blob:/.test(url)) URL.revokeObjectURL(url); }, 1500); toast('그림으로 저장했습니다. 내려받은 파일을 확인하세요.'); };
     try { if (c.toBlob) c.toBlob(function (b) { b ? done(URL.createObjectURL(b)) : done(c.toDataURL('image/png')); }, 'image/png'); else done(c.toDataURL('image/png')); } catch (e) { toast('그림으로 바꾸지 못했습니다. 「인쇄」를 써 주세요.'); } }
   function pngNow() { sheetImage(null, function (url) { if (!url) { toast('그림으로 만들지 못했습니다.'); return; } var a = doc.createElement('a'); a.href = url; a.download = '집지니CAD_도면_' + planName.replace(/[\\/:*?"<>|\s]+/g, '_') + '.png'; doc.body.appendChild(a); a.click(); a.remove(); toast('그림으로 저장했습니다.'); }); }
@@ -1180,7 +1187,7 @@
     else if (a === 'swap' && s) { snap(); var t = [s.x1, s.y1]; s.x1 = s.x2; s.y1 = s.y2; s.x2 = t[0]; s.y2 = t[1]; s.flip = !s.flip; touch(); }
     else if (a === 'dup') dup(); else if (a === 'del') delSel();
     else if (a === 'scaleArea') scaleByArea(); else if (a === 'allLen') { allLen = !allLen; sideDraw(); redraw(); } else if (a === 'measShow') measShow();
-    else if (a === 'styled') styledSave(); else if (a === 'png') pngNow(); else if (a === 'v3d') view3d();
+    else if (a === 'styled') styledSave(); else if (a === 'png') pngNow(); else if (a === 'v3d') view3d(); else if (a === 'cadfile') cadSave();
     else if (a === 'clear') { if (!shapes.some(function (q) { return !/^(room|win|door|scale)$/.test(q.t); })) return; if (!root.confirm('작업 기호와 표시를 모두 지울까요? (「되돌리기」로 되살릴 수 있습니다)')) return; snap(); shapes = shapes.filter(function (q) { return /^(room|win|door|scale)$/.test(q.t); }); sel = -1; touch(); propDraw(); }
     else if (a === 'restart') { if (OPT.onRestart) OPT.onRestart(); }
   }
