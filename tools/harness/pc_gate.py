@@ -21,15 +21,16 @@ LOG = os.path.join(CROLL, "기록", "변환_관문.txt")
 GATED = ["plan_trace.py", "plan_check.py", os.path.join("harness", "pipeline.py"), os.path.join("harness", "discover.py"),
          os.path.join("harness", "알려진모양.json")]
 RUN_PY = os.path.join("harness", "run.py")
+DRAWING = ["plan_trace.py", os.path.join("harness", "pipeline.py"), os.path.join("harness", "discover.py")]   # 그림을 바꾸는 파일(나머지는 검사 규칙)
 try:
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 except Exception:
     pass
 
 
-def fp(base):
+def fp(base, names=None):
     h = hashlib.sha1()
-    for n in GATED:
+    for n in names or GATED:
         try:
             h.update(open(os.path.join(base, n), "rb").read())
         except OSError:
@@ -88,6 +89,9 @@ def main(n=20):
         copy(TOOLS, KEEP, GATED + [RUN_PY]); note("첫 기준: 지금 판(%s)을 남긴 판으로 둡니다" % new); return 2
     if new == old:
         print("그리기 도구가 남긴 판(%s)과 같아 관문을 건너뜁니다." % new, flush=True); return 2
+    if fp(TOOLS, DRAWING) == fp(KEEP, DRAWING):
+        # 그림은 그대로이고 검사 규칙만 늘었다 — 규칙 추가는 기준을 새로 잡는 것이라 관문 대상이 아니다(같은 그림이라 「나아진 것이 없음」으로 떨어뜨리면 안 됨)
+        copy(TOOLS, KEEP, GATED + [RUN_PY]); note("검사 규칙만 바뀜 · 판 %s → %s 기준으로 올림" % (old, new)); return 0
     import csv
     files, area = {}, {}
     for r in csv.DictReader(open(LIST, encoding="utf-8-sig")):

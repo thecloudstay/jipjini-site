@@ -17,7 +17,7 @@ HERE = os.path.dirname(os.path.abspath(__file__)); ROOT = os.path.dirname(os.pat
 sys.path.insert(0, os.path.join(ROOT, 'tools')); sys.path.insert(0, HERE)
 import cv2, numpy as np
 import plan_trace, plan_check, discover
-SAFETY = ('R5', 'R10', 'R1', 'R11')      # 하나라도 남으면 고객에게 내보내지 않는다
+SAFETY = ('R5', 'R10', 'R1', 'R11', 'R16')   # R16 욕실 놓침도 고객에게 내보내지 않음(욕실 물량이 빠진 견적이 됨, 2026-11-13)      # 하나라도 남으면 고객에게 내보내지 않는다
 WARN = ('R7', 'R8')               # 경고(출고는 막지 않음)
 
 # ── 자동 고침: (규칙, 함수). 함수는 그림 자료 G 를 고쳐 돌려준다. 근거 없는 짐작은 넣지 않는다.
@@ -61,7 +61,7 @@ def fix_R4(G, mm, img):
 FIXERS = [('R9', fix_R9), ('R2', fix_R2), ('R3', fix_R3), ('R4', fix_R4)]
 
 def weight(chk):
-    W = {'R5': 10, 'R10': 10, 'R9': 5, 'R1': 5, 'R12': 2, 'R6': 3, 'R2': 2, 'R3': 2, 'R4': 2, 'R15': 2}
+    W = {'R5': 10, 'R10': 10, 'R9': 5, 'R1': 5, 'R12': 2, 'R6': 3, 'R2': 2, 'R3': 2, 'R4': 2, 'R15': 2, 'R16': 5, 'R17': 3}
     return sum(W.get(x[0], 1) for x in chk)
 
 def score(img_path, p):
@@ -85,6 +85,10 @@ def score(img_path, p):
         return max(0, round(100 - miss - extra, 1)), round(miss, 1), round(extra, 1)
     except Exception as e:
         return None, None, None
+
+def penalty(chk):
+    """점수에서 빼는 방 구성 오류(2026-11-13 대표 지적 「점수가 높아도 오류가 있네」): 벽만 보는 원본 대조 점수는 욕실을 놓치거나 주방이 복도와 합쳐져도 그대로였다"""
+    return 10 * sum(1 for x in chk if x[0] == 'R16') + 5 * sum(1 for x in chk if x[0] == 'R17')
 
 AREA_K = 0.974   # 방(발코니·공용·피트 빼고) 넓이 합 ÷ 전용면적 — 축척을 아는 43장의 중간값(2026-11-12)
 def area_table(csvf):
@@ -132,7 +136,7 @@ def run(imgdir, roomsf, outdir, csvf=None):
             elif any(v for r, v in left.items() if r not in WARN) or len(new) >= 3: state = '예외'
             else: state = '통과'
             sc, miss, extra = score(f, q)
-            if sc is not None: sc = max(0, round(sc - 2*len(diffs), 1))   # 원본과 다른 곳(창·문틀·가는 선 놓침 등, 무시로 정한 모양 뺌) 한 곳마다 2점
+            if sc is not None: sc = max(0, round(sc - 2*len(diffs) - penalty(chk0), 1))   # 원본과 다른 곳(창·문틀·가는 선 놓침 등, 무시로 정한 모양 뺌) 한 곳마다 2점
             for x in chk0:
                 if x[0] not in WARN: box[x[0]].append([k, x[1], x[2], x[3]])
             for d in new: box['모양:' + d['표식']].append([k, d['표식'].split('|')[0], d['x'], d['y']])
