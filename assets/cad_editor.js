@@ -1104,9 +1104,9 @@
   function fileName(ext) { return '집지니_도면_' + (planName || '우리집').replace(/[\\/:*?"<>|\s]+/g, '_') + '.' + ext; }
   function saveBlob(blob, name, msg) { var url = URL.createObjectURL(blob), a = doc.createElement('a'); a.href = url; a.download = name; doc.body.appendChild(a); a.click(); setTimeout(function () { a.remove(); URL.revokeObjectURL(url); }, 2000); toast(msg); }
   function cadSave(kind) { var IO = root.JJCadIO; if (!IO) { toast('캐드 저장 기능을 불러오지 못했습니다. 새로 고친 뒤 다시 눌러 주세요.'); return; }
-    var st = getState(), say2 = function (c) { return '(벽 ' + c.벽 + ' · 문 ' + c.문 + ' · 창 ' + c.창 + ' · 방 ' + c.방 + ')'; };
-    if (kind === 'dwg') { toast('오토캐드 파일을 만들고 있습니다…'); IO.dwg(st, { title: planName }, function (r, why) { if (!r) { toast(why === '척도' ? '축척(1m 막대)이 없어 실제 크기로 저장할 수 없습니다. 축척을 먼저 맞춰 주세요.' : '오토캐드 파일을 만들지 못했습니다. 캐드 교환 파일(.dxf)로 저장해 보세요.'); return; } saveBlob(new Blob([r.bytes], { type: 'application/acad' }), fileName('dwg'), '오토캐드 파일로 저장했습니다' + say2(r.count) + '.'); }); return; }
-    var r = null; try { r = IO.dxf(st, { title: planName }); } catch (e) { r = null; }
+    var st = getState(), say2 = function (c) { return '(벽 ' + c.벽 + ' · 문 ' + c.문 + ' · 창 ' + c.창 + ' · 방 ' + c.방 + (c.공사 ? ' · 공사 표시 ' + c.공사 : '') + ')'; };
+    if (kind === 'dwg') { toast('오토캐드 파일을 만들고 있습니다…'); IO.dwg(st, { title: planName, syms: SYMS }, function (r, why) { if (!r) { toast(why === '척도' ? '축척(1m 막대)이 없어 실제 크기로 저장할 수 없습니다. 축척을 먼저 맞춰 주세요.' : '오토캐드 파일을 만들지 못했습니다. 캐드 교환 파일(.dxf)로 저장해 보세요.'); return; } saveBlob(new Blob([r.bytes], { type: 'application/acad' }), fileName('dwg'), '오토캐드 파일로 저장했습니다' + say2(r.count) + '.'); }); return; }
+    var r = null; try { r = IO.dxf(st, { title: planName, syms: SYMS }); } catch (e) { r = null; }
     if (!r) { toast('축척(1m 막대)이 없어 실제 크기로 저장할 수 없습니다. 축척을 먼저 맞춰 주세요.'); return; }
     saveBlob(new Blob([r.text], { type: 'application/dxf' }), fileName('dxf'), '캐드 교환 파일로 저장했습니다' + say2(r.count) + '. 어느 캐드에서나 열립니다.'); }
   // 사진(jpg)·피디에프: 집지니 도면 그림(바탕 평면 + 이름·치수)을 흰 바탕 사진으로 — 피디에프는 그 사진을 A3 가로 한 장에
