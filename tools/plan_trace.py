@@ -173,7 +173,11 @@ def window_strips(img, mm, doors=None, rooms=None):
         A,B=(side(m,c0-off),side(m,c1+off)) if t=='h' else (side(c0-off,m),side(c1+off,m))
         # 한쪽은 집 안 공간, 다른 쪽은 바깥이나 발코니(발코니끼리·방끼리·둘 다 바깥은 창이 아니다)
         inside=lambda k: k is not None and k!='발코니'
-        if (inside(A) and (B is None or B=='발코니')) or (inside(B) and (A is None or A=='발코니')) or (A=='발코니' and B is None) or (B=='발코니' and A is None): keep.append(q)
+        # 2026-11-12 고침(88 방2 창 빠짐 R8): 방 읽기가 타일 바닥 발코니를 「기타」로 이름 붙여 방-기타 사이 창을 버렸다
+        #   → 창 띠 모양(가는 선 두 줄·사이 흼·양 끝 벽)이 이미 확인된 것이므로 방·거실·주방과 「기타」 사이도 창으로 본다
+        live=lambda k: k in ('방','거실','주방')
+        if (inside(A) and (B is None or B=='발코니')) or (inside(B) and (A is None or A=='발코니')) or (A=='발코니' and B is None) or (B=='발코니' and A is None) \
+           or (live(A) and B=='기타') or (live(B) and A=='기타'): keep.append(q)
     return keep
 
 # ── 문 안전 거르기(2026-11-12 대표 지시 「외벽에 창호를 문으로 그려 창문에 떨어지는 현상 — 사람이 떨어져 죽을 수도 있으니 잘못 그리면 안 된다」)
