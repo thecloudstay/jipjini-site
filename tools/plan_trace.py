@@ -190,6 +190,36 @@ def safe_doors(doors, rooms, wseg, sash, mm, H, W):
         if not(o[0] and o[1]) and kind(*inner)=='현관': keep.append(d)   # 현관문만 예외
     return keep
 
+# ── 벽 그림 = 벽선 그대로(2026-11-12 대표 지적 「이상한데」 157 평형 발코니 윗벽 빠짐·없는 벽 생김)
+#   원인: 그림용 벽을 문·창을 메운 벽(w2)으로 한 번 더 다듬으며(clean_walls) 벽이 옮겨지거나 사라졌다(24평형 중 21곳, 빠진 벽 최대 11%).
+#   → 캐드 파일이 쓰는 벽선을 그대로 그리고, 창 띠·문 자리만 옆 벽 두께로 메워 외곽선을 잇는다. 화면과 캐드가 같은 자료 한 벌에서 나온다.
+def wall_path_from_segs(wseg, sash, doors, mm):
+    R=[]
+    def near(ax, c, a, b):   # 같은 방향 벽선 중 가까운 것(중심선·두께)
+        best=None
+        for s in wseg:
+            if s[0]!=ax: continue
+            d=abs(s[3]-c)
+            if d<=14 and min(b,s[2])-max(a,s[1])>-12 and (best is None or d<best[0]): best=(d,s[3],s[4])
+        return best
+    for ax,a,b,c,t in wseg:
+        h=t/mm/2.0; R.append((ax,a,b,c,h))
+    for ax,x0,y0,x1,y1 in sash:
+        if ax=='h': c=(y0+y1)/2.0; n=near('h',c,x0,x1); R.append(('h',x0,x1,n[1] if n else c,(n[2] if n else 200)/mm/2.0))
+        else: c=(x0+x1)/2.0; n=near('v',c,y0,y1); R.append(('v',y0,y1,n[1] if n else c,(n[2] if n else 200)/mm/2.0))
+    for d in doors:
+        if abs(d['y1']-d['y2'])<=2:   # 가로 문 자리
+            a,b=sorted([d['x1'],d['x2']]); n=near('h',d['y1'],a,b)
+            if n: R.append(('h',a,b,n[1],n[2]/mm/2.0))
+        elif abs(d['x1']-d['x2'])<=2:
+            a,b=sorted([d['y1'],d['y2']]); n=near('v',d['x1'],a,b)
+            if n: R.append(('v',a,b,n[1],n[2]/mm/2.0))
+    out=[]
+    for ax,a,b,c,h in R:
+        if ax=='h': out.append('M%.1f %.1fH%.1fV%.1fH%.1fZ'%(a-0.6,c-h,b+0.6,c+h,a-0.6))   # 끝은 늘리지 않는다 — 벽선 끝이 이미 맞닿는 벽 바깥면까지 와 있다(늘리면 모서리에 혹이 생김)
+        else: out.append('M%.1f %.1fH%.1fV%.1fH%.1fZ'%(c-h,a-0.6,c+h,b+0.6,c-h))   # 이음매 실선이 안 보이게 0.6화소만 겹침
+    return ''.join(out)
+
 def trace(path, plan):
     bgr=cv2.imread(path); H,W=bgr.shape[:2]; mm=plan.get('mmpp') or 23.0
     hsv=cv2.cvtColor(bgr,cv2.COLOR_BGR2HSV); v=hsv[...,2].astype(int); s=hsv[...,1].astype(int)
@@ -460,4 +490,5 @@ def trace(path, plan):
     sash_out=[[t,int(a_),int(round(c0)),int(b_),int(round(c1))] if t=='h' else [t,int(round(c0)),int(a_),int(round(c1)),int(b_)] for t,a_,b_,c0,c1 in wins]
     sash_out=[q for q in sash_out if not inK(q[1],q[2],q[3],q[4])]
     doors=safe_doors(doors,rooms,wseg,sash_out,mm,H,W)   # 건물 밖으로 난 문(창을 문으로 잘못 읽은 것 포함)은 그리지 않는다 — 안전   # 주방 샷시는 그리지 않는다(대표 지시 2026-11-12 「주방 … 샷시 모두 삭제」)
-    return {'벽선':wseg,'샷시':sash_out,'문':doors,'공용칸':publab,'EV':ev,'틀':[int(bx),int(by),int(bx+bw0),int(by+bh0)],'공용':pubd,'벽':rect_path(_w,0.8),'칸':cells,'창선':win,'기구':objs}
+    _wall_d=wall_path_from_segs(wseg,sash_out,doors,mm)
+    return {'벽선':wseg,'샷시':sash_out,'문':doors,'공용칸':publab,'EV':ev,'틀':[int(bx),int(by),int(bx+bw0),int(by+bh0)],'공용':pubd,'벽':_wall_d,'벽채움':'nonzero','칸':cells,'창선':win,'기구':objs}
