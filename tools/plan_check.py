@@ -52,6 +52,7 @@ RULES = {
  'R9': '벽 위 창 — 원본 굵은 벽선이 있는 줄에 창을 그리면 안 된다(창은 벽이 끊긴 자리에만, 2026-11-12 81평형 욕실·발코니 바깥벽)',
  'R11': '방 면적 정합성 — 방(발코니·공용·피트 빼고) 넓이 합이 전용면적의 0.8~1.25배를 벗어나면 방 경계나 축척을 잘못 읽은 것(2026-11-12)',
  'R12': '사선 가는 선 — 원본의 비스듬한 가는 선(창틀·난간, 600mm 넘고 한쪽 끝이 벽에 닿음)이 우리 구조에 없으면 안 된다(2026-11-12 검수 사각지대 메움)',
+ 'R14': '원본에 없는 선 — 우리 벽·창을 원본 같은 자리에 겹쳐 받쳐 주는 원본 선이 절반도 없으면 지어낸 것(2026-11-12 겹쳐 보기 교차 검증)',
  'R13': '가짜 사선 창 — 원본에 가는 선 두 줄이 없거나 피트 X 가위표 위에 그린 사선 창은 창이 아니다(2026-11-12)',
  'R10': '현관문 — 현관에는 문이 반드시 하나 있어야 하고, 현관 바깥쪽 경계에 창이 있으면 안 된다(2026-11-12 81평형)',
 }
@@ -243,6 +244,22 @@ def rules(img, p):
                     if 0 <= X_ < W and 0 <= Y_ < H and tnx[max(0, Y_-1):Y_+2, max(0, X_-1):X_+2].any(): hits += 1
                 if hits >= 10: isx = True; break
             if two < 0.5*tot or isx: out.append(['R13', '가짜 사선 창', int((x1+x2)/2), int((y1+y2)/2)])
+    if img is not None:   # R14: 원본에 없는 선(2026-11-12 대표 제안 「겹쳐 보며 비교하는 숨은그림찾기 · 교차 검측」) — 우리 벽·창을 원본 같은 자리에 겹쳐 받쳐 주는 원본 선이 없으면
+        hv3 = cv2.cvtColor(img, cv2.COLOR_BGR2HSV); v3 = hv3[..., 2].astype(int); s3 = hv3[..., 1].astype(int)
+        dk = cv2.dilate((v3 < 110).astype(np.uint8), np.ones((5, 5), np.uint8)) > 0
+        ln3 = cv2.dilate(((v3 < 110) | ((v3 < 205) & (s3 < 45))).astype(np.uint8), np.ones((5, 5), np.uint8)) > 0
+        def sup(mask, ax, a, b, c):
+            n_ = max(4, int(b-a)); xs = np.linspace(a, b, n_)
+            pts = [(int(round(t)), int(round(c))) if ax == 'h' else (int(round(c)), int(round(t))) for t in xs]
+            return np.mean([mask[min(H-1, max(0, y_)), min(W-1, max(0, x_))] for x_, y_ in pts])
+        for ax, a, b, c, t in G['벽선']:
+            # 문틀 띠 자리를 잇는 짧은 벽 조각(설계상 벽으로 이음, 원본엔 흰 띠)은 빼고 20화소 넘는 벽만 본다
+            if (b-a) >= 20 and sup(dk, ax, a, b, c) < 0.5: out.append(['R14', '벽', int((a+b)/2) if ax == 'h' else int(c), int(c) if ax == 'h' else int((a+b)/2)])
+        for ax, x0, y0, x1, y1 in G['샷시']:
+            a, b, c = (x0, x1, (y0+y1)/2) if ax == 'h' else (y0, y1, (x0+x1)/2)
+            # 창은 벽 중심선에 맞춰 옮겨 그린다(R2) — 원본 창 띠는 벽 바깥 면에 붙기도 하므로 중심선 한 줄이 아니라 창 사각형 안 어디든 길이를 따라 원본 선이 있는지 본다
+            band = ln3[max(0, y0-2):y1+3, max(0, x0):x1+1] if ax == 'h' else ln3[max(0, y0):y1+1, max(0, x0-2):x1+3].T
+            if (b-a) >= 6 and band.size and band.any(0).mean() < 0.5: out.append(['R14', '창', int((x0+x1)/2), int((y0+y1)/2)])
     for r in R:   # R8
         if r.get('kind') not in ('방', '거실'): continue
         P = np.array(r['pts']); x0, y0 = P.min(0); x1, y1 = P.max(0)
