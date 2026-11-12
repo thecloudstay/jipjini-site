@@ -128,18 +128,16 @@
     // 2026-11-12 네이버 평면과 맞추기: 외곽 안인데 방이 아닌 곳(설비 공간 피트·PD)은 가위표 빗금, 욕실에는 욕조·변기·세면대, 주방에는 싱크대·가스레인지를 그린다(그림만 — 물량에는 넣지 않는다).
     // 기구는 원본 그림에서 읽은 자리(r.기구)에만 그린다 — 읽지 못한 칸에 지어 넣지 않는다(2026-11-12 대표 지적 「기구가 전혀 맞지 않는다」)
     if (G) { var tr0 = ' transform="translate(' + ox.toFixed(1) + ' ' + oy.toFixed(1) + ')"';
+      // 2026-11-12 대표 지적 「외곽 밖으로 튀어나간 선을 정리」: 따라 그린 벽·선은 외곽선(+벽 두께 절반) 안쪽만 보이게 자른다
+      var mk = '';
+      if (hull) { h.push('<mask id="' + id + 'k" maskUnits="userSpaceOnUse"><polygon points="' + pts(hull) + '" fill="#fff" stroke="#fff" stroke-width="' + (T * 1.1).toFixed(1) + '" stroke-linejoin="miter"/></mask>'); mk = ' mask="url(#' + id + 'k)"'; }
+      h.push('<g' + mk + '>');
       if (G.선) h.push('<path d="' + G.선 + '" fill="#5a5a55" stroke="#5a5a55" stroke-width="0.9" stroke-linejoin="round" fill-rule="evenodd"' + tr0 + '/>');
       (G.창선 || []).forEach(function (q) { var x1 = q[0] === 'h' ? q[2] : q[1], y1 = q[0] === 'h' ? q[1] : q[2], x2 = q[0] === 'h' ? q[3] : q[1], y2 = q[0] === 'h' ? q[1] : q[3]; h.push('<line x1="' + (x1 + ox).toFixed(1) + '" y1="' + (y1 + oy).toFixed(1) + '" x2="' + (x2 + ox).toFixed(1) + '" y2="' + (y2 + oy).toFixed(1) + '" stroke="' + INK + '" stroke-width="' + (TW * 0.16).toFixed(2) + '"/>'); });   // 샷시·창: 원본에서 읽은 직선 그대로
-      h.push('<path d="' + G.벽 + '" fill="' + INK + '" fill-rule="evenodd"' + tr0 + '/>'); }
-    // 현관 신발장(대표 지시 2026-11-12): 현관의 긴 벽 가운데 거실·주방 쪽으로 트이지 않은 벽에 깊이 380mm 네모 + 사선 하나
-    if (mm && !opt.noFix) rooms.forEach(function (o) { if (o.m.kind !== '현관') return; var px = o.p.map(function (q) { return q[0]; }), py = o.p.map(function (q) { return q[1]; }), x0 = Math.min.apply(null, px), x1 = Math.max.apply(null, px), y0 = Math.min.apply(null, py), y1 = Math.max.apply(null, py), D3 = 380 / mm, mg = 80 / mm;
-      var open1 = function (x, y) { return rooms.some(function (n) { return n !== o && /^(거실|주방|식당|복도)$/.test(n.m.kind || '') && inPoly(x, y, n.p); }); }, e2 = 300 / mm;
-      var cand = [['t', x1 - x0, (x0 + x1) / 2, y0 - e2], ['b', x1 - x0, (x0 + x1) / 2, y1 + e2], ['l', y1 - y0, x0 - e2, (y0 + y1) / 2], ['r', y1 - y0, x1 + e2, (y0 + y1) / 2]].filter(function (c) { return !open1(c[2], c[3]) && c[1] > 600 / mm; }).sort(function (a, b) { return b[1] - a[1]; });
-      if (!cand.length) return; var sd = cand[0][0], L = cand[0][1] - mg * 2, bx, by, bw, bh; if (sd === 't' || sd === 'b') { bx = x0 + mg; bw = L; bh = Math.min(D3, (y1 - y0) * 0.45); by = sd === 't' ? y0 + mg * 0.5 : y1 - mg * 0.5 - bh; } else { by = y0 + mg; bh = L; bw = Math.min(D3, (x1 - x0) * 0.45); bx = sd === 'l' ? x0 + mg * 0.5 : x1 - mg * 0.5 - bw; }
-      bx += ox; by += oy; var sw3 = (TW * 0.18).toFixed(2); h.push('<rect x="' + bx.toFixed(1) + '" y="' + by.toFixed(1) + '" width="' + bw.toFixed(1) + '" height="' + bh.toFixed(1) + '" fill="#ffffff" stroke="' + INK + '" stroke-width="' + sw3 + '"/><path d="M' + bx.toFixed(1) + ' ' + (by + bh).toFixed(1) + 'L' + (bx + bw).toFixed(1) + ' ' + by.toFixed(1) + '" stroke="' + INK + '" stroke-width="' + sw3 + '"/>'); });
+      h.push('<path d="' + G.벽 + '" fill="' + INK + '" fill-rule="evenodd"' + tr0 + '/>'); h.push('</g>'); }
     if (mm && !opt.noFix && r.기구 && r.기구.length) { var sw = (TW * 0.18).toFixed(2), Mx = function (v) { return v / mm; };
       var rr = function (x, y, w, hh, rad) { return '<rect x="' + x.toFixed(1) + '" y="' + y.toFixed(1) + '" width="' + w.toFixed(1) + '" height="' + hh.toFixed(1) + '"' + (rad ? ' rx="' + rad.toFixed(1) + '"' : '') + ' fill="#ffffff" stroke="' + INK + '" stroke-width="' + sw + '"/>'; };
-      r.기구.forEach(function (f) { if (!/^(싱크대|붙박이장|신발장)$/.test(f.k)) return;   /* 욕실 기구는 그리지 않는다(대표 지시 2026-11-12) */ var x = f.x0 + ox, y = f.y0 + oy, w = f.x1 - f.x0, hh = f.y1 - f.y0, cx = x + w / 2, cy = y + hh / 2, hor = w >= hh;
+      r.기구.forEach(function (f) { if (!/^(싱크대|붙박이장)$/.test(f.k)) return;   /* 욕실 기구는 그리지 않는다(대표 지시 2026-11-12) */ var x = f.x0 + ox, y = f.y0 + oy, w = f.x1 - f.x0, hh = f.y1 - f.y0, cx = x + w / 2, cy = y + hh / 2, hor = w >= hh;
         if (f.k === '욕조') { h.push(rr(x, y, w, hh, Mx(100))); h.push(rr(x + Mx(70), y + Mx(70), w - Mx(140), hh - Mx(140), Mx(200))); }
         else if (f.k === '변기') { h.push('<ellipse cx="' + cx.toFixed(1) + '" cy="' + cy.toFixed(1) + '" rx="' + (w / 2).toFixed(1) + '" ry="' + (hh / 2).toFixed(1) + '" fill="#fff" stroke="' + INK + '" stroke-width="' + sw + '"/>'); }
         else if (f.k === '세면대') { h.push(rr(x, y, w, hh, Math.min(w, hh) * 0.2)); h.push('<ellipse cx="' + cx.toFixed(1) + '" cy="' + cy.toFixed(1) + '" rx="' + (w * 0.32).toFixed(1) + '" ry="' + (hh * 0.32).toFixed(1) + '" fill="none" stroke="' + INK + '" stroke-width="' + sw + '"/>'); }
