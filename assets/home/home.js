@@ -15,16 +15,16 @@
     var x0 = Math.min.apply(0, xs) - 16, y0 = Math.min.apply(0, ys) - 16, x1 = Math.max.apply(0, xs) + 16, y1 = Math.max.apply(0, ys) + 16;
     if (!isFinite(x0)) { x0 = 0; y0 = 0; x1 = W; y1 = H; }
     h.push('<svg viewBox="' + [x0, y0, x1 - x0, y1 - y0].map(function (v) { return v.toFixed(0); }).join(' ') + '" xmlns="http://www.w3.org/2000/svg" class="' + (cls || '') + '">');
-    if (G.벽) h.push('<path class="wall" pathLength="1" fill-rule="' + (G.벽채움 === 'nonzero' ? 'nonzero' : 'evenodd') + '" d="' + G.벽 + '" fill="#F4F5F0"/>');
+    if (G.벽) h.push('<path class="wall" pathLength="1" fill-rule="' + (G.벽채움 === 'nonzero' ? 'nonzero' : 'evenodd') + '" d="' + G.벽 + '" fill="#111311"/>');
     (G.샷시 || []).forEach(function (q) { var hz = q[0] === 'h', a = q[1], b = q[2], c = q[3], d = q[4];
-      h.push(hz ? '<line class="win" x1="' + a + '" y1="' + ((b + d) / 2) + '" x2="' + c + '" y2="' + ((b + d) / 2) + '" stroke="#C8F031" stroke-width="3"/>'
-                : '<line class="win" x1="' + ((a + c) / 2) + '" y1="' + b + '" x2="' + ((a + c) / 2) + '" y2="' + d + '" stroke="#C8F031" stroke-width="3"/>'); });
+      h.push(hz ? '<line class="win" x1="' + a + '" y1="' + ((b + d) / 2) + '" x2="' + c + '" y2="' + ((b + d) / 2) + '" stroke="#1F5E2E" stroke-width="3"/>'
+                : '<line class="win" x1="' + ((a + c) / 2) + '" y1="' + b + '" x2="' + ((a + c) / 2) + '" y2="' + d + '" stroke="#1F5E2E" stroke-width="3"/>'); });
     (G.창선 || []).forEach(function (q) { var hz = q[0] === 'h';
-      h.push('<line class="win" x1="' + (hz ? q[2] : q[1]) + '" y1="' + (hz ? q[1] : q[2]) + '" x2="' + (hz ? q[3] : q[1]) + '" y2="' + (hz ? q[1] : q[3]) + '" stroke="#C8F031" stroke-width="3"/>'); });
+      h.push('<line class="win" x1="' + (hz ? q[2] : q[1]) + '" y1="' + (hz ? q[1] : q[2]) + '" x2="' + (hz ? q[3] : q[1]) + '" y2="' + (hz ? q[1] : q[3]) + '" stroke="#1F5E2E" stroke-width="3"/>'); });
     (p.rooms || []).forEach(function (r) {
       if (!/거실|안방|방|주방|욕실/.test(r.kind || r.name || '')) return;
       var sx = 0, sy = 0; r.pts.forEach(function (q) { sx += q[0]; sy += q[1]; });
-      h.push('<text class="rm" x="' + (sx / r.pts.length).toFixed(0) + '" y="' + (sy / r.pts.length + 5).toFixed(0) + '" fill="#9A9E93" font-size="15" text-anchor="middle" font-family="Pretendard,sans-serif">' + esc(r.name) + (r.area ? ' ' + r.area.toFixed(1) + '㎡' : '') + '</text>');
+      h.push('<text class="rm" x="' + (sx / r.pts.length).toFixed(0) + '" y="' + (sy / r.pts.length + 5).toFixed(0) + '" fill="#6B6F68" font-size="15" text-anchor="middle" font-family="Pretendard,sans-serif">' + esc(r.name) + (r.area ? ' ' + r.area.toFixed(1) + '㎡' : '') + '</text>');
     });
     h.push('</svg>'); return h.join('');
   }
@@ -34,13 +34,19 @@
   fetch('data/apt/index.json').then(function (r) { return r.json(); }).then(function (d) {
     IDX = d; var t = d.합계, all = t[0] + t[1] + t[2];
     $('nAll').textContent = num(all); $('nHave').textContent = num(t[1] + t[2]); $('nOpen').textContent = num(t[2]);
-    $('nPct').textContent = (t[2] / all * 100).toFixed(2); $('gOpen').textContent = num(t[2]);
-    $('gCap').textContent = '수도권 ' + num(all) + '단지 중 ' + (t[2] / all * 100).toFixed(2) + '% · 집지니가 다시 그려 원본과 대조해 85점을 넘은 도면만 엽니다';
-    $('gBar').dataset.w = Math.max(0.6, t[2] / all * 100) + '%';
     if (window.JJ_KAKAO_KEY) kakao();
   });
   fetch('data/plans/opened.json', { cache: 'no-cache' }).then(function (r) { return r.json(); }).then(function (L) {
-    if (L.length > 1) { var a = L[L.length - 1], b = L[L.length - 2]; $('gOpen').insertAdjacentHTML('afterend', ' <small style="font-size:.5em;color:#9A9E93">어제보다 +' + num(a.단지 - b.단지) + '</small>'); }
+    if (L.length > 1) { var a = L[L.length - 1], b = L[L.length - 2]; if (a.단지 > b.단지) document.querySelector('.stats .hot span').textContent = '도면 열림 · 어제보다 +' + num(a.단지 - b.단지); }
+  }).catch(function () {});
+
+  /* ── 실견적 셋 ── */
+  fetch('data/real-quotes.json').then(function (r) { return r.json(); }).then(function (d) {
+    var C = d.cases.filter(function (c) { return c.contracted && c.sections.length >= 12 && c.py >= 20; }).slice(0, 3);
+    $('caseList').innerHTML = C.map(function (c) {
+      var man = Math.round(c.total / 1e4), pp = Math.round(c.total / c.py / 1e4);
+      return '<div class="cs"><p class="r">' + esc(c.region) + ' · ' + c.py + '평 ' + esc(c.type) + ' · ' + c.ymd.slice(0, 4) + '.' + c.ymd.slice(4, 6) + '</p><p class="t">' + num(man) + '만 원<small>부가세 별도</small></p><p class="m">평당 약 <b>' + num(pp) + '만 원</b> · ' + c.sections.length + '개 공종 · 단가 전부 공개</p></div>';
+    }).join('');
   }).catch(function () {});
 
   /* ── 지도 ── */
@@ -52,12 +58,12 @@
   }
   function init() {
     K = window.kakao.maps; var narrow = innerWidth < 860;
-    KMAP = new K.Map($('hmap'), { center: new K.LatLng(narrow ? 37.47 : 37.5, narrow ? 126.82 : 126.72), level: narrow ? 10 : 9 });
+    KMAP = new K.Map($('hmap'), { center: new K.LatLng(37.48, narrow ? 126.75 : 126.8), level: narrow ? 10 : 9 }); KMAP.addControl(new K.ZoomControl(), K.ControlPosition.LEFT);
     KMAP.setMaxLevel(11); KMAP.setZoomable(true);
     IDX.구역.forEach(function (r) {
       var on = r.수 && r.수[2] > 0;
       if (on) r.경계.forEach(function (ring) {
-        new K.Polygon({ map: KMAP, path: ring.map(function (q) { return new K.LatLng(q[1], q[0]); }), strokeWeight: 1.4, strokeColor: '#C8F031', strokeOpacity: .7, fillColor: '#C8F031', fillOpacity: .09 });
+        new K.Polygon({ map: KMAP, path: ring.map(function (q) { return new K.LatLng(q[1], q[0]); }), strokeWeight: 1.6, strokeColor: '#1F5E2E', strokeOpacity: .8, fillColor: '#1F5E2E', fillOpacity: .12 });
       });
     });
     K.event.addListener(KMAP, 'idle', function () { clearTimeout(KT); KT = setTimeout(draw, 80); });
@@ -135,8 +141,6 @@
   document.addEventListener('click', function (e) { if (!$('find').contains(e.target)) $('hits').hidden = true; });
 
   /* ── 기능 그림: 보일 때 움직인다 ── */
-  getPlan('A40680606').then(function (d) { $('planVis').innerHTML = planSVG(d.평형[0].plan, 'hero'); see($('planVis')); }).catch(function () {});
-  see($('bars'));
-  var gb = $('gBar'); new IntersectionObserver(function (E, o) { E.forEach(function (e) { if (e.isIntersecting) { gb.style.width = gb.dataset.w || '0.6%'; o.disconnect(); } }); }).observe(gb);
+  getPlan('A10025531').then(function (d) { $('planVis').innerHTML = planSVG(d.평형[0].plan, 'hero'); see($('planVis')); }).catch(function () {});
   function see(el) { if (!('IntersectionObserver' in window)) return el.classList.add('go'); new IntersectionObserver(function (E, o) { E.forEach(function (e) { if (e.isIntersecting) { el.classList.add('go'); o.disconnect(); } }); }, { threshold: .35 }).observe(el); }
 })();
