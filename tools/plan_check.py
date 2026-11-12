@@ -201,11 +201,18 @@ def rules(img, p):
                 tot += 1; two += runs >= 2
             if two < 0.6*tot: continue
             # 설비 통로 가위표: 같은 가운데를 반대 기울기 선이 지나가면 뺀다
-            mx_, my_ = (x1+x2)/2.0, (y1+y2)/2.0; vx_, vy_ = ux_, -uy_; hits_ = 0
-            for o in range(-12, 13, 2):
-                X_, Y_ = int(round(mx_+vx_*o)), int(round(my_+vy_*o))
-                if 0 <= X_ < W and 0 <= Y_ < H and tb_[max(0, Y_-1):Y_+2, max(0, X_-1):X_+2].any(): hits_ += 1
-            if hits_ >= 6: continue
+            # 2026-11-12 규칙 바로잡음(154·177B·110A·158C·200 눈으로 확인 — 피트 X 표시를 사선 선으로 셌다): 선 찾기가 대각선 일부만 잡아
+            #   가운데가 X 교차점에서 벗어났다 → 선을 앞뒤로 반씩 늘린 범위 어디서든 반대 기울기 선이 지나가면 가위표다
+            #   (45도 돌린 평면에서는 수직으로 만나는 굵은 벽 테두리 번짐이 반대 기울기 선으로 잡혀 진짜 사선 창을 빼 버렸다(162) → 굵은 벽 곁 화소는 안 센다)
+            vx_, vy_ = ux_, -uy_; isx = False
+            if 'tbx_' not in dir(): tbx_ = tb_ & ~(cv2.dilate(thick_.astype(np.uint8), np.ones((5, 5), np.uint8)) > 0)
+            for tt in np.linspace(-Ln_*0.5, Ln_*1.5, max(10, int(Ln_))):
+                mx_, my_ = x1+ux_*tt, y1+uy_*tt; hits_ = 0
+                for o in range(-12, 13, 2):
+                    X_, Y_ = int(round(mx_+vx_*o)), int(round(my_+vy_*o))
+                    if 0 <= X_ < W and 0 <= Y_ < H and tbx_[max(0, Y_-1):Y_+2, max(0, X_-1):X_+2].any(): hits_ += 1
+                if hits_ >= 10: isx = True; break
+            if isx: continue
             cx_, cy_ = int((x1+x2)/2), int((y1+y2)/2)
             if any(abs(cx_-a)+abs(cy_-b) < 15 for a, b in seen): continue
             seen.append((cx_, cy_)); out.append(['R12', '사선 선', cx_, cy_])
