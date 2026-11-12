@@ -36,3 +36,106 @@ if __name__ == '__main__':
             c = [x for x in os.listdir(IMG) if x.startswith(code + '_')]
             o = [x for x in c if x[len(code)+1:-4] == str(t['이름'])] or c
             print(code, t['이름'], *check(os.path.join(IMG, o[0]), p), sep='\t')
+
+# ── 규칙 점검(2026-11-12 대표 지시 「그리는 게 중요한 게 아니라 버그 규칙을 찾아서 앞으로 그렇게 안 되도록」)
+#   변환할 때마다(plan_trace.trace 끝) 아래 규칙을 모두 돌려 어긴 곳을 '점검'에 남긴다. 규칙 번호별로 모아 세면 어디를 고칠지 바로 보인다.
+#   규칙과 원인·고친 자리는 tools/naver_rules.md 「변환 규칙 점검표」에 같은 번호로 적는다. 새 불량을 찾으면 규칙을 먼저 더하고 고친다.
+RULES = {
+ 'R1': '외벽 닫힘 — 벽·창·문만으로 바깥이 방 안까지 새면 안 된다',
+ 'R2': '창 두께 — 창은 붙은 벽과 같은 두께·같은 중심선',
+ 'R3': '창 끝 — 창 양 끝은 벽(또는 다른 창·문)에 붙는다',
+ 'R4': '모서리 — 벽 끝이 직각 벽 앞에서 멈춰 구멍이 나면 안 된다',
+ 'R5': '문 안전 — 양쪽이 건물 밖인 문 금지(현관 안쪽 문만 예외)',
+ 'R6': '놓친 벽 — 원본 굵은 검정선(450mm 넘게)이 우리 벽에 없으면 안 된다',
+ 'R7': '방 테두리 — 방 다각형 안쪽으로 원본 벽이 지나가면 방 읽기가 틀린 것',
+ 'R8': '창 없는 방(경고) — 바깥·발코니에 닿은 방·거실에 창이 하나도 없다',
+}
+def _struct(G, mm, H, W, door_w=5):
+    m = np.zeros((H, W), np.uint8)
+    for ax, a, b, c, t in G['벽선']:
+        h = max(1.5, t/mm/2)
+        if ax == 'h': cv2.rectangle(m, (int(a)-1, int(c-h)), (int(b)+1, int(c+h)), 1, -1)
+        else: cv2.rectangle(m, (int(c-h), int(a)-1), (int(c+h), int(b)+1), 1, -1)
+    for ax, x0, y0, x1, y1 in G['샷시']: cv2.rectangle(m, (x0, y0), (x1, y1), 1, -1)
+    for q in G['문']: cv2.line(m, (int(q['x1']), int(q['y1'])), (int(q['x2']), int(q['y2'])), 1, door_w)
+    return m
+def rules(img, p):
+    """img: BGR 그림(없으면 R6·R7 생략). 돌려줌: [[규칙, 이름, x, y], ...]"""
+    G = p['그림']; mm = p.get('mmpp') or 23.0; R = p['rooms']
+    H, W = (img.shape[:2] if img is not None else (p['H'], p['W'])); out = []
+    poly = lambda r: np.array(r['pts'], np.int32)
+    roomk = lambda x, y: next((r for r in R if len(r['pts']) >= 3 and cv2.pointPolygonTest(poly(r).reshape(-1, 1, 2).astype(np.float32), (float(x), float(y)), False) > 0), None)
+    m = cv2.dilate(_struct(G, mm, H, W), np.ones((3, 3), np.uint8))
+    ff = m*255; mk = np.zeros((H+2, W+2), np.uint8); cv2.floodFill(ff, mk, (0, 0), 128); outside = ff == 128
+    # R1: 방 가장자리 바로 안쪽에 바깥이 들어온 자리
+    for r in R:
+        if len(r['pts']) < 3 or r.get('kind') == '공용': continue
+        rm = np.zeros((H, W), np.uint8); cv2.fillPoly(rm, [poly(r)], 1)
+        ring = (cv2.erode(rm, np.ones((3, 3), np.uint8)) > 0) & ~(cv2.erode(rm, np.ones((13, 13), np.uint8)) > 0) & outside
+        core = cv2.erode(rm, np.ones((13, 13), np.uint8)) > 0
+        if core.sum() and outside[core].mean() > 0.2:
+            ys, xs = np.where(ring) if ring.any() else np.where(core)
+            out.append(['R1', r.get('name'), int(np.median(xs)), int(np.median(ys))])
+    # 벽 줄 찾기 도우미
+    def near_wall(ax, c, a, b):
+        best = None
+        for w in G['벽선']:
+            if w[0] == ax and abs(w[3]-c) <= 12 and min(b, w[2])-max(a, w[1]) > -12 and (best is None or abs(w[3]-c) < abs(best[3]-c)): best = w
+        return best
+    for q in G['샷시']:
+        ax, x0, y0, x1, y1 = q
+        a, b, c, th = (x0, x1, (y0+y1)/2, y1-y0) if ax == 'h' else (y0, y1, (x0+x1)/2, x1-x0)
+        w = near_wall(ax, c, a, b)
+        if w and (abs(th - w[4]/mm) > 2.5 or abs(c - w[3]) > 2.5): out.append(['R2', '창', int((x0+x1)/2), int((y0+y1)/2)])
+        for e in (a, b):   # R3: 끝 바로 바깥(3화소)이 다른 구조에 닿는가
+            px, py = (e + (-3 if e == a else 3), c) if ax == 'h' else (c, e + (-3 if e == a else 3))
+            px, py = int(px), int(py)
+            if 0 <= px < W and 0 <= py < H and not m[max(0, py-2):py+3, max(0, px-2):px+3].any(): out.append(['R3', '창 끝', px, py])
+    for w in G['벽선']:   # R4
+        ax, a, b, c, t = w
+        for e, sgn in ((a, -1), (b, 1)):
+            for u in G['벽선']:
+                if u[0] == ax: continue
+                hu = u[4]/mm/2; hw = t/mm/2
+                if not (u[1]-hw-2 <= c <= u[2]+hw+2): continue
+                gap = (u[3]-hu - e) if sgn > 0 else (e - (u[3]+hu))
+                if 1.0 < gap <= 400.0/mm: out.append(['R4', '모서리', int(e if ax == 'h' else c), int(c if ax == 'h' else e)])
+    off = 600.0/mm   # R5
+    for d in G['문']:
+        L = ((d['x2']-d['x1'])**2+(d['y2']-d['y1'])**2)**.5 or 1; ux, uy = (d['x2']-d['x1'])/L, (d['y2']-d['y1'])/L; mx, my = (d['x1']+d['x2'])/2, (d['y1']+d['y2'])/2
+        P = [(mx-uy*off, my+ux*off), (mx+uy*off, my-ux*off)]
+        o = [not (0 <= int(x) < W and 0 <= int(y) < H) or bool(outside[int(y), int(x)]) for x, y in P]
+        if img is not None:   # 회색으로 칠한 칸(실외기실)은 바깥이 아니다 — 발코니→실외기실 문은 정상(2026-11-12 107·89·100A 확인)
+            hv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+            for k, (x, y) in enumerate(P):
+                if o[k] and 0 <= int(x) < W and 0 <= int(y) < H:
+                    b = hv[max(0, int(y)-3):int(y)+4, max(0, int(x)-3):int(x)+4].reshape(-1, 3)
+                    if ((b[:, 2] >= 195) & (b[:, 2] <= 238) & (b[:, 1] < 20)).mean() > 0.8: o[k] = False
+        if o[0] and o[1]: out.append(['R5', '문', int(mx), int(my)])
+        elif o[0] or o[1]:
+            inner = roomk(*P[1] if o[0] else P[0])
+            if not inner or inner.get('kind') != '현관': out.append(['R5', '문', int(mx), int(my)])
+    if img is not None:
+        v = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)[..., 2]
+        X0, Y0, X1, Y1 = G.get('틀') or [0, 0, W, H]
+        box = np.zeros((H, W), bool); box[max(0, Y0-6):Y1+7, max(0, X0-6):X1+7] = True
+        orig = (cv2.morphologyEx((v < 100).astype(np.uint8), cv2.MORPH_OPEN, np.ones((4, 4), np.uint8)) > 0) & box
+        L = max(8, int(450/mm))
+        lines = (cv2.morphologyEx(orig.astype(np.uint8), cv2.MORPH_OPEN, np.ones((1, L), np.uint8)) | cv2.morphologyEx(orig.astype(np.uint8), cv2.MORPH_OPEN, np.ones((L, 1), np.uint8))) > 0
+        miss = lines & ~(cv2.dilate(m, np.ones((7, 7), np.uint8)) > 0)
+        n, lab, st, _ = cv2.connectedComponentsWithStats(miss.astype(np.uint8))
+        for j in range(1, n):
+            if max(st[j, 2], st[j, 3]) >= L: out.append(['R6', '벽', int(st[j, 0]+st[j, 2]/2), int(st[j, 1]+st[j, 3]/2)])
+        for r in R:   # R7
+            rm = np.zeros((H, W), np.uint8); cv2.fillPoly(rm, [poly(r)], 1)
+            rm = cv2.erode(rm, np.ones((max(3, int(300/mm)),)*2, np.uint8)) > 0
+            if rm.sum() > 0 and (lines & rm).sum() / rm.sum() > 0.02:
+                ys, xs = np.where(lines & rm); out.append(['R7', r.get('name'), int(np.median(xs)), int(np.median(ys))])
+    for r in R:   # R8
+        if r.get('kind') not in ('방', '거실'): continue
+        P = np.array(r['pts']); x0, y0 = P.min(0); x1, y1 = P.max(0)
+        rm = np.zeros((H, W), np.uint8); cv2.fillPoly(rm, [poly(r)], 1); ring = (cv2.dilate(rm, np.ones((int(900/mm)|1,)*2, np.uint8)) > 0) & ~(rm > 0)
+        touch = (ring & outside).any() or any(rr.get('kind') == '발코니' and (ring & (cv2.fillPoly(np.zeros((H, W), np.uint8), [poly(rr)], 1) > 0)).any() for rr in R)
+        has = any(a0 < x1+12 and a1 > x0-12 and b0 < y1+12 and b1 > y0-12 for _, a0, b0, a1, b1 in G['샷시'])
+        if touch and not has: out.append(['R8', r.get('name'), int((x0+x1)/2), int((y0+y1)/2)])
+    return out

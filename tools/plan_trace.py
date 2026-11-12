@@ -344,7 +344,7 @@ def close_openings(img, wseg, sash, doors, rooms, mm, H, W):
             ax=L['ax']; c=L['c']; t=min(w1[4],w2[4]); h=t/mm/2.0
             hit=[i for i,q in enumerate(sash) if sash_span(q)[0]==ax and abs(sash_span(q)[3]-c)<=12 and min(b,sash_span(q)[2])-max(a,sash_span(q)[1])>0]
             if not hit:
-                if (b-a)*mm<500 or (b-a)*mm>16000 or door_in(ax,c,a,b): continue
+                if (b-a)*mm<300 or (b-a)*mm>16000 or door_in(ax,c,a,b): continue
                 m=(a+b)/2.0; o=h+600.0/mm
                 A,B=(side(m,c-o),side(m,c+o)) if ax=='h' else (side(c-o,m),side(c+o,m))
                 if not({A,B}&{'밖','발코니'}) or A==B: continue
@@ -474,8 +474,20 @@ def trace(path, plan):
             else: sgn=-1 if fx>hx else 1; xs_=[int(hx+sgn*t) for t in range(3,9)]; ys_=[int(my)]*6
             vals=[(0<=yy<H and 0<=xx<W and v[yy,xx]>=225) for xx,yy in zip(xs_,ys_)]
             return sum(vals)
-        o1,o2=outside_white(n1),outside_white(n2)
-        ac,bc=(n1,n2) if o1>=o2 else (n2,n1)
+        # 2026-11-12 규칙 점검 R5 로 찾은 원인(107·89·100A): 바닥이 밝은 발코니(타일)에선 두 변 바깥이 다 희어 문 방향(벽 쪽 변)을 반대로 읽었다
+        #   → 먼저 「벽이 이어지는 쪽」을 본다: 벽 쪽 변은 경첩 뒤와 반대편 끝 너머로 검은 벽이 이어진다(문틀 양옆 벽)
+        def wall_line(k):
+            (hx,hy),(kx,ky)=C[hc],C[k]; L=max(1.0,np.hypot(kx-hx,ky-hy)); ux,uy=(kx-hx)/L,(ky-hy)/L; n=0
+            for t in range(4,15):
+                for px,py in ((kx+ux*t,ky+uy*t),):   # 반대편 끝 너머만 본다(경첩 뒤는 두 변 모두 벽 속이라 가릴 수 없다)
+                    X,Y=int(round(px)),int(round(py))
+                    if 0<=X<W and 0<=Y<H and (v[max(0,Y-3):Y+4,max(0,X-3):X+4]<100).sum()>=6: n+=1   # 문틀 옆 벽 띠(가는 선 하나는 안 셈)
+            return n
+        w1_,w2_=wall_line(n1),wall_line(n2)
+        if abs(w1_-w2_)>=3: ac,bc=(n1,n2) if w1_>w2_ else (n2,n1)
+        else:
+            o1,o2=outside_white(n1),outside_white(n2)
+            ac,bc=(n1,n2) if o1>=o2 else (n2,n1)
         doors.append({'x1':int(C[hc][0]),'y1':int(C[hc][1]),'x2':int(C[ac][0]),'y2':int(C[ac][1]),'cx':int(C[bc][0]),'cy':int(C[bc][1])})
     # 방 칸: 벽+가는 선으로 막힌 빈 곳. 방마다 가장 큰 칸 = 방 바닥, 방 안에서 바닥과 안 닿는 막힌 덩어리 = 가구·기구
     bar=(wall|cv2.dilate(thin.astype(np.uint8),np.ones((2,2),np.uint8)).astype(bool)|~house).astype(np.uint8)
@@ -654,4 +666,8 @@ def trace(path, plan):
     except Exception: _diag=[]
     try: _dwin=diag_windows(bgr,mm)
     except Exception: _dwin=[]
-    return {'벽선':wseg,'샷시':sash_out,'문':doors,'공용칸':publab,'EV':ev,'틀':[int(bx),int(by),int(bx+bw0),int(by+bh0)],'공용':pubd,'벽':_wall_d,'벽채움':'nonzero','사선벽':_diag,'사선창':_dwin,'칸':cells,'창선':win,'기구':objs}
+    G_={'벽선':wseg,'샷시':sash_out,'문':doors,'틀':[int(bx),int(by),int(bx+bw0),int(by+bh0)]}
+    try:   # 변환할 때마다 규칙 점검(tools/plan_check.py RULES) — 어긴 곳을 자료에 남긴다
+        import plan_check; _chk=plan_check.rules(bgr,dict(plan,그림=G_,H=H,W=W))
+    except Exception as e: _chk=[['오류',str(e)[:60],0,0]]
+    return {'점검':_chk,'벽선':wseg,'샷시':sash_out,'문':doors,'공용칸':publab,'EV':ev,'틀':[int(bx),int(by),int(bx+bw0),int(by+bh0)],'공용':pubd,'벽':_wall_d,'벽채움':'nonzero','사선벽':_diag,'사선창':_dwin,'칸':cells,'창선':win,'기구':objs}
