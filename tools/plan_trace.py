@@ -49,10 +49,12 @@ def clean_walls(wall, mm):
             cols=S_.sum(0); ok=np.where(cols>0)[0]
             if not len(ok): continue
             top=np.argmax(S_,0); cen=top+cols/2.0; t=float(np.median(cols[ok])); groups=[]; g=[ok[0]]
+            nz=[ok[0]]   # 기준 = 겹치지 않은 최근 200열의 중심(두 띠가 겹친 열 = 꺾인 자리는 기준에서 뺀다)
             for i in ok[1:]:
-                gs=[j for j in g if cols[j]<=1.4*t] or g   # 두 띠가 겹친 열(꺾인 자리)은 기준에서 뺀다
-                if i==g[-1]+1 and (cols[i]>1.4*t or abs(cen[i]-np.median(cen[gs]))<=max(2.0,t*0.5)): g.append(i)
-                else: groups.append(g); g=[i]
+                if i==g[-1]+1 and (cols[i]>1.4*t or abs(cen[i]-np.median(cen[nz[-200:]]))<=max(2.0,t*0.5)):
+                    g.append(i)
+                    if cols[i]<=1.4*t: nz.append(i)
+                else: groups.append(g); g=[i]; nz=[i]
             groups.append(g)
             for g in groups:
                 if len(g)<min(L,len(ok)) and len(groups)>1: continue
