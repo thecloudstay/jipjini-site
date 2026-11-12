@@ -623,10 +623,14 @@ def drop_inside(mask, m):
 def fix_kinds(bgr, rooms):
     H,W=bgr.shape[:2]; hsv=cv2.cvtColor(bgr,cv2.COLOR_BGR2HSV); n=sum(1 for r in rooms if r.get('kind')=='발코니')
     for r in rooms:
-        if r.get('kind')!='기타' or len(r.get('pts') or [])<3: continue
+        if r.get('kind') not in ('기타','방') or len(r.get('pts') or [])<3: continue
         m=np.zeros((H,W),np.uint8); cv2.fillPoly(m,[np.array(r['pts'],np.int32)],1); m=cv2.erode(m,np.ones((9,9),np.uint8))>0
         if m.sum()<80: continue
         h_,s_,v_=[float(np.median(hsv[...,i][m])) for i in range(3)]
+        # 2026-11-12: 「방」으로 읽힌 타일 바닥 발코니도(165B 침실 아래 — 방-방 사이로 보고 창을 버림). 방은 더 엄하게: 바닥 7할 넘게가 발코니 타일 색
+        if r.get('kind')=='방':
+            hh,ss,vv=hsv[...,0][m].astype(int),hsv[...,1][m].astype(int),hsv[...,2][m].astype(int)
+            if ((hh>=14)&(hh<=21)&(ss>=15)&(ss<=32)&(vv>=244)).mean()<0.7: continue
         if 14<=h_<=21 and 18<=s_<=28 and v_>=248:
             n+=1; r['바로잡음']=r.get('name'); r['kind']='발코니'; r['name']='발코니%d'%n
     return rooms

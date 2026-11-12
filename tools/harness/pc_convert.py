@@ -116,6 +116,7 @@ def main(n=400):
                 else:
                     plan = {"W": a["W"], "H": a["H"], "mmpp": a["mmpp"], "rooms": a["rooms"], "전용": area}
                     if not plan["mmpp"] and area:
+                        plan_trace.fix_kinds(plan_trace.imread_u(f), plan["rooms"])   # 2026-11-12 방 종류 바로잡기를 축척 계산보다 먼저
                         px = sum(abs(cv2.contourArea(np.array(q["pts"], np.float32))) for q in plan["rooms"] if len(q["pts"]) >= 3 and q.get("kind") not in ("발코니", "공용", "피트"))
                         if px > 0:
                             plan["mmpp"] = (pipeline.AREA_K * area * 1e6 / px) ** 0.5
