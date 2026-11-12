@@ -85,6 +85,10 @@ READ_JS = r"""async (c) => {
 
 def main(n=400):
     os.makedirs(os.path.join(OUT, "도면"), exist_ok=True); os.makedirs(READ, exist_ok=True)
+    busy = os.path.join(OUT, "변환_돌림.txt")      # 2026-11-13: 손으로 띄운 변환과 통합 실행의 변환이 겹쳐 상태.json 을 서로 덮던 것 막음
+    if os.path.exists(busy) and time.time() - os.path.getmtime(busy) < 15 * 60:
+        print("다른 창에서 일괄 변환이 돌고 있어 이번에는 건너뜁니다.", flush=True); return 0
+    open(busy, "w", encoding="utf-8").write(time.strftime("%Y-%m-%d %H:%M:%S"))
     # 2026-11-13 대표 지시 「학습은 컴퓨터판에서」: 그리기 도구가 바뀌었으면 먼저 이 컴퓨터에서 관문(옛 판과 무작위 20장 견줌) → 통과한 판만 남김
     try:
         import subprocess
@@ -99,6 +103,10 @@ def main(n=400):
     todo = (never + [r for r in todo if r not in never])[:n]      # 처음 보는 것부터, 그다음 옛 판으로 바꾼 것
     print(f"=== 평면도 일괄 변환 · 판 {ver} · 원본 {len(rows)}장 중 이번 {len(todo)}장 (남은 {len([r for r in rows if (st.get('%s_%s' % (r['단지코드'], r['평형'])) or {}).get('판') != ver])}장) ===", flush=True)
     if not todo:
+        try:
+            os.remove(busy)
+        except OSError:
+            pass
         return 0
     from playwright.sync_api import sync_playwright
     known = rj(os.path.join(HERE, "알려진모양.json"), {})
@@ -158,12 +166,17 @@ def main(n=400):
             except Exception as e:
                 rec.update(판정="오류", 남은규칙=str(e)[:80])
             st[k] = rec; done += 1
+            open(busy, "w", encoding="utf-8").write(time.strftime("%Y-%m-%d %H:%M:%S"))
             print(f"[{i + 1}/{len(todo)}] {k} {rec.get('판정')} {rec.get('점수', '')} {rec.get('남은규칙', '')[:50]}", flush=True)
             if done % 20 == 0:
                 json.dump(st, open(os.path.join(OUT, "상태.json"), "w", encoding="utf-8"), ensure_ascii=False)
     if pw["b"]:
         pw["b"].close(); pw["p"].stop()
     json.dump(st, open(os.path.join(OUT, "상태.json"), "w", encoding="utf-8"), ensure_ascii=False)
+    try:
+        os.remove(busy)
+    except OSError:
+        pass
     report(st, ver, time.time() - t0, done)
     return 0
 
