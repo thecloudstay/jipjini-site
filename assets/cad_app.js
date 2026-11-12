@@ -4,7 +4,7 @@
      → 올리기 걸음과 떨어져 있어, 나중에 「우리 집 검색」으로 미리 다시 그려 둔 도면을 받아도 같은 편집기를 그대로 쓴다.
    지키는 선: 올린 원본 그림은 이 기기 밖으로 보내지 않고 보관하지도 않는다(다시 그린 도면 자료와 표시만 localStorage 에 둔다). 인쇄·저장물에는 다시 그린 도면만 들어간다. 바깥 꾸러미 없음. */
 (function (root) {
-  var KEY = 'jj_cad_v2', OLDKEY = 'jj_cad_v1', VER = '20261112zv', REQ_URL = 'https://script.google.com/macros/s/AKfycbzxm4mmZs1yVJPa3T-wb0cdJbEUMPYl6dDKtQNSNmJy4nEsCholrEnPAN8e0JfAtOV99A/exec?type=request_form', doc = document, $ = function (id) { return doc.getElementById(id); };
+  var KEY = 'jj_cad_v2', OLDKEY = 'jj_cad_v1', VER = '20261112zw', REQ_URL = 'https://script.google.com/macros/s/AKfycbzxm4mmZs1yVJPa3T-wb0cdJbEUMPYl6dDKtQNSNmJy4nEsCholrEnPAN8e0JfAtOV99A/exec?type=request_form', doc = document, $ = function (id) { return doc.getElementById(id); };
   var S = { state: null, file: null, pending: null };
   function esc(t) { return String(t == null ? '' : t).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
   function ev(name, prm) { try { if (root.gtag) root.gtag('event', name, prm || {}); } catch (e) {} }
@@ -158,10 +158,10 @@
   function init() {
     var file = $('cadFile'), dropEl = $('cadDrop');
     $('cadPick').addEventListener('click', function (e) { e.stopPropagation(); file.click(); });
-    // 9단계: 평면도 없이 집 모양을 골라 시작(cad_io.js starter)
-    var selfTy = '방3'; Array.prototype.forEach.call(doc.querySelectorAll('#cadSelf [data-ty]'), function (b) { b.addEventListener('click', function () { selfTy = b.getAttribute('data-ty'); Array.prototype.forEach.call(doc.querySelectorAll('#cadSelf [data-ty]'), function (x) { x.setAttribute('aria-checked', String(x === b)); }); }); });
-    $('cadSelfGo').addEventListener('click', function () { var go3 = function () { var m2 = Number($('cadM2').value) || 0, p = root.JJCadIO.starter(selfTy, m2); ev('cad_self_draw', { type: selfTy }); if (!open(p)) toast('도면을 만들지 못했습니다.'); else toast('기본 모양으로 시작했습니다. 방을 눌러 크기·이름을 고치세요.'); };
-      if (root.JJCadIO) return go3(); var sc = doc.createElement('script'); sc.src = 'assets/cad_io.js?v=' + VER; sc.onload = go3; sc.onerror = function () { toast('도구를 불러오지 못했습니다.'); }; doc.head.appendChild(sc); });
+    // 9단계: 평면도가 없는 집 — 자르고 붙여 직접 그리기(cad_draw.js) → cad_io.fromRects → 편집기
+    $('cadSelfGo').addEventListener('click', function () { var el = $('cdw'); if (!el.hidden) return; var need = ['cad_io.js', 'cad_draw.js'].filter(function (f) { return f === 'cad_io.js' ? !root.JJCadIO : !root.JJCadDraw; }), k = 0;
+      var go3 = function () { el.hidden = false; $('cadSelfGo').hidden = true; ev('cad_self_draw'); root.JJCadDraw.mount(el, { toast: toast, onDone: function (p) { ev('cad_self_draw_done'); if (!open(p)) toast('도면을 만들지 못했습니다.'); } }); el.querySelector('input').focus(); };
+      var next = function () { if (k >= need.length) return go3(); var sc = doc.createElement('script'); sc.src = 'assets/' + need[k++] + '?v=' + VER; sc.onload = next; sc.onerror = function () { toast('도구를 불러오지 못했습니다.'); }; doc.head.appendChild(sc); }; next(); });
     dropEl.addEventListener('click', function () { file.click(); });
     file.addEventListener('change', function () { var f = file.files && file.files[0]; file.value = ''; pick(f); });
     ['dragenter', 'dragover'].forEach(function (n) { dropEl.addEventListener(n, function (e) { e.preventDefault(); dropEl.classList.add('over'); }); });
