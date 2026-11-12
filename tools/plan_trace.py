@@ -317,6 +317,20 @@ def trace(path, plan):
         x0_,x1_=sorted([d_['x1'],d_['x2']]); y0_,y1_=sorted([d_['y1'],d_['y2']])
         if x1_-x0_>=y1_-y0_: w2[max(0,y0_-T2):y0_+T2+1,x0_:x1_+1]=True
         else: w2[y0_:y1_+1,max(0,x0_-T2):x0_+T2+1]=True
+    # 바깥벽 창 자리(2026-11-12 대표 지적 「이상하지 않니」— 바깥선이 창마다 끊겨 보였다): 바깥과 맞닿은 벽 줄의 틈은 길어도(거실 큰 창) 메워 외곽선을 잇는다
+    K6=max(9,int(6000/mm)); body0=cv2.morphologyEx(w2.astype(np.uint8),cv2.MORPH_CLOSE,np.ones((max(5,int(1300/mm)),)*2,np.uint8))
+    ff0=(1-body0).astype(np.uint8); mk0=np.zeros((H+2,W+2),np.uint8); cv2.floodFill(ff0,mk0,(0,0),2); out0=cv2.dilate((ff0==2).astype(np.uint8),np.ones((5,5),np.uint8))>0
+    for ker in (np.ones((1,K6),np.uint8),np.ones((K6,1),np.uint8)):
+        g=(cv2.morphologyEx(w2.astype(np.uint8),cv2.MORPH_CLOSE,ker)>0)&~w2
+        ng,lg,sg,_=cv2.connectedComponentsWithStats(g.astype(np.uint8),connectivity=4)
+        for j in range(1,ng):
+            x,y,w_,h_,a_=sg[j]
+            if min(w_,h_)*mm>450: continue
+            if out0[y:y+h_,x:x+w_][lg[y:y+h_,x:x+w_]==j].mean()<=0.3: continue
+            # 창 확인: 원본 창은 벽 줄 안에 길이 방향 가는 회색 선(창틀)이 그어져 있다 — 바깥 빈 곳(꺾인 자리)을 잇는 틈은 거른다
+            gl=((v<215)&(v>=100)&(s<45))[max(0,y-2):y+h_+2,max(0,x-2):x+w_+2]
+            prof=gl.mean(1) if ker.shape[0]==1 else gl.mean(0)
+            if prof.size and prof.max()>=0.6: w2|=(lg==j)
     cw=clean_walls(w2,mm)
     # 2026-11-12 대표 지시 「주방 도어·싱크대 박스·샷시 모두 삭제」: 주방 칸(+벽 두께)에 걸친 문·샷시는 그리지 않는다
     kz=np.zeros((H,W),np.uint8)
@@ -329,4 +343,6 @@ def trace(path, plan):
     sash=[q for q in sash if not inK(q[1],q[2],q[3],q[4])]
     doors=[d_ for d_ in doors if not inK(min(d_['x1'],d_['x2'],d_['cx']),min(d_['y1'],d_['y2'],d_['cy']),max(d_['x1'],d_['x2'],d_['cx']),max(d_['y1'],d_['y2'],d_['cy']))]
     # 2026-11-12 대표 지시(10:45) 「네이버 평면도의 검정선만 따서 반영, 나머지는 집지니식」: 벽 그림은 원본 검정 굵은 선 그대로(다듬지 않음). cw는 공용부·승강기 찾기에만 쓴다: 굵은 벽 전부(문·샷시 자리는 메움), 가는 선·문·샷시 기호는 없음
-    return {'샷시':sash,'문':doors,'공용칸':publab,'EV':ev,'틀':[int(bx),int(by),int(bx+bw0),int(by+bh0)],'공용':pubd,'벽':rect_path(clean_walls(wall,mm),0.8),'칸':cells,'창선':win,'기구':objs}
+    _ = clean_walls(wall, mm); wseg=[[a_, round(float(p0),1), round(float(p1),1), round(float(c_),1), int(t_)] for a_,p0,p1,c_,t_ in clean_walls.segs]   # 캐드용 벽선(문·창 자리는 비움)
+    _w = clean_walls(w2, mm)
+    return {'벽선':wseg,'샷시':sash,'문':doors,'공용칸':publab,'EV':ev,'틀':[int(bx),int(by),int(bx+bw0),int(by+bh0)],'공용':pubd,'벽':rect_path(_w,0.8),'칸':cells,'창선':win,'기구':objs}
