@@ -251,7 +251,9 @@ def diag_walls(wall, wseg, mm, bld=None):
         if L*mm<400 or L<12 or T*mm>400 or T<2: continue   # 2026-11-12 하네스 학습(162·125TB 외벽 터짐): 비스듬한 벽이 창·이음에 끊겨 1m 아래 토막이 많다 → 400mm(12화소)부터
         a=ang if rw>=rh else ang+90   # 긴 쪽 방향
         a=((a%180)+180)%180
-        if min(abs(a-0),abs(a-90),abs(a-180))<15: continue   # 가로·세로는 벽선이 맡는다
+        # 가로·세로는 벽선이 맡는다. 2026-11-12 고침(103 외벽 샘): 15도 안쪽을 다 버려 세로에서 10도쯤 기운 벽(피트 옆 사다리꼴 벽)을 아무도 안 맡았다
+        #   → 여기 남은 덩어리는 이미 벽선으로 안 덮인 것이므로 5도 안쪽만 버린다
+        if min(abs(a-0),abs(a-90),abs(a-180))<5: continue
         if st[j,4] < L*T*(0.4 if 25<=a<=65 else 0.55): continue   # 속이 빈 것(글자·기호)은 버린다 — 45도 근처는 직각 벽 토막이 붙어 채움이 낮아도 벽(125TB)
         r=np.deg2rad(a); dx,dy=np.cos(r)*L/2,np.sin(r)*L/2
         tm=250 if T*mm>=170 else 200 if T*mm>=110 else 120
