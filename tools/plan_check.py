@@ -253,10 +253,13 @@ def rules(img, p):
             pts = [(int(round(t)), int(round(c))) if ax == 'h' else (int(round(c)), int(round(t))) for t in xs]
             return np.mean([mask[min(H-1, max(0, y_)), min(W-1, max(0, x_))] for x_, y_ in pts])
         for ax, a, b, c, t in G['벽선']:
-            if (b-a) >= 6 and sup(dk, ax, a, b, c) < 0.5: out.append(['R14', '벽', int((a+b)/2) if ax == 'h' else int(c), int(c) if ax == 'h' else int((a+b)/2)])
+            # 문틀 띠 자리를 잇는 짧은 벽 조각(설계상 벽으로 이음, 원본엔 흰 띠)은 빼고 20화소 넘는 벽만 본다
+            if (b-a) >= 20 and sup(dk, ax, a, b, c) < 0.5: out.append(['R14', '벽', int((a+b)/2) if ax == 'h' else int(c), int(c) if ax == 'h' else int((a+b)/2)])
         for ax, x0, y0, x1, y1 in G['샷시']:
             a, b, c = (x0, x1, (y0+y1)/2) if ax == 'h' else (y0, y1, (x0+x1)/2)
-            if (b-a) >= 6 and sup(ln3, ax, a, b, c) < 0.5: out.append(['R14', '창', int((x0+x1)/2), int((y0+y1)/2)])
+            # 창은 벽 중심선에 맞춰 옮겨 그린다(R2) — 원본 창 띠는 벽 바깥 면에 붙기도 하므로 중심선 한 줄이 아니라 창 사각형 안 어디든 길이를 따라 원본 선이 있는지 본다
+            band = ln3[max(0, y0-2):y1+3, max(0, x0):x1+1] if ax == 'h' else ln3[max(0, y0):y1+1, max(0, x0-2):x1+3].T
+            if (b-a) >= 6 and band.size and band.any(0).mean() < 0.5: out.append(['R14', '창', int((x0+x1)/2), int((y0+y1)/2)])
     for r in R:   # R8
         if r.get('kind') not in ('방', '거실'): continue
         P = np.array(r['pts']); x0, y0 = P.min(0); x1, y1 = P.max(0)
