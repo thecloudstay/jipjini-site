@@ -15,7 +15,7 @@ for (const f of fs.readdirSync(R + '/data/plans').filter((x) => /^A.*\.json$/.te
     const M = window.JJCadIO.model(st, { title: (d.단지명 || code) + ' ' + t.이름 });
     if (!M) { console.log('척도 없음', code, t.이름); continue; }
     const out = R + '/data/cad/' + code + '_' + t.이름 + '.dwg';
-    fs.writeFileSync(out, window.JJDwgLib.write(M, window.JJCadIO.LAYERS, window.JJCadIO.BLOCKS)); n++;
+    try { fs.writeFileSync(out, window.JJDwgLib.write(M, window.JJCadIO.LAYERS, window.JJCadIO.BLOCKS)); n++; } catch (e) { console.log('실패', code, t.이름, String(e.message).slice(0, 80)); }
   }
 }
 console.log('오토캐드 파일', n, '개');
