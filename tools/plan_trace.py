@@ -1,5 +1,5 @@
 # 원본 평면도 → 읽고(직선 토막) → 다듬고(가로·세로, 합치기) → 가려내고(싱크대·붙박이장·신발장·샷시) → 집지니 기호로 다시 그릴 자료
-import json, cv2, numpy as np
+import os, json, cv2, numpy as np
 def rect_path(mask, eps=1.2, snap=True):
     cs,_=cv2.findContours(mask.astype(np.uint8),cv2.RETR_CCOMP,cv2.CHAIN_APPROX_SIMPLE); d=[]
     for c in cs:
@@ -28,6 +28,7 @@ def segs(mask, minlen):
             else: out.append([c,a,b,[c]])
         return [[round(sum(o[3])/len(o[3]),1),o[1],o[2]] for o in out]
     return [('h',float(s[0]),int(s[1]),int(s[2])) for s in merge(H)]+[('v',float(s[0]),int(s[1]),int(s[2])) for s in merge(V)]
+JJ_WALL_MM=200   # 집지니 표준 벽 두께(mm)
 def clean_walls(wall, mm):
     """2026-11-12 대표 지시: 원본 외곽(벽)은 자리만 참고하고 집지니식으로 다시 그린다 — 가로·세로 곧은 띠, 두께는 두 가지(바깥·안)로 통일, 희끗한 점 없이"""
     H,W=wall.shape; w8=wall.astype(np.uint8)
@@ -47,7 +48,7 @@ def clean_walls(wall, mm):
                 out.append(['v',y,y+h_,c,t])
     if not out: return wall
     ts=np.array([o[4] for o in out]); tin=np.percentile(ts,25); tex=np.percentile(ts,90)
-    if tex<tin*1.3: tex=tin
+    tin=tex=JJ_WALL_MM/mm   # 2026-11-12 대표 지시 「집지니 타입 하나로 모두 통일」: 벽 두께는 모든 평면·모든 벽 같은 값
     clean_walls.T=(tin,tex)
     canvas=np.zeros((H,W),np.uint8); covered=(hh>0)|(vv>0)
     for ax,a,b,c,t in out:
@@ -58,7 +59,7 @@ def clean_walls(wall, mm):
     n,lab,st,_=cv2.connectedComponentsWithStats(rest.astype(np.uint8),connectivity=4)
     for j in range(1,n):
         x,y,w_,h_,a_=st[j]
-        if a_>=12 and a_>=w_*h_*0.5: cv2.rectangle(canvas,(int(x),int(y)),(int(x+w_-1),int(y+h_-1)),1,-1)
+        if a_>=(JJ_WALL_MM/mm)**2*0.8 and min(w_,h_)>=JJ_WALL_MM/mm*0.6 and a_>=w_*h_*0.5: cv2.rectangle(canvas,(int(x),int(y)),(int(x+w_-1),int(y+h_-1)),1,-1)
     return canvas>0
 def trace(path, plan):
     bgr=cv2.imread(path); H,W=bgr.shape[:2]; mm=plan.get('mmpp') or 23.0
@@ -144,12 +145,55 @@ def trace(path, plan):
     # 2026-11-12 대표 지시 「공용부는 도형을 그리지 말고 '공용부'라고만 적고 비워 둔다」: 공용부(집 범위 밖, 건물 안)에서는 건물 바깥 테두리 벽만 남긴다
     # 공용부 = 건물 네모 안이면서 집 범위 밖. 그 안의 벽은 건물 네모 가장자리(바깥 테두리)에 붙은 것만 남긴다
     pubzone=bld&~house
+    cw=clean_walls(wall,mm); tin,tex=clean_walls.T
     edge=np.zeros((H,W),bool); e=12; edge[by-6:by+e, :]=True; edge[by+bh0-e:by+bh0+7, :]=True; edge[:, bx-6:bx+e]=True; edge[:, bx+bw0-e:bx+bw0+7]=True
     # 2026-11-12 대표 지시 「공용부 외곽선은 그대로 다 넣어라」: 공용부 굵은 벽은 모두 남긴다(계단·승강기 가는 선만 뺀다)
-    pz=(pubzone&~cv2.dilate(wall.astype(np.uint8),np.ones((5,5),np.uint8)).astype(bool)).astype(np.uint8)
+    # 승강기(EV) 찾기: 공용부 안의 대각선 두 줄이 엇갈린 네모(원본 X 표시)
+    rawp=((((v<135)&((s<70)|(v<75)))|((v<205)&(s<30)))&pubzone).astype(np.uint8)*255
+    LL=cv2.HoughLinesP(rawp,1,np.pi/180,threshold=20,minLineLength=int(700/mm),maxLineGap=4); dg=[]
+    if LL is not None:
+        for x1_,y1_,x2_,y2_ in LL.reshape(-1,4):
+            ang=np.degrees(np.arctan2(y2_-y1_,x2_-x1_))%180
+            if 30<=ang<=60: dg.append(('+',min(x1_,x2_),min(y1_,y2_),max(x1_,x2_),max(y1_,y2_)))
+            elif 120<=ang<=150: dg.append(('-',min(x1_,x2_),min(y1_,y2_),max(x1_,x2_),max(y1_,y2_)))
+    ev=[]
+    for a in dg:
+        if a[0]!='+': continue
+        for b in dg:
+            if b[0]!='-': continue
+            ix=min(a[3],b[3])-max(a[1],b[1]); iy=min(a[4],b[4])-max(a[2],b[2])
+            if ix<=0 or iy<=0: continue
+            if ix*iy<0.6*max((a[3]-a[1])*(a[4]-a[2]),(b[3]-b[1])*(b[4]-b[2])): continue
+            box=[int(min(a[1],b[1])),int(min(a[2],b[2])),int(max(a[3],b[3])),int(max(a[4],b[4]))]
+            if not(1000<=(box[2]-box[0])*mm<=3200 and 1000<=(box[3]-box[1])*mm<=3200): continue
+            if any(min(e[2],box[2])>max(e[0],box[0]) and min(e[3],box[3])>max(e[1],box[1]) for e in ev): continue
+            ev.append(box)
+    # 승강기 둘째 방법: 문 틈을 메운 벽으로 닫히는 작은 네모 칸(공용부 안)
+    k2=max(5,int(1100/mm))
+    for cwc in (cw.astype(np.uint8),cv2.morphologyEx(cw.astype(np.uint8),cv2.MORPH_CLOSE,np.ones((k2,k2),np.uint8))):
+     n2,l2,s2,_=cv2.connectedComponentsWithStats((1-cwc).astype(np.uint8),connectivity=4)
+     for jj in range(1,n2):
+        x,y,w_,h_,a_=s2[jj]
+        if not(900<=w_*mm<=3200 and 900<=h_*mm<=3200 and 0.7<=w_/h_<=1.43 and a_>=w_*h_*0.75): continue
+        if pubzone[y:y+h_,x:x+w_].mean()<0.6: continue
+        if any(min(e[2],x+w_)>max(e[0],x) and min(e[3],y+h_)>max(e[1],y) for e in ev): continue
+        ev.append([int(x),int(y),int(x+w_),int(y+h_)])
+    # 공용부 이름: 벽으로 둘러싸인 공용 칸(건물 네모 가장자리에 닿는 바깥 빈 곳·승강기 칸은 뺀다), 칸에서 가장 넓은 자리에 하나씩
+    pz=(pubzone&~(cv2.dilate(cw.astype(np.uint8),np.ones((3,3),np.uint8))>0)).astype(np.uint8)
+    kk=max(5,int(1300/mm)); seal=cv2.dilate(cw.astype(np.uint8),np.ones((kk,kk),np.uint8))   # 문·창 틈을 막고 바깥에서 물 붓기 = 건물 바깥
+    ff=(1-seal).astype(np.uint8); msk=np.zeros((H+2,W+2),np.uint8); cv2.floodFill(ff,msk,(0,0),2); outside=cv2.dilate((ff==2).astype(np.uint8),np.ones((kk,kk),np.uint8))>0
     npz,lpz,spz,cpz=cv2.connectedComponentsWithStats(pz,connectivity=4); publab=[]
     for jj in range(1,npz):
-        if spz[jj,4]*mm*mm/1e6>=3: publab.append([int(cpz[jj,0]),int(cpz[jj,1])])
+        x,y,w_,h_,a_=spz[jj]
+        if a_*mm*mm/1e6<3: continue
+        m=(lpz==jj)&~outside
+        if m.sum()*mm*mm/1e6<3: continue   # 건물 바깥 빈 곳
+        if 1000<=w_*mm<=3200 and 1000<=h_*mm<=3200 and 0.7<=w_/h_<=1.43 and a_>=w_*h_*0.7 and not any(min(e[2],x+w_)>max(e[0],x) and min(e[3],y+h_)>max(e[1],y) for e in ev):
+            ev.append([int(x),int(y),int(x+w_),int(y+h_)]); continue   # 벽으로 닫힌 작은 네모 칸 = 승강기
+        if any(m[e[1]:e[3],e[0]:e[2]].mean()>0.5 and m[e[1]:e[3],e[0]:e[2]].sum()>=a_*0.6 for e in ev): continue
+        for e in ev: m[e[1]-3:e[3]+4,e[0]-3:e[2]+4]=False
+        dt=cv2.distanceTransform(m.astype(np.uint8),cv2.DIST_L2,5); yy,xx=np.unravel_index(np.argmax(dt),dt.shape)
+        publab.append([int(xx),int(yy),int(round(dt[yy,xx]*2))])
     pubd=''
     cells=[]; objs=[]
     white=(v>=225)&(s<=25)
@@ -211,7 +255,6 @@ def trace(path, plan):
             return np.sum((np.abs(xs-px)<=2))
         leaf,op=(a1,a2) if edge_cnt(a1)>=edge_cnt(a2) else (a2,a1)
         doors.append({'x1':int(C[hc][0]),'y1':int(C[hc][1]),'x2':int(C[op][0]),'y2':int(C[op][1]),'cx':int(C[leaf][0]),'cy':int(C[leaf][1]),'호':1})
-    cw=clean_walls(wall,mm); tin,tex=clean_walls.T
     # 샷시·창(대표 지적 2026-11-12 「샷시가 빠졌다」): 벽 줄 안의 끊긴 틈 = 창. 벽을 가로·세로로 이어 붙여 메운 뒤 원래 벽을 빼면 틈만 남는다
     K=max(9,int(2600/mm)); sash=[]
     dz=np.zeros((H,W),bool)
@@ -227,4 +270,24 @@ def trace(path, plan):
             T=tex if abs(Sp-tex)<abs(Sp-tin) else tin   # 샷시 두께를 붙은 벽 두께로 통일(깔끔하게)
             if ax=='h': c=y+h_/2.0; sash.append([ax,int(x),int(round(c-T/2)),int(x+w_),int(round(c+T/2))])
             else: c=x+w_/2.0; sash.append([ax,int(round(c-T/2)),int(y),int(round(c+T/2)),int(y+h_)])
-    return {'샷시':sash,'문':doors,'공용칸':publab,'틀':[int(bx),int(by),int(bx+bw0),int(by+bh0)],'공용':pubd,'벽':rect_path(cw,0.8),'칸':cells,'창선':win,'기구':objs}
+    # 2026-11-12 대표 지시 「백색 실선 상자(샷시) 싹 지우고 집지니식 외곽선만」: 샷시 자리는 벽으로 메워 외곽선을 잇는다(자료로는 남김)
+    # 2026-11-12 대표 지시 「문 개구부 처리 하지 말고 그냥 삭제」: 문 자리도 벽으로 메워 외곽선만 남기고, 메운 벽까지 한 번 더 곧게 다듬는다
+    w2=wall.copy(); T2=int(round(JJ_WALL_MM/mm/2))
+    for q in sash: w2[q[2]:q[4],q[1]:q[3]]=True
+    for d_ in doors:
+        x0_,x1_=sorted([d_['x1'],d_['x2']]); y0_,y1_=sorted([d_['y1'],d_['y2']])
+        if x1_-x0_>=y1_-y0_: w2[max(0,y0_-T2):y0_+T2+1,x0_:x1_+1]=True
+        else: w2[y0_:y1_+1,max(0,x0_-T2):x0_+T2+1]=True
+    cw=clean_walls(w2,mm)
+    # 2026-11-12 대표 지시 「주방 도어·싱크대 박스·샷시 모두 삭제」: 주방 칸(+벽 두께)에 걸친 문·샷시는 그리지 않는다
+    kz=np.zeros((H,W),np.uint8)
+    for r in rooms:
+        if r.get('kind')=='주방' or '주방' in str(r.get('name','')): cv2.fillPoly(kz,[np.array(r['pts'],np.int32)],1)
+    kz=cv2.dilate(kz,np.ones((max(3,int(300/mm)),)*2,np.uint8))>0
+    def inK(x0,y0,x1,y1):
+        x0,x1=sorted([int(x0),int(x1)]); y0,y1=sorted([int(y0),int(y1)]); sub=kz[max(0,y0):y1+1,max(0,x0):x1+1]
+        return sub.size>0 and sub.mean()>0.5
+    sash=[q for q in sash if not inK(q[1],q[2],q[3],q[4])]
+    doors=[d_ for d_ in doors if not inK(min(d_['x1'],d_['x2'],d_['cx']),min(d_['y1'],d_['y2'],d_['cy']),max(d_['x1'],d_['x2'],d_['cx']),max(d_['y1'],d_['y2'],d_['cy']))]
+    # 2026-11-12 대표 지시 「아웃라인만 남긴다 — 가장 굵은 선은 내부까지 모두 남긴다」: 굵은 벽 전부(문·샷시 자리는 메움), 가는 선·문·샷시 기호는 없음
+    return {'샷시':sash,'문':doors,'공용칸':publab,'EV':ev,'틀':[int(bx),int(by),int(bx+bw0),int(by+bh0)],'공용':pubd,'벽':rect_path(cw,0.8),'칸':cells,'창선':win,'기구':objs}
