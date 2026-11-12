@@ -5,6 +5,10 @@
 (function (root) {
   'use strict';
   var LAYERS = [['A-WALL-EXTR', 7], ['A-WALL-STRC', 7], ['A-WALL-PRTN', 8], ['A-WALL-PATT', 8], ['A-DOOR', 4], ['A-GLAZ', 5], ['A-AREA', 9], ['A-AREA-IDEN', 7], ['A-ANNO-DIMS', 3], ['A-ANNO-TEXT', 7], ['A-FLOR-STRS', 8], ['A-FLOR-EVTR', 8], ['A-AREA-PUBL', 9]];
+  // 공사 표시: 실내(I) 분야 층, 공종마다 한 층 — 공종별로 켜고 끄며 업체에 나눠 줄 수 있게
+  var WORK = [['철거', 'DEMO', 1], ['창호', 'GLAZ', 5], ['설비', 'PLMB', 4], ['전기', 'ELEC', 30], ['목공', 'CARP', 34], ['타일', 'TILE', 3], ['도장', 'PNTG', 6], ['도배', 'WALP', 210], ['바닥', 'FLOR', 40], ['가구', 'FURN', 8]];
+  WORK.forEach(function (w) { LAYERS.push(['I-WORK-' + w[1], w[2]]); });
+  var WORK_LAY = {}; WORK.forEach(function (w) { WORK_LAY[w[0]] = 'I-WORK-' + w[1]; });
   var WALL_LAYER = { 250: 'A-WALL-EXTR', 200: 'A-WALL-STRC', 120: 'A-WALL-PRTN' };
   var STD_DOOR = { 욕실: 750, 현관: 1000, 드레스룸: 800, 피트: 600, 다용도: 800 };
 
@@ -13,9 +17,11 @@
   var BLOCKS = {
     'JJ-DOOR-SWING': [L0([0, 0], [0, 1000]), { k: 'arc', lay: '0', c: [0, 0], r: 1000, a0: 0, a1: 90 }, { k: 'attdef', tag: 'WIDTH', prompt: '문 폭(mm)', p: [0, -150] }, { k: 'attdef', tag: 'TYPE', prompt: '문 종류', p: [0, -250] }],
     'JJ-WIN-DOUBLE': [L0([0, -500], [1000, -500]), L0([1000, -500], [1000, 500]), L0([1000, 500], [0, 500]), L0([0, 500], [0, -500]), L0([0, -120], [1000, -120]), L0([0, 120], [1000, 120]), { k: 'attdef', tag: 'WIDTH', prompt: '창 폭(mm)', p: [0, -700] }, { k: 'attdef', tag: 'TYPE', prompt: '창 종류', p: [0, -800] }],
+    // 공사 표시 하나: 동그라미 + 속성(종류 이름·공종·쪽지, 편집기 기호 열쇠·모양·꼭짓점 — 다시 열 때 그대로 되살린다)
+    'JJ-WORK': [{ k: 'arc', lay: '0', c: [0, 0], r: 150, a0: 0, a1: 360 }, { k: 'attdef', tag: 'NAME', prompt: '공사 이름', p: [200, 0] }, { k: 'attdef', tag: 'TRADE', prompt: '공종', p: [200, -100] }, { k: 'attdef', tag: 'NOTE', prompt: '쪽지', p: [200, -200] }, { k: 'attdef', tag: 'KEY', prompt: '집지니 기호', p: [200, -300] }, { k: 'attdef', tag: 'FORM', prompt: '모양', p: [200, -400] }, { k: 'attdef', tag: 'VTX', prompt: '꼭짓점(mm)', p: [200, -500] }, { k: 'attdef', tag: 'STATE', prompt: '상태', p: [200, -600] }],
     'JJ-EVTR': [L0([0, 0], [1000, 0]), L0([1000, 0], [1000, 1000]), L0([1000, 1000], [0, 1000]), L0([0, 1000], [0, 0]), L0([0, 0], [1000, 1000]), L0([1000, 0], [0, 1000])]
   };
-  var VERSION = '20261112zn';
+  var VERSION = '20261112zo';
   function u(s) { return String(s == null ? '' : s).replace(/[^\x20-\x7e]/g, function (c) { var h = c.charCodeAt(0).toString(16).toUpperCase(); return '\\U+' + ('0000' + h).slice(-4); }); }
   function W() { this.o = []; }
   W.prototype.g = function (code, val) { this.o.push(String(code), typeof val === 'number' ? (Math.round(val * 1000) / 1000).toString() : String(val)); return this; };
@@ -78,6 +84,14 @@
     shapes.filter(function (q) { return q.t === 'dim'; }).forEach(function (q) { var A = P(q.x1, q.y1), B = P(q.x2, q.y2); line('A-ANNO-DIMS', A, B); txt('A-ANNO-DIMS', String(Math.round(Math.hypot(B[0] - A[0], B[1] - A[1]))), [(A[0] + B[0]) / 2, (A[1] + B[1]) / 2 + 80], 150, true); });
     shapes.filter(function (q) { return q.t === 'text' && q.text; }).forEach(function (q) { txt('A-ANNO-TEXT', q.text, P(q.x, q.y), 200, false); });
     if (G && G.EV) G.EV.forEach(function (e) { var a = P(e[0], e[3]), b = P(e[2], e[1]); ins('JJ-EVTR', 'A-FLOR-EVTR', a, (b[0] - a[0]) / 1000, (b[1] - a[1]) / 1000, 0); });
+    // 공사 표시(편집기 작업 기호): 점은 기호, 선·구역은 선 + 이름 기호. 기호 속성에 편집기 열쇠와 꼭짓점을 넣어 다시 열 때 그대로 돌아온다
+    var SY = opt.syms || {}; cnt.공사 = 0;
+    shapes.filter(function (q) { return q.t === 'wk' && q.k; }).forEach(function (q) { var sy = SY[q.k] || [], tr = sy[0] || '', lay = WORK_LAY[tr] || 'I-WORK-FURN', nm = sy[1] || q.k, at, pts = (q.pts || []).map(function (p) { return P(p[0], p[1]); });
+      if (q.f === 'p' || !pts.length) at = P(q.x, q.y);
+      else { poly(lay, pts, q.f === 'a'); if (q.f === 'a') { var cx = 0, cy = 0; pts.forEach(function (p) { cx += p[0]; cy += p[1]; }); at = [cx / pts.length, cy / pts.length]; } else at = [(pts[0][0] + pts[pts.length - 1][0]) / 2, (pts[0][1] + pts[pts.length - 1][1]) / 2]; }
+      var vtx = pts.map(function (p) { return Math.round(p[0]) + ',' + Math.round(p[1]); }).join(';');
+      ins('JJ-WORK', lay, at, 1, 1, 0, { NAME: nm, TRADE: tr, NOTE: q.note || '', KEY: q.k, FORM: q.f || 'p', VTX: vtx.length < 250 ? vtx : '', STATE: q.st || '' });
+      txt(lay, (sy[3] || nm), [at[0] + 200, at[1] + 80], 160, false); cnt.공사++; });
     if (opt.title) txt('A-ANNO-TEXT', opt.title, [0, -900], 300, false);
     return { ents: E, count: cnt, mm: mm, name: (state && state.name) || '' };
   }
@@ -177,7 +191,7 @@
     var X = function (x) { return (x - x0) * f / mmpp + pad; }, Y = function (y) { return (y1 - y) * f / mmpp + pad; }, PX = function (p) { return [X(p[0]), Y(p[1])]; }, r1 = function (v) { return Math.round(v * 10) / 10; };
     if (!ours) return { ok: true, ours: false, raster: { ents: N.ents, W: W, H: H, X: X, Y: Y, mmpp: mmpp }, mmpp: mmpp, W: W, H: H };
     var G = { 벽선: [], 샷시: [], 문: [], EV: [], 공용칸: [], 공용: '', 벽: '', 벽채움: 'nonzero' }, path = [], rooms = [], texts = N.ents.filter(function (e) { return e.k === 'text' && e.lay === 'A-AREA-IDEN'; });
-    var TH = { 'A-WALL-EXTR': 250, 'A-WALL-STRC': 200, 'A-WALL-PRTN': 120 };
+    var TH = { 'A-WALL-EXTR': 250, 'A-WALL-STRC': 200, 'A-WALL-PRTN': 120 }, WK = [];
     N.ents.forEach(function (e) {
       if (e.k === 'poly' && TH[e.lay] && e.closed && e.pts.length === 4) { var px = e.pts.map(PX), bx0 = Math.min.apply(null, px.map(function (p) { return p[0]; })), bx1 = Math.max.apply(null, px.map(function (p) { return p[0]; })), by0 = Math.min.apply(null, px.map(function (p) { return p[1]; })), by1 = Math.max.apply(null, px.map(function (p) { return p[1]; }));
         var hz = (bx1 - bx0) >= (by1 - by0); G.벽선.push(hz ? ['h', r1(bx0), r1(bx1), r1((by0 + by1) / 2), TH[e.lay]] : ['v', r1(by0), r1(by1), r1((bx0 + bx1) / 2), TH[e.lay]]);
@@ -191,12 +205,16 @@
       else if (e.k === 'insert') { var ro = (e.rot || 0) * Math.PI / 180, cs = Math.cos(ro), sn = Math.sin(ro), R = function (lx, ly) { return [e.p[0] + lx * cs - ly * sn, e.p[1] + lx * sn + ly * cs]; };
         if (e.name === 'JJ-DOOR-SWING') { var Hh = PX(e.p), O = PX(R(e.sx * 1000, 0)), Lf = PX(R(0, e.sy * 1000)); G.문.push({ x1: r1(Hh[0]), y1: r1(Hh[1]), x2: r1(O[0]), y2: r1(O[1]), cx: r1(Lf[0]), cy: r1(Lf[1]), wmm: parseInt(e.attrs && e.attrs.WIDTH, 10) || 0 }); }
         else if (e.name === 'JJ-WIN-DOUBLE') { var A0 = PX(R(0, -e.sy * 500)), A1 = PX(R(e.sx * 1000, e.sy * 500)), hz2 = Math.abs(Math.cos(ro)) > 0.7; G.샷시.push([hz2 ? 'h' : 'v', Math.round(Math.min(A0[0], A1[0])), Math.round(Math.min(A0[1], A1[1])), Math.round(Math.max(A0[0], A1[0])), Math.round(Math.max(A0[1], A1[1]))]); }
+        else if (e.name === 'JJ-WORK' && e.attrs && e.attrs.KEY) { var at2 = e.attrs, fm = at2.FORM || 'p', P0 = PX(e.p), vt = String(at2.VTX || '').split(';').filter(Boolean).map(function (t) { var a = t.split(','); return PX([parseFloat(a[0]) / f, parseFloat(a[1]) / f]); });
+          var wk = { t: 'wk', k: at2.KEY, st: at2.STATE || (/철거/.test(at2.TRADE || '') ? 'remove' : 'new'), f: fm, note: at2.NOTE || '' };
+          if (fm === 'p' || vt.length < 2) { wk.f = 'p'; wk.x = Math.round(P0[0]); wk.y = Math.round(P0[1]); } else wk.pts = vt.map(function (p) { return [Math.round(p[0]), Math.round(p[1])]; });
+          WK.push(wk); }
         else if (e.name === 'JJ-EVTR') { var E0 = PX(e.p), E1 = PX([e.p[0] + e.sx * 1000, e.p[1] + e.sy * 1000]); G.EV.push([Math.round(Math.min(E0[0], E1[0])), Math.round(Math.min(E0[1], E1[1])), Math.round(Math.max(E0[0], E1[0])), Math.round(Math.max(E0[1], E1[1]))]); } } });
     G.벽 = path.join('');
     var wx = [], wy = []; G.벽선.forEach(function (s) { if (s[0] === 'h') { wx.push(s[1], s[2]); wy.push(s[3]); } else { wy.push(s[1], s[2]); wx.push(s[3]); } });
     G.틀 = wx.length ? [Math.round(Math.min.apply(null, wx)), Math.round(Math.min.apply(null, wy)), Math.round(Math.max.apply(null, wx)), Math.round(Math.max.apply(null, wy))] : [pad, pad, W - pad, H - pad];
     if (!rooms.length) return { ok: false, why: '방 경계(A-AREA 층)를 찾지 못했습니다.' };
-    return { ok: true, ours: true, plan: { W: W, H: H, mmpp: mmpp, rooms: rooms, 창: [], 문: [], 그림: G, name: name || '캐드 도면', 척도: { 방식: '캐드 파일' } } };
+    return { ok: true, ours: true, plan: { 작업: WK, W: W, H: H, mmpp: mmpp, rooms: rooms, 창: [], 문: [], 그림: G, name: name || '캐드 도면', 척도: { 방식: '캐드 파일' } } };
   }
   // 남의 도면: 선을 굵게 그린 그림으로(벽은 굵은 검정, 나머지는 가는 선) — 집지니 그림 읽기에 넘긴다
   function rasterize(R, canvas) { var c = canvas, g = c.getContext('2d'); c.width = R.W; c.height = R.H; g.fillStyle = '#fff'; g.fillRect(0, 0, R.W, R.H); g.strokeStyle = '#000'; g.fillStyle = '#000'; g.lineJoin = 'round'; g.lineCap = 'round';
