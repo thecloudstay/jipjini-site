@@ -55,6 +55,12 @@
   function U() { return Math.max(8, D0 / 34); }
 
   // ── 자료 바꾸기: 분석 결과(방 다각형 목록) → 편집기 상태
+  // 문 안전 시험: 문 가운데에서 벽에 수직으로 양쪽(600mm, 척도 모르면 문 길이의 0.7)을 본다. 한쪽이라도 어느 방에도 안 들면(집 밖) 거짓 —
+  //   단 다른 쪽이 현관이면(현관문) 참. 창을 문으로 잘못 읽어 바깥벽에 문이 생기는 일을 막는다(사람이 떨어질 수 있음)
+  function doorSafe(x1, y1, x2, y2, mm, sh) { var L = Math.hypot(x2 - x1, y2 - y1) || 1, ux = (x2 - x1) / L, uy = (y2 - y1) / L, mx = (x1 + x2) / 2, my = (y1 + y2) / 2, off = mm > 0 ? 600 / mm : L * 0.7;
+    var at = function (x, y) { var k = null; sh.forEach(function (q) { if (q.t === 'room' && q.pts && inPoly([x, y], q.pts)) k = q.kind || kindOf(q.name); }); return k; };
+    var a = at(mx - uy * off, my + ux * off), b = at(mx + uy * off, my - ux * off);
+    if (a && b) return true; return (a === '현관' && !b) || (b === '현관' && !a); }
   function fromPlan(p) {
     var sh = [], xs = [], ys = [];
     (p.rooms || []).forEach(function (m) { if (!m.pts || m.pts.length < 3) return; m.pts.forEach(function (q) { xs.push(q[0]); ys.push(q[1]); });
@@ -98,7 +104,8 @@
       var live = function (w) { var L = Math.hypot(w.x2 - w.x1, w.y2 - w.y1) || 1, nx = -(w.y2 - w.y1) / L, ny = (w.x2 - w.x1) / L, mx = (w.x1 + w.x2) / 2, my = (w.y1 + w.y2) / 2; return [1, -1].some(function (sd) { return RM.some(function (n) { return inPoly([mx + nx * sd * L * 0.5, my + ny * sd * L * 0.5], n.pts); }); }); };   // 어느 쪽으로도 방에 안 열리는 문은 뒤에서 버려지니 없는 셈
       var hasDoor = function (m) { return D0.some(function (w) { if (!live(w)) return false; var mx = (w.x1 + w.x2) / 2, my = (w.y1 + w.y2) / 2; for (var e = 0; e < m.pts.length; e++) { var A = m.pts[e], B = m.pts[(e + 1) % m.pts.length], L2 = Math.pow(B[0] - A[0], 2) + Math.pow(B[1] - A[1], 2) || 1, t = Math.max(0, Math.min(1, ((mx - A[0]) * (B[0] - A[0]) + (my - A[1]) * (B[1] - A[1])) / L2)); if (Math.hypot(mx - A[0] - t * (B[0] - A[0]), my - A[1] - t * (B[1] - A[1])) < tolW) return true; } return false; }); };
       // 현관문: 현관에 문이 없으면 바깥으로 난 벽(바깥에 방이 없는 변) 가운데에 1,000mm 문
-      RM.forEach(function (m) { var k = m.kind || kindOf(m.name); if (k !== '현관' || hasDoor(m)) return; var ct = centroid(m.pts), off = 450 / p.mmpp, bestE = null;
+      // 2026-11-12 대표 지시(안전) 「외벽에 창호를 문으로 그려 창문에 떨어지는 현상」: 현관 바깥 변에 문을 지어 넣던 것을 끈다 — 그 변이 창일 수 있다
+      if (false) RM.forEach(function (m) { var k = m.kind || kindOf(m.name); if (k !== '현관' || hasDoor(m)) return; var ct = centroid(m.pts), off = 450 / p.mmpp, bestE = null;
         for (var e = 0; e < m.pts.length; e++) { var A = m.pts[e], B = m.pts[(e + 1) % m.pts.length], hz = Math.abs(A[1] - B[1]) < 1, vt = Math.abs(A[0] - B[0]) < 1; if (!hz && !vt) continue; var L = Math.hypot(B[0] - A[0], B[1] - A[1]); if (L * p.mmpp < 1100) continue;
           var mx = (A[0] + B[0]) / 2, my = (A[1] + B[1]) / 2, ox2 = hz ? 0 : (mx > ct[0] ? off : -off), oy2 = hz ? (my > ct[1] ? off : -off) : 0; if (RM.some(function (n) { return inPoly([mx + ox2, my + oy2], n.pts); })) continue; if (!bestE || L > bestE.L) bestE = { L: L, mx: mx, my: my, hz: hz }; }
         if (bestE) { var hw = 500 / p.mmpp; D0.push(bestE.hz ? { x1: bestE.mx - hw, y1: bestE.my, x2: bestE.mx + hw, y2: bestE.my, cx: bestE.mx, cy: ct[1] } : { x1: bestE.mx, y1: bestE.my - hw, x2: bestE.mx, y2: bestE.my + hw, cx: ct[0], cy: bestE.my }); } });
@@ -113,6 +120,8 @@
       p = Object.assign({}, p, { 문: D0 }); }
     var inRoom = function (x, y) { return sh.some(function (q) { return q.t === 'room' && inPoly([x, y], q.pts); }); };
     (p.문 || []).forEach(function (w) { var x1 = Math.round(w.x1), y1 = Math.round(w.y1), x2 = Math.round(w.x2), y2 = Math.round(w.y2), L = Math.hypot(x2 - x1, y2 - y1); if (L < 4) return;
+      // 안전(2026-11-12 대표 지시 「사람이 떨어져 죽을 수도 있으니 잘못 그리면 안 된다」): 문 양쪽 중 한쪽이라도 집 밖(어느 공간에도 안 들면)이면 그리지 않는다. 현관문만 예외
+      if (!doorSafe(x1, y1, x2, y2, p.mmpp, sh)) return;
       if (w.원본) { var uX = (x2 - x1) / L, uY = (y2 - y1) / L, sd0 = ((-uY) * (w.cx - x1) + uX * (w.cy - y1)) >= 0 ? 1 : -1; sh.push({ t: 'door', c: '#b06a00', x1: x1, y1: y1, x2: x2, y2: y2, h: 2100, name: '문', auto: true, flip: sd0 < 0 }); return; }   /* 원본 그대로 */
       var ux = (x2 - x1) / L, uy = (y2 - y1) / L, side = (w.cx != null && ((w.cx - (x1 + x2) / 2) * -uy + (w.cy - (y1 + y2) / 2) * ux) < 0) ? -1 : 1, pickd = null;
       // 2026-11-12 대표 지시 「방문은 무조건 들어가는 공간 안으로」: 문 양쪽 공간을 보고, 방·욕실·드레스룸·발코니 쪽으로 연다(거실·주방·복도 쪽이 아니라). 현관문은 집 밖으로 연다.

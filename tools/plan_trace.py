@@ -156,6 +156,40 @@ def window_strips(img, mm, doors=None, rooms=None):
         if (inside(A) and (B is None or B=='발코니')) or (inside(B) and (A is None or A=='발코니')) or (A=='발코니' and B is None) or (B=='발코니' and A is None): keep.append(q)
     return keep
 
+# ── 문 안전 거르기(2026-11-12 대표 지시 「외벽에 창호를 문으로 그려 창문에 떨어지는 현상 — 사람이 떨어져 죽을 수도 있으니 잘못 그리면 안 된다」)
+#   문 양쪽(문 가운데에서 벽에 수직으로 600mm)이 건물 밖이면 그 문은 그리지 않는다. 예외 하나: 안쪽이 현관인 문(공용 복도로 나가는 현관문).
+#   건물 밖 = 그림 가장자리에서 벽·창·문 자리·방(+벽 두께)을 넘지 않고 닿는 곳.
+def _inpoly(x,y,P):
+    c=False
+    for i in range(len(P)):
+        (x1,y1),(x2,y2)=P[i],P[(i+1)%len(P)]
+        if (y1>y)!=(y2>y) and x<(x2-x1)*(y-y1)/((y2-y1) or 1e-9)+x1: c=not c
+    return c
+def outside_mask(rooms, wseg, sash, doors, mm, H, W):
+    m=np.zeros((H,W),np.uint8)
+    for ax,a,b,c,t in wseg:
+        h=max(1.5,t/mm/2)
+        if ax=='h': cv2.rectangle(m,(int(a)-1,int(c-h)),(int(b)+1,int(c+h)),1,-1)
+        else: cv2.rectangle(m,(int(c-h),int(a)-1),(int(c+h),int(b)+1),1,-1)
+    for ax,x0,y0,x1,y1 in sash: cv2.rectangle(m,(int(x0),int(y0)),(int(x1),int(y1)),1,-1)
+    for d in doors: cv2.line(m,(int(d['x1']),int(d['y1'])),(int(d['x2']),int(d['y2'])),1,5)
+    for r in rooms:
+        if len(r['pts'])>=3: cv2.fillPoly(m,[np.array(r['pts'],np.int32)],1)
+    m=cv2.dilate(m,np.ones((max(5,int(2*250/mm)),)*2,np.uint8))
+    ff=m*255; mk=np.zeros((H+2,W+2),np.uint8); cv2.floodFill(ff,mk,(0,0),128)
+    return ff==128
+def safe_doors(doors, rooms, wseg, sash, mm, H, W):
+    out=outside_mask(rooms,wseg,sash,doors,mm,H,W); off=600.0/mm; keep=[]
+    kind=lambda x,y: next((r.get('kind') for r in rooms if len(r['pts'])>=3 and _inpoly(x,y,r['pts'])),None)
+    isout=lambda x,y: not(0<=int(x)<W and 0<=int(y)<H) or bool(out[int(y),int(x)])
+    for d in doors:
+        L=((d['x2']-d['x1'])**2+(d['y2']-d['y1'])**2)**.5 or 1; ux,uy=(d['x2']-d['x1'])/L,(d['y2']-d['y1'])/L; mx,my=(d['x1']+d['x2'])/2,(d['y1']+d['y2'])/2
+        P=[(mx-uy*off,my+ux*off),(mx+uy*off,my-ux*off)]; o=[isout(*P[0]),isout(*P[1])]
+        if not(o[0] or o[1]): keep.append(d); continue
+        inner=P[1] if o[0] else P[0]
+        if not(o[0] and o[1]) and kind(*inner)=='현관': keep.append(d)   # 현관문만 예외
+    return keep
+
 def trace(path, plan):
     bgr=cv2.imread(path); H,W=bgr.shape[:2]; mm=plan.get('mmpp') or 23.0
     hsv=cv2.cvtColor(bgr,cv2.COLOR_BGR2HSV); v=hsv[...,2].astype(int); s=hsv[...,1].astype(int)
@@ -226,7 +260,9 @@ def trace(path, plan):
     doors=[]
     # 네이버 양식의 문: 흰 4분의 1 원(문이 쓸고 가는 자리) — 경첩은 원이 꽉 찬 모서리, 여는 쪽 변은 바깥이 벽 틈(흰색)인 변
     wh=((v>=245)&(s<=12)&house).astype(np.uint8)
-    wh=cv2.morphologyEx(wh,cv2.MORPH_OPEN,np.ones((7,7),np.uint8))
+    # 2026-11-12: 7×7 깎기는 작은 문(끝이 좁은 호)의 문짝 끝을 깎아 모서리 시험을 망쳤다 → 가는 선 둘레 1화소를 떼어 흰 칸끼리 가른 뒤 3×3 만 깎는다
+    edge_=cv2.dilate(((v<215)&(s<70)).astype(np.uint8),np.ones((3,3),np.uint8))>0
+    wh=cv2.morphologyEx((wh>0)&~edge_ ,cv2.MORPH_OPEN,np.ones((3,3),np.uint8)) if False else cv2.morphologyEx(((wh>0)&~edge_).astype(np.uint8),cv2.MORPH_OPEN,np.ones((3,3),np.uint8))
     nd,ld,sd,_=cv2.connectedComponentsWithStats(wh,connectivity=4)
     darkish=(v<120)
     for j in range(1,nd):
@@ -422,5 +458,6 @@ def trace(path, plan):
     _w = clean_walls(w2, mm)
     wins=window_strips(bgr,mm,doors,rooms)
     sash_out=[[t,int(a_),int(round(c0)),int(b_),int(round(c1))] if t=='h' else [t,int(round(c0)),int(a_),int(round(c1)),int(b_)] for t,a_,b_,c0,c1 in wins]
-    sash_out=[q for q in sash_out if not inK(q[1],q[2],q[3],q[4])]   # 주방 샷시는 그리지 않는다(대표 지시 2026-11-12 「주방 … 샷시 모두 삭제」)
+    sash_out=[q for q in sash_out if not inK(q[1],q[2],q[3],q[4])]
+    doors=safe_doors(doors,rooms,wseg,sash_out,mm,H,W)   # 건물 밖으로 난 문(창을 문으로 잘못 읽은 것 포함)은 그리지 않는다 — 안전   # 주방 샷시는 그리지 않는다(대표 지시 2026-11-12 「주방 … 샷시 모두 삭제」)
     return {'벽선':wseg,'샷시':sash_out,'문':doors,'공용칸':publab,'EV':ev,'틀':[int(bx),int(by),int(bx+bw0),int(by+bh0)],'공용':pubd,'벽':rect_path(_w,0.8),'칸':cells,'창선':win,'기구':objs}

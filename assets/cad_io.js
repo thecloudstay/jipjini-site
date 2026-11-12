@@ -21,7 +21,7 @@
     'JJ-WORK': [{ k: 'arc', lay: '0', c: [0, 0], r: 150, a0: 0, a1: 360 }, { k: 'attdef', tag: 'NAME', prompt: '공사 이름', p: [200, 0] }, { k: 'attdef', tag: 'TRADE', prompt: '공종', p: [200, -100] }, { k: 'attdef', tag: 'NOTE', prompt: '쪽지', p: [200, -200] }, { k: 'attdef', tag: 'KEY', prompt: '집지니 기호', p: [200, -300] }, { k: 'attdef', tag: 'FORM', prompt: '모양', p: [200, -400] }, { k: 'attdef', tag: 'VTX', prompt: '꼭짓점(mm)', p: [200, -500] }, { k: 'attdef', tag: 'STATE', prompt: '상태', p: [200, -600] }],
     'JJ-EVTR': [L0([0, 0], [1000, 0]), L0([1000, 0], [1000, 1000]), L0([1000, 1000], [0, 1000]), L0([0, 1000], [0, 0]), L0([0, 0], [1000, 1000]), L0([1000, 0], [0, 1000])]
   };
-  var VERSION = '20261112zo';
+  var VERSION = '20261112zr';
   function u(s) { return String(s == null ? '' : s).replace(/[^\x20-\x7e]/g, function (c) { var h = c.charCodeAt(0).toString(16).toUpperCase(); return '\\U+' + ('0000' + h).slice(-4); }); }
   function W() { this.o = []; }
   W.prototype.g = function (code, val) { this.o.push(String(code), typeof val === 'number' ? (Math.round(val * 1000) / 1000).toString() : String(val)); return this; };
@@ -58,7 +58,10 @@
     }
     var rooms = shapes.filter(function (q) { return q.t === 'room' && q.pts && q.pts.length >= 3; });
     // 문: 경첩 자리에 기호, 방 종류별 표준 폭(네이버 문은 화소 고정이라 그림 폭을 쓰지 않는다 — naver_rules.md)
-    shapes.filter(function (q) { return q.t === 'door'; }).forEach(function (q) {
+    // 안전 마지막 그물(2026-11-12 대표 지시): 자동으로 놓인 문은 양쪽이 모두 공간이어야 캐드 파일에 넣는다(현관문만 예외). 사람이 직접 그린 문은 그대로
+    var sideK = function (x, y) { var k = null; rooms.forEach(function (r) { if (inpoly(x, y, r.pts)) k = r.kind || kindOf(r.name); }); return k; };
+    var doorSafe = function (q) { var L = Math.hypot(q.x2 - q.x1, q.y2 - q.y1) || 1, ux = (q.x2 - q.x1) / L, uy = (q.y2 - q.y1) / L, mx = (q.x1 + q.x2) / 2, my = (q.y1 + q.y2) / 2, off = 600 / mm, a = sideK(mx - uy * off, my + ux * off), b = sideK(mx + uy * off, my - ux * off); return (a && b) || (a === '현관' && !b) || (b === '현관' && !a); };
+    shapes.filter(function (q) { return q.t === 'door' && (!q.auto || doorSafe(q)); }).forEach(function (q) {
       var L = Math.hypot(q.x2 - q.x1, q.y2 - q.y1) || 1, ux = (q.x2 - q.x1) / L, uy = (q.y2 - q.y1) / L, s = q.flip ? -1 : 1, nx = -uy * s, ny = ux * s;
       var mx = q.x1 + (ux + nx) * L * 0.35, my = q.y1 + (uy + ny) * L * 0.35, rm = rooms.filter(function (r) { return inpoly(mx, my, r.pts); })[0];
       var kind = rm ? (rm.kind || kindOf(rm.name)) : '', wid = q.wmm || STD_DOOR[kind] || 900;   // 그림 길이로 재지 않는다 — 원본 문은 화소 고정 크기(naver_rules.md)
