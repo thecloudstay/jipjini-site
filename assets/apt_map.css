@@ -99,3 +99,12 @@
 .kpin.on i{width:17px;height:17px;box-shadow:0 0 0 2px #2A2A2A}.kpin.on span{background:#2A2A2A;color:#fff;font-weight:600}
 .kfind{width:16px;height:16px;border:2px solid #2A2A2A;background:#fff;transform:translateX(-50%) rotate(45deg)}
 @media(max-width:880px){.apt-kakao{height:380px}}
+
+/* 2026-11-12 도면 열린 단지만 핀을 살린다 */
+.kpin.off{opacity:.55}.kpin.off i{width:8px;height:8px;border-width:1px;box-shadow:0 0 0 1px #B9B2A3;background:#E6E1D6}.kpin.off.s1 i{background:#C9D3B4}
+.kpin.s2 i{width:15px;height:15px}
+.kclu em{font-style:normal;display:inline-block;margin-left:4px;background:var(--ol-d);border-radius:8px;padding:0 5px;font-size:11.5px}
+.apt-grow{margin:14px 0 0;max-width:640px}.apt-grow-l{margin:0 0 6px;font-size:15px;line-height:1.7}
+.apt-grow-t{width:100%;border-collapse:collapse;font-size:13px}.apt-grow-t caption{text-align:left;color:#6B6B6B;font-size:12.5px;padding:0 0 4px}
+.apt-grow-t th{font-weight:400;color:#4F4F4F;width:64px;text-align:left;padding:3px 0;border-top:1px solid #DDD6C6;white-space:nowrap}
+.apt-grow-t td{padding:3px 0 3px 8px;border-top:1px solid #DDD6C6}.apt-grow-t td span{display:block;height:8px;background:var(--ol-d)}.apt-grow-t td.num{width:64px;text-align:right;font-variant-numeric:tabular-nums}

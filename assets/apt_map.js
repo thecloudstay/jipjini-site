@@ -1,12 +1,12 @@
 /* 우리 아파트 찾기 — 시군구 지도(직접 그림) + 단지 목록. 카카오 열쇠가 있으면 구역 안 단지를 카카오 지도에도 찍는다.
    자료: data/apt/index.json(구역·경계·숫자), data/apt/<구역번호>.json(단지 목록). tools/build_apt_map.py 가 만든다.
-   단지 상태 s: 2 도면 준비됨 · 1 준비 중(평면 확보) · 0 예정 */
+   단지 상태 s: 2 도면 열림(집지니 도면) · 1 평면 확보 · 0 예정 */
 (function () {
   'use strict';
   var $ = function (id) { return document.getElementById(id); };
   var NS = 'http://www.w3.org/2000/svg';
   var IDX = null, CACHE = {}, CUR = null, TAB = 'all', OPEN = '', SHOWN = 60, ALL = null;
-  var ST = ['예정', '준비 중', '도면 준비됨'];
+  var ST = ['예정', '평면 확보', '도면 열림'];
   var ST_HELP = ['아직 평면을 확보하지 못한 단지입니다. 평수나 평면 사진으로 시작하실 수 있습니다.',
     '평면은 확보했고 집지니 도면으로 옮기는 중입니다. 열리기 전에는 평수로 먼저 시작하실 수 있습니다.',
     '이 단지 평면이 집지니 도면으로 준비되어 있습니다.'];
@@ -195,27 +195,27 @@
     var cap = $('aptCapK');
     if (lv >= 10) {                                  // 아주 멀리: 시·도 셋
       wipe(); cap.textContent = '숫자는 단지 수입니다. 누르거나 확대하면 시·군·구로 나뉩니다.';
-      SIDO.forEach(function (S) { var tot = 0, have = 0; IDX.구역.forEach(function (r) { if (r.짧은시도 === S[0]) { tot += r.수[0] + r.수[1] + r.수[2]; have += r.수[1] + r.수[2]; } });
-        var d = document.createElement('button'); d.className = 'ksido'; d.innerHTML = '<b>' + S[0] + '</b><span>' + num(tot) + '</span>' + (have ? '<em>평면 ' + num(have) + '</em>' : '');
+      SIDO.forEach(function (S) { var tot = 0, have = 0; IDX.구역.forEach(function (r) { if (r.짧은시도 === S[0]) { tot += r.수[0] + r.수[1] + r.수[2]; have += r.수[2]; } });
+        var d = document.createElement('button'); d.className = 'ksido'; d.innerHTML = '<b>' + S[0] + '</b><span>' + num(tot) + '</span>' + (have ? '<em>도면 ' + num(have) + '</em>' : '');
         d.onclick = function () { KMAP.setLevel(9); KMAP.setCenter(new K.LatLng(S[1], S[2])); }; put(d, S[1], S[2], 2); });
       return;
     }
     if (lv >= 8) {                                   // 멀리: 시·군·구 — 겹치면 건너뜀
       wipe(); var shown = 0, skipped = 0;
-      hitR.map(function (b) { var r = b.r; return { r: r, tot: r.수[0] + r.수[1] + r.수[2], have: r.수[1] + r.수[2] }; })
+      hitR.map(function (b) { var r = b.r; return { r: r, tot: r.수[0] + r.수[1] + r.수[2], have: r.수[2] }; })
         .filter(function (o) { var c = o.r.가운데; return c[0] > x0 && c[0] < x1 && c[1] > y0 && c[1] < y1; })
         .sort(function (a, b) { return b.have - a.have || b.tot - a.tot; })
         .forEach(function (o) { var r = o.r, nm = r.이름.replace(/^.+시 ?(.+구)$/, '$1'), q = px(r.가운데[1], r.가운데[0]), w = nm.length * 12.5 + String(o.tot).length * 7.5 + 26, h = 26;
           if (!free(q[0] - w / 2 - 3, q[1] - h / 2 - 3, w + 6, h + 6)) { skipped++; return; } shown++;
-          var d = document.createElement('button'); d.className = 'kreg' + (o.have ? ' has' : ''); d.title = nm + ' · 평면 확보 ' + o.have + ' / 전체 ' + o.tot; d.innerHTML = '<b>' + esc(nm) + '</b><span>' + num(o.tot) + '</span>';
+          var d = document.createElement('button'); d.className = 'kreg' + (o.have ? ' has' : ''); d.title = nm + ' · 도면 열림 ' + o.have + ' / 전체 ' + o.tot; d.innerHTML = '<b>' + esc(nm) + '</b><span>' + num(o.tot) + '</span>';
           d.onclick = function () { pick(r.id); }; put(d, r.가운데[1], r.가운데[0], o.have ? 2 : 1); });
-      cap.textContent = '숫자는 단지 수, 진한 칸은 평면을 확보한 곳이 있는 구역입니다.' + (skipped ? ' 겹치는 ' + skipped + '곳은 확대하면 나옵니다.' : '');
+      cap.textContent = '숫자는 단지 수, 진한 칸은 도면이 열린 단지가 있는 구역입니다.' + (skipped ? ' 겹치는 ' + skipped + '곳은 확대하면 나옵니다.' : '');
       return;
     }
     var left = hitR.length, all = []; if (!left) return wipe();
     hitR.forEach(function (b) { load(b.r.id, function (rows) { rows.forEach(function (x) { if (x.ll && x.ll[1] > x0 && x.ll[1] < x1 && x.ll[0] > y0 && x.ll[0] < y1) { x.rid = b.r.id; all.push(x); } }); if (!--left) draw(); }); });
     function pin(x, named) {
-      var d = document.createElement('button'); d.className = 'kpin s' + x.s + (OPEN === x.c ? ' on' : ''); d.title = x.n + ' · ' + ST[x.s];
+      var d = document.createElement('button'); d.className = 'kpin s' + x.s + (x.s === 2 ? '' : ' off') + (OPEN === x.c ? ' on' : ''); d.title = x.n + ' · ' + ST[x.s];
       d.innerHTML = '<i></i>' + (named ? '<span>' + esc(x.n.replace(/아파트$/, '')) + '</span>' : '');
       d.onclick = function () { openFromMap(x); }; put(d, x.ll[0], x.ll[1], OPEN === x.c ? 9 : x.s + 1, 0);
     }
@@ -223,9 +223,9 @@
       wipe(); all.sort(function (p, q) { return (OPEN === q.c) - (OPEN === p.c) || q.s - p.s || q.h - p.h; });
       if (lv >= 6) {                                 // 중간: 가까운 단지끼리 묶어 숫자로
         var cell = 64, G = {};
-        all.forEach(function (x) { var q = px(x.ll[0], x.ll[1]), k = Math.floor(q[0] / cell) + ':' + Math.floor(q[1] / cell), g = G[k] || (G[k] = { n: 0, have: 0, la: 0, lo: 0, one: x }); g.n++; g.la += x.ll[0]; g.lo += x.ll[1]; if (x.s) g.have++; });
+        all.forEach(function (x) { var q = px(x.ll[0], x.ll[1]), k = Math.floor(q[0] / cell) + ':' + Math.floor(q[1] / cell), g = G[k] || (G[k] = { n: 0, have: 0, la: 0, lo: 0, one: x }); g.n++; g.la += x.ll[0]; g.lo += x.ll[1]; if (x.s === 2) g.have++; });
         Object.keys(G).forEach(function (k) { var g = G[k]; if (g.n === 1) return pin(g.one, false);
-          var d = document.createElement('button'); d.className = 'kclu' + (g.have ? ' has' : ''); d.textContent = g.n; d.title = '단지 ' + g.n + '곳' + (g.have ? ' · 평면 확보 ' + g.have + '곳' : '');
+          var d = document.createElement('button'); d.className = 'kclu' + (g.have ? ' has' : ''); d.textContent = g.n; d.title = '단지 ' + g.n + '곳' + (g.have ? ' · 도면 열림 ' + g.have + '곳' : ''); if (g.have) d.innerHTML = g.n + '<em>' + g.have + '</em>';
           var la = g.la / g.n, lo = g.lo / g.n; d.onclick = function () { KMAP.setLevel(Math.max(3, lv - 2)); KMAP.setCenter(new K.LatLng(la, lo)); }; put(d, la, lo, g.have ? 3 : 2); });
         cap.textContent = '동그라미 숫자는 그 자리에 모인 단지 수입니다. 누르면 확대됩니다.';
         return;
@@ -233,8 +233,9 @@
       var n = 0, hid = 0;                            // 가까이: 단지 핀. 이름표는 겹치지 않을 때만
       all.forEach(function (x) { var q = px(x.ll[0], x.ll[1]), on = OPEN === x.c;
         if (!on && !free(q[0] - 9, q[1] - 9, 18, 18)) { hid++; return; } if (on) taken.push([q[0] - 9, q[1] - 9, 18, 18]);
-        var nm = x.n.replace(/아파트$/, ''), w = nm.length * 12 + 18, named = on || (lv <= 4 && free(q[0] + 9, q[1] - 11, w, 22)); pin(x, named); n++; });
-      cap.textContent = '진한 핀은 도면 준비됨, 연한 핀은 준비 중, 희끗한 핀은 예정입니다. 핀을 누르면 단지 정보가 열립니다.' + (hid ? ' 겹친 ' + num(hid) + '곳은 확대하면 나옵니다.' : '');
+        // 2026-11-12 대표 지시: 도면이 열린 단지부터 핀을 살린다 — 아직 안 열린 단지는 작은 흐린 점(이름표 없음, 눌러서 평수로 시작은 됨)
+        var nm = x.n.replace(/아파트$/, ''), w = nm.length * 12 + 18, named = on || (x.s === 2 && lv <= 5 && free(q[0] + 9, q[1] - 11, w, 22)); pin(x, named); n++; });
+      cap.textContent = '진한 핀은 집지니 도면이 열린 단지입니다. 흐린 점은 아직 준비 중인 단지로, 눌러서 평수로 먼저 시작하실 수 있습니다.' + (hid ? ' 겹친 ' + num(hid) + '곳은 확대하면 나옵니다.' : '');
     }
   }
   function openFromMap(x) {
@@ -313,8 +314,20 @@
 
   $('aptView').addEventListener('click', function (e) { var b = e.target.closest('button'); if (b) setView(b.getAttribute('data-v')); });
 
+  // 2026-11-12 대표 지시: 날마다 도면이 열리는 만큼 핀이 늘어나는 것을 보여 준다 — data/plans/opened.json(하네스 publish.py 가 날마다 적음)
+  function grow(tot) {
+    var box = $('aptGrow'); if (!box) return;
+    fetch('data/plans/opened.json', { cache: 'no-cache' }).then(function (r) { return r.json(); }).then(function (L) {
+      if (!L || !L.length) return; var z = L[L.length - 1], prev = L.length > 1 ? L[L.length - 2] : null, pct = tot ? z.단지 / tot * 100 : 0;
+      var md = function (d) { var q = d.split('-'); return +q[1] + '월 ' + (+q[2]) + '일'; }, last = L.slice(-7), mx = Math.max.apply(0, last.map(function (x) { return x.단지; })) || 1;
+      box.innerHTML = '<p class="apt-grow-l">집지니 도면이 열린 단지 <b>' + num(z.단지) + '</b>곳 · 평형 <b>' + num(z.평형) + '</b>개 · 전체 단지의 <b>' + pct.toFixed(pct < 1 ? 2 : 1) + '%</b>' +
+        (prev ? ' · ' + md(z.날) + ' 하루에 <b>+' + num(z.단지 - prev.단지) + '</b>곳' : ' · ' + md(z.날) + ' 첫 공개') + '</p>' +
+        '<table class="apt-grow-t"><caption>날짜별 열린 단지 수(도면 인식 점수 85점 넘고 안전 점검을 통과한 평면만 엽니다)</caption><tbody>' + last.map(function (x) {
+          return '<tr><th>' + md(x.날) + '</th><td><span style="width:' + Math.max(2, x.단지 / mx * 100).toFixed(1) + '%"></span></td><td class="num">' + num(x.단지) + '곳</td></tr>'; }).join('') + '</tbody></table>';
+    }).catch(function () {});
+  }
   fetch('data/apt/index.json', { cache: 'no-cache' }).then(function (r) { return r.json(); }).then(function (j) {
-    IDX = j; legend(); drawMap();
+    IDX = j; legend(); drawMap(); grow(j.합계[0] + j.합계[1] + j.합계[2]);
     if (window.JJ_KAKAO_KEY) kakaoReady(function () { kmap(); });
     var m = /[?&]r=(\d+)/.exec(location.search); if (m && region(m[1])) pick(m[1]);
   }).catch(function () { $('aptSideSub').textContent = '지도 자료를 불러오지 못했습니다. 잠시 뒤 다시 열어 주세요.'; });
