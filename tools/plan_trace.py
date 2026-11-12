@@ -480,7 +480,15 @@ def close_openings(img, wseg, sash, doors, rooms, mm, H, W):
             if cur is None or w[2]>cur[2]: cur=w
         for w1,w2 in pairs:
             a,b=w1[2],w2[1]
-            if b-a<3 or (len(w1)>5 and len(w2)>5): continue   # 직각 벽 둘 사이(이 줄에 벽이 하나도 없는 곳)는 보지 않는다
+            # 직각 벽 둘 사이(이 줄에 벽이 하나도 없는 곳)는 보지 않는다
+            # 2026-11-12 고침(131B 주방 외벽 창): 직각 벽 조각 끝이 같은 줄 진짜 벽 끝보다 0.05화소 길어 「직각 둘 사이」로 오판 → 진짜 벽 끝이 틈 끝에 닿아 있으면 본다
+            #   (진짜 벽이 그 직각 조각 안으로 들어와 끝나야 — 162 피트 X 상자처럼 근처 아무 벽 끝으로는 안 됨)
+            p1=len(w1)>5 and not any(len(r)==5 and r[1]<w1[1] and r[2]>=w1[1]-1 for r in ss)
+            p2=len(w2)>5 and not any(len(r)==5 and r[2]>w2[2] and r[1]<=w2[2]+1 for r in ss)
+            if b-a<3 or (p1 and p2): continue
+            if len(w1)>5 and len(w2)>5:   # 새로 보게 된 틈: 12화소 안 나란한 다른 벽이 틈 절반 넘게 덮으면 구멍이 아니다(162 피트 상자)
+                cv=sum(max(0.0,min(b,u[2])-max(a,u[1])) for u in wseg if u[0]==L['ax'] and 0<abs(u[3]-L['c'])<=12)
+                if cv>(b-a)*0.5: continue
             ax=L['ax']; c=L['c']; t=min(w1[4],w2[4]); h=t/mm/2.0
             hit=[i for i,q in enumerate(sash) if sash_span(q)[0]==ax and abs(sash_span(q)[3]-c)<=12 and min(b,sash_span(q)[2])-max(a,sash_span(q)[1])>0]
             if not hit:
