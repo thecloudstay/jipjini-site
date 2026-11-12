@@ -612,6 +612,32 @@ def fix_kinds(bgr, rooms):
         if 14<=h_<=21 and 18<=s_<=28 and v_>=248:
             n+=1; r['바로잡음']=r.get('name'); r['kind']='발코니'; r['name']='발코니%d'%n
     return rooms
+# ── 남은 벽 외곽선 따라가기(2026-11-12 대표 제안 「사선·계단식은 선을 따라가기만 해도」): 벽은 가로·세로 곧은 띠 + 사선벽으로 다시 그리는데,
+#   그 둘이 못 덮은 검은 벽(계단처럼 꺾인 자리·조금 기운 벽·곡선 벽·토막)이 비어 외벽이 새거나 벽을 놓쳤다
+#   → 원본 벽 덩어리 중 덮이지 않은 나머지만 테두리를 따라가(오픈씨브이 외곽선 + 더글러스-포이커 단순화) 다각형으로 채운다. 곧은 벽은 집지니식 그대로
+def trace_rest(wall, wseg, diag, sash, mm, bld, H, W):
+    cov=np.zeros((H,W),np.uint8)
+    for ax,a,b,c,t in wseg:
+        h=t/mm/2.0+1
+        if ax=='h': cv2.rectangle(cov,(int(a)-1,int(c-h)),(int(b)+1,int(c+h)),1,-1)
+        else: cv2.rectangle(cov,(int(c-h),int(a)-1),(int(c+h),int(b)+1),1,-1)
+    for x1,y1,x2,y2,t in diag: cv2.line(cov,(int(x1),int(y1)),(int(x2),int(y2)),1,max(3,int(round(t/mm)))+2)
+    for q in sash: cv2.rectangle(cov,(q[1]-1,q[2]-1),(q[3]+1,q[4]+1),1,-1)
+    rest=(wall&(bld if bld is not None else True)&~(cov>0)).astype(np.uint8)
+    rest=cv2.morphologyEx(rest,cv2.MORPH_OPEN,np.ones((2,2),np.uint8))
+    n,lab,st,_=cv2.connectedComponentsWithStats(rest,connectivity=8); out=[]
+    dist=cv2.distanceTransform(rest,cv2.DIST_L2,3)
+    for j in range(1,n):
+        x,y,w_,h_,a_=st[j]
+        if a_<30 or max(w_,h_)<6: continue
+        if dist[lab==j].max()<1.5: continue   # 두께 3화소 미만(테두리 번짐·가는 선)은 벽이 아니다
+        sub=(lab==j).astype(np.uint8)
+        cs,_=cv2.findContours(sub,cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_NONE)
+        for c in cs:
+            if cv2.contourArea(c)<20: continue
+            c=cv2.approxPolyDP(c,1.0,True).reshape(-1,2)
+            if len(c)>=3: out.append([[int(px),int(py)] for px,py in c])
+    return out
 def trace(path, plan):
     bgr=cv2.imread(path); H,W=bgr.shape[:2]; mm=plan.get('mmpp') or 23.0
     hsv=cv2.cvtColor(bgr,cv2.COLOR_BGR2HSV); v=hsv[...,2].astype(int); s=hsv[...,1].astype(int)
@@ -913,8 +939,10 @@ def trace(path, plan):
     except Exception: _diag=[]
     try: _dwin=diag_windows(bgr,mm)
     except Exception: _dwin=[]
-    G_={'벽선':wseg,'샷시':sash_out,'문':doors,'틀':[int(bx),int(by),int(bx+bw0),int(by+bh0)]}
+    try: _rest=trace_rest(wall,wseg,_diag,sash_out,mm,bld,H,W)
+    except Exception: _rest=[]
+    G_={'벽선':wseg,'샷시':sash_out,'문':doors,'틀':[int(bx),int(by),int(bx+bw0),int(by+bh0)],'사선벽':_diag,'사선창':_dwin,'벽윤곽':_rest}
     try:   # 변환할 때마다 규칙 점검(tools/plan_check.py RULES) — 어긴 곳을 자료에 남긴다
         import plan_check; _chk=plan_check.rules(bgr,dict(plan,그림=G_,H=H,W=W))
     except Exception as e: _chk=[['오류',str(e)[:60],0,0]]
-    return {'점검':_chk,'벽선':wseg,'샷시':sash_out,'문':doors,'공용칸':publab,'EV':ev,'틀':[int(bx),int(by),int(bx+bw0),int(by+bh0)],'공용':pubd,'벽':_wall_d,'벽채움':'nonzero','사선벽':_diag,'사선창':_dwin,'칸':cells,'창선':win,'기구':objs}
+    return {'점검':_chk,'벽선':wseg,'샷시':sash_out,'문':doors,'공용칸':publab,'EV':ev,'틀':[int(bx),int(by),int(bx+bw0),int(by+bh0)],'공용':pubd,'벽':_wall_d,'벽채움':'nonzero','사선벽':_diag,'사선창':_dwin,'벽윤곽':_rest,'칸':cells,'창선':win,'기구':objs}

@@ -23,6 +23,7 @@ def struct_mask(G, mm, H, W):
         cv2.line(m, (int(q['x1']), int(q['y1'])), (int(q['x2']), int(q['y2'])), 1, 5)
         cv2.line(m, (int(q['x1']), int(q['y1'])), (int(q.get('cx', q['x1'])), int(q.get('cy', q['y1']))), 1, 3)
     for x1, y1, x2, y2, t in G.get('사선벽') or []: cv2.line(m, (int(x1), int(y1)), (int(x2), int(y2)), 1, max(2, int(t/mm)))
+    for P_ in G.get('벽윤곽') or []: cv2.fillPoly(m, [np.array(P_, np.int32)], 1)   # 2026-11-12 남은 벽 외곽선(사선·계단·곡선)
     return m
 
 def find(img, p):

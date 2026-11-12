@@ -81,6 +81,10 @@ def export(plan, out_path, title=''):
         pts = [P(x1 + nx, y1 + ny), P(x2 + nx, y2 + ny), P(x2 - nx, y2 - ny), P(x1 - nx, y1 - ny)]
         lay = WALL_LAYER.get(int(t), 'A-WALL-PRTN'); msp.add_lwpolyline(pts, close=True, dxfattribs={'layer': lay})
         h = msp.add_hatch(color=256, dxfattribs={'layer': 'A-WALL-PATT'}); h.set_solid_fill(color=8); h.paths.add_polyline_path(pts, is_closed=True); cnt['벽'] += 1
+    for P_ in G.get('벽윤곽', []):   # 2026-11-12 남은 벽 외곽선(계단·곡선·조금 기운 벽)
+        if len(P_) < 3: continue
+        pts = [P(x, y) for x, y in P_]; msp.add_lwpolyline(pts, close=True, dxfattribs={'layer': 'A-WALL-EXTR'})
+        h = msp.add_hatch(color=256, dxfattribs={'layer': 'A-WALL-PATT'}); h.set_solid_fill(color=8); h.paths.add_polyline_path(pts, is_closed=True); cnt['벽'] += 1
     for x1, y1, x2, y2, t in G.get('사선창', []):   # 2026-11-12 비스듬한 창: 틀 + 가운데 두 줄
         L = ((x2 - x1) ** 2 + (y2 - y1) ** 2) ** 0.5 or 1; hT = max(2.0, t / mm / 2.0); nx, ny = -(y2 - y1) / L, (x2 - x1) / L
         at = lambda x, y, o: P(x + nx * o, y + ny * o)
