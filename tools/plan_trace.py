@@ -612,6 +612,28 @@ def fix_kinds(bgr, rooms):
         if 14<=h_<=21 and 18<=s_<=28 and v_>=248:
             n+=1; r['바로잡음']=r.get('name'); r['kind']='발코니'; r['name']='발코니%d'%n
     return rooms
+# ── 방 다각형 맞추기(2026-11-12 하네스 학습, R7 160곳: 욕실 다각형이 옆 피트·팬트리까지, 발코니·피트가 벽 너머로 — 누리집 방 읽기의 넘침)
+#   우리 도면은 벽·창·문으로 칸이 닫혀 있다 → 방 다각형 ∩ 그 방이 들어 있는 닫힌 칸(겹침이 가장 큰 칸). 벽 없이 이어진 거실·주방은 같은 칸이라 원래 경계 그대로
+#   자른 넓이가 원래의 60%에 못 미치면(칸이 덜 닫힘 등) 손대지 않는다. 고친 방에는 '맞춤' 표시
+def fit_rooms(rooms, G, mm, H, W):
+    import plan_check
+    st=cv2.dilate(plan_check._struct(G,mm,H,W),np.ones((3,3),np.uint8))
+    n,lab=cv2.connectedComponents((st==0).astype(np.uint8),connectivity=4)
+    for r in rooms:
+        if r.get('kind')=='공용' or len(r.get('pts') or [])<3: continue
+        rm=np.zeros((H,W),np.uint8); cv2.fillPoly(rm,[np.array(r['pts'],np.int32)],1); a0=int(rm.sum())
+        if a0<50: continue
+        ids,cnt=np.unique(lab[(rm>0)&(lab>0)],return_counts=True)
+        if not len(ids): continue
+        cell=ids[np.argmax(cnt)]
+        if lab[0,0]==cell or lab[H-1,W-1]==cell: continue   # 바깥과 이어진 칸(외벽이 덜 닫힘)
+        inter=((rm>0)&(lab==cell)).astype(np.uint8); inter=cv2.dilate(inter,np.ones((3,3),np.uint8))&rm   # 벽 띠 1화소 돌려받기
+        if inter.sum()<a0*0.6 or inter.sum()>a0*0.97: continue   # 많이 깎이면 손대지 않고, 거의 그대로면 원래 것
+        cs,_=cv2.findContours(inter,cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_SIMPLE)
+        if not cs: continue
+        c=max(cs,key=cv2.contourArea); c=cv2.approxPolyDP(c,1.5,True).reshape(-1,2)
+        if len(c)>=3: r['맞춤']=1; r['pts']=[[int(x),int(y)] for x,y in c]
+    return rooms
 def trace(path, plan):
     bgr=cv2.imread(path); H,W=bgr.shape[:2]; mm=plan.get('mmpp') or 23.0
     hsv=cv2.cvtColor(bgr,cv2.COLOR_BGR2HSV); v=hsv[...,2].astype(int); s=hsv[...,1].astype(int)
@@ -914,6 +936,8 @@ def trace(path, plan):
     try: _dwin=diag_windows(bgr,mm)
     except Exception: _dwin=[]
     G_={'벽선':wseg,'샷시':sash_out,'문':doors,'틀':[int(bx),int(by),int(bx+bw0),int(by+bh0)]}
+    try: fit_rooms(plan['rooms'],dict(G_,사선벽=_diag,사선창=_dwin),mm,H,W)
+    except Exception: pass
     try:   # 변환할 때마다 규칙 점검(tools/plan_check.py RULES) — 어긴 곳을 자료에 남긴다
         import plan_check; _chk=plan_check.rules(bgr,dict(plan,그림=G_,H=H,W=W))
     except Exception as e: _chk=[['오류',str(e)[:60],0,0]]
