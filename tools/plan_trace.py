@@ -28,6 +28,38 @@ def segs(mask, minlen):
             else: out.append([c,a,b,[c]])
         return [[round(sum(o[3])/len(o[3]),1),o[1],o[2]] for o in out]
     return [('h',float(s[0]),int(s[1]),int(s[2])) for s in merge(H)]+[('v',float(s[0]),int(s[1]),int(s[2])) for s in merge(V)]
+def clean_walls(wall, mm):
+    """2026-11-12 대표 지시: 원본 외곽(벽)은 자리만 참고하고 집지니식으로 다시 그린다 — 가로·세로 곧은 띠, 두께는 두 가지(바깥·안)로 통일, 희끗한 점 없이"""
+    H,W=wall.shape; w8=wall.astype(np.uint8)
+    w8=cv2.morphologyEx(w8,cv2.MORPH_CLOSE,np.ones((3,3),np.uint8))
+    L=max(8,int(450/mm)); out=[]
+    hh=cv2.morphologyEx(w8,cv2.MORPH_OPEN,np.ones((1,L),np.uint8)); vv=cv2.morphologyEx(w8,cv2.MORPH_OPEN,np.ones((L,1),np.uint8))
+    for m,ax in ((hh,'h'),(vv,'v')):
+        n,lab,st,_=cv2.connectedComponentsWithStats(m,connectivity=4)
+        for j in range(1,n):
+            x,y,w_,h_,a_=st[j]; sub=(lab[y:y+h_,x:x+w_]==j)
+            if ax=='h':
+                cols=sub.sum(0); ok=cols>0; ys=np.arange(h_)[:,None]
+                top=np.argmax(sub,0)[ok]; t=np.median(cols[ok]); c=np.median(top+cols[ok]/2.0)+y
+                out.append(['h',x,x+w_,c,t])
+            else:
+                rows=sub.sum(1); ok=rows>0; left=np.argmax(sub,1)[ok]; t=np.median(rows[ok]); c=np.median(left+rows[ok]/2.0)+x
+                out.append(['v',y,y+h_,c,t])
+    if not out: return wall
+    ts=np.array([o[4] for o in out]); tin=np.percentile(ts,25); tex=np.percentile(ts,90)
+    if tex<tin*1.3: tex=tin
+    clean_walls.T=(tin,tex)
+    canvas=np.zeros((H,W),np.uint8); covered=(hh>0)|(vv>0)
+    for ax,a,b,c,t in out:
+        T=tex if abs(t-tex)<abs(t-tin) else tin; hT=T/2.0
+        if ax=='h': cv2.rectangle(canvas,(int(round(a)),int(round(c-hT))),(int(round(b-1)),int(round(c+hT-1))),1,-1)
+        else: cv2.rectangle(canvas,(int(round(c-hT)),int(round(a))),(int(round(c+hT-1)),int(round(b-1))),1,-1)
+    rest=(w8>0)&~(cv2.dilate(covered.astype(np.uint8),np.ones((3,3),np.uint8))>0)   # 짧은 토막·기둥은 네모로
+    n,lab,st,_=cv2.connectedComponentsWithStats(rest.astype(np.uint8),connectivity=4)
+    for j in range(1,n):
+        x,y,w_,h_,a_=st[j]
+        if a_>=12 and a_>=w_*h_*0.5: cv2.rectangle(canvas,(int(x),int(y)),(int(x+w_-1),int(y+h_-1)),1,-1)
+    return canvas>0
 def trace(path, plan):
     bgr=cv2.imread(path); H,W=bgr.shape[:2]; mm=plan.get('mmpp') or 23.0
     hsv=cv2.cvtColor(bgr,cv2.COLOR_BGR2HSV); v=hsv[...,2].astype(int); s=hsv[...,1].astype(int)
@@ -179,6 +211,7 @@ def trace(path, plan):
             return np.sum((np.abs(xs-px)<=2))
         leaf,op=(a1,a2) if edge_cnt(a1)>=edge_cnt(a2) else (a2,a1)
         doors.append({'x1':int(C[hc][0]),'y1':int(C[hc][1]),'x2':int(C[op][0]),'y2':int(C[op][1]),'cx':int(C[leaf][0]),'cy':int(C[leaf][1]),'호':1})
+    cw=clean_walls(wall,mm); tin,tex=clean_walls.T
     # 샷시·창(대표 지적 2026-11-12 「샷시가 빠졌다」): 벽 줄 안의 끊긴 틈 = 창. 벽을 가로·세로로 이어 붙여 메운 뒤 원래 벽을 빼면 틈만 남는다
     K=max(9,int(2600/mm)); sash=[]
     dz=np.zeros((H,W),bool)
@@ -191,5 +224,7 @@ def trace(path, plan):
         for j in range(1,ng):
             x,y,w_,h_,a_=sg[j]; Lp,Sp=(w_,h_) if ax=='h' else (h_,w_)
             if Lp*mm<400 or Sp<3 or Sp*mm>400 or a_<w_*h_*0.7: continue
-            sash.append([ax,int(x),int(y),int(x+w_),int(y+h_)])
-    return {'샷시':sash,'문':doors,'공용칸':publab,'틀':[int(bx),int(by),int(bx+bw0),int(by+bh0)],'공용':pubd,'벽':rect_path(wall,1.0),'칸':cells,'창선':win,'기구':objs}
+            T=tex if abs(Sp-tex)<abs(Sp-tin) else tin   # 샷시 두께를 붙은 벽 두께로 통일(깔끔하게)
+            if ax=='h': c=y+h_/2.0; sash.append([ax,int(x),int(round(c-T/2)),int(x+w_),int(round(c+T/2))])
+            else: c=x+w_/2.0; sash.append([ax,int(round(c-T/2)),int(y),int(round(c+T/2)),int(y+h_)])
+    return {'샷시':sash,'문':doors,'공용칸':publab,'틀':[int(bx),int(by),int(bx+bw0),int(by+bh0)],'공용':pubd,'벽':rect_path(cw,0.8),'칸':cells,'창선':win,'기구':objs}
