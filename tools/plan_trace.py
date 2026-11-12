@@ -310,11 +310,25 @@ def diag_windows(img, mm):
         return runs
     for (x1,y1,x2,y2,a) in segs:
         dx,dy=x2-x1,y2-y1; Ln=np.hypot(dx,dy) or 1; ux,uy=dx/Ln,dy/Ln; nx,ny=-uy,ux
-        good=[]
-        for t in np.linspace(2,Ln-2,max(8,int(Ln/3))):
-            r=profile(x1+ux*t,y1+uy*t,nx,ny)
+        good=[]; tot=0; skip=0; NS=max(8,int(Ln/3))
+        for t in np.linspace(2,Ln-2,NS):
+            px_,py_=x1+ux*t,y1+uy*t
+            # 선분 끝이 벽에 걸친 단면은 양 끝 15% 안에서만 판단에서 뺀다(45도 평면 162). 뺀 것이 3할 넘으면 버림
+            if (t<0.15*Ln or t>0.85*Ln) and any(0<=int(round(px_+nx*o))<wall.shape[1] and 0<=int(round(py_+ny*o))<wall.shape[0] and wall[int(round(py_+ny*o)),int(round(px_+nx*o))] for o in range(-10,11)): skip+=1; continue
+            tot+=1; r=profile(px_,py_,nx,ny)
             if len(r)>=2 and r[-1][1]-r[0][0]>=3: good.append((r[0][0],r[-1][1]))
-        if len(good)<0.6*max(8,int(Ln/3)): continue
+        if tot<4 or skip>0.3*NS or len(good)<0.6*tot: continue
+        # 2026-11-12 검사 R13(가짜 사선 창 99개 중 65개 — 피트 X·욕실 글자·문): 반대 기울기 가는 선이 가로지르면(가위표) 창이 아니다
+        tbx=tb&~(cv2.dilate(wall.astype(np.uint8),np.ones((5,5),np.uint8))>0); isx=False
+        for t in np.linspace(0.2*Ln,0.8*Ln,8):
+            px_,py_=x1+ux*t,y1+uy*t; hits=0
+            for o in range(-12,13,2):
+                X_,Y_=int(round(px_+ux*o)),int(round(py_-uy*o))
+                if 0<=X_<tb.shape[1] and 0<=Y_<tb.shape[0] and tbx[max(0,Y_-1):Y_+2,max(0,X_-1):X_+2].any(): hits+=1
+            if hits>=10: isx=True; break
+        if isx: continue
+        mid2=sum(1 for t in np.linspace(0.2*Ln,0.8*Ln,8) if len(profile(x1+ux*t,y1+uy*t,nx,ny))>=2)
+        if mid2<4: continue   # 가운데 6할 구간에서 두 줄이 절반 넘게
         lo=float(np.median([g[0] for g in good])); hi=float(np.median([g[1] for g in good])); mid=(lo+hi)/2.0
         p0=(x1+nx*mid,y1+ny*mid); p1=(x2+nx*mid,y2+ny*mid)
         def touch(p):

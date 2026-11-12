@@ -17,7 +17,7 @@ HERE = os.path.dirname(os.path.abspath(__file__)); ROOT = os.path.dirname(os.pat
 sys.path.insert(0, os.path.join(ROOT, 'tools')); sys.path.insert(0, HERE)
 KNOWN = os.path.join(HERE, '알려진모양.json'); CAND = os.path.join(HERE, '후보.json'); BASE = os.path.join(HERE, '기준.json'); DIARY = os.path.join(HERE, '일지.md')
 # 무게: 사람이 다칠 수 있는 것(문 안전)·외벽 터짐이 가장 무겁다
-WEIGHT = {'R5': 10, 'R10': 10, 'R9': 5, 'R1': 5, 'R12': 2, 'R6': 3, 'R2': 2, 'R3': 2, 'R4': 2, 'R7': 1, 'R8': 1}
+WEIGHT = {'R5': 10, 'R10': 10, 'R9': 5, 'R1': 5, 'R12': 2, 'R6': 3, 'R2': 2, 'R3': 2, 'R4': 2, 'R7': 1, 'R8': 1, 'R13': 2}
 GATE = {'안전규칙': ['R5'], '규칙당_늘어남_허용': 1, '발견_늘어남_허용비': 0.05}
 
 def rj(p, d):
