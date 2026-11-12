@@ -4,7 +4,7 @@
      → 올리기 걸음과 떨어져 있어, 나중에 「우리 집 검색」으로 미리 다시 그려 둔 도면을 받아도 같은 편집기를 그대로 쓴다.
    지키는 선: 올린 원본 그림은 이 기기 밖으로 보내지 않고 보관하지도 않는다(다시 그린 도면 자료와 표시만 localStorage 에 둔다). 인쇄·저장물에는 다시 그린 도면만 들어간다. 바깥 꾸러미 없음. */
 (function (root) {
-  var KEY = 'jj_cad_v2', OLDKEY = 'jj_cad_v1', VER = '20261112zj', REQ_URL = 'https://script.google.com/macros/s/AKfycbzxm4mmZs1yVJPa3T-wb0cdJbEUMPYl6dDKtQNSNmJy4nEsCholrEnPAN8e0JfAtOV99A/exec?type=request_form', doc = document, $ = function (id) { return doc.getElementById(id); };
+  var KEY = 'jj_cad_v2', OLDKEY = 'jj_cad_v1', VER = '20261112zk', REQ_URL = 'https://script.google.com/macros/s/AKfycbzxm4mmZs1yVJPa3T-wb0cdJbEUMPYl6dDKtQNSNmJy4nEsCholrEnPAN8e0JfAtOV99A/exec?type=request_form', doc = document, $ = function (id) { return doc.getElementById(id); };
   var S = { state: null, file: null, pending: null };
   function esc(t) { return String(t == null ? '' : t).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
   function ev(name) { try { if (root.gtag) root.gtag('event', name); } catch (e) {} }
@@ -115,7 +115,7 @@
       box.innerHTML = '<h3>' + esc(j.단지 || nm) + '</h3><p>집지니가 다시 그려 둔 평면입니다. 우리 집 평형을 고르면 바로 열립니다. 실제 집과 다른 곳은 열린 뒤에 고칠 수 있습니다.</p>' +
         '<table><thead><tr><th>평형</th><th>전용면적</th><th>방 · 욕실</th><th></th></tr></thead><tbody>' + j.평형.map(function (t, i) {
           var rs = (t.plan && t.plan.rooms) || [], c = function (k) { return rs.filter(function (q) { return q.kind === k; }).length; };
-          return '<tr><td>' + esc(t.이름) + '</td><td>' + (t.전용 ? esc(t.전용) + '㎡' : '–') + '</td><td>방 ' + (c('방') + c('안방')) + ' · 욕실 ' + c('욕실') + '</td><td><button type="button" class="cbtn dark" data-i="' + i + '">이 평면 열기</button></td></tr>';
+          return '<tr><td>' + esc(t.이름) + '</td><td>' + (t.전용 ? esc(t.전용) + '㎡' : '–') + '</td><td>방 ' + (c('방') + c('안방')) + ' · 욕실 ' + c('욕실') + '</td><td><button type="button" class="cbtn dark" data-i="' + i + '">이 평면 열기</button>' + (t.plan && t.plan.그림 ? ' <a class="cbtn" href="data/cad/' + encodeURIComponent(m[1] + '_' + t.이름) + '.dxf" download="' + esc((j.단지 || m[1]) + '_' + t.이름) + '.dxf" title="오토캐드 등 캐드 프로그램에서 바로 열리는 교환용 파일(층·문·창 기호 포함)">캐드 파일</a>' : '') + '</td></tr>';
         }).join('') + '</tbody></table>';
       box.addEventListener('click', function (e) { var b = e.target.closest('button[data-i]'); if (!b) return; var t = j.평형[+b.getAttribute('data-i')]; if (!t || !t.plan) return;
         ev('cad_apt_open'); if (t.전용) $('cadM2').value = t.전용; S.pending = t.plan; go(2); $('cadWait').hidden = true; $('cadFail').hidden = true; showResult({ 글자: { 방이름: 1 } }); });
