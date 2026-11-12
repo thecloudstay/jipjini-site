@@ -489,7 +489,7 @@ $SKPOLY
   9
 $TDCREATE
  40
-2461357.4857060187
+2461357.4996180558
   9
 $TDUCREATE
  40
@@ -497,7 +497,7 @@ $TDUCREATE
   9
 $TDUPDATE
  40
-2461357.4857060187
+2461357.4996180558
   9
 $TDUUPDATE
  40
@@ -549,7 +549,7 @@ $SPLINESEGS
   9
 $HANDSEED
   5
-187
+17F
   9
 $SURFTAB1
  70
@@ -929,11 +929,11 @@ $PSTYLEMODE
   9
 $FINGERPRINTGUID
   2
-{7880B9C5-E523-4AFD-A9B6-8A23E9AC2BA5}
+{096A17E5-CDAF-445D-8342-0B44D9088318}
   9
 $VERSIONGUID
   2
-{E5FD296A-79DF-43FA-AC9B-885D0DB726B5}
+{7B7D56EC-23E9-4CCB-9182-C6A32654E792}
   9
 $EXTNAMES
 290
@@ -3393,7 +3393,7 @@ JJ
   0
 APPID
   5
-184
+17C
 330
 3
 100
@@ -3407,7 +3407,7 @@ HATCHBACKGROUNDCOLOR
   0
 APPID
   5
-185
+17D
 330
 3
 100
@@ -5273,7 +5273,7 @@ JJ-EVTR
   0
 BLOCK_RECORD
   5
-166
+15E
 330
 9
 100
@@ -5293,7 +5293,7 @@ AcDbBlockTableRecord
   0
 BLOCK_RECORD
   5
-175
+16D
 330
 9
 100
@@ -6065,9 +6065,9 @@ AcDbBlockEnd
   0
 BLOCK
   5
-167
+15F
 330
-166
+15E
 100
 AcDbEntity
   8
@@ -6091,9 +6091,9 @@ AcDbBlockBegin
   0
 LINE
   5
-169
+161
 330
-166
+15E
 100
 AcDbEntity
   8
@@ -6115,9 +6115,9 @@ AcDbLine
   0
 LINE
   5
-16A
+162
 330
-166
+15E
 100
 AcDbEntity
   8
@@ -6139,9 +6139,9 @@ AcDbLine
   0
 INSERT
   5
-16B
+163
 330
-166
+15E
 100
 AcDbEntity
   8
@@ -6165,9 +6165,9 @@ _ARCHTICK
   0
 INSERT
   5
-16D
+165
 330
-166
+15E
 100
 AcDbEntity
   8
@@ -6189,9 +6189,9 @@ _ARCHTICK
   0
 LINE
   5
-16F
+167
 330
-166
+15E
 100
 AcDbEntity
   8
@@ -6213,9 +6213,9 @@ AcDbLine
   0
 MTEXT
   5
-170
+168
 330
-166
+15E
 100
 AcDbEntity
   8
@@ -6239,9 +6239,9 @@ OpenSansCondensed-Light
   0
 POINT
   5
-171
+169
 330
-166
+15E
 100
 AcDbEntity
   8
@@ -6257,9 +6257,9 @@ AcDbPoint
   0
 POINT
   5
-172
+16A
 330
-166
+15E
 100
 AcDbEntity
   8
@@ -6275,9 +6275,9 @@ AcDbPoint
   0
 POINT
   5
-173
+16B
 330
-166
+15E
 100
 AcDbEntity
   8
@@ -6293,9 +6293,9 @@ AcDbPoint
   0
 ENDBLK
   5
-168
+160
 330
-166
+15E
 100
 AcDbEntity
   8
@@ -6305,9 +6305,9 @@ AcDbBlockEnd
   0
 BLOCK
   5
-176
+16E
 330
-175
+16D
 100
 AcDbEntity
   8
@@ -6331,9 +6331,9 @@ AcDbBlockBegin
   0
 LINE
   5
-178
+170
 330
-175
+16D
 100
 AcDbEntity
   8
@@ -6355,9 +6355,9 @@ AcDbLine
   0
 LINE
   5
-179
+171
 330
-175
+16D
 100
 AcDbEntity
   8
@@ -6379,9 +6379,9 @@ AcDbLine
   0
 INSERT
   5
-17A
+172
 330
-175
+16D
 100
 AcDbEntity
   8
@@ -6405,9 +6405,9 @@ _ARCHTICK
   0
 INSERT
   5
-17C
+174
 330
-175
+16D
 100
 AcDbEntity
   8
@@ -6431,9 +6431,9 @@ _ARCHTICK
   0
 LINE
   5
-17E
+176
 330
-175
+16D
 100
 AcDbEntity
   8
@@ -6455,9 +6455,9 @@ AcDbLine
   0
 MTEXT
   5
-17F
+177
 330
-175
+16D
 100
 AcDbEntity
   8
@@ -6483,9 +6483,9 @@ OpenSansCondensed-Light
   0
 POINT
   5
-180
+178
 330
-175
+16D
 100
 AcDbEntity
   8
@@ -6501,9 +6501,9 @@ AcDbPoint
   0
 POINT
   5
-181
+179
 330
-175
+16D
 100
 AcDbEntity
   8
@@ -6519,9 +6519,9 @@ AcDbPoint
   0
 POINT
   5
-182
+17A
 330
-175
+16D
 100
 AcDbEntity
   8
@@ -6537,9 +6537,9 @@ AcDbPoint
   0
 ENDBLK
   5
-177
+16F
 330
-175
+16D
 100
 AcDbEntity
   8
@@ -11517,247 +11517,9 @@ AcDbEntity
   8
 A-GLAZ
   0
-INSERT
-  5
-118
-330
-17
-100
-AcDbEntity
-  8
-A-GLAZ
-100
-AcDbBlockReference
- 66
-1
-  2
-JJ-WIN-DOUBLE
- 10
-4474.0
- 20
-4545.8
- 30
-0.0
- 41
-0.6156999999999998
- 42
-0.18470653890375588
-  0
-ATTRIB
-  5
-11A
-330
-17
-100
-AcDbEntity
-  8
-0
- 60
-1
-100
-AcDbText
- 10
-4474.0
- 20
-4416.505422767371
- 30
-0.0
- 40
-14.77652311230047
-  1
-620
- 51
-1.4210854715202004e-14
- 41
-3.333395794508496
- 11
-4474.0
- 21
-4416.505422767371
- 31
-0.0
-100
-AcDbAttribute
-  2
-폭
- 70
-0
-  0
-ATTRIB
-  5
-11B
-330
-17
-100
-AcDbEntity
-  8
-0
- 60
-1
-100
-AcDbText
- 10
-4474.0
- 20
-4398.034768876995
- 30
-0.0
- 40
-14.77652311230047
-  1
-이중창
- 51
-1.4210854715202004e-14
- 41
-3.333395794508496
- 11
-4474.0
- 21
-4398.034768876995
- 31
-0.0
-100
-AcDbAttribute
-  2
-종류
- 70
-0
-  0
-SEQEND
-  5
-119
-330
-118
-100
-AcDbEntity
-  8
-A-GLAZ
-  0
-INSERT
-  5
-11C
-330
-17
-100
-AcDbEntity
-  8
-A-GLAZ
-100
-AcDbBlockReference
- 66
-1
-  2
-JJ-WIN-DOUBLE
- 10
-8465.7
- 20
-2544.8
- 30
-0.0
- 41
-1.9701999999999997
- 42
-0.18470653890375588
- 50
-90.0
-  0
-ATTRIB
-  5
-11E
-330
-17
-100
-AcDbEntity
-  8
-0
- 60
-1
-100
-AcDbText
- 10
-8594.99457723263
- 20
-2544.8
- 30
-0.0
- 40
-14.77652311230047
-  1
-1970
- 50
-90.0
- 51
-2.842170943040401e-14
- 41
-10.666649982687414
- 11
-8594.99457723263
- 21
-2544.8
- 31
-0.0
-100
-AcDbAttribute
-  2
-폭
- 70
-0
-  0
-ATTRIB
-  5
-11F
-330
-17
-100
-AcDbEntity
-  8
-0
- 60
-1
-100
-AcDbText
- 10
-8613.465231123006
- 20
-2544.8
- 30
-0.0
- 40
-14.77652311230047
-  1
-이중창
- 50
-90.0
- 51
-2.842170943040401e-14
- 41
-10.666649982687414
- 11
-8613.465231123006
- 21
-2544.8
- 31
-0.0
-100
-AcDbAttribute
-  2
-종류
- 70
-0
-  0
-SEQEND
-  5
-11D
-330
-11C
-100
-AcDbEntity
-  8
-A-GLAZ
-  0
 LWPOLYLINE
   5
-120
+118
 330
 17
 100
@@ -11821,7 +11583,7 @@ JJ
   0
 MTEXT
   5
-121
+119
 330
 17
 100
@@ -11841,11 +11603,11 @@ AcDbMText
  71
 5
   1
-{\fMalgun Gothic|b1|i0|c129|p34;안방}
+안방
   0
 MTEXT
   5
-122
+11A
 330
 17
 100
@@ -11865,11 +11627,11 @@ AcDbMText
  71
 5
   1
-{\fMalgun Gothic|b0|i0|c129|p34;18.02 m²}
+18.02 m²
   0
 LWPOLYLINE
   5
-123
+11B
 330
 17
 100
@@ -11925,7 +11687,7 @@ JJ
   0
 MTEXT
   5
-124
+11C
 330
 17
 100
@@ -11945,11 +11707,11 @@ AcDbMText
  71
 5
   1
-{\fMalgun Gothic|b1|i0|c129|p34;주방}
+주방
   0
 MTEXT
   5
-125
+11D
 330
 17
 100
@@ -11969,11 +11731,11 @@ AcDbMText
  71
 5
   1
-{\fMalgun Gothic|b0|i0|c129|p34;17.18 m²}
+17.18 m²
   0
 LWPOLYLINE
   5
-126
+11E
 330
 17
 100
@@ -12013,7 +11775,7 @@ JJ
   0
 MTEXT
   5
-127
+11F
 330
 17
 100
@@ -12033,11 +11795,11 @@ AcDbMText
  71
 5
   1
-{\fMalgun Gothic|b1|i0|c129|p34;거실}
+거실
   0
 MTEXT
   5
-128
+120
 330
 17
 100
@@ -12057,11 +11819,11 @@ AcDbMText
  71
 5
   1
-{\fMalgun Gothic|b0|i0|c129|p34;14.09 m²}
+14.09 m²
   0
 LWPOLYLINE
   5
-129
+121
 330
 17
 100
@@ -12101,7 +11863,7 @@ JJ
   0
 MTEXT
   5
-12A
+122
 330
 17
 100
@@ -12121,11 +11883,11 @@ AcDbMText
  71
 5
   1
-{\fMalgun Gothic|b1|i0|c129|p34;방2}
+방2
   0
 MTEXT
   5
-12B
+123
 330
 17
 100
@@ -12145,11 +11907,11 @@ AcDbMText
  71
 5
   1
-{\fMalgun Gothic|b0|i0|c129|p34;10.36 m²}
+10.36 m²
   0
 LWPOLYLINE
   5
-12C
+124
 330
 17
 100
@@ -12189,7 +11951,7 @@ JJ
   0
 MTEXT
   5
-12D
+125
 330
 17
 100
@@ -12209,11 +11971,11 @@ AcDbMText
  71
 5
   1
-{\fMalgun Gothic|b1|i0|c129|p34;방3}
+방3
   0
 MTEXT
   5
-12E
+126
 330
 17
 100
@@ -12233,11 +11995,11 @@ AcDbMText
  71
 5
   1
-{\fMalgun Gothic|b0|i0|c129|p34;8.66 m²}
+8.66 m²
   0
 LWPOLYLINE
   5
-12F
+127
 330
 17
 100
@@ -12277,7 +12039,7 @@ JJ
   0
 MTEXT
   5
-130
+128
 330
 17
 100
@@ -12297,11 +12059,11 @@ AcDbMText
  71
 5
   1
-{\fMalgun Gothic|b1|i0|c129|p34;발코니1}
+발코니1
   0
 MTEXT
   5
-131
+129
 330
 17
 100
@@ -12321,11 +12083,11 @@ AcDbMText
  71
 5
   1
-{\fMalgun Gothic|b0|i0|c129|p34;7.02 m²}
+7.02 m²
   0
 LWPOLYLINE
   5
-132
+12A
 330
 17
 100
@@ -12365,7 +12127,7 @@ JJ
   0
 MTEXT
   5
-133
+12B
 330
 17
 100
@@ -12385,11 +12147,11 @@ AcDbMText
  71
 5
   1
-{\fMalgun Gothic|b1|i0|c129|p34;발코니2}
+발코니2
   0
 MTEXT
   5
-134
+12C
 330
 17
 100
@@ -12409,11 +12171,11 @@ AcDbMText
  71
 5
   1
-{\fMalgun Gothic|b0|i0|c129|p34;6.09 m²}
+6.09 m²
   0
 LWPOLYLINE
   5
-135
+12D
 330
 17
 100
@@ -12453,7 +12215,7 @@ JJ
   0
 MTEXT
   5
-136
+12E
 330
 17
 100
@@ -12473,11 +12235,11 @@ AcDbMText
  71
 5
   1
-{\fMalgun Gothic|b1|i0|c129|p34;발코니3}
+발코니3
   0
 MTEXT
   5
-137
+12F
 330
 17
 100
@@ -12497,11 +12259,11 @@ AcDbMText
  71
 5
   1
-{\fMalgun Gothic|b0|i0|c129|p34;5.36 m²}
+5.36 m²
   0
 LWPOLYLINE
   5
-138
+130
 330
 17
 100
@@ -12541,7 +12303,7 @@ JJ
   0
 MTEXT
   5
-139
+131
 330
 17
 100
@@ -12561,11 +12323,11 @@ AcDbMText
  71
 5
   1
-{\fMalgun Gothic|b1|i0|c129|p34;현관}
+현관
   0
 MTEXT
   5
-13A
+132
 330
 17
 100
@@ -12585,11 +12347,11 @@ AcDbMText
  71
 5
   1
-{\fMalgun Gothic|b0|i0|c129|p34;4.52 m²}
+4.52 m²
   0
 LWPOLYLINE
   5
-13B
+133
 330
 17
 100
@@ -12629,7 +12391,7 @@ JJ
   0
 MTEXT
   5
-13C
+134
 330
 17
 100
@@ -12649,11 +12411,11 @@ AcDbMText
  71
 5
   1
-{\fMalgun Gothic|b1|i0|c129|p34;욕실1}
+욕실1
   0
 MTEXT
   5
-13D
+135
 330
 17
 100
@@ -12673,11 +12435,11 @@ AcDbMText
  71
 5
   1
-{\fMalgun Gothic|b0|i0|c129|p34;4.46 m²}
+4.46 m²
   0
 LWPOLYLINE
   5
-13E
+136
 330
 17
 100
@@ -12717,7 +12479,7 @@ JJ
   0
 MTEXT
   5
-13F
+137
 330
 17
 100
@@ -12737,11 +12499,11 @@ AcDbMText
  71
 5
   1
-{\fMalgun Gothic|b1|i0|c129|p34;발코니4}
+발코니4
   0
 MTEXT
   5
-140
+138
 330
 17
 100
@@ -12761,11 +12523,11 @@ AcDbMText
  71
 5
   1
-{\fMalgun Gothic|b0|i0|c129|p34;4.19 m²}
+4.19 m²
   0
 LWPOLYLINE
   5
-141
+139
 330
 17
 100
@@ -12805,7 +12567,7 @@ JJ
   0
 MTEXT
   5
-142
+13A
 330
 17
 100
@@ -12825,11 +12587,11 @@ AcDbMText
  71
 5
   1
-{\fMalgun Gothic|b1|i0|c129|p34;발코니5}
+발코니5
   0
 MTEXT
   5
-143
+13B
 330
 17
 100
@@ -12849,11 +12611,11 @@ AcDbMText
  71
 5
   1
-{\fMalgun Gothic|b0|i0|c129|p34;4.01 m²}
+4.01 m²
   0
 LWPOLYLINE
   5
-144
+13C
 330
 17
 100
@@ -12901,7 +12663,7 @@ JJ
   0
 MTEXT
   5
-145
+13D
 330
 17
 100
@@ -12921,11 +12683,11 @@ AcDbMText
  71
 5
   1
-{\fMalgun Gothic|b1|i0|c129|p34;욕실2}
+욕실2
   0
 MTEXT
   5
-146
+13E
 330
 17
 100
@@ -12945,11 +12707,11 @@ AcDbMText
  71
 5
   1
-{\fMalgun Gothic|b0|i0|c129|p34;3.95 m²}
+3.95 m²
   0
 LWPOLYLINE
   5
-147
+13F
 330
 17
 100
@@ -12989,7 +12751,7 @@ JJ
   0
 MTEXT
   5
-148
+140
 330
 17
 100
@@ -13009,11 +12771,11 @@ AcDbMText
  71
 5
   1
-{\fMalgun Gothic|b1|i0|c129|p34;발코니6}
+발코니6
   0
 MTEXT
   5
-149
+141
 330
 17
 100
@@ -13033,11 +12795,11 @@ AcDbMText
  71
 5
   1
-{\fMalgun Gothic|b0|i0|c129|p34;2.93 m²}
+2.93 m²
   0
 LWPOLYLINE
   5
-14A
+142
 330
 17
 100
@@ -13077,7 +12839,7 @@ JJ
   0
 MTEXT
   5
-14B
+143
 330
 17
 100
@@ -13097,11 +12859,11 @@ AcDbMText
  71
 5
   1
-{\fMalgun Gothic|b1|i0|c129|p34;발코니7}
+발코니7
   0
 MTEXT
   5
-14C
+144
 330
 17
 100
@@ -13121,11 +12883,11 @@ AcDbMText
  71
 5
   1
-{\fMalgun Gothic|b0|i0|c129|p34;1.38 m²}
+1.38 m²
   0
 LWPOLYLINE
   5
-14D
+145
 330
 17
 100
@@ -13173,7 +12935,7 @@ JJ
   0
 MTEXT
   5
-14E
+146
 330
 17
 100
@@ -13193,11 +12955,11 @@ AcDbMText
  71
 5
   1
-{\fMalgun Gothic|b1|i0|c129|p34;피트}
+피트
   0
 MTEXT
   5
-14F
+147
 330
 17
 100
@@ -13217,11 +12979,11 @@ AcDbMText
  71
 5
   1
-{\fMalgun Gothic|b0|i0|c129|p34;1.15 m²}
+1.15 m²
   0
 LWPOLYLINE
   5
-150
+148
 330
 17
 100
@@ -13261,7 +13023,7 @@ JJ
   0
 MTEXT
   5
-151
+149
 330
 17
 100
@@ -13281,11 +13043,11 @@ AcDbMText
  71
 5
   1
-{\fMalgun Gothic|b1|i0|c129|p34;피트2}
+피트2
   0
 MTEXT
   5
-152
+14A
 330
 17
 100
@@ -13305,11 +13067,11 @@ AcDbMText
  71
 5
   1
-{\fMalgun Gothic|b0|i0|c129|p34;1.09 m²}
+1.09 m²
   0
 LWPOLYLINE
   5
-153
+14B
 330
 17
 100
@@ -13349,7 +13111,7 @@ JJ
   0
 MTEXT
   5
-154
+14C
 330
 17
 100
@@ -13369,11 +13131,11 @@ AcDbMText
  71
 5
   1
-{\fMalgun Gothic|b1|i0|c129|p34;피트3}
+피트3
   0
 MTEXT
   5
-155
+14D
 330
 17
 100
@@ -13393,11 +13155,11 @@ AcDbMText
  71
 5
   1
-{\fMalgun Gothic|b0|i0|c129|p34;0.9 m²}
+0.9 m²
   0
 LWPOLYLINE
   5
-156
+14E
 330
 17
 100
@@ -13437,7 +13199,7 @@ JJ
   0
 MTEXT
   5
-157
+14F
 330
 17
 100
@@ -13457,11 +13219,11 @@ AcDbMText
  71
 5
   1
-{\fMalgun Gothic|b1|i0|c129|p34;피트4}
+피트4
   0
 MTEXT
   5
-158
+150
 330
 17
 100
@@ -13481,11 +13243,11 @@ AcDbMText
  71
 5
   1
-{\fMalgun Gothic|b0|i0|c129|p34;0.56 m²}
+0.56 m²
   0
 LWPOLYLINE
   5
-159
+151
 330
 17
 100
@@ -13525,7 +13287,7 @@ JJ
   0
 MTEXT
   5
-15A
+152
 330
 17
 100
@@ -13545,11 +13307,11 @@ AcDbMText
  71
 5
   1
-{\fMalgun Gothic|b1|i0|c129|p34;피트5}
+피트5
   0
 MTEXT
   5
-15B
+153
 330
 17
 100
@@ -13569,11 +13331,11 @@ AcDbMText
  71
 5
   1
-{\fMalgun Gothic|b0|i0|c129|p34;0.56 m²}
+0.56 m²
   0
 LWPOLYLINE
   5
-15C
+154
 330
 17
 100
@@ -13613,7 +13375,7 @@ JJ
   0
 MTEXT
   5
-15D
+155
 330
 17
 100
@@ -13633,11 +13395,11 @@ AcDbMText
  71
 5
   1
-{\fMalgun Gothic|b1|i0|c129|p34;피트6}
+피트6
   0
 MTEXT
   5
-15E
+156
 330
 17
 100
@@ -13657,11 +13419,11 @@ AcDbMText
  71
 5
   1
-{\fMalgun Gothic|b0|i0|c129|p34;0.54 m²}
+0.54 m²
   0
 LWPOLYLINE
   5
-15F
+157
 330
 17
 100
@@ -13701,7 +13463,7 @@ JJ
   0
 MTEXT
   5
-160
+158
 330
 17
 100
@@ -13721,11 +13483,11 @@ AcDbMText
  71
 5
   1
-{\fMalgun Gothic|b1|i0|c129|p34;피트7}
+피트7
   0
 MTEXT
   5
-161
+159
 330
 17
 100
@@ -13745,11 +13507,11 @@ AcDbMText
  71
 5
   1
-{\fMalgun Gothic|b0|i0|c129|p34;0.45 m²}
+0.45 m²
   0
 LWPOLYLINE
   5
-162
+15A
 330
 17
 100
@@ -13789,7 +13551,7 @@ JJ
   0
 MTEXT
   5
-163
+15B
 330
 17
 100
@@ -13809,11 +13571,11 @@ AcDbMText
  71
 5
   1
-{\fMalgun Gothic|b1|i0|c129|p34;피트8}
+피트8
   0
 MTEXT
   5
-164
+15C
 330
 17
 100
@@ -13833,11 +13595,11 @@ AcDbMText
  71
 5
   1
-{\fMalgun Gothic|b0|i0|c129|p34;0.39 m²}
+0.39 m²
   0
 DIMENSION
   5
-165
+15D
 330
 17
 100
@@ -13891,7 +13653,7 @@ AcDbRotatedDimension
   0
 DIMENSION
   5
-174
+16C
 330
 17
 100
@@ -13945,7 +13707,7 @@ AcDbRotatedDimension
   0
 MTEXT
   5
-183
+17B
 330
 17
 100
@@ -13965,7 +13727,7 @@ AcDbMText
  71
 1
   1
-{\fMalgun Gothic|b1|i0|c129|p34;A40673912 115}
+A40673912 115
   0
 ENDSEC
   0
@@ -15057,7 +14819,7 @@ CREATED_BY_EZDXF
   3
 WRITTEN_BY_EZDXF
 350
-186
+17E
   0
 DICTIONARYVAR
   5
@@ -15069,7 +14831,7 @@ DictionaryVariables
 280
 0
   1
-1.4.5 @ 2026-11-12T02:39:25.505381+00:00
+1.4.5 @ 2026-11-12T02:59:27.643036+00:00
   0
 VISUALSTYLE
   5
@@ -15773,7 +15535,7 @@ X-Ray
   0
 DICTIONARYVAR
   5
-186
+17E
 330
 2D
 100
@@ -15781,7 +15543,7 @@ DictionaryVariables
 280
 0
   1
-1.4.5 @ 2026-11-12T02:39:25.519274+00:00
+1.4.5 @ 2026-11-12T02:59:27.654854+00:00
   0
 ENDSEC
   0

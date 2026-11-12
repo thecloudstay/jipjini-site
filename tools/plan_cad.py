@@ -22,8 +22,22 @@ def inpoly(x, y, pts):
         if (y1 > y) != (y2 > y) and x < (x2 - x1) * (y - y1) / ((y2 - y1) or 1e-9) + x1: c = not c
     return c
 
+def side_kind(plan, x, y):
+    for r in plan.get('rooms', []):
+        if len(r['pts']) >= 3 and inpoly(x, y, r['pts']): return r.get('kind') or '?'
+    return None
+
+def outer_sash(plan):
+    """창은 한쪽이 바깥이거나 발코니일 때만 진짜다. 방과 방 사이 벽 틈(문·칸막이)이 창으로 잡힌 것을 걸러 낸다(2026-11-12 대표 지적: 안쪽 파란 줄 상자)."""
+    G = plan.get('그림') or {}; off = 600.0 / (plan.get('mmpp') or 23.0); out = []
+    for q in G.get('샷시', []):
+        ax, x0, y0, x1, y1 = q; cx, cy = (x0 + x1) / 2.0, (y0 + y1) / 2.0
+        a, b = (side_kind(plan, cx, y0 - off), side_kind(plan, cx, y1 + off)) if ax == 'h' else (side_kind(plan, x0 - off, cy), side_kind(plan, x1 + off, cy))
+        if a is None or b is None or '발코니' in (a, b): out.append(q)
+    return out
+
 def kor(t, b=False):
-    return '{\\f%s|b%d|i0|c129|p34;%s}' % (FONT, 1 if b else 0, t)
+    return t   # 글꼴은 글자 양식(맑은 고딕)에 맡긴다 — 글 안 글꼴 지정은 웹 보기 도구 여럿이 못 읽어 한글이 빠졌다
 
 def setup(doc):
     doc.units = ezdxf.units.MM
@@ -78,7 +92,7 @@ def export(plan, out_path, title=''):
         ref.add_auto_attribs({'폭': str(int(round(width / 10) * 10)), '종류': '여닫이'})
         cnt['문'] += 1
     # 창·샷시: 벽 두께 안에 이중창 기호
-    for q in G.get('샷시', []):
+    for q in outer_sash(plan):
         ax, x0, y0, x1, y1 = q
         if ax == 'h':
             (sx, sy0), (ex, _) = P(x0, (y0 + y1) / 2), P(x1, (y0 + y1) / 2); L = ex - sx; T = abs(y1 - y0) * mm; ins, rot = (sx, sy0), 0
