@@ -617,6 +617,24 @@
     var score = function (f) { var d = f.dbg || [0, 0], a = d[0], fit = a >= 2 && a <= 6 ? 1 : a >= 1.5 && a <= 7.5 ? 0.5 : 0; return fit * 10 + Math.min(1, (d[1] || 0) / 0.12); };
     guess.sort(function (a, b) { return score(b) - score(a); }).slice(room).forEach(function (f) { f.kind = '기타'; });
   }
+  // 2026-11-12 대표 지적 「욕실 기구·주방 기구를 따라 그리는데 전혀 맞지 않는다」: 그림에 그려진 자리를 읽어 그 자리에 그린다(지어서 놓지 않는다).
+  //   욕실 칸 안의 흰 덩어리 = 욕조(길쭉하고 큼) · 변기·세면대(작고 둥긂), 주방 칸 안의 흰·연한 회색 긴 띠 = 싱크대 상판. 크기는 척도(mm/화소)로 잰다.
+  function fixtures(cv, res) {
+    var W = cv.width, H = cv.height, d = cv.getContext('2d').getImageData(0, 0, W, H).data, mm = res.mmpp, out = [];
+    var inPg = function (x, y, P) { var c = false; for (var i = 0, j = P.length - 1; i < P.length; j = i++) { if (((P[i][1] > y) !== (P[j][1] > y)) && (x < (P[j][0] - P[i][0]) * (y - P[i][1]) / (P[j][1] - P[i][1]) + P[i][0])) c = !c; } return c; };
+    res.rooms.forEach(function (rm) { var kind = rm.kind; if (kind !== '욕실' && kind !== '주방') return; var P = rm.pts; if (!P || P.length < 3) return;
+      var xs = P.map(function (q) { return q[0]; }), ys = P.map(function (q) { return q[1]; }), x0 = Math.max(0, Math.floor(Math.min.apply(null, xs))), x1 = Math.min(W - 1, Math.ceil(Math.max.apply(null, xs))), y0 = Math.max(0, Math.floor(Math.min.apply(null, ys))), y1 = Math.min(H - 1, Math.ceil(Math.max.apply(null, ys))), bw = x1 - x0 + 1, bh = y1 - y0 + 1;
+      if (bw < 4 || bh < 4) return; var m = new Uint8Array(bw * bh), i, j;
+      for (j = 0; j < bh; j++) for (i = 0; i < bw; i++) { var o = ((y0 + j) * W + x0 + i) * 4, r = d[o], g = d[o + 1], b = d[o + 2], mx = Math.max(r, g, b), mn = Math.min(r, g, b); if (mn >= 232 && mx - mn <= 14 && inPg(x0 + i + 0.5, y0 + j + 0.5, P)) m[j * bw + i] = 1; }
+      var seen = new Uint8Array(bw * bh), a2 = function (px) { return px * mm * mm / 1e6; };
+      for (j = 0; j < bh; j++) for (i = 0; i < bw; i++) { var s0 = j * bw + i; if (!m[s0] || seen[s0]) continue; var st = [s0], n = 0, cx0 = i, cx1 = i, cy0 = j, cy1 = j; seen[s0] = 1;
+        while (st.length) { var k = st.pop(), ki = k % bw, kj = (k / bw) | 0; n++; if (ki < cx0) cx0 = ki; if (ki > cx1) cx1 = ki; if (kj < cy0) cy0 = kj; if (kj > cy1) cy1 = kj; [k - 1, k + 1, k - bw, k + bw].forEach(function (q, t) { if (q < 0 || q >= bw * bh || (t < 2 && ((q % bw) !== ki + (t ? 1 : -1)))) return; if (m[q] && !seen[q]) { seen[q] = 1; st.push(q); } }); }
+        var w = (cx1 - cx0 + 1) * mm, h = (cy1 - cy0 + 1) * mm, L = Math.max(w, h), S = Math.min(w, h), A = a2(n), fill = n / ((cx1 - cx0 + 1) * (cy1 - cy0 + 1)), box = { x0: x0 + cx0, y0: y0 + cy0, x1: x0 + cx1 + 1, y1: y0 + cy1 + 1 };
+        if (A > 3.5 || fill < 0.35) continue;   // 칸 바닥 전체가 흰 경우(흰 타일)는 기구가 아니다
+        if (kind === '욕실') { if (L >= 1150 && L <= 1900 && S >= 550 && S <= 900 && L / S >= 1.5) out.push(Object.assign({ k: '욕조' }, box)); else if (L >= 300 && L <= 800 && S >= 250 && S <= 600) out.push(Object.assign({ k: L / S >= 1.3 ? '변기' : '세면대' }, box)); else if (L >= 750 && L <= 1300 && S >= 750 && L / S < 1.4 && A >= 0.5) out.push(Object.assign({ k: '샤워' }, box)); }
+        else if (L >= 1200 && S >= 420 && S <= 850 && L / S >= 2.2) out.push(Object.assign({ k: '싱크대' }, box)); } });
+    return out;
+  }
   function analyze(src, opt) {
     opt = opt || {}; var step0 = opt.onStep || function () {}, step = function (t) { step0('집지니가 ' + t); }, A;   // 안내 문구는 모두 「집지니가 …하고 있습니다」
     return needAuto().then(function () { A = root.JJPlanAuto; return toImage(src); }).then(function (img) {
@@ -666,7 +684,7 @@
           if (!base.ok || !items || !items.length) { if (base.ok) { base.글자 = { 개수: 0, 방이름: 0, 치수: [], 실패: items === null }; try { var fr = base.rooms.map(function (r) { return { pts: r.pts, px: r.px, kind: r.kind, nm: r.nm }; }); squareUp(fr); var b2 = A.finalize(fr, W, H, dataUrl, opt.areaM2, base.engine); b2.글자 = base.글자; if (base.외곽) b2.외곽 = base.외곽; if (base.문) b2.문 = base.문; if (base.창선) b2.창선 = base.창선; base = b2; } catch (_q) {} } return base; }
           return refine(base, items, opt.areaM2);
         });
-      }).then(function (res) { if (res && turned) res.회전 = turned; return res; });
+      }).then(function (res) { if (res && turned) res.회전 = turned; try { if (res && res.ok && res.rooms && res.mmpp > 0) res.기구 = fixtures(keep, res); } catch (_f) {} return res; });
     }).catch(function (e) { return { ok: false, why: (e && e.message) || '도면을 읽지 못했습니다.' }; });
   }
   /** 이름이 안 읽힌 칸 하나만 잘라 크게(어두운 바탕이면 뒤집어) 다시 읽는다 → { kind, nm, item } | null */

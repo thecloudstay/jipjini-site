@@ -108,7 +108,7 @@
       if ((pickd[1] ? -pickd[0] : pickd[0]) < 0) o.flip = true; sh.push(o); });
     if (p.mmpp > 0) { var L = Math.round(1000 / p.mmpp), x0 = Math.min.apply(null, xs), y1 = Math.max.apply(null, ys), Dm = Math.max(Math.max.apply(null, xs) - x0, y1 - Math.min.apply(null, ys));
       sh.push({ t: 'scale', c: '#1d5fd0', x1: Math.round(x0 - Dm * 0.07), y1: Math.round(y1 + Dm * 0.135), x2: Math.round(x0 - Dm * 0.07) + L, y2: Math.round(y1 + Dm * 0.135), mm: 1000, by: (p.척도 && p.척도.방식) || '치수' }); }
-    return { v: 2, W: Math.round(Wd), H: Math.round(Ht), shapes: sh, base: { 외곽: p.외곽 || null, 치수줄: p.치수줄 || null }, baseOk: true, name: p.name || '우리 집', at: Date.now() };
+    return { v: 2, W: Math.round(Wd), H: Math.round(Ht), shapes: sh, base: { 그림: p.그림 || null, 기구: p.기구 || null, 외곽: p.외곽 || null, 치수줄: p.치수줄 || null }, baseOk: true, name: p.name || '우리 집', at: Date.now() };
   }
   // 옛 판(첫 집지니 CAD: 번호 스티커·방 빗금)으로 저장된 작업 → 지금 도형으로
   function fromV1(o) {
@@ -620,7 +620,7 @@
     var cnt = function (k) { return rs.filter(function (r) { return r.kind === k; }).length; }, sum = { 방: cnt('방'), 욕실: cnt('욕실'), 발코니: cnt('발코니') }; if (mm) sum.전용합 = Math.round(rs.filter(function (r) { return r.kind !== '발코니' && r.kind !== '실외기실'; }).reduce(function (s, r) { return s + (r.area || 0); }, 0) * 10) / 10;
     var sc = shapes.filter(function (q) { return q.t === 'scale'; })[0], out = { rooms: rs, mmpp: mm, sum: sum, 척도: { 방식: sc ? (sc.by || '치수') : '없음' } };
     out.창 = hide['창·문'] ? [] : shapes.filter(function (q) { return q.t === 'win'; }).map(function (q) { return { x1: q.x1, y1: q.y1, x2: q.x2, y2: q.y2, 종류: String(q.name || '창').split(' ')[0], w_m: mm ? Math.round(Math.hypot(q.x2 - q.x1, q.y2 - q.y1) * mm / 10) / 100 : 0 }; });
-    if (baseOk && base) { if (base.외곽) out.외곽 = base.외곽; if (base.치수줄) out.치수줄 = base.치수줄; }
+    if (baseOk && base) { if (base.그림) out.그림 = base.그림; if (base.기구) out.기구 = base.기구; if (base.외곽) out.외곽 = base.외곽; if (base.치수줄) out.치수줄 = base.치수줄; }
     return out;
   }
   // 바탕 그림 만들기. 양식 도구의 「편집 바탕용」(bare)은 치수선을 그리지 않으므로, 치수선까지 든 온전한 도면을 받아 머리·발·틀을 잘라 내고 집 둘레만 쓴다.
@@ -886,7 +886,7 @@
     shapes.forEach(function (q) { if (q.t === 'wk' && q.f === 'p' && ok(q)) { var r = u * 0.62; OBS.push([q.x - r, q.y - r, q.x + r, q.y + r]); } });
     shapes.forEach(function (q, i) { if (q.t === 'wk' && q.f === 'a' && ok(q)) drawOne(g, q, u, N.show[i] ? N.nos[i] : 0, ord[i]); });
     var late = function (q) { return q.t === 'win' || q.t === 'door'; };   // 창·문은 벽을 다 그린 다음에 — 벽에 묻히지 않게
-    [false, true].forEach(function (ph) { shapes.forEach(function (q, i) { if (q.t === 'wk' || !ok(q) || late(q) !== ph) return; if (bgOn && (q.t === 'room' || q.t === 'win') && (noSel || i !== sel)) return; if (sheetMode && (q.t === 'scale')) return; drawOne(g, q, u); }); });
+    [false, true].forEach(function (ph) { shapes.forEach(function (q, i) { if (q.t === 'wk' || !ok(q) || late(q) !== ph) return; if (bgOn && q.auto && late(q) && baseOk && base && base.그림 && (noSel || shapes.indexOf(q) !== sel)) return;   /* 원본을 따라 그린 바탕에 문·창이 이미 있다 */ if (bgOn && (q.t === 'room' || q.t === 'win') && (noSel || i !== sel)) return; if (sheetMode && (q.t === 'scale')) return; drawOne(g, q, u); }); });
     shapes.forEach(function (q, i) { if (q.t === 'wk' && q.f === 'l' && ok(q)) drawOne(g, q, u, N.show[i] ? N.nos[i] : 0, ord[i]); });
     shapes.forEach(function (q, i) { if (q.t === 'wk' && q.f === 'p' && ok(q)) drawOne(g, q, u, N.show[i] ? N.nos[i] : 0); });
   }
