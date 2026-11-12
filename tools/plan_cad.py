@@ -81,6 +81,12 @@ def export(plan, out_path, title=''):
         pts = [P(x1 + nx, y1 + ny), P(x2 + nx, y2 + ny), P(x2 - nx, y2 - ny), P(x1 - nx, y1 - ny)]
         lay = WALL_LAYER.get(int(t), 'A-WALL-PRTN'); msp.add_lwpolyline(pts, close=True, dxfattribs={'layer': lay})
         h = msp.add_hatch(color=256, dxfattribs={'layer': 'A-WALL-PATT'}); h.set_solid_fill(color=8); h.paths.add_polyline_path(pts, is_closed=True); cnt['벽'] += 1
+    for x1, y1, x2, y2, t in G.get('사선창', []):   # 2026-11-12 비스듬한 창: 틀 + 가운데 두 줄
+        L = ((x2 - x1) ** 2 + (y2 - y1) ** 2) ** 0.5 or 1; hT = max(2.0, t / mm / 2.0); nx, ny = -(y2 - y1) / L, (x2 - x1) / L
+        at = lambda x, y, o: P(x + nx * o, y + ny * o)
+        msp.add_lwpolyline([at(x1, y1, hT), at(x2, y2, hT), at(x2, y2, -hT), at(x1, y1, -hT)], close=True, dxfattribs={'layer': 'A-GLAZ'})
+        for o in (-hT * 0.24, hT * 0.24): msp.add_line(at(x1, y1, o), at(x2, y2, o), dxfattribs={'layer': 'A-GLAZ'})
+        cnt['창'] += 1
     # 문: 경첩 자리에 기호, 문 폭 배율, 여는 방향은 회전·뒤집기
     for d in G.get('문', []):
         hx, hy = P(d['x1'], d['y1']); ox, oy = P(d['x2'], d['y2']); lx, ly = P(d['cx'], d['cy'])
