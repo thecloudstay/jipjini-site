@@ -4,7 +4,7 @@
      → 올리기 걸음과 떨어져 있어, 나중에 「우리 집 검색」으로 미리 다시 그려 둔 도면을 받아도 같은 편집기를 그대로 쓴다.
    지키는 선: 올린 원본 그림은 이 기기 밖으로 보내지 않고 보관하지도 않는다(다시 그린 도면 자료와 표시만 localStorage 에 둔다). 인쇄·저장물에는 다시 그린 도면만 들어간다. 바깥 꾸러미 없음. */
 (function (root) {
-  var KEY = 'jj_cad_v2', OLDKEY = 'jj_cad_v1', VER = '20261112zm', REQ_URL = 'https://script.google.com/macros/s/AKfycbzxm4mmZs1yVJPa3T-wb0cdJbEUMPYl6dDKtQNSNmJy4nEsCholrEnPAN8e0JfAtOV99A/exec?type=request_form', doc = document, $ = function (id) { return doc.getElementById(id); };
+  var KEY = 'jj_cad_v2', OLDKEY = 'jj_cad_v1', VER = '20261112zn', REQ_URL = 'https://script.google.com/macros/s/AKfycbzxm4mmZs1yVJPa3T-wb0cdJbEUMPYl6dDKtQNSNmJy4nEsCholrEnPAN8e0JfAtOV99A/exec?type=request_form', doc = document, $ = function (id) { return doc.getElementById(id); };
   var S = { state: null, file: null, pending: null };
   function esc(t) { return String(t == null ? '' : t).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
   function ev(name) { try { if (root.gtag) root.gtag('event', name); } catch (e) {} }
@@ -57,12 +57,15 @@
       if (!r || !r.ok) { toast((r && r.why) || '캐드 파일을 열지 못했습니다.'); return; }
       if (r.ours) { ev('cad_open_cadfile_ours'); if (!open(r.plan)) toast('도면을 열지 못했습니다.'); return; }
       var cv = doc.createElement('canvas'); root.JJCadIO.rasterize(r.raster, cv); S.cadMmpp = r.mmpp;
+      var R = r.raster; S.cadTexts = R.ents.filter(function (e) { return e.k === 'text' && e.s && /[가-힣A-Za-z]/.test(e.s) && !/^[\d.,\s]+(m|mm|㎡|m2)?$/i.test(e.s); }).map(function (e) { return { s: e.s, x: R.X(e.p[0]), y: R.Y(e.p[1]) }; });   // 방 이름은 도면 글자 그대로
       cv.toBlob(function (b) { if (!b) { toast('캐드 도면을 그림으로 바꾸지 못했습니다.'); return; } S.file = b; run(b); }, 'image/png'); }); };
     if (root.JJCadIO) return go2();
     var sc = doc.createElement('script'); sc.src = 'assets/cad_io.js?v=' + VER; sc.onload = go2; sc.onerror = function () { toast('캐드 파일 읽기 도구를 불러오지 못했습니다.'); }; doc.head.appendChild(sc);
   }
   // 캐드에서 온 그림은 축척을 정확히 안다 — 그림 읽기가 짐작한 축척 대신 그 값으로 넓이·치수를 다시 셈한다
   function cadScale(r) { var mm = S.cadMmpp; S.cadMmpp = 0; if (!mm || !r || !r.rooms) return r; r.mmpp = mm; r.척도 = { 방식: '캐드 파일' };
+    var TX = S.cadTexts || []; S.cadTexts = null; var used = {}, inP = function (x, y, pts) { var c = false; for (var i = 0, n = pts.length; i < n; i++) { var a = pts[i], q = pts[(i + 1) % n]; if ((a[1] > y) !== (q[1] > y) && x < (q[0] - a[0]) * (y - a[1]) / ((q[1] - a[1]) || 1e-9) + a[0]) c = !c; } return c; };
+    r.rooms.forEach(function (m) { if (!m.pts || m.pts.length < 3) return; var hit = TX.filter(function (t, i) { return !used[i] && inP(t.x, t.y, m.pts); })[0]; if (!hit) return; used[TX.indexOf(hit)] = 1; var nm = hit.s.replace(/\s+/g, ' ').slice(0, 14); if (nm && nm !== m.name) { m.name = nm; var k = root.JJCadIO && root.JJCadIO.kindOf ? root.JJCadIO.kindOf(nm) : ''; if (k && k !== '방' || /방|침실|룸/.test(nm)) m.kind = k || m.kind; } });
     r.rooms.forEach(function (m) { if (!m.pts || m.pts.length < 3) return; var a = 0, xs = [], ys = []; for (var i = 0; i < m.pts.length; i++) { var p = m.pts[i], q = m.pts[(i + 1) % m.pts.length]; a += p[0] * q[1] - q[0] * p[1]; xs.push(p[0]); ys.push(p[1]); }
       m.area = Math.round(Math.abs(a) / 2 * mm * mm / 1e4) / 100; m.w = Math.round((Math.max.apply(null, xs) - Math.min.apply(null, xs)) * mm); m.d = Math.round((Math.max.apply(null, ys) - Math.min.apply(null, ys)) * mm); });
     return r; }

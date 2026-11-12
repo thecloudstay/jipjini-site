@@ -245,7 +245,7 @@
     var gx = m0 + D * 0.035, gy = fy + foot * 0.3;
     if (mm) { var one = 1000 / mm, nSeg = one * 3 < bw * 0.5 ? 3 : 1; for (var i = 0; i < nSeg; i++) h.push('<rect x="' + (gx + one * i).toFixed(1) + '" y="' + (gy - D * 0.006).toFixed(1) + '" width="' + one.toFixed(1) + '" height="' + (D * 0.012).toFixed(1) + '" fill="' + (i % 2 ? PAPER : INK) + '" stroke="' + INK + '" stroke-width="' + (D / 700).toFixed(2) + '"/>');
       h.push('<text x="' + gx.toFixed(1) + '" y="' + (gy + fs * 1.15).toFixed(1) + '" font-size="' + (fs * 0.68).toFixed(1) + '" fill="' + SUBT + '">0</text><text x="' + (gx + one * nSeg).toFixed(1) + '" y="' + (gy + fs * 1.15).toFixed(1) + '" text-anchor="middle" font-size="' + (fs * 0.68).toFixed(1) + '" fill="' + SUBT + '">' + nSeg + ' m</text>'); }
-    var by = r.척도 && r.척도.방식 && r.척도.방식 !== '없음' ? '크기 기준: ' + (r.척도.방식 === '치수' ? '도면 치수선' : r.척도.방식 === '방 면적' ? '도면에 적힌 방 면적' : '전용면적') : '';
+    var by = r.척도 && r.척도.방식 && r.척도.방식 !== '없음' ? '크기 기준: ' + (r.척도.방식 === '치수' ? '도면 치수선' : r.척도.방식 === '방 면적' ? '도면에 적힌 방 면적' : r.척도.방식 === '캐드 파일' ? '캐드 파일 실제 치수' : '전용면적') : '';
     h.push('<text x="' + (VW - m0 - D * 0.035).toFixed(1) + '" y="' + (gy + fs * 0.1).toFixed(1) + '" text-anchor="end" font-size="' + (fs * 0.7).toFixed(1) + '" fill="' + INK + '">' + esc(opt.note || '원본 평면도를 집지니가 읽어 다시 그린 참고용 도면입니다.') + '</text>');
     h.push('<text x="' + (VW - m0 - D * 0.035).toFixed(1) + '" y="' + (gy + fs * 1.15).toFixed(1) + '" text-anchor="end" font-size="' + (fs * 0.64).toFixed(1) + '" fill="' + SUBT + '">' + esc((by ? by + '  ·  ' : '') + (mm && !opt.noDims ? '치수 단위 mm · ' : '') + '문·창 위치와 정확한 치수는 현장 실측으로 확정합니다.') + '</text>');
     h.push('</svg>'); return h.join('');
