@@ -106,12 +106,18 @@ def rules(img, p):
             # 끝 바로 너머(3화소)가 이미 다른 벽·창·문에 닿아 있으면 구멍이 아니다(2026-11-12 고침: 문틀 메움 조각 끝을 구멍으로 잘못 셌다)
             bx_, by_ = (int(e + sgn*3), int(c)) if ax == 'h' else (int(c), int(e + sgn*3))
             if 0 <= bx_ < W and 0 <= by_ < H and _S[by_, bx_]: continue
+            # 끝이 이미 직각 벽의 두께 안(면에 닿음)에 있으면 구멍이 아니다
+            if any(u[0] != ax and u[1]-t/mm/2-2 <= c <= u[2]+t/mm/2+2 and abs(u[3]-e) <= u[4]/mm/2+1.5 for u in G['벽선']): continue
             for u in G['벽선']:
                 if u[0] == ax: continue
                 hu = u[4]/mm/2; hw = t/mm/2
                 if not (u[1]-hw-2 <= c <= u[2]+hw+2): continue
                 gap = (u[3]-hu - e) if sgn > 0 else (e - (u[3]+hu))
-                if 1.0 < gap <= 400.0/mm: out.append(['R4', '모서리', int(e if ax == 'h' else c), int(c if ax == 'h' else e)])
+                if 1.0 < gap <= 400.0/mm:
+                    mid = e + sgn*gap/2.0   # 틈 한가운데가 이미 다른 구조로 덮였으면 구멍이 아니다(2026-11-12 고침)
+                    mx_, my_ = (int(mid), int(c)) if ax == 'h' else (int(c), int(mid))
+                    if 0 <= mx_ < W and 0 <= my_ < H and _S[my_, mx_]: continue
+                    out.append(['R4', '모서리', int(e if ax == 'h' else c), int(c if ax == 'h' else e)])
     off = 600.0/mm   # R5
     for d in G['문']:
         L = ((d['x2']-d['x1'])**2+(d['y2']-d['y1'])**2)**.5 or 1; ux, uy = (d['x2']-d['x1'])/L, (d['y2']-d['y1'])/L; mx, my = (d['x1']+d['x2'])/2, (d['y1']+d['y2'])/2
