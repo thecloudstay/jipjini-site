@@ -77,7 +77,7 @@
 
   function load(id, cb) {
     if (CACHE[id]) return cb(CACHE[id]);
-    fetch('data/apt/' + id + '.json').then(function (r) { return r.json(); }).then(function (j) { CACHE[id] = j; cb(j); }).catch(function () { cb([]); });
+    fetch('data/apt/' + id + '.json?v=' + encodeURIComponent(IDX.판 || IDX.만든날)).then(function (r) { return r.json(); }).then(function (j) { CACHE[id] = j; cb(j); }).catch(function () { cb([]); });
   }
   function region(id) { return IDX.구역.filter(function (r) { return r.id === id; })[0]; }
 
@@ -287,7 +287,7 @@
 
   $('aptView').addEventListener('click', function (e) { var b = e.target.closest('button'); if (b) setView(b.getAttribute('data-v')); });
 
-  fetch('data/apt/index.json').then(function (r) { return r.json(); }).then(function (j) {
+  fetch('data/apt/index.json', { cache: 'no-cache' }).then(function (r) { return r.json(); }).then(function (j) {
     IDX = j; legend(); drawMap();
     if (window.JJ_KAKAO_KEY) kakaoReady(function () { kmap(); });
     var m = /[?&]r=(\d+)/.exec(location.search); if (m && region(m[1])) pick(m[1]);
