@@ -145,7 +145,7 @@
   document.addEventListener('click', function (e) { if (!$('find').contains(e.target)) $('hits').hidden = true; });
 
   /* ── 기능 그림: 보일 때 움직인다 ── */
-  getPlan('A10025531').then(function (d) { ['heroPlan', 'planVis'].forEach(function (id) { var e = $(id); if (!e) return; e.innerHTML = planSVG(d.평형[0].plan, 'psvg'); fit(e); see(e); }); }).catch(function () {});
+  getPlan('A10025531').then(function (d) { ['planVis'].forEach(function (id) { var e = $(id); if (!e) return; e.innerHTML = planSVG(d.평형[0].plan, 'psvg'); fit(e); see(e); }); }).catch(function () {});
   /* 화면 사진 넘김(작동 모습) */
   [].forEach.call(document.querySelectorAll('.slides'), function (b) { var im = b.querySelectorAll('img'), c = b.querySelector('.sc'), k = 0; if (!im.length) return;
     var show = function () { [].forEach.call(im, function (x, j) { x.classList.toggle('on', j === k); }); if (c) c.textContent = im[k].dataset.c || ''; };
