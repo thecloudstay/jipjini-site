@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <title>집지니 안내서</title>
-<!-- 집지니 안내서 원본 — 2026-11-10 다시 짬: 인쇄물처럼 담백하게(글 중심 · 선과 여백 · 실제 화면 사진). 상자·알약 모양·장식 색을 쓰지 않는다.
+<!-- 집지니 안내서 원본 — 2026-11-10 다시 짬, 2026-11-12 「직접 하실 분께」 쪽 추가·색 통일: 인쇄물처럼 담백하게(글 중심 · 선과 여백 · 실제 화면 사진). 상자·알약 모양·장식 색을 쓰지 않는다.
      PDF 만들기: node assets/guide-src/build.js  →  files/jipjini-guide.pdf -->
 <style>
 @page { size: A4; margin: 0; }
@@ -30,7 +30,7 @@ td { padding:3.3mm 2mm 3.3mm 0; border-bottom:.2mm solid #d9d7cf; vertical-align
 td.me { font-weight:700; }
 .item { display:grid; grid-template-columns:11mm 1fr; padding:4.6mm 0; border-top:.2mm solid #d9d7cf; }
 .item.last { border-bottom:.2mm solid #d9d7cf; }
-.item .n { font-family:'Noto Serif CJK KR',serif; font-size:13pt; font-weight:700; color:#2f6b4f; line-height:1.3; }
+.item .n { font-family:'Noto Serif CJK KR',serif; font-size:13pt; font-weight:700; color:#4F6B2C; line-height:1.3; }
 .item p { margin:0; color:#3b3a36; }
 .fig { border:.25mm solid #cfcdc4; } .fig img { display:block; width:100%; height:auto; }
 .cap { font-size:8.4pt; color:#77766f; margin-top:2.2mm; line-height:1.6; }
@@ -46,7 +46,7 @@ dl.kv dt, dl.kv dd { padding:3.1mm 0; border-bottom:.2mm solid #cfcdc4; } dl.kv 
 
 <!-- 표지 -->
 <div class="page" style="background:#f4f1ea;">
-  <div style="display:flex;justify-content:space-between;font-size:9pt;color:#55544e;"><span>집지니 · 인테리어 코디네이팅</span><span>2026년 11월</span></div>
+  <div style="display:flex;justify-content:space-between;font-size:9pt;color:#55544e;"><span>집지니 · 인테리어 프롭테크</span><span>2026년 11월</span></div>
   <div style="margin-top:30mm;">
     <h1>집지니 안내서</h1>
     <p class="serif" style="font-size:15pt;line-height:1.75;margin-top:7mm;color:#33322e;">중간 마진 없이 집을 고치는 방법과,<br>그 과정을 처음부터 끝까지 보여 드리는 도구들</p>
@@ -83,13 +83,13 @@ dl.kv dt, dl.kv dd { padding:3.1mm 0; border-bottom:.2mm solid #cfcdc4; } dl.kv 
       <p>32평 아파트 전체 수리를 예로 들면 대략 이렇습니다.</p>
       <div class="bars">
         <div><em style="font-style:normal;">통째로 맡긴 견적</em><i style="width:100%;"></i><span>약 6,500만 원</span></div>
-        <div><em style="font-style:normal;">자재비와 인건비</em><i style="width:69%;background:#2f6b4f;"></i><span>약 4,500만 원</span></div>
+        <div><em style="font-style:normal;">자재비와 인건비</em><i style="width:69%;background:#4F6B2C;"></i><span>약 4,500만 원</span></div>
         <div><em style="font-style:normal;">업체 몫</em><i style="width:31%;background:#a9a79d;"></i><span>약 2,000만 원</span></div>
       </div>
       <p class="note">흔한 수준을 예로 든 금액입니다. 실제 금액은 현장과 자재에 따라 달라집니다.</p>
       <div class="rule"></div>
       <h3>집지니를 거치면</h3>
-      <p>고객이 자재상과 기술자에게 직접 냅니다. 영수증도 고객 이름으로 나옵니다. 집지니는 그 옆에서 사람을 연결하고 순서와 일정을 맞추며, 운영비는 따로 받습니다. 운영비 표는 8쪽에 있고 그것이 저희가 받는 돈의 전부입니다.</p>
+      <p>고객이 자재상과 기술자에게 직접 냅니다. 영수증도 고객 이름으로 나옵니다. 집지니는 그 옆에서 사람을 연결하고 순서와 일정을 맞추며, 운영비는 따로 받습니다. 운영비 표는 9쪽에 있고 그것이 저희가 받는 돈의 전부입니다.</p>
       <p>현장 관리자를 함께 쓰시면 맡겨 두신 대금을 공정이 끝난 것을 확인한 뒤 대신 지급해 드립니다. 이때도 얹는 돈은 없습니다.</p>
     </div>
   </div>
@@ -188,6 +188,27 @@ dl.kv dt, dl.kv dd { padding:3.1mm 0; border-bottom:.2mm solid #cfcdc4; } dl.kv 
   <div class="foot"><span>jipjini.com</span><span>6</span></div>
 </div>
 
+<!-- 7 직접 하실 분께 (2026-11-12 추가) -->
+<div class="page">
+  <div class="head"><span>집지니 안내서</span><span>직접 하실 분께</span></div>
+  <h2 style="margin-bottom:5mm;">지도에서 우리 아파트를 골라<br>공사를 체크하면 물량이 나옵니다</h2>
+  <div class="two" style="margin-bottom:5mm;">
+    <p style="margin:0;">집지니를 쓰는 방법은 두 가지입니다. 코디에게 의뢰하시는 길이 하나, 도구만 가져다 직접 하시는 길이 하나입니다. 이 쪽은 뒤쪽 길입니다. 가입도 비용도 없습니다.</p>
+    <p style="margin:0;">서울·경기·인천 아파트 단지를 지도에 올려 두었습니다. 단지를 누르면 집지니가 다시 그려 둔 평면이 열립니다. 아직 평면이 준비되지 않은 단지는 평면도 그림을 직접 올리시면 됩니다.</p>
+  </div>
+  <div class="fig"><img src="shot-map.jpg" alt=""></div>
+  <p class="cap">그림 3. 우리 아파트 찾기. 진한 표시는 평면이 준비된 단지, 연한 표시는 준비 중인 단지입니다. 주소로도 찾을 수 있습니다.</p>
+  <div class="fig" style="margin-top:3mm;"><img src="shot-pick.jpg" alt=""></div>
+  <p class="cap">그림 4. 공사 고르기. 할 공사를 체크하면 방마다 기호가 놓이고 개수·넓이·길이가 바로 나옵니다. 도배는 광폭·소폭 롤 수까지 나옵니다.</p>
+  <table class="t5" style="margin-top:3mm;font-size:9.6pt;">
+    <tr><td style="width:30%;font-weight:700;">올수리</td><td>기본 공사를 전부 켠 뒤, 안 할 것만 끕니다</td></tr>
+    <tr><td style="font-weight:700;">자동에서 빼는 것</td><td>벽 신설, 타공, 배관 옮기기처럼 집마다 다른 공사. 직접 놓습니다</td></tr>
+    <tr><td style="font-weight:700;">보기</td><td>공종 하나씩 따로 볼 수 있습니다. 놓인 기호는 옮기고 돌리고 지울 수 있습니다</td></tr>
+    <tr><td style="font-weight:700;">물량</td><td>평면도에서 계산한 어림값입니다. 주문 전에는 현장에서 다시 잽니다</td></tr>
+  </table>
+  <div class="foot"><span>jipjini.com</span><span>7</span></div>
+</div>
+
 <!-- 7 진행과 기록 -->
 <div class="page">
   <div class="head"><span>집지니 안내서</span><span>진행과 기록</span></div>
@@ -208,10 +229,10 @@ dl.kv dt, dl.kv dd { padding:3.1mm 0; border-bottom:.2mm solid #cfcdc4; } dl.kv 
     </div>
     <div>
       <div class="fig"><img src="shot-plan.jpg" alt=""></div>
-      <p class="cap">그림 3. 고객 화면에 올라가는 도면. 방마다 넓이와 가로·세로가 적힙니다.</p>
+      <p class="cap">그림 5. 고객 화면에 올라가는 도면. 방마다 넓이와 가로·세로가 적힙니다.</p>
     </div>
   </div>
-  <div class="foot"><span>jipjini.com</span><span>7</span></div>
+  <div class="foot"><span>jipjini.com</span><span>8</span></div>
 </div>
 
 <!-- 8 비용 -->
@@ -241,7 +262,7 @@ dl.kv dt, dl.kv dd { padding:3.1mm 0; border-bottom:.2mm solid #cfcdc4; } dl.kv 
       <p>입주 뒤 12개월 동안 하자를 접수하고 해당 기술자·자재상과 조율합니다.</p>
     </div>
   </div>
-  <div class="foot"><span>jipjini.com</span><span>8</span></div>
+  <div class="foot"><span>jipjini.com</span><span>9</span></div>
 </div>
 
 <!-- 9 절차 -->
@@ -267,12 +288,12 @@ dl.kv dt, dl.kv dd { padding:3.1mm 0; border-bottom:.2mm solid #cfcdc4; } dl.kv 
     <div><h3>상담</h3><p>카카오톡과 전화로 진행합니다. 평면도와 사진을 보내 주시면 더 정확해집니다. 고객께 보내는 안내는 담당 코디가 확인한 뒤 낮 시간에 보냅니다.</p></div>
     <div><h3>지역</h3><p>서울, 경기, 인천 수도권 전역에서 진행합니다.</p></div>
   </div>
-  <div class="foot"><span>jipjini.com</span><span>9</span></div>
+  <div class="foot"><span>jipjini.com</span><span>10</span></div>
 </div>
 
 <!-- 뒷표지 -->
 <div class="page" style="background:#f4f1ea;">
-  <div style="display:flex;justify-content:space-between;font-size:9pt;color:#55544e;"><span>집지니 · 인테리어 코디네이팅</span><span>연락처</span></div>
+  <div style="display:flex;justify-content:space-between;font-size:9pt;color:#55544e;"><span>집지니 · 인테리어 프롭테크</span><span>연락처</span></div>
   <div style="margin-top:34mm;max-width:140mm;">
     <h2 style="font-size:24pt;">의뢰서와 견적서는 무료입니다.<br>받아 보시고 정하십시오.</h2>
     <dl class="kv" style="margin-top:12mm;">

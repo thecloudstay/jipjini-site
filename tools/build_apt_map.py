@@ -87,7 +87,7 @@ for m in master:
     reg["rows"].append(row)
 
 os.makedirs(OUT, exist_ok=True)
-idx = {"만든날": time.strftime("%Y-%m-%d"), "출처": "국토교통부 공동주택 단지 목록(공개 자료) · 경계 통계청 2018", "합계": [0, 0, 0], "좌표있음": 0, "구역": []}
+idx = {"만든날": time.strftime("%Y-%m-%d"), "판": time.strftime("%m%d%H%M"), "출처": "국토교통부 공동주택 단지 목록(공개 자료) · 경계 통계청 2018", "합계": [0, 0, 0], "좌표있음": 0, "구역": []}
 for key, r in sorted(regions.items(), key=lambda kv: kv[1]["id"]):
     rows = sorted(r["rows"], key=lambda x: (-x["s"], -x["h"], x["n"]))
     cnt = [sum(1 for x in rows if x["s"] == k) for k in (0, 1, 2)]

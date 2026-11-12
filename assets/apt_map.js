@@ -77,7 +77,7 @@
 
   function load(id, cb) {
     if (CACHE[id]) return cb(CACHE[id]);
-    fetch('data/apt/' + id + '.json').then(function (r) { return r.json(); }).then(function (j) { CACHE[id] = j; cb(j); }).catch(function () { cb([]); });
+    fetch('data/apt/' + id + '.json?v=' + encodeURIComponent(IDX.판 || IDX.만든날)).then(function (r) { return r.json(); }).then(function (j) { CACHE[id] = j; cb(j); }).catch(function () { cb([]); });
   }
   function region(id) { return IDX.구역.filter(function (r) { return r.id === id; })[0]; }
 
@@ -181,34 +181,60 @@
     } else if (center) { KMAP.relayout(); if (level) KMAP.setLevel(level); KMAP.setCenter(center); }
     return KMAP;
   }
+  // 확대 단계마다 보이는 것을 바꾼다(2026-11-12): 아주 멀리 = 서울·경기·인천 셋 / 멀리 = 시·군·구 / 중간 = 묶음 숫자 / 가까이 = 단지 핀.
+  //   같은 자리에 겹치는 표식은 그리지 않는다 — 큰 것부터 놓고, 자리가 겹치면 건너뛴다. 확대하면 나온다.
+  var SIDO = [['서울', 37.5665, 126.978], ['경기', 37.275, 127.27], ['인천', 37.47, 126.56]];
   function pins() {
-    if (!KMAP) return; var K = window.kakao.maps, lv = KMAP.getLevel(), bd = KMAP.getBounds(), sw = bd.getSouthWest(), ne = bd.getNorthEast();
+    if (!KMAP) return; var K = window.kakao.maps, lv = KMAP.getLevel(), bd = KMAP.getBounds(), sw = bd.getSouthWest(), ne = bd.getNorthEast(), pj = KMAP.getProjection();
     var x0 = sw.getLng(), x1 = ne.getLng(), y0 = sw.getLat(), y1 = ne.getLat();
+    var px = function (lat, lng) { var q = pj.containerPointFromCoords(new K.LatLng(lat, lng)); return [q.x, q.y]; };
+    var taken = [], free = function (x, y, w, h) { for (var i = 0; i < taken.length; i++) { var t = taken[i]; if (x < t[0] + t[2] && x + w > t[0] && y < t[1] + t[3] && y + h > t[1]) return false; } taken.push([x, y, w, h]); return true; };
+    var put = function (el, lat, lng, z, xa) { var ov = new K.CustomOverlay({ position: new K.LatLng(lat, lng), content: el, yAnchor: 0.5, xAnchor: xa == null ? 0.5 : xa, zIndex: z || 1 }); ov.setMap(KMAP); KOV.push(ov); };
     var hitR = RBOX.filter(function (b) { return b.x1 > x0 && b.x0 < x1 && b.y1 > y0 && b.y0 < y1; });
     var wipe = function () { KOV.forEach(function (o) { o.setMap(null); }); KOV = []; };
-    $('aptCapK').textContent = lv >= 8 ? '구역의 숫자는 「평면 확보 / 전체 단지」입니다. 누르거나 확대하면 단지마다 핀이 보입니다.' : '진한 핀은 도면 준비됨, 연한 핀은 준비 중, 희끗한 핀은 예정입니다. 핀을 누르면 단지 정보가 열립니다.';
-    if (lv >= 8) {                                   // 멀리: 구역 숫자
-      wipe();
-      hitR.forEach(function (b) {
-        var r = b.r, tot = r.수[0] + r.수[1] + r.수[2], have = r.수[1] + r.수[2]; if (r.가운데[0] < x0 || r.가운데[0] > x1 || r.가운데[1] < y0 || r.가운데[1] > y1) return;
-        var d = document.createElement('button'); d.className = 'kreg' + (have ? ' has' : ''); d.innerHTML = '<b>' + esc(r.이름.replace(/^.+시 ?(.+구)$/, '$1')) + '</b><span>' + have + ' / ' + num(tot) + '</span>';
-        d.onclick = function () { pick(r.id); };
-        var ov = new K.CustomOverlay({ position: new K.LatLng(r.가운데[1], r.가운데[0]), content: d, yAnchor: 0.5, zIndex: have ? 2 : 1 }); ov.setMap(KMAP); KOV.push(ov);
-      });
+    var cap = $('aptCapK');
+    if (lv >= 10) {                                  // 아주 멀리: 시·도 셋
+      wipe(); cap.textContent = '숫자는 단지 수입니다. 누르거나 확대하면 시·군·구로 나뉩니다.';
+      SIDO.forEach(function (S) { var tot = 0, have = 0; IDX.구역.forEach(function (r) { if (r.짧은시도 === S[0]) { tot += r.수[0] + r.수[1] + r.수[2]; have += r.수[1] + r.수[2]; } });
+        var d = document.createElement('button'); d.className = 'ksido'; d.innerHTML = '<b>' + S[0] + '</b><span>' + num(tot) + '</span>' + (have ? '<em>평면 ' + num(have) + '</em>' : '');
+        d.onclick = function () { KMAP.setLevel(9); KMAP.setCenter(new K.LatLng(S[1], S[2])); }; put(d, S[1], S[2], 2); });
+      return;
+    }
+    if (lv >= 8) {                                   // 멀리: 시·군·구 — 겹치면 건너뜀
+      wipe(); var shown = 0, skipped = 0;
+      hitR.map(function (b) { var r = b.r; return { r: r, tot: r.수[0] + r.수[1] + r.수[2], have: r.수[1] + r.수[2] }; })
+        .filter(function (o) { var c = o.r.가운데; return c[0] > x0 && c[0] < x1 && c[1] > y0 && c[1] < y1; })
+        .sort(function (a, b) { return b.have - a.have || b.tot - a.tot; })
+        .forEach(function (o) { var r = o.r, nm = r.이름.replace(/^.+시 ?(.+구)$/, '$1'), q = px(r.가운데[1], r.가운데[0]), w = nm.length * 12.5 + String(o.tot).length * 7.5 + 26, h = 26;
+          if (!free(q[0] - w / 2 - 3, q[1] - h / 2 - 3, w + 6, h + 6)) { skipped++; return; } shown++;
+          var d = document.createElement('button'); d.className = 'kreg' + (o.have ? ' has' : ''); d.title = nm + ' · 평면 확보 ' + o.have + ' / 전체 ' + o.tot; d.innerHTML = '<b>' + esc(nm) + '</b><span>' + num(o.tot) + '</span>';
+          d.onclick = function () { pick(r.id); }; put(d, r.가운데[1], r.가운데[0], o.have ? 2 : 1); });
+      cap.textContent = '숫자는 단지 수, 진한 칸은 평면을 확보한 곳이 있는 구역입니다.' + (skipped ? ' 겹치는 ' + skipped + '곳은 확대하면 나옵니다.' : '');
       return;
     }
     var left = hitR.length, all = []; if (!left) return wipe();
     hitR.forEach(function (b) { load(b.r.id, function (rows) { rows.forEach(function (x) { if (x.ll && x.ll[1] > x0 && x.ll[1] < x1 && x.ll[0] > y0 && x.ll[0] < y1) { x.rid = b.r.id; all.push(x); } }); if (!--left) draw(); }); });
+    function pin(x, named) {
+      var d = document.createElement('button'); d.className = 'kpin s' + x.s + (OPEN === x.c ? ' on' : ''); d.title = x.n + ' · ' + ST[x.s];
+      d.innerHTML = '<i></i>' + (named ? '<span>' + esc(x.n.replace(/아파트$/, '')) + '</span>' : '');
+      d.onclick = function () { openFromMap(x); }; put(d, x.ll[0], x.ll[1], OPEN === x.c ? 9 : x.s + 1, 0);
+    }
     function draw() {
-      wipe(); all.sort(function (p, q) { return q.s - p.s || q.h - p.h; });
-      var cut = all.slice(0, 700), named = lv <= 4;
-      cut.forEach(function (x) {
-        var d = document.createElement('button'); d.className = 'kpin s' + x.s + (OPEN === x.c ? ' on' : ''); d.title = x.n + ' · ' + ST[x.s];
-        d.innerHTML = '<i></i>' + (named || OPEN === x.c ? '<span>' + esc(x.n.replace(/아파트$/, '')) + '</span>' : '');
-        d.onclick = function () { openFromMap(x); };
-        var ov = new K.CustomOverlay({ position: new K.LatLng(x.ll[0], x.ll[1]), content: d, yAnchor: 0.5, xAnchor: 0, zIndex: OPEN === x.c ? 9 : x.s + 1 }); ov.setMap(KMAP); KOV.push(ov);
-      });
-      if (all.length > cut.length) $('aptCapK').textContent += ' 이 범위에는 단지가 ' + num(all.length) + '곳 있어 세대수 큰 순으로 ' + cut.length + '곳만 보입니다. 확대하면 더 나옵니다.';
+      wipe(); all.sort(function (p, q) { return (OPEN === q.c) - (OPEN === p.c) || q.s - p.s || q.h - p.h; });
+      if (lv >= 6) {                                 // 중간: 가까운 단지끼리 묶어 숫자로
+        var cell = 64, G = {};
+        all.forEach(function (x) { var q = px(x.ll[0], x.ll[1]), k = Math.floor(q[0] / cell) + ':' + Math.floor(q[1] / cell), g = G[k] || (G[k] = { n: 0, have: 0, la: 0, lo: 0, one: x }); g.n++; g.la += x.ll[0]; g.lo += x.ll[1]; if (x.s) g.have++; });
+        Object.keys(G).forEach(function (k) { var g = G[k]; if (g.n === 1) return pin(g.one, false);
+          var d = document.createElement('button'); d.className = 'kclu' + (g.have ? ' has' : ''); d.textContent = g.n; d.title = '단지 ' + g.n + '곳' + (g.have ? ' · 평면 확보 ' + g.have + '곳' : '');
+          var la = g.la / g.n, lo = g.lo / g.n; d.onclick = function () { KMAP.setLevel(Math.max(3, lv - 2)); KMAP.setCenter(new K.LatLng(la, lo)); }; put(d, la, lo, g.have ? 3 : 2); });
+        cap.textContent = '동그라미 숫자는 그 자리에 모인 단지 수입니다. 누르면 확대됩니다.';
+        return;
+      }
+      var n = 0, hid = 0;                            // 가까이: 단지 핀. 이름표는 겹치지 않을 때만
+      all.forEach(function (x) { var q = px(x.ll[0], x.ll[1]), on = OPEN === x.c;
+        if (!on && !free(q[0] - 9, q[1] - 9, 18, 18)) { hid++; return; } if (on) taken.push([q[0] - 9, q[1] - 9, 18, 18]);
+        var nm = x.n.replace(/아파트$/, ''), w = nm.length * 12 + 18, named = on || (lv <= 4 && free(q[0] + 9, q[1] - 11, w, 22)); pin(x, named); n++; });
+      cap.textContent = '진한 핀은 도면 준비됨, 연한 핀은 준비 중, 희끗한 핀은 예정입니다. 핀을 누르면 단지 정보가 열립니다.' + (hid ? ' 겹친 ' + num(hid) + '곳은 확대하면 나옵니다.' : '');
     }
   }
   function openFromMap(x) {
@@ -287,7 +313,7 @@
 
   $('aptView').addEventListener('click', function (e) { var b = e.target.closest('button'); if (b) setView(b.getAttribute('data-v')); });
 
-  fetch('data/apt/index.json').then(function (r) { return r.json(); }).then(function (j) {
+  fetch('data/apt/index.json', { cache: 'no-cache' }).then(function (r) { return r.json(); }).then(function (j) {
     IDX = j; legend(); drawMap();
     if (window.JJ_KAKAO_KEY) kakaoReady(function () { kmap(); });
     var m = /[?&]r=(\d+)/.exec(location.search); if (m && region(m[1])) pick(m[1]);
