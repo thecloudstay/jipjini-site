@@ -67,7 +67,13 @@
     (p.문 || []).forEach(function (w) { var x1 = Math.round(w.x1), y1 = Math.round(w.y1), x2 = Math.round(w.x2), y2 = Math.round(w.y2), L = Math.hypot(x2 - x1, y2 - y1); if (L < 4) return;
       var ux = (x2 - x1) / L, uy = (y2 - y1) / L, side = (w.cx != null && ((w.cx - (x1 + x2) / 2) * -uy + (w.cy - (y1 + y2) / 2) * ux) < 0) ? -1 : 1, pickd = null;
       [side, -side].some(function (sd) { return [0, 1].some(function (sw) { var hx = sw ? x2 : x1, hy = sw ? y2 : y1, tx = hx + -uy * sd * L * 0.9, ty = hy + ux * sd * L * 0.9; if (inRoom(tx, ty)) { pickd = [sd, sw]; return true; } return false; }); });
-      if (!pickd) return;   // 어느 쪽으로 열어도 방 안에 안 들어가는 문은 잘못 찾은 것(집 밖·계단실) — 버린다 var o = { t: 'door', c: '#b06a00', x1: pickd[1] ? x2 : x1, y1: pickd[1] ? y2 : y1, x2: pickd[1] ? x1 : x2, y2: pickd[1] ? y1 : y2, h: 2100, name: '문', auto: true };
+      if (!pickd) return;   // 어느 쪽으로 열어도 방 안에 안 들어가는 문은 잘못 찾은 것(집 밖·계단실) — 버린다
+      // 2026-11-12 대표 지적 「문 크기가 제각각」: 학습 인식기가 본 문 네모는 크기가 들쭉날쭉하다 → 가운데 자리만 쓰고 폭은 표준 문 폭으로(욕실 750 · 현관 1,000 · 그 밖 900mm)
+      if (p.mmpp > 0) { var hx2 = pickd[1] ? x2 : x1, hy2 = pickd[1] ? y2 : y1, tx2 = hx2 + -uy * pickd[0] * L * 0.5, ty2 = hy2 + ux * pickd[0] * L * 0.5, rk2 = '';
+        sh.forEach(function (q) { if (q.t === 'room' && inPoly([tx2, ty2], q.pts)) rk2 = q.kind || ''; });
+        var outerK = ''; sh.forEach(function (q) { if (q.t === 'room' && inPoly([hx2 + uy * pickd[0] * L * 0.5, hy2 - ux * pickd[0] * L * 0.5], q.pts)) outerK = q.kind || ''; });
+        var std = (rk2 === '욕실' || outerK === '욕실') ? 750 : (rk2 === '현관' || outerK === '현관') ? 1000 : 900, Ls = std / p.mmpp, mx2 = (x1 + x2) / 2, my2 = (y1 + y2) / 2;
+        if (Ls < L * 1.6) { x1 = Math.round(mx2 - ux * Ls / 2); y1 = Math.round(my2 - uy * Ls / 2); x2 = Math.round(mx2 + ux * Ls / 2); y2 = Math.round(my2 + uy * Ls / 2); L = Ls; } } var o = { t: 'door', c: '#b06a00', x1: pickd[1] ? x2 : x1, y1: pickd[1] ? y2 : y1, x2: pickd[1] ? x1 : x2, y2: pickd[1] ? y1 : y2, h: 2100, name: '문', auto: true };
       if ((pickd[1] ? -pickd[0] : pickd[0]) < 0) o.flip = true; sh.push(o); });
     if (p.mmpp > 0) { var L = Math.round(1000 / p.mmpp), x0 = Math.min.apply(null, xs), y1 = Math.max.apply(null, ys), Dm = Math.max(Math.max.apply(null, xs) - x0, y1 - Math.min.apply(null, ys));
       sh.push({ t: 'scale', c: '#1d5fd0', x1: Math.round(x0 - Dm * 0.07), y1: Math.round(y1 + Dm * 0.135), x2: Math.round(x0 - Dm * 0.07) + L, y2: Math.round(y1 + Dm * 0.135), mm: 1000, by: (p.척도 && p.척도.방식) || '치수' }); }
