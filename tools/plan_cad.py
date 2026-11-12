@@ -13,6 +13,14 @@ LAYERS = [('A-WALL-EXTR', 7, 50), ('A-WALL-STRC', 7, 50), ('A-WALL-PRTN', 8, 35)
           ('A-FLOR-STRS', 8, 18), ('A-FLOR-EVTR', 8, 18), ('A-AREA-PUBL', 9, 13)]
 WALL_LAYER = {250: 'A-WALL-EXTR', 200: 'A-WALL-STRC', 120: 'A-WALL-PRTN'}
 FONT = 'Malgun Gothic'
+STD_DOOR = {'욕실': 750, '현관': 1000, '드레스룸': 800, '피트': 600, '발코니': 900, '다용도': 800}   # 집지니 표준 문 폭(mm)
+
+def inpoly(x, y, pts):
+    c = False; n = len(pts)
+    for i in range(n):
+        x1, y1 = pts[i]; x2, y2 = pts[(i + 1) % n]
+        if (y1 > y) != (y2 > y) and x < (x2 - x1) * (y - y1) / ((y2 - y1) or 1e-9) + x1: c = not c
+    return c
 
 def kor(t, b=False):
     return '{\\f%s|b%d|i0|c129|p34;%s}' % (FONT, 1 if b else 0, t)
@@ -59,6 +67,10 @@ def export(plan, out_path, title=''):
         hx, hy = P(d['x1'], d['y1']); ox, oy = P(d['x2'], d['y2']); lx, ly = P(d['cx'], d['cy'])
         width = math.hypot(ox - hx, oy - hy)
         if width < 300: continue
+        # 네이버는 문을 화소 고정 크기로 그린다(naver_rules.md) → 그림 폭이 아니라 들어가는 방 종류로 표준 폭을 정한다
+        mx, my = (d['x1'] + d['x2'] + d['cx']) / 3.0, (d['y1'] + d['y2'] + d['cy']) / 3.0
+        kind = next((r.get('kind') for r in plan.get('rooms', []) if inpoly(mx, my, r['pts'])), '')
+        width = STD_DOOR.get(kind, 900)
         ang = math.degrees(math.atan2(oy - hy, ox - hx))            # 기호의 +x(열리는 끝) 방향
         cross = (ox - hx) * (ly - hy) - (oy - hy) * (lx - hx)          # 문짝이 +x 의 왼쪽(+)이면 그대로, 오른쪽이면 뒤집기
         sy = 1 if cross >= 0 else -1
