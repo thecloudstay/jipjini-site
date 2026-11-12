@@ -123,7 +123,8 @@ def rules(img, p):
     for d in G['문']:
         L = ((d['x2']-d['x1'])**2+(d['y2']-d['y1'])**2)**.5 or 1; ux, uy = (d['x2']-d['x1'])/L, (d['y2']-d['y1'])/L; mx, my = (d['x1']+d['x2'])/2, (d['y1']+d['y2'])/2
         P = [(mx-uy*off, my+ux*off), (mx+uy*off, my-ux*off)]
-        o = [not (0 <= int(x) < W and 0 <= int(y) < H) or bool(outside[int(y), int(x)]) for x, y in P]
+        # 방 다각형 안(바닥이 있는 곳)은 바깥이 아니다 — 외벽이 터져 새는 것은 R1 이 따로 센다(2026-11-12 고침: 새는 현관의 현관문을 R5 로 겹쳐 셌다)
+        o = [not (0 <= int(x) < W and 0 <= int(y) < H) or (bool(outside[int(y), int(x)]) and roomk(x, y) is None) for x, y in P]
         if img is not None:   # 회색으로 칠한 칸(실외기실)은 바깥이 아니다 — 발코니→실외기실 문은 정상(2026-11-12 107·89·100A 확인)
             hv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
             for k, (x, y) in enumerate(P):

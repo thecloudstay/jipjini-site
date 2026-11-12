@@ -28,6 +28,9 @@ def segs(mask, minlen):
             else: out.append([c,a,b,[c]])
         return [[round(sum(o[3])/len(o[3]),1),o[1],o[2]] for o in out]
     return [('h',float(s[0]),int(s[1]),int(s[2])) for s in merge(H)]+[('v',float(s[0]),int(s[1]),int(s[2])) for s in merge(V)]
+# 2026-11-12 대표 가정 「네이버도 캐드를 원칙대로 변환해 찍어 냈다」 역설계: 그림판 923×676 고정, 벽 5~6화소(둘째 양식 9·6화소), 문 반지름 23~30화소 — 축척과 무관한 화소 고정 값
+NV_JOINT=12        # 이음·문틀 띠·창 끝 틈 허용(화소)
+NV_DOOR_R=30       # 문 반지름 최대(화소)
 JJ_WALL_MM=200   # 집지니 표준 벽 두께(mm) — 문·샷시 메움 등 보조용
 JJ_EXT_MM,JJ_STR_MM,JJ_PART_MM=250,200,120   # 2026-11-12 캐드로 바꿔도 맞도록: 외벽 250 · 두꺼운 안벽(구조벽) 200 · 칸막이 120
 def clean_walls(wall, mm):
@@ -294,7 +297,7 @@ def snap_corners(wseg, mm):
                 far=u[3]+hu if e==1 else u[3]-hu                  # 넘어설 수 있는 끝 = 상대 벽 바깥면
                 near=u[3]-hu if e==1 else u[3]+hu
                 gap=(near-p) if e==1 else (p-near)
-                if -0.5<gap<=max(8,350.0/mm) and ((far>p) if e==1 else (far<p)):
+                if -0.5<gap<=max(8,350.0/mm) and ((far>p) if e==1 else (far<p)):   # 2026-11-12 역설계: 이음 틈은 그리기 프로그램의 화소 고정 값(축척과 무관)
                     if best is None or abs(gap)<abs(best[0]): best=(gap,far)
             if best: w[1+e]=round(float(best[1]),1)
     return W
@@ -387,7 +390,7 @@ def front_doors(img, rooms, doors, sash, wall, mm, H, W):
         P=np.array(r['pts'],np.float32).reshape(-1,1,2); rm=np.zeros((H,W),np.uint8); cv2.fillPoly(rm,[P.astype(np.int32)],1)
         near=cv2.dilate(rm,np.ones((int(500/mm)|1,)*2,np.uint8))>0
         if any(near[min(H-1,max(0,int((d['y1']+d['y2'])/2))),min(W-1,max(0,int((d['x1']+d['x2'])/2)))] for d in doors): continue
-        zone=(cv2.dilate(rm,np.ones((int(1500/mm)|1,)*2,np.uint8))>0)&~(cv2.erode(rm,np.ones((5,5),np.uint8))>0)
+        zone=(cv2.dilate(rm,np.ones(((2*NV_DOOR_R+20)|1,)*2,np.uint8))>0)&~(cv2.erode(rm,np.ones((5,5),np.uint8))>0)
         n,lab,st,_=cv2.connectedComponentsWithStats((arc&zone).astype(np.uint8),connectivity=8); best=None
         for j in range(1,n):
             x,y,w_,h_,a_=st[j]
@@ -721,7 +724,7 @@ def trace(path, plan):
     # 문 더 찾기(2026-11-12 「도어 위치·방향은 원본 그대로」): 흰 4분의 1 원으로 못 찾은 문을 가는 선(호 + 문짝 선)에서 찾는다
     # 2026-11-12 대표 지적 「현관문은 필수 요소인데 창으로 만들어 버렸다」(81평형): 현관문은 밖으로 열려 호가 건물 네모 밖에 그려진다
     #   → 문 찾기 범위만 문 반지름(1.3m)만큼 넓힌다(벽·창 찾기 범위는 그대로)
-    _e=int(1300/mm); bldd=np.zeros((H,W),bool); bldd[max(0,by-6-_e):by+bh0+7+_e, max(0,bx-6-_e):bx+bw0+7+_e]=True
+    _e=NV_DOOR_R+12; bldd=np.zeros((H,W),bool); bldd[max(0,by-6-_e):by+bh0+7+_e, max(0,bx-6-_e):bx+bw0+7+_e]=True
     raw=(((v<135)&((s<70)|(v<75)))|((v<205)&(s<30)))&bldd
     tl=raw&~(cv2.dilate(wall.astype(np.uint8),np.ones((5,5),np.uint8))>0)
     tl=cv2.morphologyEx(tl.astype(np.uint8),cv2.MORPH_CLOSE,np.ones((3,3),np.uint8))
