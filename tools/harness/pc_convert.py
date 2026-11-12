@@ -205,8 +205,21 @@ def one(f, k, plan, known):
     if sc is not None:
         sc = max(0, round(sc - 2 * len(diffs) - pipeline.penalty(chk), 1))
     json.dump(dict(plan, 그림=G), open(os.path.join(OUT, "도면", k + ".json"), "w", encoding="utf-8"), ensure_ascii=False)
-    return {"판정": state, "점수": sc, "자동고침": "+".join(fixed), "남은규칙": " ".join("%s%d" % (r_, v) for r_, v in sorted(left.items())),
+    try:   # 2026-11-13: 거꾸로 그려 맞추기(rerender — 우리 도면을 네이버 규칙대로 다시 그려 원본과 겹침)를 장마다 같이 잰다. 벽 쪽은 믿을 만하고, 가는 선(창·문) 쪽은 아직 기구·글자가 섞여 참고값
+        import rerender
+        rr, _ = rerender.compare(img, G, plan["mmpp"]); rr = {a: float(b) for a, b in rr.items()}
+    except Exception:
+        rr = {}
+    return {"겹침": rr, "판정": state, "점수": sc, "자동고침": "+".join(fixed), "남은규칙": " ".join("%s%d" % (r_, v) for r_, v in sorted(left.items())),
             "점검": chk, "모양": [[d["표식"], d["x"], d["y"]] for d in new][:20]}
+
+
+def _has_tess():
+    try:
+        import pytesseract
+        pytesseract.get_tesseract_version(); return True
+    except Exception:
+        return False
 
 
 def report(st, ver, sec, done):
@@ -240,7 +253,10 @@ def report(st, ver, sec, done):
     c = collections.Counter(v.get("판정") for v in cur.values()); scs = [v["점수"] for v in cur.values() if isinstance(v.get("점수"), (int, float))]
     L = ["평면도 일괄 변환 — %s · 판 %s · 이번 %d장 %.0f초 · 이 판으로 바꾼 것 %d장 / 전체 %d장" % (time.strftime("%Y-%m-%d %H:%M"), ver, done, sec, len(cur), len(st)),
          "판정: " + " · ".join("%s %d" % (k, c[k]) for k in ("통과", "예외", "출고보류", "오류")),
-         "채점(원본 대조): 평균 %.1f점 · 80점 넘는 장 %d/%d" % (sum(scs) / max(1, len(scs)), sum(1 for s in scs if s >= 80), len(scs)), "", "예외함(평면 수 많은 순)"]
+         "채점(원본 대조): 평균 %.1f점 · 80점 넘는 장 %d/%d" % (sum(scs) / max(1, len(scs)), sum(1 for s in scs if s >= 80), len(scs)),
+         "네이버 규칙으로 다시 그려 겹침: 벽 재현 %s · 벽 정밀 %s · 가는 선 재현 %s(참고값)" % tuple(
+             ("%.1f%%" % (100 * sum(v["겹침"][m] for v in cur.values() if (v.get("겹침") or {}).get(m) is not None) / max(1, sum(1 for v in cur.values() if (v.get("겹침") or {}).get(m) is not None)))) for m in ("벽재현", "벽정밀", "선재현")),
+         "글자 인식(테서랙트): " + ("켜짐" if _has_tess() else "꺼짐 — 방 이름 한 번 더 읽기 단계를 건너뜀"), "", "예외함(평면 수 많은 순)"]
     for e in ex[:15]:
         L.append("  %-30s %4d평면 %5d곳  %s" % (e["유형"][:30], e["평면"], e["곳"], e["설명"][:40]))
     open(os.path.join(OUT, "요약.txt"), "w", encoding="utf-8").write("\n".join(L) + "\n")
