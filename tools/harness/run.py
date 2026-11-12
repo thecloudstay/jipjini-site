@@ -32,7 +32,7 @@ def measure(imgdir, roomsf, outf):
         f = os.path.join(imgdir, k + '.jpg')
         if not os.path.exists(f) or not p.get('rooms'): continue
         try:
-            G = plan_trace.trace(f, p); q = dict(p, 그림=G); img = cv2.imread(f)
+            G = plan_trace.trace(f, p); q = dict(p, 그림=G); img = plan_trace.imread_u(f)
             res[k] = {'점검': G.get('점검') or [], '발견': discover.find(img, q)}
         except Exception as e:
             res[k] = {'오류': str(e)[:120]}

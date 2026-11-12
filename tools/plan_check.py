@@ -9,7 +9,8 @@ def path_mask(d, H, W):
         t = np.zeros((H, W), np.uint8); cv2.fillPoly(t, [pts], 1); m ^= t
     return m > 0
 def check(img, p):
-    a = cv2.imread(img); H, W = a.shape[:2]; hsv = cv2.cvtColor(a, cv2.COLOR_BGR2HSV); v = hsv[..., 2]
+    a = cv2.imdecode(np.fromfile(img, np.uint8), cv2.IMREAD_COLOR);   # 한글 경로(윈도우)
+    H, W = a.shape[:2]; hsv = cv2.cvtColor(a, cv2.COLOR_BGR2HSV); v = hsv[..., 2]
     house = np.zeros((H, W), np.uint8)
     for r in p['rooms']: cv2.fillPoly(house, [np.array(r['pts'], np.int32)], 1)
     ys, xs = np.where(house > 0); mm = p.get('mmpp') or 23.0; pad = int(1500 / mm)
