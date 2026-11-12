@@ -50,6 +50,14 @@ def clean_walls(wall, mm):
             else:
                 rows=sub.sum(1); ok=rows>0; left=np.argmax(sub,1)[ok]; t=np.median(rows[ok]); c=np.median(left+rows[ok]/2.0)+x
                 out.append(['v',y,y+h_,c,t])
+    # 2026-11-12 고침(111DT·120OT-5 외벽 샘): 창 사이·창과 문틀 사이 짧은 벽 토막(약 17화소)이 450mm 열기로 지워졌다
+    #   → 가로·세로 열기에 안 걸린 덩어리 중 벽 두께(4~9화소)의 꽉 찬 직사각형이고 12화소 넘게 길면 그대로 벽 조각으로 넣는다
+    #   (외따로 떨어진 덩어리 전체가 그 직사각형일 때만 — 두께 다른 벽 모서리의 남은 조각은 아니다: 108A 피트 상자, 첫 시도 R4 3→5 로 버림)
+    n2,l2,s2,_=cv2.connectedComponentsWithStats(w8,connectivity=8)
+    for j in range(1,n2):
+        x,y,w_,h_,a_=s2[j]
+        if 4<=min(w_,h_)<=9 and max(w_,h_)>=12 and max(w_,h_)<L and a_>=w_*h_*0.85:
+            out.append(['h',x,x+w_,y+h_/2.0,float(h_)] if w_>=h_ else ['v',y,y+h_,x+w_/2.0,float(w_)])
     if not out: return wall
     ts=np.array([o[4] for o in out]); t_lo=np.percentile(ts,20); t_hi=np.percentile(ts,85); mid=(t_lo+t_hi)/2.0 if t_hi>t_lo*1.25 else t_lo*0.8
     # 벽 종류 정하기: 건물 바깥(빈 곳)과 맞닿으면 외벽, 아니면 원본 두께로 구조벽/칸막이
@@ -592,7 +600,9 @@ def trace(path, plan):
             #   → 덩어리 안에 가로·세로로 400mm(최소 12화소) 넘게 곧게 이어진 검은 줄이 있으면 벽이다(글자 획은 짧다)
             sub=(lw[sw[j,1]:sw[j,1]+h_,sw[j,0]:sw[j,0]+w_]==j).astype(np.uint8); _L=max(12,int(400/mm))
             if not((w_>=_L and cv2.morphologyEx(sub,cv2.MORPH_OPEN,np.ones((1,_L),np.uint8)).any()) or (h_>=_L and cv2.morphologyEx(sub,cv2.MORPH_OPEN,np.ones((_L,1),np.uint8)).any())): kw[j]=False
-        if max(w_,h_)*mm<400: kw[j]=False   # 기구 그림 속 작은 검은 점
+        # 기구 그림 속 작은 검은 점. 2026-11-12 고침(111DT·120OT-5 외벽 샘): 창 사이·창과 문틀 사이 짧은 벽 토막(약 17화소)이 400mm 미만으로 지워졌다
+        #   → 벽 두께(4~9화소)의 꽉 찬 직사각형이고 12화소 넘게 길면 벽 토막이다(네이버 벽 두께는 화소 고정)
+        if max(w_,h_)*mm<400 and not(4<=min(w_,h_)<=9 and max(w_,h_)>=12 and a_>=w_*h_*0.85): kw[j]=False
     wall=kw[lw]
     # 욕실 안 지저분한 것 정리(대표 지적 2026-11-12): 욕실 칸 안쪽(벽에서 조금 떨어진 곳)의 검은 덩어리는 기구 그림이다 — 지운다
     for r in rooms:
