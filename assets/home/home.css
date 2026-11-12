@@ -538,3 +538,32 @@ h2{font-size:clamp(28px,3.2vw,40px);line-height:1.3;letter-spacing:-.8px;font-we
 .irn dt{font-size:13px;color:var(--pencil)}
 .irn dd{font-size:40px;font-weight:300;letter-spacing:-1px;color:var(--g);line-height:1.2;font-variant-numeric:tabular-nums}
 @media(max-width:900px){.irg{grid-template-columns:1fr;gap:36px}.irn dd{font-size:32px}}
+
+/* IR: 창업 동기·대표 */
+.irs{margin-top:80px;border-top:1.5px solid var(--ink);padding-top:44px}
+.iry{display:flex;align-items:flex-end;gap:24px;flex-wrap:wrap}
+.iy{font-size:clamp(88px,12vw,168px);font-weight:300;color:var(--g);line-height:.88;letter-spacing:-5px}
+.iry h3{font-size:clamp(22px,2.4vw,32px);font-weight:600;line-height:1.35;padding-bottom:8px}
+.iq{margin-top:32px;max-width:780px;font-size:18px;line-height:1.85;color:var(--ink);border-left:3px solid var(--g);padding-left:22px}
+.itl{list-style:none;display:grid;grid-template-columns:repeat(6,1fr);margin-top:40px;border-top:1px solid var(--rule)}
+.itl li{padding:18px 16px 0 0}
+.itl b{display:block;font-size:20px;font-weight:600;font-variant-numeric:tabular-nums}
+.itl li:last-child b{color:var(--g)}
+.itl span{display:block;margin-top:8px;font-size:14px;line-height:1.65;color:var(--pencil)}
+.ceo{display:grid;grid-template-columns:240px 1fr 190px;gap:48px;margin-top:80px;align-items:start}
+.ceo figure{margin:0}
+.ceo img{width:100%;height:auto;display:block;border-radius:4px}
+.ceo .cp1{aspect-ratio:3/4;object-fit:cover;object-position:center 30%}
+.ceo .eyb{font-size:14px;font-weight:600;color:var(--g)}
+.ceo h3{margin-top:10px;font-size:clamp(22px,2.4vw,30px);font-weight:700;line-height:1.35}
+.ceo .role{margin-top:8px;font-size:15px;color:var(--pencil)}
+.ceol{display:grid;grid-template-columns:1fr 1fr;gap:0 32px;margin-top:18px}
+.ceol .pf{margin-top:0}
+.ceol .pf li{font-size:15px}
+.bz img{border:1px solid var(--rule)}
+.ceo figcaption,.ipj figcaption{margin-top:10px;font-size:13px;line-height:1.6;color:var(--pencil)}
+.ipj{display:grid;grid-template-columns:repeat(5,1fr);gap:16px;margin-top:48px}
+.ipj figure{margin:0}
+.ipj img{width:100%;height:auto;aspect-ratio:4/3;object-fit:cover;display:block;border-radius:4px}
+@media(max-width:900px){.itl{grid-template-columns:repeat(3,1fr);row-gap:20px}.ceo{grid-template-columns:1fr;gap:28px}.ceo .cp1{max-width:280px}.bz{max-width:220px}.ceol{grid-template-columns:1fr}.ipj{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:520px){.itl{grid-template-columns:repeat(2,1fr)}}
