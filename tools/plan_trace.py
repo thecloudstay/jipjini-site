@@ -231,13 +231,17 @@ def trace(path, plan):
     darkish=(v<120)
     for j in range(1,nd):
         x,y,w_,h_,a_=sd[j]; Wm,Hm=w_*mm,h_*mm
-        if not(520<=Wm<=1250 and 520<=Hm<=1250 and abs(w_-h_)<=0.22*max(w_,h_)): continue
+        # 2026-11-12 원인 확인: 네이버 문은 축척과 상관없이 화소 고정 크기(반지름 23~30화소, naver_rules.md)라 mm 기준(520~1250)으로는
+        #   잘게 그린 평면(1화소 15~18mm)의 문을 전부 버렸다(93·101 평형 0개). 화소로 보고, mm 는 넉넉한 안전 범위로만 쓴다
+        if not(16<=w_<=46 and 16<=h_<=46 and 330<=Wm<=1350 and 330<=Hm<=1350 and abs(w_-h_)<=0.34*max(w_,h_)): continue
         fr=a_/(w_*h_)
         if not(0.6<=fr<=0.9): continue
         reg=(ld[y:y+h_,x:x+w_]==j); q=max(2,int(min(w_,h_)*0.18))
         cor=[reg[:q,:q].mean(),reg[:q,-q:].mean(),reg[-q:,-q:].mean(),reg[-q:,:q].mean()]   # 왼위 오른위 오른아래 왼아래
         fc=int(np.argmin(cor)); hc=(fc+2)%4   # 가장 빈 모서리(호 바깥) 맞은편이 경첩
-        if cor[fc]>0.3 or sorted(cor)[1]<0.6: continue
+        # 문 모양: 경첩 모서리는 꽉 차고, 붙은 두 모서리 중 하나(벽 쪽)는 차고 다른 하나(문짝 끝, 호가 닿는 곳)는 반쯤 찬다 — 2026-11-12 반쯤 찬 쪽을 버리던 것 고침
+        adj=sorted([cor[(hc+1)%4],cor[(hc+3)%4]])
+        if cor[fc]>0.3 or cor[hc]<0.6 or adj[1]<0.6 or adj[0]<0.35: continue
         C=[(x,y),(x+w_,y),(x+w_,y+h_),(x,y+h_)]
         n1,n2=(hc+1)%4,(hc+3)%4      # 경첩에 붙은 두 모서리
         def outside_white(k):        # 경첩→k 변의 바깥쪽(원 반대편) 3~8화소가 흰 틈인가
