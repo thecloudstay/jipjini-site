@@ -95,27 +95,51 @@
     s.push('</g></svg>');
     box.querySelector('.fsvg').innerHTML = s.join('');
 
-    // ⑤ 발주서: 물량 그대로
-    var floor = 0, wall = 0, tile = 0;
-    R.forEach(function (r) { if (/거실|방|주방/.test(r.k) && r.a > 1) { floor += r.a; wall += r.l * 2.3 + r.a; } if (r.k === '욕실') tile += r.a + r.l * 2.4; });
-    var base = (p.sum && p.sum.걸레받이) || 0, win = (p.창 || []).length;
-    var rows = [['강마루', floor * 1.05, '㎡', 45000, '로스 5% 포함'], ['실크 도배', wall, '㎡', 42000, '벽 + 천장'], ['욕실 타일', tile * 1.1, '㎡', 27000, '바닥 + 벽, 로스 10%'], ['걸레받이', base, 'm', 0, '둘레 합'], ['창호(샷시)', win, '곳', 0, '크기별 실측 뒤 견적']];
-    var sum = 0, h = ['<div class="ohd"><b>발주서</b><span>송도파크자이 131A · 자재상 전송 대기</span></div><table>'];
-    rows.forEach(function (x, i) { var m = x[3] ? x[1] * x[3] : 0; sum += m;
-      h.push('<tr style="--i:' + i + '"><th>' + x[0] + '<small>' + x[4] + '</small></th><td>' + num(x[1], x[2] === '곳' ? 0 : 1) + x[2] + '</td><td>' + (m ? num(Math.round(m / 1e4)) + '만 원' : '현장 확인') + '</td></tr>'); });
-    h.push('</table><div class="osum"><span>어림 합계 · 실견적 단가 기준 · 부가세 별도</span><b>' + num(Math.round(sum / 1e4)) + '만 원</b></div>');
+    // ⑤ 적산서: 방 넓이·둘레 × 콘솔 물량 묶음표(data/takeoff-map.json)와 같은 계수 — 공종별 상세 물량
+    var FL = /거실|방|주방|드레스/, flR = R.filter(function (r) { return FL.test(r.k) && r.a > 1; }), baR = R.filter(function (r) { return r.k === '욕실' && r.a > 1; }), enR = R.filter(function (r) { return r.k === '현관' && r.a > 0.5; });
+    var S = function (a, f) { return a.reduce(function (t, r) { return t + f(r); }, 0); };
+    var F = S(flR, function (r) { return r.a; }), Lb = S(flR, function (r) { return r.l; }), Wp = S(flR, function (r) { return r.l * 2.3 + r.a; });
+    var Bf = S(baR, function (r) { return r.a; }), Bw = S(baR, function (r) { return r.l * 2.4; }), Ef = S(enR, function (r) { return r.a; }), nb = baR.length;
+    var wins = {}; (p.창 || []).forEach(function (w) { var L = Math.round(Math.hypot(w.x2 - w.x1, w.y2 - w.y1) * mm / 100) * 100; if (L >= 400) wins[L] = (wins[L] || 0) + 1; });
+    var wl = Object.keys(wins).map(Number).sort(function (a, b) { return b - a; }), nWin = wl.reduce(function (t, k) { return t + wins[k]; }, 0), nDoor = (p.문 || []).length;
+    var Q = [
+      ['바닥 · 강마루', [['강마루 (도급재)', '바닥 ' + num(F, 1) + '㎡ × 1.0', F, '㎡'], ['걸레받이', '둘레 ' + num(Lb, 1) + 'm × 1.05', Lb * 1.05, 'm'], ['바닥 본드', '걸레받이 m × 0.05', Lb * 1.05 * 0.05, 'kg']]],
+      ['도배 · 실크', [['실크 벽지 (도급재)', '벽 둘레 × 2.3m + 천장', Wp, '㎡']]],
+      ['욕실 ' + nb + '곳 · 타일', [['벽 타일 300×600', '벽 ' + num(Bw, 1) + '㎡ × 1.05', Bw * 1.05, '㎡'], ['바닥 타일', '바닥 ' + num(Bf, 1) + '㎡ × 1.05', Bf * 1.05, '㎡'], ['압착 시멘트', '타일 ㎡ × 5', (Bw + Bf) * 1.05 * 5, 'kg'], ['줄눈', '타일 ㎡ × 0.5', (Bw + Bf) * 1.05 * 0.5, 'kg'], ['코너비트 SUS', '벽 타일 ㎡ × 0.25', Bw * 1.05 * 0.25, '개'], ['실리콘 300ml', '벽 타일 ㎡ × 0.12', Bw * 1.05 * 0.12, '본']]],
+      ['욕실 ' + nb + '곳 · 도기', [['양변기', '욕실마다 1', nb, '개'], ['세면대', '욕실마다 1', nb, '개'], ['수전', '욕실마다 1', nb, '개'], ['실리콘 300ml', '욕실마다 2', nb * 2, '본']]],
+      ['현관 · 타일', [['바닥 타일', '현관 ' + num(Ef, 1) + '㎡ × 1.05', Ef * 1.05, '㎡'], ['셀프레벨링', '㎡ × 3', Ef * 3, 'kg'], ['압착 시멘트', '㎡ × 5', Ef * 1.05 * 5, 'kg']]],
+      ['창호 · 문', wl.map(function (k) { return ['창 가로 ' + num(k), '도면에서 잰 폭', wins[k], '곳']; }).concat([['실내 문', '도면의 문 자리', nDoor, '짝']])]
+    ];
+    var up = function (u) { return u === '개' || u === '본' || u === '곳' || u === '짝'; };
+    var qn = function (v, u) { return up(u) ? num(Math.ceil(v - 1e-9)) : num(v, 1); };
+    var nr = 0, qh = ['<div class="qhd"><b>적산서</b><span>송도파크자이 131A · 콘솔 물량 묶음표 계수 · 어림</span></div><div class="qbody"><div class="qin">'];
+    Q.forEach(function (g) { qh.push('<p class="qg">' + g[0] + '</p><table>');
+      g[1].forEach(function (x) { nr++; qh.push('<tr><th>' + x[0] + '<small>' + x[1] + '</small></th><td>' + qn(x[2], x[3]) + '<i>' + x[3] + '</i></td></tr>'); }); qh.push('</table>'); });
+    qh.push('</div></div><p class="qft">품목 ' + nr + '줄 · 포장 단위(박스·포)는 자재상 규격으로 바꿔 발주</p>');
+    box.querySelector('.fqty').innerHTML = qh.join('');
+
+    // ⑥ 발주: 적산 물량을 자재상별로 묶어 보낸다
+    var V = [['바닥재 · 도배 자재상', [['강마루', F, '㎡'], ['걸레받이', Lb * 1.05, 'm'], ['실크 벽지', Wp, '㎡']], F * 45000 + Wp * 42000],
+             ['타일 · 도기 자재상', [['벽·바닥 타일', (Bw + Bf + Ef) * 1.05, '㎡'], ['압착 시멘트', ((Bw + Bf) * 1.05 + Ef * 1.05) * 5, 'kg'], ['양변기·세면대·수전', nb * 3, '개']], (Bw + Bf) * 1.1 * 27000],
+             ['창호 · 문 업체', [['창', nWin, '곳'], ['실내 문', nDoor, '짝']], 0]];
+    var sum = 0, h = ['<div class="ohd"><b>발주</b><span>적산서 그대로 · 자재상 세 곳</span></div>'];
+    V.forEach(function (v, i) { sum += v[2];
+      h.push('<div class="ov" style="--i:' + i + '"><div class="ovh"><b>' + v[0] + '<small>' + (v[2] ? '어림 ' + num(Math.round(v[2] / 1e4)) + '만 원' : '크기별 실측 뒤 견적') + '</small></b><em>전송됨</em></div><p>' + v[1].map(function (x) { return x[0] + ' <span>' + qn(x[1], x[2]) + x[2] + '</span>'; }).join(' · ') + '</p></div>'); });
+    h.push('<div class="osum"><span>어림 합계 · 실견적 단가 기준 · 부가세 별도</span><b>' + num(Math.round(sum / 1e4)) + '만 원</b></div>');
     ord.innerHTML = h.join('');
     RAW.forEach(function (q) { vtx += q.length; }); box.dataset.vtx = vtx;
     go(1); if (!reduce) loop();
   }).catch(function () {});
 
-  var TAG = ['', '고객이 올린 평면도 사진 · 분양 안내 캡처도 그대로', '벡터 변환 · 선과 꼭짓점을 좌표로', '집지니 CAD · 벽 · 창 · 문 · 치수, .dwg로 내려받기', '자동 물량 · 방마다 바닥 · 벽 · 천장 넓이', '발주 · 물량 그대로 자재상에'];
+  var TAG = ['', '고객이 올린 평면도 사진 · 분양 안내 캡처도 그대로', '벡터 변환 · 선과 꼭짓점을 좌표로', '집지니 CAD · 벽 · 창 · 문 · 치수, .dwg로 내려받기', '자동 물량 · 방마다 바닥 · 벽 · 천장 넓이', '적산 · 공종별 품목·규격·수량', '발주 · 적산서 그대로 자재상별로'];
+  var DUR = [0, 3400, 3400, 3400, 3600, 7600, 5200], N = 6;
   function go(n) {
     cur = n; box.dataset.s = n;
-    tag.innerHTML = '<b>' + n + '/5</b> ' + TAG[n] + (n === 2 && box.dataset.vtx ? ' · 꼭짓점 ' + box.dataset.vtx + '개' : '');
-    steps.forEach(function (b) { var on = +b.dataset.s === n; b.classList.toggle('on', on); b.setAttribute('aria-selected', on); });
+    tag.innerHTML = '<b>' + n + '/' + N + '</b> ' + TAG[n] + (n === 2 && box.dataset.vtx ? ' · 꼭짓점 ' + box.dataset.vtx + '개' : '');
+    steps.forEach(function (b) { var on = +b.dataset.s === n; b.classList.toggle('on', on); b.setAttribute('aria-selected', on); if (on) b.style.setProperty('--d', DUR[n] + 'ms'); });
+    if (n === 5) { var qb = box.querySelector('.qbody'), qi = box.querySelector('.qin'); if (qb && qi) { qi.style.setProperty('--sy', Math.min(0, qb.clientHeight - qi.scrollHeight) + 'px'); qi.classList.remove('run'); void qi.offsetWidth; qi.classList.add('run'); } }
   }
-  function loop() { clearInterval(timer); timer = setInterval(function () { if (!paused) go(cur % 5 + 1); }, 3400); }
+  function loop() { clearTimeout(timer); timer = setTimeout(function tick() { if (!paused) go(cur % N + 1); timer = setTimeout(tick, DUR[cur]); }, DUR[cur]); }
   steps.forEach(function (b) { b.addEventListener('click', function () { go(+b.dataset.s); if (!reduce) loop(); }); });
   var fig = box.parentNode;
   fig.addEventListener('mouseenter', function () { paused = true; }); fig.addEventListener('mouseleave', function () { paused = false; });
