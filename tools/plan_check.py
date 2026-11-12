@@ -52,6 +52,7 @@ RULES = {
  'R9': '벽 위 창 — 원본 굵은 벽선이 있는 줄에 창을 그리면 안 된다(창은 벽이 끊긴 자리에만, 2026-11-12 81평형 욕실·발코니 바깥벽)',
  'R11': '방 면적 정합성 — 방(발코니·공용·피트 빼고) 넓이 합이 전용면적의 0.8~1.25배를 벗어나면 방 경계나 축척을 잘못 읽은 것(2026-11-12)',
  'R12': '사선 가는 선 — 원본의 비스듬한 가는 선(창틀·난간, 600mm 넘고 한쪽 끝이 벽에 닿음)이 우리 구조에 없으면 안 된다(2026-11-12 검수 사각지대 메움)',
+ 'R13': '가짜 사선 창 — 원본에 가는 선 두 줄이 없거나 피트 X 가위표 위에 그린 사선 창은 창이 아니다(2026-11-12)',
  'R10': '현관문 — 현관에는 문이 반드시 하나 있어야 하고, 현관 바깥쪽 경계에 창이 있으면 안 된다(2026-11-12 81평형)',
 }
 def _struct(G, mm, H, W, door_w=5):
@@ -201,6 +202,9 @@ def rules(img, p):
                     prev = on
                 tot += 1; two += runs >= 2
             if two < 0.6*tot: continue
+            # 2026-11-12 규칙 바로잡음(272P 「욕실」 글자 획을 사선 선으로 셈 — 눈으로 확인): 허프가 짧은 글자 획을 이어 붙인다 → 선 위에 가는 선이 8할 넘게 이어져야 한다
+            onl = [tb_[min(H-1, max(0, int(round(y1+uy_*tt)))), min(W-1, max(0, int(round(x1+ux_*tt))))] or tb_[min(H-1, max(0, int(round(y1+uy_*tt+ny_)))), min(W-1, max(0, int(round(x1+ux_*tt+nx_))))] or tb_[min(H-1, max(0, int(round(y1+uy_*tt-ny_)))), min(W-1, max(0, int(round(x1+ux_*tt-nx_))))] for tt in np.linspace(1, Ln_-1, max(8, int(Ln_)))]
+            if np.mean(onl) < 0.8: continue
             # 설비 통로 가위표: 같은 가운데를 반대 기울기 선이 지나가면 뺀다
             # 2026-11-12 규칙 바로잡음(154·177B·110A·158C·200 눈으로 확인 — 피트 X 표시를 사선 선으로 셌다): 선 찾기가 대각선 일부만 잡아
             #   가운데가 X 교차점에서 벗어났다 → 선을 앞뒤로 반씩 늘린 범위 어디서든 반대 기울기 선이 지나가면 가위표다
@@ -217,6 +221,28 @@ def rules(img, p):
             cx_, cy_ = int((x1+x2)/2), int((y1+y2)/2)
             if any(abs(cx_-a)+abs(cy_-b) < 15 for a, b in seen): continue
             seen.append((cx_, cy_)); out.append(['R12', '사선 선', cx_, cy_])
+    if img is not None:   # R13: 가짜 사선 창(2026-11-12) — 원본에 가는 선 두 줄이 없거나 피트 X 가위표 위에 그린 사선 창
+        hv2 = cv2.cvtColor(img, cv2.COLOR_BGR2HSV); v2 = hv2[..., 2].astype(int); s2 = hv2[..., 1].astype(int)
+        th2 = cv2.morphologyEx((v2 < 100).astype(np.uint8), cv2.MORPH_OPEN, np.ones((4, 4), np.uint8)) > 0
+        tn2 = ((v2 < 110) | ((v2 < 200) & (s2 < 45))) & ~th2
+        tnx = tn2 & ~(cv2.dilate(th2.astype(np.uint8), np.ones((5, 5), np.uint8)) > 0)
+        for x1, y1, x2, y2, t in G.get('사선창') or []:
+            Ln = np.hypot(x2-x1, y2-y1) or 1; ux, uy = (x2-x1)/Ln, (y2-y1)/Ln; nx, ny = -uy, ux; two = tot = 0
+            for tt in np.linspace(0.2*Ln, 0.8*Ln, 8):
+                px, py = x1+ux*tt, y1+uy*tt; runs = 0; prev = False
+                for o in range(-10, 11):
+                    X_, Y_ = int(round(px+nx*o)), int(round(py+ny*o)); on = 0 <= X_ < W and 0 <= Y_ < H and tn2[Y_, X_]
+                    if on and not prev: runs += 1
+                    prev = on
+                tot += 1; two += runs >= 2
+            isx = False
+            for tt in np.linspace(0.2*Ln, 0.8*Ln, 8):
+                px, py = x1+ux*tt, y1+uy*tt; hits = 0
+                for o in range(-12, 13, 2):
+                    X_, Y_ = int(round(px+ux*o)), int(round(py-uy*o))
+                    if 0 <= X_ < W and 0 <= Y_ < H and tnx[max(0, Y_-1):Y_+2, max(0, X_-1):X_+2].any(): hits += 1
+                if hits >= 10: isx = True; break
+            if two < 0.5*tot or isx: out.append(['R13', '가짜 사선 창', int((x1+x2)/2), int((y1+y2)/2)])
     for r in R:   # R8
         if r.get('kind') not in ('방', '거실'): continue
         P = np.array(r['pts']); x0, y0 = P.min(0); x1, y1 = P.max(0)
