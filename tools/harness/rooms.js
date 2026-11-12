@@ -7,7 +7,7 @@ const { chromium } = require('playwright'); const fs = require('fs'), path = req
   for (const f of fs.readdirSync(dir).filter((x) => /\.jpe?g$|\.png$/i.test(x))) {
     const k = f.replace(/\.[^.]+$/, ''); if (out[k]) continue;
     const pg = await b.newPage({ viewport: { width: 1300, height: 900 } });
-    await pg.route(/googletagmanager|fonts\.googleapis|kakao|script\.google/, (r) => r.abort());
+    await pg.route(/googletagmanager|fonts\.googleapis|kakao|script\.google|jsdelivr|unpkg|cdnjs/, (r) => r.abort());
     try {
       await pg.goto('http://localhost:8765/cad.html', { waitUntil: 'domcontentloaded' }); await pg.waitForTimeout(500);
       await pg.setInputFiles('#cadFile', path.join(dir, f)); await pg.waitForSelector('#cadStart:visible', { timeout: 150000 }); await pg.click('#cadStart'); await pg.waitForTimeout(2000);

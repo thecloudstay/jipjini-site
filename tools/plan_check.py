@@ -50,6 +50,7 @@ RULES = {
  'R7': '방 테두리 — 방 다각형 안쪽으로 원본 벽이 지나가면 방 읽기가 틀린 것',
  'R8': '창 없는 방(경고) — 바깥·발코니에 닿은 방·거실에 창이 하나도 없다',
  'R9': '벽 위 창 — 원본 굵은 벽선이 있는 줄에 창을 그리면 안 된다(창은 벽이 끊긴 자리에만, 2026-11-12 81평형 욕실·발코니 바깥벽)',
+ 'R11': '방 면적 정합성 — 방(발코니·공용·피트 빼고) 넓이 합이 전용면적의 0.8~1.25배를 벗어나면 방 경계나 축척을 잘못 읽은 것(2026-11-12)',
  'R10': '현관문 — 현관에는 문이 반드시 하나 있어야 하고, 현관 바깥쪽 경계에 창이 있으면 안 된다(2026-11-12 81평형)',
 }
 def _struct(G, mm, H, W, door_w=5):
@@ -163,6 +164,10 @@ def rules(img, p):
         for ax, x0, y0, x1, y1 in G['샷시']:
             mx, my = int((x0+x1)/2), int((y0+y1)/2)
             if 0 <= mx < W and 0 <= my < H and ring[my, mx] and outside[max(0, my-12):my+13, max(0, mx-12):mx+13].any(): out.append(['R10', '현관 창', mx, my])
+    if p.get('전용'):   # R11: 방 넓이 합 대 전용면적(43장에서 중간 0.97배, 열에 여덟이 0.89~1.14배)
+        px = sum(abs(cv2.contourArea(np.array(r['pts'], np.float32))) for r in R if len(r['pts']) >= 3 and r.get('kind') not in ('발코니', '공용', '피트'))
+        ratio = px * mm * mm / (float(p['전용']) * 1e6)
+        if not (0.8 <= ratio <= 1.25): out.append(['R11', '면적 %.2f배' % ratio, W // 2, H // 2])
     for r in R:   # R8
         if r.get('kind') not in ('방', '거실'): continue
         P = np.array(r['pts']); x0, y0 = P.min(0); x1, y1 = P.max(0)
