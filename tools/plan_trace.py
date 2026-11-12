@@ -406,9 +406,11 @@ def front_doors(img, rooms, doors, sash, wall, mm, H, W):
     for r in ent:
         P=np.array(r['pts'],np.float32).reshape(-1,1,2); rm=np.zeros((H,W),np.uint8); cv2.fillPoly(rm,[P.astype(np.int32)],1)
         near=cv2.dilate(rm,np.ones((int(500/mm)|1,)*2,np.uint8))>0
+        # 2026-11-12 고침(93·105·101·205TEA 현관문 빠짐 R10): ① 현관 둘레에 방문 등 다른 문이 하나라도 있으면 건너뛰었다 → 같은 자리 문만 겹침으로 본다(아래)
+        #   ② 찾는 띠가 현관 다각형 밖 40화소뿐이라 벽 두께·문틀 띠 너머 바깥으로 열린 호 끝이 잘려 원 맞추기에서 떨어졌다 → 벽·문틀 몫 25화소를 더 본다
         if any(near[min(H-1,max(0,int((d['y1']+d['y2'])/2))),min(W-1,max(0,int((d['x1']+d['x2'])/2)))] for d in doors): continue
-        zone=(cv2.dilate(rm,np.ones(((2*NV_DOOR_R+20)|1,)*2,np.uint8))>0)&~(cv2.erode(rm,np.ones((5,5),np.uint8))>0)
-        n,lab,st,_=cv2.connectedComponentsWithStats((arc&zone).astype(np.uint8),connectivity=8); best=None
+        zone=(cv2.dilate(rm,np.ones(((2*NV_DOOR_R+70)|1,)*2,np.uint8))>0)&~(cv2.erode(rm,np.ones((5,5),np.uint8))>0)
+        n,lab,st,_=cv2.connectedComponentsWithStats((arc&zone).astype(np.uint8),connectivity=8); cands=[]
         for j in range(1,n):
             x,y,w_,h_,a_=st[j]
             if not(8<=max(w_,h_)<=50 and a_>=10): continue
@@ -426,26 +428,47 @@ def front_doors(img, rooms, doors, sash, wall, mm, H, W):
             m=np.degrees(np.arctan2(np.sin(np.radians(ang)).mean(),np.cos(np.radians(ang)).mean()))
             sx=1 if np.cos(np.radians(m))>=0 else -1; sy=1 if np.sin(np.radians(m))>=0 else -1
             hx,hy=int(round(hx)),int(round(hy))
-            if best is None or span>best[0]: best=(span,hx,hy,R,sx,sy)
-        if not best: continue
-        span,hx,hy,R,sx,sy=best
+            if abs(cv2.pointPolygonTest(P,(float(hx),float(hy)),True))>25: continue   # 경첩은 현관 경계(벽·문틀) 위 — 넓힌 띠에서 남의 호를 줍지 않게
+            cands.append((span,hx,hy,R,sx,sy))
+        # 2026-11-12 고침: 가장 큰 호 하나만 보고 아래 확인에서 떨어지면 포기했다 → 큰 것부터 차례로 확인해 처음 통과한 것을 쓴다(131B·115 현관문을 넓힌 띠 때문에 잃던 것)
+        for span,hx,hy,R,sx,sy in sorted(cands,reverse=True):
+          if _front_one(P,hx,hy,R,sx,sy,v,W,H,doors): break
+        # 현관문 자리의 창은 문 길이만큼만 잘라 낸다(통째로 지우면 긴 창의 나머지가 비어 외벽이 샌다 — 46A)
+        for d in [d for d in doors if d.get('현관')]:
+            dx0,dx1=sorted([d['x1'],d['x2']]); dy0,dy1=sorted([d['y1'],d['y2']]); out_=[]
+            for q in sash:
+                if not(q[1]<dx1+4 and q[3]>dx0-4 and q[2]<dy1+4 and q[4]>dy0-4): out_.append(q); continue
+                if q[0]=='h':
+                    if dx0-2-q[1]>=6: out_.append(['h',q[1],q[2],dx0-2,q[4]])
+                    if q[3]-(dx1+2)>=6: out_.append(['h',dx1+2,q[2],q[3],q[4]])
+                else:
+                    if dy0-2-q[2]>=6: out_.append(['v',q[1],q[2],q[3],dy0-2])
+                    if q[4]-(dy1+2)>=6: out_.append(['v',q[1],dy1+2,q[3],q[4]])
+            sash=out_
+    return doors, sash
+def _front_one(P,hx,hy,R,sx,sy,v,W,H,doors):
+    if True:
         e1=(int(round(hx+sx*R)),hy); e2=(hx,int(round(hy+sy*R)))
         # 닫힌 쪽 = 현관 경계(벽)를 따라가는 끝 → 현관 다각형까지 거리가 짧다. 문짝 끝은 밖으로 반지름만큼 떨어져 있다
         d1=abs(cv2.pointPolygonTest(P,(float(e1[0]),float(e1[1])),True)); d2=abs(cv2.pointPolygonTest(P,(float(e2[0]),float(e2[1])),True))
-        if abs(d1-d2)<R*0.3: continue   # 가릴 수 없으면 넣지 않는다(문 안전)
+        if abs(d1-d2)<R*0.3: return False   # 가릴 수 없으면 넣지 않는다(문 안전)
         shut,leaf=(e1,e2) if d1<d2 else (e2,e1)
         # 원 맞춤 중심은 몇 화소 어긋난다 → 문 자리 선을 벽 띠 한가운데로 옮긴다(문짝 반대쪽 = 현관 쪽으로 0~20화소 안의 검은 띠)
         ux,uy=(np.sign(leaf[0]-hx),np.sign(leaf[1]-hy)); run=[]
         for t in range(-4,21):
             X,Y=int(hx-ux*t),int(hy-uy*t)
             if 0<=X<W and 0<=Y<H and v[Y,X]<100: run.append(t)
-        if not run: continue   # 벽 띠를 못 찾으면 넣지 않는다(문 안전)
-        tc=(min(run)+max([t for t in run if t-min(run)<=12]))/2.0; dx,dy=int(round(-ux*tc)),int(round(-uy*tc))
+        if not run:   # 2026-11-12: 바깥여닫이 현관문 자리는 검은 벽 대신 흰 문틀 띠(테두리 두 줄)만 있다(93·105·101) → 테두리 두 줄 가운데
+            ln_=[t for t in range(-4,21) if 0<=int(hx-ux*t)<W and 0<=int(hy-uy*t)<H and v[int(hy-uy*t),int(hx-ux*t)]<170]
+            if len(ln_)<2 or not(4<=max([t for t in ln_ if t-min(ln_)<=16])-min(ln_)<=16): return False   # 문틀도 없으면 넣지 않는다(문 안전)
+            run=[min(ln_),max([t for t in ln_ if t-min(ln_)<=16])]
+        tc=(min(run)+max([t for t in run if t-min(run)<=16]))/2.0; dx,dy=int(round(-ux*tc)),int(round(-uy*tc))
         hx,hy=hx+dx,hy+dy; shut=(shut[0]+dx,shut[1]+dy); leaf=(leaf[0]+dx,leaf[1]+dy)
+        mx_,my_=(hx+shut[0])/2.0,(hy+shut[1])/2.0
+        # 같은 자리에 일반 호 문이 이미 있으면 벽 띠 가운데로 맞춘 현관문으로 바꿔 넣는다(131B: 9화소 어긋나 현관 경계 문으로 안 잡히던 것)
+        doors[:]=[d for d in doors if np.hypot((d['x1']+d['x2'])/2.0-mx_,(d['y1']+d['y2'])/2.0-my_)>=R]
         doors.append({'x1':int(hx),'y1':int(hy),'x2':int(shut[0]),'y2':int(shut[1]),'cx':int(leaf[0]),'cy':int(leaf[1]),'현관':1})
-        ax0,ax1=sorted([hx,shut[0]]); ay0,ay1=sorted([hy,shut[1]])
-        sash=[q for q in sash if not(q[1]<ax1+4 and q[3]>ax0-4 and q[2]<ay1+4 and q[4]>ay0-4)]
-    return doors, sash
+        return True
 
 # ── 창 자리 잇기(2026-11-12 대표 지적 「창문 쪽 외벽 끊김」 111평형, 「발코니 내부창 유실」 81평형)
 #   원인: 창은 「가는 선 두 줄 사이가 밝은 띠」만 찾았다 → ① 검은 벽선에 흰 창틀 상자가 붙은 옛 양식(발코니 안쪽 창)은 한쪽 선이 벽으로 분류돼 못 찾고
