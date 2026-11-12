@@ -30,7 +30,7 @@
   /* ── 숫자 ── */
   fetch('data/apt/index.json').then(function (r) { return r.json(); }).then(function (d) {
     IDX = d; var t = d.합계, all = t[0] + t[1] + t[2];
-    $('nAll').textContent = num(all); if ($('nAll2')) $('nAll2').textContent = num(all); $('nHave').textContent = num(t[1] + t[2]); $('nOpen').textContent = num(t[2]);
+    $('nAll').textContent = num(all); if ($('nAll2')) $('nAll2').textContent = num(all); $('nHave').textContent = num(t[1] + t[2]); $('nOpen').textContent = num(t[2]); if ($('irOpen')) $('irOpen').textContent = num(t[2]);
     if (window.JJ_KAKAO_KEY) kakao();
   });
   fetch('data/plans/opened.json', { cache: 'no-cache' }).then(function (r) { return r.json(); }).then(function (L) {
