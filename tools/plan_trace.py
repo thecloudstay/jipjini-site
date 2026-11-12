@@ -299,6 +299,73 @@ def snap_corners(wseg, mm):
             if best: w[1+e]=round(float(best[1]),1)
     return W
 
+# ── 문틀 틈 메우기(2026-11-12 하네스 첫 바퀴 — 외벽 닫힘 R1 위반 44·94·101 평형의 공통 원인)
+#   원인: 네이버 문·창은 벽과 문짝 사이에 흰 문틀 띠(5~7화소)를 그린다 → 문 자리 선·창 끝이 옆 벽 바깥면보다 그만큼 모자라 실금 같은 틈이 남고,
+#         그 틈으로 「바깥」이 집 안까지 이어졌다. → 문·창 끝에서 같은 방향으로 벽(같은 줄 벽 끝 또는 직각 벽 바깥면)이 가까이(350mm·8화소 안) 있으면
+#         그 사이를 같은 두께의 벽 조각(문틀 자리)으로 메운다. 문·창 기호는 그대로 둔다.
+def fill_jambs(wseg, sash, doors, mm):
+    tol=max(8.0,350.0/mm); add=[]
+    ops=[]
+    for q in sash:
+        ax=q[0]; ops.append((ax,q[1],q[3],(q[2]+q[4])/2.0) if ax=='h' else (ax,q[2],q[4],(q[1]+q[3])/2.0))
+    for d in doors:
+        if abs(d['y1']-d['y2'])<=2: a,b=sorted([d['x1'],d['x2']]); ops.append(('h',a,b,(d['y1']+d['y2'])/2.0))
+        elif abs(d['x1']-d['x2'])<=2: a,b=sorted([d['y1'],d['y2']]); ops.append(('v',a,b,(d['x1']+d['x2'])/2.0))
+    for ax,a,b,c in ops:
+        for e,sgn in ((a,-1),(b,1)):
+            best=None
+            for w in wseg:
+                if w[0]==ax:
+                    if abs(w[3]-c)>4: continue
+                    stop=w[2] if sgn<0 else w[1]; t=w[4]
+                    if (sgn<0 and w[1]>=e) or (sgn>0 and w[2]<=e): continue
+                else:
+                    hw=w[4]/mm/2.0
+                    if not(w[1]-3<=c<=w[2]+3): continue
+                    stop=w[3]+hw if sgn<0 else w[3]-hw; t=None
+                g=(e-stop) if sgn<0 else (stop-e)
+                if 0.5<g<=tol and (best is None or g<best[0]): best=(g,stop,t)
+            if best:
+                tt=best[2]
+                if tt is None:
+                    nb=[w for w in wseg if w[0]==ax and abs(w[3]-c)<=4]
+                    tt=min((w[4] for w in nb),default=JJ_PART_MM)
+                lo,hi=sorted([e,best[1]]); add.append([ax,round(float(lo),1),round(float(hi),1),round(float(c),1),int(tt)])
+    return wseg+add
+
+# ── 현관문 되살리기(2026-11-12 대표 지적 「현관은 현관문이 필수 요소인데 창으로 만들어 버렸다」 81평형)
+#   원인: 현관문은 밖으로 열려 호가 집 밖에 그려지고, 문틀이 흰 띠(가는 선 두 줄)라 창 찾기가 먼저 창으로 잡았다.
+#   규칙: 현관 둘레에 붙어 한쪽이 건물 밖인 「창」(600~1300mm)은 창이 아니라 현관문이다 → 문으로 바꾼다.
+#   경첩 = 바깥쪽으로 곧은 문짝 선이 뻗은 끝(호는 휘어 나가므로 곧게 이어지는 선이 적다)
+def entry_doors(img, sash, doors, rooms, wseg, mm, H, W):
+    ent=[r for r in rooms if r.get('kind')=='현관' and len(r['pts'])>=3]
+    if not ent: return sash, doors
+    v=cv2.cvtColor(img,cv2.COLOR_BGR2HSV)[...,2]
+    out=outside_mask(rooms,wseg,sash,doors,mm,H,W)
+    ring=np.zeros((H,W),np.uint8)
+    for r in ent: cv2.fillPoly(ring,[np.array(r['pts'],np.int32)],1)
+    ring=cv2.dilate(ring,np.ones((int(500/mm)|1,)*2,np.uint8))>0
+    keep=[]
+    for q in sash:
+        ax,x0,y0,x1,y1=q; mx,my=(x0+x1)//2,(y0+y1)//2; L=(x1-x0) if ax=='h' else (y1-y0)
+        if not(0<=mx<W and 0<=my<H and ring[my,mx] and 600<=L*mm<=1300): keep.append(q); continue
+        o=int((x1-x0 if ax=='v' else y1-y0)/2)+int(400/mm)
+        pts=[(mx,my-o),(mx,my+o)] if ax=='h' else [(mx-o,my),(mx+o,my)]
+        isout=[not(0<=x<W and 0<=y<H) or bool(out[y,x]) for x,y in pts]
+        if isout[0]==isout[1]: keep.append(q); continue
+        sg=-1 if isout[0] else 1   # 바깥 쪽 방향
+        ends=[(x0,my),(x1,my)] if ax=='h' else [(mx,y0),(mx,y1)]
+        def straight(e):
+            n=0
+            for t in range(4,int(L)):
+                X,Y=(e[0],e[1]+sg*t) if ax=='h' else (e[0]+sg*t,e[1])
+                if 0<=X<W and 0<=Y<H and v[max(0,Y-1):Y+2,max(0,X-1):X+2].min()<225: n+=1
+            return n
+        hi=0 if straight(ends[0])>=straight(ends[1]) else 1; hg,ot=ends[hi],ends[1-hi]
+        lf=(hg[0],hg[1]+sg*int(L)) if ax=='h' else (hg[0]+sg*int(L),hg[1])
+        doors.append({'x1':int(hg[0]),'y1':int(hg[1]),'x2':int(ot[0]),'y2':int(ot[1]),'cx':int(lf[0]),'cy':int(lf[1]),'현관':1})
+    return keep, doors
+
 # ── 창 자리 잇기(2026-11-12 대표 지적 「창문 쪽 외벽 끊김」 111평형, 「발코니 내부창 유실」 81평형)
 #   원인: 창은 「가는 선 두 줄 사이가 밝은 띠」만 찾았다 → ① 검은 벽선에 흰 창틀 상자가 붙은 옛 양식(발코니 안쪽 창)은 한쪽 선이 벽으로 분류돼 못 찾고
 #         ② 찾은 창도 창틀 두께(4~6화소)로만 남아 벽(250mm) 사이에 가는 선만 보여 외벽이 끊겨 보였다.
@@ -362,6 +429,16 @@ def close_openings(img, wseg, sash, doors, rooms, mm, H, W):
         for w in wseg:
             if w[0]==ax and abs(w[3]-c)<=12 and min(b,w[2])-max(a,w[1])>-12 and (n is None or abs(w[3]-c)<abs(n[3]-c)): n=w
         res.append([ax,a,b,n[3] if n else c,(n[4] if n else 200)/mm/2.0])
+    # 2026-11-12 대표 지적 「창이 없는데 창을 만들고(화장실)」「외벽은 내력벽인데 발코니를 다 창으로」(81평형):
+    #   원인 — 욕조 윗선·발코니 타일 줄눈처럼 벽 띠 옆의 나란한 가는 선 두 줄을 창틀로 읽었다. 네이버 창은 검은 벽이 끊긴 자리에만 있다
+    #   → 같은 줄(중심선 ±벽 두께 반)에 원본 굵은 벽선이 창 길이의 30% 넘게 겹치면 창이 아니다(벽이 우선)
+    def on_wall(ax,a,b,c,h):
+        L=max(1.0,b-a); cov=0.0
+        for w in wseg:
+            if w[0]!=ax or abs(w[3]-c)>w[4]/mm/2.0+h+6: continue   # 같은 줄 또는 바로 옆에 나란히 붙은 벽(발코니 바깥 내력벽 옆 타일 줄눈)
+            cov+=max(0.0,min(b,w[2])-max(a,w[1]))
+        return cov/L>0.3
+    res=[r for r in res if not on_wall(r[0],r[1],r[2],r[3],r[4])]
     outq=[]
     for ax,a,b,c,h in res:
         if ax=='h': outq.append(['h',int(round(a)),int(round(c-h)),int(round(b)),int(round(c+h))])
@@ -577,7 +654,10 @@ def trace(path, plan):
         if bathmask[int((c if t=='h' else (a+b)/2)), int(((a+b)/2) if t=='h' else c)]: continue
         if pts.mean()>0.9: win.append([t,float(c),int(a),int(b)])
     # 문 더 찾기(2026-11-12 「도어 위치·방향은 원본 그대로」): 흰 4분의 1 원으로 못 찾은 문을 가는 선(호 + 문짝 선)에서 찾는다
-    raw=(((v<135)&((s<70)|(v<75)))|((v<205)&(s<30)))&bld
+    # 2026-11-12 대표 지적 「현관문은 필수 요소인데 창으로 만들어 버렸다」(81평형): 현관문은 밖으로 열려 호가 건물 네모 밖에 그려진다
+    #   → 문 찾기 범위만 문 반지름(1.3m)만큼 넓힌다(벽·창 찾기 범위는 그대로)
+    _e=int(1300/mm); bldd=np.zeros((H,W),bool); bldd[max(0,by-6-_e):by+bh0+7+_e, max(0,bx-6-_e):bx+bw0+7+_e]=True
+    raw=(((v<135)&((s<70)|(v<75)))|((v<205)&(s<30)))&bldd
     tl=raw&~(cv2.dilate(wall.astype(np.uint8),np.ones((5,5),np.uint8))>0)
     tl=cv2.morphologyEx(tl.astype(np.uint8),cv2.MORPH_CLOSE,np.ones((3,3),np.uint8))
     na,la,sa,_=cv2.connectedComponentsWithStats(tl,connectivity=8)
@@ -588,7 +668,7 @@ def trace(path, plan):
         return False
     for j in range(1,na):
         x,y,w_,h_,a_=sa[j]
-        if not(520<=w_*mm<=1300 and 520<=h_*mm<=1300 and 0.75<=w_/h_<=1.33): continue
+        if not(520<=w_*mm<=1400 and 520<=h_*mm<=1400 and 0.6<=w_/h_<=1.67): continue   # 2026-11-12 81평형 현관문: 문틀 띠가 붙어 가로세로 비가 1.33 을 넘었다
         if a_>w_*h_*0.35: continue
         if near_door(x,y,x+w_,y+h_): continue
         ys,xs=np.where(la[y:y+h_,x:x+w_]==j); xs=xs+x; ys=ys+y; R=(w_+h_)/2.0
@@ -660,7 +740,9 @@ def trace(path, plan):
     sash_out=[[t,int(a_),int(round(c0)),int(b_),int(round(c1))] if t=='h' else [t,int(round(c0)),int(a_),int(round(c1)),int(b_)] for t,a_,b_,c0,c1 in wins]
     sash_out=[q for q in sash_out if not inK(q[1],q[2],q[3],q[4])]
     doors=safe_doors(doors,rooms,wseg,sash_out,mm,H,W)   # 건물 밖으로 난 문(창을 문으로 잘못 읽은 것 포함)은 그리지 않는다 — 안전   # 주방 샷시는 그리지 않는다(대표 지시 2026-11-12 「주방 … 샷시 모두 삭제」)
-    sash_out=close_openings(bgr,wseg,sash_out,doors,rooms,mm,H,W)   # 창을 벽 사이에 딱 맞추고, 못 찾은 창(발코니 안쪽 창 등)을 틈에서 찾는다
+    sash_out=close_openings(bgr,wseg,sash_out,doors,rooms,mm,H,W)
+    sash_out,doors=entry_doors(bgr,sash_out,doors,rooms,wseg,mm,H,W)   # 현관 둘레 「창」 = 현관문(2026-11-12)   # 창을 벽 사이에 딱 맞추고, 못 찾은 창(발코니 안쪽 창 등)을 틈에서 찾는다
+    wseg=fill_jambs(wseg,sash_out,doors,mm)   # 문틀 띠 자리 틈 메우기(하네스 첫 바퀴 R1)
     _wall_d=wall_path_from_segs(wseg,sash_out,doors,mm)
     try: _diag=diag_walls(wall,wseg,mm,bld)
     except Exception: _diag=[]
