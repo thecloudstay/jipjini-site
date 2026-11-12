@@ -423,6 +423,21 @@
   function takeLabor(rows) { var t = {}, o = []; rows.forEach(function (r) { if (!r.it || r.noBom) return; r.it.labor.forEach(function (l) { if (!(l.n in t)) { t[l.n] = 0; o.push(l.n); } t[l.n] += l.d * r.qty; }); }); return o.map(function (n) { return n + ' ' + takeNum(t[n]) + '일'; }).join(' · '); }
   function takeText() { var rows = takeRows(), L = ['[집지니 CAD 물량] ' + planName + ' (천장 높이 ' + ceilH + 'mm 기준)']; CATS.forEach(function (c, i) { var R = rows.filter(function (r) { return takeCat(r) === i; }); if (!R.length) return; L.push(''); L.push('■ ' + c[0] + ' ' + c[1]); R.forEach(function (r) { L.push('- ' + r.label + ' ' + takeNum(r.qty) + r.unit + (r.rooms.length ? ' (' + r.rooms.join('·') + ')' : '')); if (r.meth) L.push('    공법: ' + r.meth); var x = takeEx(r), m = takeMats(r); if (x) L.push('    딸린 물량: ' + x); if (m) L.push('    ' + m); }); });
     var lb = takeLabor(rows); if (lb) { L.push(''); L.push('품 합계: ' + lb); } L.push(''); L.push('※ 도면 기준 어림 물량입니다. 자재 주문 전 실측으로 확정합니다. · 집지니 CAD jipjini.com/cad.html'); return L.join('\n'); }
+  // ── 8단계: 자재 바로 사기(2026-11-12 대표 지시 「고객이 산출한 자재 쿠팡 바로 주문하기 — 레퍼럴 수익」)
+  //   물량표의 자재(기준표 mats)를 이름별로 모아 쿠팡 찾기 단추를 단다. 쿠팡 파트너스 연결(root.JJ_CP_TAG)이 생기면
+  //   대가성 문구를 맨 위에 보이고 그 연결로 바꾼다(공정위 표시광고 지침). 연결 전에는 그냥 쿠팡 찾기.
+  function shopList(rows) { var by = {}, order = [];
+    rows.forEach(function (r) { if (r.chk || !r.qty || !r.it || r.noBom) return; r.it.mats.forEach(function (m) { if (r.drop && r.drop.test(m.n)) return;
+      var nm = m.n.replace(/\s*[\(\[].*$/, '').replace(/\s+1(개|식|대|개소|짝|회|m|㎡)$/, '').trim(); if (!nm || /인건비|품|운반|폐기|보양|공과|타공|공임|(비|료)$/.test(nm)) return;   /* 살 수 있는 물건만 — 품·비용 줄은 뺀다 */
+      var k = nm + '|' + m.u; if (!(k in by)) { by[k] = { n: nm, u: m.u, q: 0, w: r.label }; order.push(k); } by[k].q += m.q * r.qty; }); });
+    return order.map(function (k) { return by[k]; }); }
+  function shopUrl(q) { var u = 'https://www.coupang.com/np/search?q=' + encodeURIComponent(q); return root.JJ_CP_LINK ? root.JJ_CP_LINK(u) : u; }
+  function shopBlock(rows) { var L = shopList(rows); if (!L.length) return '';
+    var h = '<div class="jje-h">자재 사러 가기 — 쿠팡에서 찾기</div>';
+    if (root.JJ_CP_LINK) h += '<p class="jje-p" style="margin:0 0 6px;color:#2A2A2A"><b>이 단추는 쿠팡 파트너스 활동의 일환으로, 이에 따른 일정액의 수수료를 집지니가 받습니다.</b></p>';
+    h += '<p class="jje-p" style="margin:0 0 6px">셀프 시공용입니다. 수량은 도면 기준 어림이라 주문 전에 실측으로 확인하세요. 제품마다 포장 단위(롤·박스)가 달라 쿠팡 화면에서 맞춰 고릅니다.</p><table class="jje-qty jje-take">';
+    L.forEach(function (m) { h += '<tr><td>' + esc(m.n) + ' <span style="color:#6B6B6B;font-size:13px">' + esc(m.w) + '</span></td><td style="white-space:nowrap">' + takeNum(m.q) + esc(m.u) + ' <a class="jje-chip" style="min-height:30px;padding:2px 10px;margin-left:6px" href="' + shopUrl(m.n) + '" target="_blank" rel="noopener sponsored" data-a="shop">쿠팡</a></td></tr>'; });
+    return h + '</table>'; }
   function takeDraw() {
     var el = $('jjePaneTake'); if (!el) return;
     if (!MAP) { el.innerHTML = '<p class="jje-p" style="margin:0">' + (mapState === 'fail' ? '물량 기준표를 불러오지 못했습니다. 인터넷 연결을 확인하고 「물량」을 다시 눌러 주세요.' : '물량 기준표를 불러오고 있습니다…') + '</p>'; if (mapState !== 'fail') mapLoad(function () { if (pane === 'take') takeDraw(); }); else mapState = ''; return; }
@@ -443,6 +458,7 @@
         R.forEach(function (r) { var m = takeMats(r), sub = r.how.length ? r.how.join(' / ') : r.rooms.join('·'); h += '<tr><td>' + esc(r.label) + (r.key ? '' : ' <span style="color:#6B6B6B">의뢰서 항목 밖</span>') + '</td><td>' + takeNum(r.qty) + r.unit + '</td></tr>' + (function () { var x = takeEx(r), a = [sub ? esc(sub) : '', r.meth ? '<b>공법</b> ' + esc(r.meth) : '', x ? '<b>딸린 물량</b> ' + esc(x) : '', m ? '<b>자재·품</b> ' + esc(m) : ''].filter(Boolean); return a.length ? '<tr class="sub"><td colspan="2">' + a.join('<br>') + '</td></tr>' : ''; })(); }); });
       h += '</table>'; var lb = takeLabor(rows); if (lb) h += '<p class="jje-p">품 합계: ' + esc(lb) + '</p>'; }
     h += '<div class="jje-chips" style="margin-top:12px"><a class="jje-chip on" href="request.html" target="_blank" rel="noopener" data-a="tkQuote">이 물량으로 견적 받기</a><button type="button" class="jje-chip" data-a="tkCopy">물량표 글로 복사</button></div>';
+    h += shopBlock(rows);
     h += '<p class="jje-p">금액은 여기에 나오지 않고 견적에서 나옵니다. 물량은 도면 기준 어림이며, 자재 주문 전에는 실측으로 확정합니다. 자재·품은 집지니 견적과 같은 기준표로 계산합니다.</p>';
     (function () { var rs = rooms(), ks = Object.keys(MAP.items).filter(function (k) { return areaSym(k) && !MAP.items[k].extra; }); if (!rs.length || !ks.length) return;
       h += '<div class="jje-h">면적으로 넣는 항목 — 공간을 누르면 그 공간 면적이 들어갑니다</div><p class="jje-p" style="margin:0 0 6px">마루·장판·도배·도장·바닥 타일은 공간을 눌러 넣습니다. 한 번 더 누르면 빠집니다. 공간의 일부만이면 「작업지시」에서 기호를 골라 직접 그리세요.</p>';
@@ -1194,6 +1210,7 @@
     else if (a === 'st') { wk.st = v; sideDraw(); }
     else if (a === 'rq') { rqPick[wk.k] = v; sideDraw(); } else if (a === 'prq' && s) { snap(); s.rq = v; touch(); propDraw(); }
     else if (a === 'xAll') { var usedW = {}; takeRows().forEach(function (r) { if (r.work) usedW[r.work] = 1; }); Object.keys(usedW).forEach(function (w) { (XITEMS[w] || []).forEach(function (x) { var k = w + '.' + x[0]; if (PRICE && PRICE.따로 && PRICE.따로[k]) chk[k] = true; }); }); takeDraw(); costDraw(); saveSoon(); }
+    else if (a === 'shop') { if (OPT.onEvent) OPT.onEvent('cad_shop_click'); return; }
     else if (a === 'tkCopy') { if (!takeRows().length) toast('놓은 작업 기호가 없습니다.'); else copyText(takeText()); } else if (a === 'tkQuote') { if (OPT.onEvent) OPT.onEvent('cad_quote_takeoff'); var cq = document.getElementById('cadQuote'); if (cq) { ev.preventDefault(); cq.click(); } }
     else if (a === 'arRoom') { var keepOpen = {}; Array.prototype.forEach.call($('jjePaneTake').querySelectorAll('details'), function (d, i) { keepOpen[i] = d.open; }); var stp = $('jjePaneTake').scrollTop; areaToggle(v, Number(b.getAttribute('data-r'))); Array.prototype.forEach.call($('jjePaneTake').querySelectorAll('details'), function (d, i) { if (keepOpen[i]) d.open = true; }); $('jjePaneTake').scrollTop = stp; }
     else if (a === 'gO') { gd.o = v; sideDraw(); } else if (a === 'gDiv') { gd.div = v === '1'; sideDraw(); say(gd.div ? '기준선: 나눌 방 안쪽을 누르세요.' : HINT.guide); } else if (a === 'gHalf') { gd.half = v === '1'; sideDraw(); } else if (a === 'gC') { gd.c = v; sideDraw(); } else if (a === 'pgC' && s) { snap(); s.c = v; gd.c = v; touch(); propDraw(); }
