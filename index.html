@@ -22,7 +22,7 @@
 <meta name="twitter:image" content="https://jipjini.com/og-cover.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/home/home.css?v=20261112m">
+<link rel="stylesheet" href="assets/home/home.css?v=20261112r">
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-35EM7T3M9W"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
@@ -39,9 +39,9 @@
   <a href="./" class="brand"><span class="mark">집</span>집지니</a>
   <nav class="links">
     <a href="#map">지도</a>
-    <a href="#pos">공사 방식</a>
-    <a href="#sys">시스템</a>
-    <a href="#safe">약속</a>
+    <a href="#pos">시장의 자리</a>
+    <a href="#suite">제품</a>
+    <a href="#room">샘플실</a>
     <a href="#ask" class="go">무료 견적</a>
   </nav>
 </header>
@@ -103,7 +103,7 @@
 <!-- 지도 -->
 <section class="mapsec" id="map">
   <div class="mh">
-    <h2>우리 아파트를 찾아보세요</h2>
+    <header class="pn"><h3>집지니 DB</h3><p>수도권 아파트 10,242단지, 우리 집이 이미 들어 있습니다</p></header>
     <form class="find" id="find" autocomplete="off">
       <input id="q" type="search" placeholder="아파트 이름" aria-label="아파트 이름">
       <button type="submit">찾기</button>
@@ -126,45 +126,76 @@
     <div><dt>평면 확보</dt><dd id="nHave">679</dd></div>
     <div class="hot"><dt>도면 열림, 매일 늘어남</dt><dd id="nOpen">53</dd></div>
   </dl>
+<div class="f3"><figure><div class="fi"><img src="assets/home/cap/db-map.jpg" alt="구역별 확보 현황" loading="lazy" style="object-position:left top"></div><figcaption><b>구역별 확보 현황</b><span>시군구마다 평면을 확보한 단지 수가 색으로 보입니다. 짙을수록 많이 열렸습니다.</span></figcaption></figure><figure><div class="fi"><img src="assets/home/cap/db-list.jpg" alt="단지 찾기" loading="lazy" style="object-position:right top"></div><figcaption><b>단지 찾기</b><span>이름이나 동네로 찾으면 세대 수, 사용승인 연도, 확보한 평형 수가 함께 나옵니다.</span></figcaption></figure><figure><div class="fi"><img src="assets/home/cap/cad-open.jpg" alt="평형별 도면 바로 열기" loading="lazy" style="object-position:left top"></div><figcaption><b>평형별 도면 바로 열기</b><span>열린 단지는 평형을 고르면 집지니 CAD로 바로 이어집니다.</span></figcaption></figure></div>
 </section>
 
-<!-- 공사 방식 포지셔닝 -->
+<!-- 고객의 가려운 곳 → 집지니가 긁는 곳 -->
+<section class="pain" id="pain">
+  <h2>인테리어하면서 제일 답답했던 것,<br>여기서 끝냅니다</h2>
+  <ol class="pl">
+    <li><a href="#how"><q>견적이 바가지인지 모르겠다</q><span class="arw"></span><b>단가 100% 공개 견적서</b></a></li>
+    <li><a href="#suite"><q>업체마다 견적이 달라 비교가 안 된다</q><span class="arw"></span><b>내 집 물량부터 뽑는 자동적산기</b></a></li>
+    <li><a href="#ask"><q>견적 하나 받는 데 며칠 걸린다</q><span class="arw"></span><b>24시간 자동 견적서</b></a></li>
+    <li><a href="#map"><q>실측 일정 잡기가 귀찮다</q><span class="arw"></span><b>단지 도면 바로 열기</b></a></li>
+    <li><a href="#suite"><q>공사 중 추가 비용이 계속 붙는다</q><span class="arw"></span><b>도면에서 센 물량, 계약 전에 확정</b></a></li>
+    <li><a href="#suite"><q>기술자가 말한 것과 다르게 했다</q><span class="arw"></span><b>공정별 작업지시서</b></a></li>
+    <li><a href="#suite"><q>공사 잘 되나 매번 전화한다</q><span class="arw"></span><b>휴대폰 공정표·사진·알림</b></a></li>
+    <li><a href="#safe"><q>선금 주고 업체가 사라지면?</q><span class="arw"></span><b>공정 확인 뒤 지급 (PM)</b></a></li>
+  </ol>
+</section>
+
+<!-- 시장 포지션: 두 개의 지도 + 차별점 -->
 <section class="pos" id="pos">
-  <div class="ph">
-    <h2>인테리어를 하는 방법은 여섯 가지입니다</h2>
-    <p>어느 쪽이든 고르실 수 있습니다. 다만 비용과 내 수고는 맞바꿔집니다. 집지니는 그 맞바꿈을 끊는 자리에 있습니다.</p>
+  <h2>인테리어 시장에서 집지니의 자리</h2>
+  <p class="sub">아파트 인테리어를 하는 길을 두 개의 지도에 놓았습니다. 위치는 32평 전체 수리 기준 어림입니다.</p>
+  <svg width="0" height="0" style="position:absolute"><defs><pattern id="pgx" width="30" height="30" patternUnits="userSpaceOnUse"><path d="M30 0H0V30" fill="none" stroke="#EEF0EB"/></pattern><marker id="gx" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#1F5E2E"/></marker></defs></svg>
+  <div class="maps">
+    <figure><figcaption><b>돈과 수고</b><span>대개 돈을 아끼면 고생하고, 편하면 비쌉니다.</span></figcaption><svg viewBox="0 40 720 545" class="mchart" role="img">
+<g>
+<rect x="60" y="50" width="640" height="480" fill="url(#pgx)"/>
+<rect x="60" y="290" width="320" height="240" fill="#EAF2E6"/>
+<line x1="60" y1="530" x2="700" y2="530" stroke="#1C1F1B" stroke-width="1.5"/><line x1="60" y1="50" x2="60" y2="530" stroke="#1C1F1B" stroke-width="1.5"/>
+<text x="380" y="566" text-anchor="middle" class="ax">내가 들이는 시간과 수고 (적음 → 많음)</text>
+<text x="24" y="290" text-anchor="middle" class="ax" transform="rotate(-90 24 290)">공사비 (낮음 → 높음)</text>
+<text x="686" y="72" text-anchor="end" class="qd">편하지만 비싸다</text><text x="686" y="516" text-anchor="end" class="qd">싸지만 힘들다</text><text x="74" y="516" class="qg">싸고 편하다</text>
+
+<g><circle cx="110" cy="80" r="9" fill="#fff" stroke="#1C1F1B" stroke-width="2"/><text x="126" y="84" class="n">대형 브랜드 리모델링</text><text x="126" y="101" class="d">약 115 · 상담부터 시공까지 한 회사</text></g>
+<g><circle cx="130" cy="140" r="9" fill="#fff" stroke="#1C1F1B" stroke-width="2"/><text x="146" y="144" class="n">동네 인테리어 업체 (턴키)</text><text x="146" y="161" class="d">100 · 전화 한 통</text></g>
+<g><circle cx="200" cy="190" r="9" fill="#fff" stroke="#1C1F1B" stroke-width="2"/><text x="216" y="194" class="n">견적 비교 앱으로 고른 업체</text><text x="216" y="211" class="d">약 95 · 비교는 쉽지만 결국 턴키</text></g>
+<g><circle cx="460" cy="290" r="9" fill="#fff" stroke="#1C1F1B" stroke-width="2"/><text x="476" y="294" class="n">공정별 따로 맡기기</text><text x="476" y="311" class="d">약 77 · 순서·일정을 내가</text></g>
+<g><circle cx="650" cy="470" r="9" fill="#fff" stroke="#1C1F1B" stroke-width="2"/><text x="634" y="452" text-anchor="end" class="n">직영 (셀프)</text><text x="634" y="436" text-anchor="end" class="d">약 55 · 8주 현장, 200시간 넘게</text></g>
+<g><circle cx="250" cy="380" r="14" fill="#1F5E2E"/><text x="272" y="378" class="me">집지니 반셀프 코디</text><text x="272" y="398" class="md">약 62~70 · 직영 값에 가깝게, 코디가 옆에서</text></g>
+<g><circle cx="165" cy="350" r="9" fill="#fff" stroke="#1F5E2E" stroke-width="2" stroke-dasharray="3 3"/><text x="150" y="335" text-anchor="end" class="md">+ 현장관리(PM)</text></g>
+<path d="M640 472 C 520 500, 340 460, 266 392" fill="none" stroke="#1F5E2E" stroke-width="2" stroke-dasharray="6 5" marker-end="url(#gx)"/>
+<path d="M136 150 C 150 230, 190 310, 238 368" fill="none" stroke="#1F5E2E" stroke-width="2" stroke-dasharray="6 5" marker-end="url(#gx)"/>
+<text x="470" y="505" class="md">수고는 덜고</text><text x="96" y="250" class="md">값은 낮추고</text>
+</g>
+
+</svg></figure>
+    <figure><figcaption><b>얼마나 보이고, 무엇으로 계산하나</b><span>대부분 총액만 보여 주고, 물량은 평수 × 계수로 어림합니다.</span></figcaption><svg viewBox="0 40 720 545" class="mchart" role="img">
+<g>
+<rect x="60" y="50" width="640" height="480" fill="url(#pgx)"/>
+<rect x="380" y="50" width="320" height="240" fill="#EAF2E6"/>
+<line x1="60" y1="530" x2="700" y2="530" stroke="#1C1F1B" stroke-width="1.5"/><line x1="60" y1="50" x2="60" y2="530" stroke="#1C1F1B" stroke-width="1.5"/>
+<text x="380" y="566" text-anchor="middle" class="ax">가격 투명성 (총액만 → 줄마다 수량·단가 공개)</text>
+<text x="24" y="290" text-anchor="middle" class="ax" transform="rotate(-90 24 290)">계산 방식 (말·평수 어림 → 도면에서 셈)</text>
+<text x="686" y="72" text-anchor="end" class="qg">다 보이고, 도면으로 센다</text><text x="74" y="516" class="qd">안 보이고, 어림한다</text>
+<g><circle cx="230" cy="250" r="9" fill="#fff" stroke="#1C1F1B" stroke-width="2"/><text x="246" y="254" class="n">대형 브랜드 리모델링</text><text x="246" y="271" class="d">입체 그림은 있지만 단가는 묶음</text></g>
+<g><circle cx="120" cy="470" r="9" fill="#fff" stroke="#1C1F1B" stroke-width="2"/><text x="136" y="474" class="n">동네 인테리어 업체</text><text x="136" y="491" class="d">총액, 평수 × 계수</text></g>
+<g><circle cx="300" cy="420" r="9" fill="#fff" stroke="#1C1F1B" stroke-width="2"/><text x="316" y="424" class="n">견적 비교 앱</text><text x="316" y="441" class="d">여러 총액을 나란히</text></g>
+<g><circle cx="400" cy="470" r="9" fill="#fff" stroke="#1C1F1B" stroke-width="2"/><text x="416" y="474" class="n">공정별 따로 맡기기</text><text x="416" y="491" class="d">공정 단가는 보이지만 물량은 어림</text></g>
+<g><circle cx="510" cy="380" r="9" fill="#fff" stroke="#1C1F1B" stroke-width="2"/><text x="526" y="384" class="n">직영 (셀프)</text><text x="526" y="401" class="d">내가 다 알지만 직접 셈</text></g>
+<g><circle cx="640" cy="100" r="14" fill="#1F5E2E"/><text x="624" y="132" text-anchor="end" class="me">집지니</text><text x="624" y="152" text-anchor="end" class="md">단가 100% 공개 · 우리 집 도면에서 물량</text></g>
+</g>
+
+</svg></figure>
   </div>
-  <div class="pm">
-    <svg viewBox="0 0 760 520" class="pchart" role="img" aria-label="공사 방식별 비용과 내 수고 위치">
-      <defs><pattern id="pg" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M40 0H0V40" fill="none" stroke="#E6E8E3" stroke-width="1"/></pattern></defs>
-      <rect x="60" y="20" width="680" height="440" fill="url(#pg)"/>
-      <rect x="60" y="240" width="340" height="220" fill="#EAF2E6"/>
-      <line x1="60" y1="460" x2="740" y2="460" stroke="#1C1F1B" stroke-width="1.5"/>
-      <line x1="60" y1="20" x2="60" y2="460" stroke="#1C1F1B" stroke-width="1.5"/>
-      <text x="400" y="500" text-anchor="middle" class="ax">내가 들이는 시간과 수고 →</text>
-      <text x="22" y="240" text-anchor="middle" class="ax" transform="rotate(-90 22 240)">공사비 →</text>
-      <text x="76" y="44" class="qd">편하지만 비싸다</text>
-      <text x="724" y="444" text-anchor="end" class="qd">싸지만 힘들다</text>
-      <text x="76" y="444" class="qd me">싸고 편하다</text>
-      <g class="pt"><circle cx="110" cy="70" r="9"/><text x="126" y="75">도급 (턴키)</text><text x="126" y="93" class="sm">업체에 통째로</text></g>
-      <g class="pt"><circle cx="170" cy="118" r="9"/><text x="186" y="123">견적 비교 앱으로 고른 업체</text><text x="186" y="141" class="sm">결국 도급, 비교만 쉬워짐</text></g>
-      <g class="pt"><circle cx="470" cy="210" r="9"/><text x="486" y="215">공정별 따로 맡기기</text><text x="486" y="233" class="sm">도배는 도배집, 욕실은 욕실집</text></g>
-      <g class="pt"><circle cx="680" cy="385" r="9"/><text x="664" y="372" text-anchor="end">직영 (셀프)</text><text x="664" y="354" text-anchor="end" class="sm">자재 · 기술자 · 일정 모두 직접</text></g>
-      <g class="pt me"><circle cx="210" cy="300" r="13"/><text x="232" y="296">반셀프 코디 · 집지니</text><text x="232" y="316" class="sm">직영 값에 가깝게, 코디가 옆에서</text></g>
-      <g class="pt me2"><circle cx="140" cy="330" r="9"/><text x="156" y="356" class="sm2">+ 현장관리(PM) 맡기면 더 편하게</text></g>
-      <path d="M668 390 C 520 430, 290 420, 216 314" fill="none" stroke="#1F5E2E" stroke-width="2" stroke-dasharray="6 6"/>
-      <path d="M110 70 C 120 160, 160 250, 200 290" fill="none" stroke="#1F5E2E" stroke-width="2" stroke-dasharray="6 6"/>
-    </svg>
-    <table class="pt2">
-      <thead><tr><th>방식</th><th>32평 예시</th><th>내 수고</th><th>하자 책임</th></tr></thead>
-      <tbody>
-        <tr><td>도급 (턴키)</td><td>6,500만</td><td>전화 한 통</td><td>업체 (부도 시 보호 없음)</td></tr>
-        <tr><td>공정별 따로</td><td>5,000만 안팎</td><td>공정 순서 · 일정 직접</td><td>공정마다 따로</td></tr>
-        <tr><td>직영 (셀프)</td><td>3,500만</td><td>8주 현장, 200시간 넘게</td><td>혼자</td></tr>
-        <tr class="me"><td>반셀프 코디 · 집지니</td><td>4,030만</td><td>직영의 1/10</td><td>시공자 책임, 조율은 코디가 끝까지</td></tr>
-      </tbody>
-    </table>
-    <p class="note">32평 전체 수리 기준 어림값입니다. 부가세 별도이고 실제 금액은 현장마다 다릅니다. 「공정별 따로」 금액은 직영과 도급 사이의 어림입니다.</p>
+  <div class="d5">
+    <div><em>0원</em><b>중간 마진</b><span>자재상·기술자와 직접 거래, 코디비는 견적서에 따로 한 줄</span><i>턴키는 마진이 총액 안에</i></div>
+    <div><em>100%</em><b>단가 공개</b><span>자재 모델, 수량, 단가를 한 줄 한 줄에. 실견적도 공개</span><i>업체는 총액만</i></div>
+    <div><em>+12㎡</em><b>도면에서 센 물량</b><span>84㎡ 실제 사례: 욕실 타일 12㎡, 매입등 15개를 계약 전에</span><i>어림 견적은 모자란 만큼 추가 비용</i></div>
+    <div><em>24시간</em><b>견적서</b><span>의뢰서 실측 그대로 자동 작성, 코디 검토 뒤 카톡으로</span><i>보통은 방문 실측 뒤 며칠</i></div>
+    <div><em>1/10</em><b>직영보다 내 시간</b><span>작업지시서로 지시, 공정과 사진은 휴대폰으로</span><i>셀프는 8주 현장, 하자도 혼자</i></div>
   </div>
 </section>
 
@@ -198,43 +229,161 @@
   </div>
 </section>
 
-<!-- 6가지 시스템 -->
+<!-- 공사 순서대로 쓰이는 시스템 -->
 <section class="sys" id="sys">
-  <h2>업체가 사람 손으로 하던 일,<br>집지니는 시스템이 합니다</h2>
-  <p class="sub">업체 견적의 30%는 사람이 일일이 챙기는 관리비입니다. 그 일을 여섯 가지 시스템이 대신하니, 그 몫이 그대로 건축주에게 남습니다. 처음 해 보는 분도 따라오기만 하면 됩니다.</p>
-  <ol class="pipe">
-    <li><figure><img src="assets/home/f-console.jpg" alt="" loading="lazy"></figure><b>자동 견적</b><span>실측 그대로 공종별 견적서가 써집니다. 며칠 기다릴 일이 없습니다.</span><em>24시간</em></li>
-    <li><figure class="pp" id="planVis"></figure><b>도면 자동 변환</b><span>부동산 평면도 한 장이 공사 도면이 됩니다. 실측 약속을 기다리지 않습니다.</span><em>수도권 1만 단지</em></li>
-    <li><figure><img src="assets/home/f-cad.jpg" alt="" loading="lazy"></figure><b>집지니 CAD</b><span>바꿀 곳을 찍으면 금액이 그 자리에서 바뀝니다. 고르면서 예산을 맞춥니다.</span><em>무료</em></li>
-    <li><figure><img src="assets/home/f-takeoff.jpg" alt="" loading="lazy"></figure><b>물량 자동 산출</b><span>면적, 길이, 개수가 도면에서 셈해집니다. 부풀린 견적이 보입니다.</span><em>17공종</em></li>
-    <li><figure><img src="assets/home/shot-sheet.jpg" alt="" loading="lazy"></figure><b>작업지시서</b><span>기술자에게 말 대신 도면으로 전합니다. 엇갈려 다시 뜯을 일이 줄어듭니다.</span><em>공정마다 한 장</em></li>
-    <li><figure><img src="assets/home/f-schedule.jpg" alt="" loading="lazy"></figure><b>고객 진행 화면</b><span>공정표, 현장 사진, 정산이 휴대폰으로 옵니다. 현장에 안 가도 보입니다.</span><em>공사 내내</em></li>
-  </ol>
-  <div class="proof2">
-    <figure><img src="assets/home/plan-first.jpg" alt="같은 집의 타일 공정과 조명 공정 도면" loading="lazy"><figcaption>전용 84㎡ 실제 견적에 쓴 공정별 도면. 위는 타일, 아래는 조명.</figcaption></figure>
-    <div>
-      <h3>평수로 낸 견적을 도면으로 다시 세 보니</h3>
-      <div class="qd"><span>욕실 타일</span><div class="qb"><i class="o" style="--w:76%">평수 계산 38㎡</i></div><div class="qb"><i class="n" style="--w:100%">도면 50㎡</i></div></div>
-      <div class="qd"><span>매입등</span><div class="qb"><i class="o" style="--w:60%">평수 계산</i></div><div class="qb"><i class="n" style="--w:100%">도면 +15개</i></div></div>
-      <p class="qc">모자란 물량은 공사 중에 추가 비용으로 돌아옵니다. 집지니는 계약 전에 도면에서 찾습니다.</p>
-    </div>
+  <h2>공사 순서대로, 시스템이 이렇게 붙습니다</h2>
+  <p class="sub">처음 알아볼 때부터 입주 뒤 A/S까지, 단계마다 어느 제품이 일하는지 보여 드립니다.</p>
+  <div class="phs">
+    <div class="ph2"><p class="pt3"><b>공사 전</b><span>알아보기부터 계약까지</span></p><ol>
+      <li><i>1</i><b>단지 찾기</b><em>DB</em></li>
+      <li><i>2</i><b>우리 집 도면 보기</b><em>CAD</em></li>
+      <li><i>3</i><b>바꿀 곳 고르기</b><em>CAD</em></li>
+      <li><i>4</i><b>물량·예상 공사비</b><em>자동적산기</em></li>
+      <li><i>5</i><b>정밀 의뢰서</b><em>의뢰서</em></li>
+      <li><i>6</i><b>견적서 24시간</b><em>ERP</em></li>
+      <li><i>7</i><b>상담·실측·수정 견적</b><em>ERP · 샘플실</em></li>
+      <li><i>8</i><b>계약·전자 서명</b><em>ERP</em></li>
+    </ol></div>
+    <div class="ph2"><p class="pt3"><b>공사 준비</b><span>자재와 일정</span></p><ol>
+      <li><i>9</i><b>자재 고르기 (7일 전 마감)</b><em>CRM</em></li>
+      <li><i>10</i><b>공정표 공유</b><em>CRM</em></li>
+      <li><i>11</i><b>자재 주문·기술자 배정</b><em>ERP</em></li>
+      <li><i>12</i><b>공정별 작업지시서</b><em>CAD</em></li>
+    </ol></div>
+    <div class="ph2"><p class="pt3"><b>공사 중</b><span>철거부터 청소까지</span></p><ol>
+      <li><i>13</i><b>철거 → 설비 → 전기 → 목공</b><em>작업지시서</em></li>
+      <li><i>14</i><b>타일 → 필름 → 도배 → 바닥</b><em>작업지시서</em></li>
+      <li><i>15</i><b>가구·도기 → 조명 → 청소</b><em>작업지시서</em></li>
+      <li><i>16</i><b>매일 공정 일보·사진</b><em>CRM</em></li>
+      <li><i>17</i><b>공정 변경·입금 알림</b><em>알림톡</em></li>
+      <li><i>18</i><b>노무비 청구·지급</b><em>ERP</em></li>
+    </ol></div>
+    <div class="ph2"><p class="pt3"><b>공사 뒤</b><span>입주와 그 다음</span></p><ol>
+      <li><i>19</i><b>잔금·정산</b><em>ERP</em></li>
+      <li><i>20</i><b>하자 접수 → 기술자 연결</b><em>CRM</em></li>
+      <li><i>21</i><b>12개월 A/S</b><em>ERP</em></li>
+      <li><i>22</i><b>실견적 공개 → 다음 고객</b><em>DB</em></li>
+    </ol></div>
   </div>
 </section>
 
-<!-- 지금까지 vs 집지니 -->
-<section class="asis" id="asis">
-  <h2>지금까지의 인테리어와 무엇이 다른가</h2>
-  <table class="ab">
-    <thead><tr><th></th><th>지금까지</th><th class="now">집지니</th></tr></thead>
-    <tbody>
-      <tr><th>견적</th><td>업체마다 총액만, 며칠 기다림</td><td class="now">공종과 단가 한 줄씩, 24시간</td></tr>
-      <tr><th>도면</th><td>없거나 손 그림</td><td class="now">평면도에서 공사 도면 자동</td></tr>
-      <tr><th>물량</th><td>업체 말을 믿을 수밖에</td><td class="now">도면에서 셈, 부풀림이 보임</td></tr>
-      <tr><th>시공 지시</th><td>말과 전화, 엇갈려서 재시공</td><td class="now">작업지시서 한 장</td></tr>
-      <tr><th>공사 확인</th><td>매일 현장에 가거나 전화</td><td class="now">휴대폰으로 공정과 사진</td></tr>
-      <tr class="tot"><th>비용</th><td>100</td><td class="now">70</td></tr>
-    </tbody>
-  </table>
+<!-- 제품 진열: 집지니를 움직이는 제품 — 제품 이름이 가장 크게 -->
+<section class="suite" id="suite">
+  <h2>집지니를 움직이는 제품</h2>
+  <p class="sub">현장에서 쓰려고 직접 만든 도구들입니다. 고객은 그 결과를 견적서와 휴대폰으로 받습니다.</p>
+
+  <article class="pd">
+    <header class="pn"><h3>집지니 CAD</h3><p>부동산 평면도 한 장이 공사 도면이 됩니다</p></header>
+    <div class="pb">
+      <div class="pt">
+        <ul class="pf">
+          <li><b>평면도 그림을 읽어</b> 방, 벽, 창, 문을 다시 그리고 치수와 넓이를 붙입니다</li>
+          <li><b>바꿀 곳을 찍으면</b> 공정별 도면과 작업지시서가 나옵니다</li>
+          <li><b>오토캐드 파일을 열고 고쳐서</b> 다시 오토캐드 파일로 내보냅니다</li>
+        </ul>
+        <dl class="pk"><div><dt>벽 인식</dt><dd>98.8%</dd></div><div><dt>쓰는 값</dt><dd>0원</dd></div><div><dt>가입</dt><dd>없음</dd></div></dl>
+        <a class="btn" href="cad.html">집지니 CAD 열기</a>
+      </div>
+      <div class="pv2"><img src="assets/home/cap/cad-redraw.jpg" alt="집지니가 다시 그린 도면" loading="lazy" style="object-position:left top"></div>
+    </div>
+<div class="f3"><figure><div class="fi"><img src="assets/home/cap/cad-open.jpg" alt="단지 도면 바로 열기" loading="lazy" style="object-position:left top"></div><figcaption><b>단지 도면 바로 열기</b><span>수도권 단지 도면이 미리 그려져 있습니다. 평형을 고르면 바로 열리고, 오토캐드 파일로도 바로 받습니다.</span></figcaption></figure><figure><div class="fi"><img src="assets/home/cap/cad-pick.jpg" alt="올수리 한 번에 고르기" loading="lazy" style="object-position:left top"></div><figcaption><b>올수리 한 번에 고르기</b><span>「올수리로 전부 고르기」 한 번이면 철거부터 도배까지 공종별 작업 기호가 도면에 놓입니다.</span></figcaption></figure><figure><div class="fi"><img src="assets/home/cap/cad-export.jpg" alt="오토캐드 호환, 내보내기" loading="lazy" style="object-position:right top"></div><figcaption><b>오토캐드 호환, 내보내기</b><span>오토캐드 파일(.dwg)과 교환 파일(.dxf)을 열고 저장합니다. 피디에프, 그림, 작업지시서로도 내보냅니다.</span></figcaption></figure></div>
+  </article>
+
+  <article class="pd">
+    <header class="pn"><h3>집지니 자동적산기</h3><p>방을 누르면 물량과 금액이 셈해집니다</p></header>
+    <div class="pb rev">
+      <div class="pt">
+        <ul class="pf">
+          <li><b>바닥은 방 넓이</b>, 도배는 방 둘레 × 천장 높이 + 천장 넓이로 셉니다</li>
+          <li><b>단가는 실제 견적서 단가</b>를 그대로 씁니다</li>
+          <li>평수로 낸 견적보다 <b>욕실 타일 12㎡, 매입등 15개</b>를 더 찾아냈습니다 (전용 84㎡ 실제 사례)</li>
+        </ul>
+        <p class="try">옆 도면의 방을 직접 눌러 보세요. 공종을 바꾸면 그 공종의 방이 켜집니다.</p>
+      </div>
+      <div class="est" id="est">
+        <div class="et"><button data-w="maru" class="on">강마루</button><button data-w="jang">장판</button><button data-w="dobae">실크 도배</button><button data-w="tile">욕실 타일</button></div>
+        <div class="ep" id="estPlan"></div>
+        <table class="eo"><tbody id="estRows"></tbody><tfoot><tr><th>합계</th><td></td><td id="estSum">0원</td></tr></tfoot></table>
+        <p class="en">송도파크자이 131A 다시 그린 도면. 실제 견적서 단가(공급가, 부가세 별도). 문과 창 빼기 전 어림.</p>
+      </div>
+    </div>
+<div class="f3"><figure><div class="fi"><img src="assets/home/cap/est-take.jpg" alt="물량과 예상 공사비" loading="lazy" style="object-position:right top"></div><figcaption><b>물량과 예상 공사비</b><span>고른 공사마다 수량, 단가, 금액이 공사 순서대로 나옵니다. 자재를 바꾸면 금액이 바로 바뀝니다.</span></figcaption></figure><figure><div class="fi"><img src="assets/home/cap/est-meas.jpg" alt="공간별 넓이와 길이" loading="lazy" style="object-position:right top"></div><figcaption><b>공간별 넓이와 길이</b><span>방마다 바닥 넓이와 둘레를 재고, 두 점을 끌면 길이가 적힙니다.</span></figcaption></figure><figure><div class="fi"><img src="assets/home/cap/est-sheet.jpg" alt="공정별 작업지시서" loading="lazy" style="object-position:center top"></div><figcaption><b>공정별 작업지시서</b><span>같은 물량으로 공정마다 작업지시서를 뽑아 기술자에게 그대로 건넵니다.</span></figcaption></figure></div>
+  </article>
+
+  <article class="pd">
+    <header class="pn"><h3>집지니 ERP</h3><p>의뢰부터 입주까지 한 화면에서 굴러갑니다</p></header>
+    <div class="pb">
+      <div class="pt">
+        <ul class="pf">
+          <li><b>의뢰서가 들어오면</b> 실측 그대로 공종별 견적서가 써집니다</li>
+          <li><b>다음 할 일</b>을 알아서 띄워 빠뜨리는 공정이 없습니다</li>
+          <li>계약, 공정표, 정산, A/S까지 <b>한 장부</b>에 남습니다</li>
+        </ul>
+        <dl class="pk"><div><dt>견적서까지</dt><dd>24시간</dd></div><div><dt>관리 공종</dt><dd>17</dd></div></dl>
+      </div>
+      <div class="pv2 slides">
+        <img src="assets/tour/02-next-step.jpg" alt="고객 한 명의 진행 화면" loading="lazy" data-c="고객 진행 단계">
+        <img src="assets/tour/04-done.jpg" alt="완료 화면" loading="lazy" data-c="계약과 정산">
+        <p class="sc"></p>
+      </div>
+    </div>
+<div class="f3"><figure><div class="fi"><img src="assets/tour/01-ledger.jpg" alt="의뢰 장부" loading="lazy" style="object-position:left top"></div><figcaption><b>의뢰 장부</b><span>들어온 의뢰가 한 줄씩 쌓이고, 단계와 금액이 한눈에 보입니다. 고객 정보는 가렸습니다.</span></figcaption></figure><figure><div class="fi"><img src="assets/tour/03-quote.jpg" alt="견적서 자동 작성" loading="lazy" style="object-position:left top"></div><figcaption><b>견적서 자동 작성</b><span>의뢰서의 실측과 고른 공종으로 공종별 견적서를 바로 만듭니다.</span></figcaption></figure><figure><div class="fi"><img src="assets/tour/07-todo.jpg" alt="오늘 할 일" loading="lazy" style="object-position:left top"></div><figcaption><b>오늘 할 일</b><span>답이 없는 고객, 기한이 다가온 일을 알아서 모아 줍니다.</span></figcaption></figure></div>
+  </article>
+
+  <article class="pd">
+    <header class="pn"><h3>집지니 CRM</h3><p>묻지 않아도 공사가 보입니다</p></header>
+    <div class="pb rev">
+      <div class="pt">
+        <ul class="pf">
+          <li><b>고객 전용 쪽</b>에 견적서, 공정별 도면, 계약서가 모입니다</li>
+          <li><b>공정 일보</b>가 그날 사진과 함께 휴대폰으로 갑니다</li>
+          <li>내일 들어올 공정과 <b>집에 계셔야 하는 날</b>을 미리 알려 드립니다</li>
+        </ul>
+        <dl class="pk"><div><dt>앱 설치</dt><dd>없음</dd></div><div><dt>확인</dt><dd>링크 하나</dd></div></dl>
+      </div>
+      <div class="phone big" aria-label="공정 일보 예시">
+        <p class="ph1">집지니 공정 일보 <small>예시 화면</small></p>
+        <div class="msg"><b>11월 12일 (목)</b><p>욕실 방수 1차 끝났습니다. 내일 24시간 물 채움 시험 후 타일 들어갑니다.</p><div class="thumbs"><i></i><i></i><i></i></div></div>
+        <div class="msg"><b>내일 공정</b><p>욕실 물 채움 시험, 거실 천장 배선</p></div>
+        <div class="msg g"><b>집에 계셔야 하는 날</b><p>11월 15일 (토) 오전, 싱크대 실측</p></div>
+      </div>
+    </div>
+<div class="f3"><figure><div class="fi"><img src="assets/tour/05-schedule.jpg" alt="공정표" loading="lazy" style="object-position:left top"></div><figcaption><b>공정표</b><span>공정마다 날짜, 담당 기술자, 진행 상태가 한 줄씩 보입니다.</span></figcaption></figure><figure><div class="fi"><img src="assets/tour/06-notice.jpg" alt="알림 기록" loading="lazy" style="object-position:left top"></div><figcaption><b>알림 기록</b><span>언제 어떤 알림이 나갔는지 남아, 말이 엇갈릴 일이 없습니다.</span></figcaption></figure><figure><div class="fi"><img src="assets/home/shot-sheet.jpg" alt="공정별 도면 서류함" loading="lazy" style="object-position:left top"></div><figcaption><b>공정별 도면 서류함</b><span>금액을 뺀 공정별 도면을 고객 전용 쪽 서류함에 올려 드립니다.</span></figcaption></figure></div>
+  </article>
+</section>
+
+<!-- 시스템 구성도 + 테크 역량 -->
+<section class="tech" id="tech">
+  <h2>모든 것이 하나로 이어져 돌아갑니다</h2>
+  <p class="sub">도면 하나가 물량, 견적, 작업지시서, 고객 화면까지 그대로 갑니다. 사람이 끼는 자리는 승인과 상담뿐입니다.</p>
+  <figure class="arch"><a href="assets/home/arch.jpg" target="_blank" rel="noopener"><img src="assets/home/arch.jpg" alt="집지니 시스템 구성도" loading="lazy"></a><figcaption>집지니 시스템 구성도. 초록 선은 자료가 자동으로 흐르는 길입니다. 누르면 크게 봅니다.</figcaption></figure>
+  <div class="capg">
+    <div class="stack"><h3>다섯 층의 능력</h3><p class="cap0">초록은 집지니가 직접 만들어 돌리는 것</p>
+      <div class="ly"><div class="k">사람<small>신뢰</small></div><div class="v"><span class="me">반셀프 코디</span><span class="me">가양동 샘플실</span><span class="me">하자 조율 약속</span><span>현장관리(PM) 대행</span></div></div>
+    <div class="ly"><div class="k">현장<small>시공 관리</small></div><div class="v"><span class="me">공정별 작업지시서</span><span class="me">공정표·사진</span><span class="me">알림톡 6종</span><span class="me">노무비 청구·지급</span></div></div>
+    <div class="ly"><div class="k">거래<small>견적·계약·돈</small></div><div class="v"><span class="me">자동 견적·자가 점검</span><span class="me">단가 근거 공개</span><span class="me">전자 계약</span><span class="me">입금·정산 장부</span><span>자재 수수료 주문</span></div></div>
+    <div class="ly"><div class="k">설계<small>도면·물량</small></div><div class="v"><span class="me">집지니 CAD</span><span class="me">오토캐드 파일 읽고 쓰기</span><span class="me">물량 자동 산출 17공종</span><span class="me">공법 선택</span></div></div>
+    <div class="ly top"><div class="k">데이터<small>바닥</small></div><div class="v"><span class="me">수도권 10,242단지</span><span class="me">평면도 6,768장 수집</span><span class="me">도면 자동 변환·채점</span><span class="me">자가 학습 고리</span><span class="me">실견적 공개 14건</span></div></div>
+  
+    </div>
+    <div class="cmp"><h3>흔한 인테리어 서비스와 비교</h3><p class="cap0">● 있음 ◐ 일부 ○ 없음 · 일반적인 경우 기준</p>
+      <table>
+      <thead><tr><th style="text-align:left">능력</th><th class="me">집지니</th><th>견적 비교<br>플랫폼</th><th>3D 인테리어<br>꾸미기 앱</th><th>부동산<br>평면도 서비스</th><th>범용 캐드<br>프로그램</th><th>동네<br>인테리어 업체</th></tr></thead>
+      <tbody>
+        <tr><td>아파트 단지 평면 자료</td><td class="me"><i class="f"></i></td><td><i></i></td><td><i class="h"></i></td><td><i class="f"></i></td><td><i></i></td><td><i></i></td></tr>
+        <tr><td>평면도 → 공사 도면 자동 변환</td><td class="me"><i class="f"></i></td><td><i></i></td><td><i class="h"></i></td><td><i></i></td><td><i></i></td><td><i></i></td></tr>
+        <tr><td>오토캐드 파일 읽고 쓰기</td><td class="me"><i class="f"></i></td><td><i></i></td><td><i></i></td><td><i></i></td><td><i class="f"></i></td><td><i class="h"></i></td></tr>
+        <tr><td>도면에서 물량 자동 산출</td><td class="me"><i class="f"></i></td><td><i></i></td><td><i></i></td><td><i></i></td><td><i class="h"></i></td><td><i></i></td></tr>
+        <tr><td>줄마다 단가 공개 견적</td><td class="me"><i class="f"></i></td><td><i class="h"></i></td><td><i></i></td><td><i></i></td><td><i></i></td><td><i></i></td></tr>
+        <tr><td>24시간 자동 견적서</td><td class="me"><i class="f"></i></td><td><i class="h"></i></td><td><i></i></td><td><i></i></td><td><i></i></td><td><i></i></td></tr>
+        <tr><td>공정별 작업지시서</td><td class="me"><i class="f"></i></td><td><i></i></td><td><i></i></td><td><i></i></td><td><i class="h"></i></td><td><i class="h"></i></td></tr>
+        <tr><td>공정·사진 고객 공유, 알림</td><td class="me"><i class="f"></i></td><td><i class="h"></i></td><td><i></i></td><td><i></i></td><td><i></i></td><td><i class="h"></i></td></tr>
+        <tr><td>중간 마진 없는 직거래</td><td class="me"><i class="f"></i></td><td><i></i></td><td><i></i></td><td><i></i></td><td><i></i></td><td><i></i></td></tr>
+        <tr><td>실물 샘플실·사람 상담</td><td class="me"><i class="f"></i></td><td><i></i></td><td><i></i></td><td><i></i></td><td><i></i></td><td><i class="f"></i></td></tr>
+      </tbody>
+    </table>
+    </div>
+  </div>
 </section>
 
 <!-- 실견적 -->
@@ -262,7 +411,28 @@
     <div class="hy"><p>집지니가 맞는 분</p><b>부분 수리 3개 이상</b><span>도배, 장판, 싱크대처럼 공정을 맞춰야 하는 공사</span></div>
     <div class="hn2"><p>직접 하시는 게 나은 분</p><b>부분 수리 3개 이하</b><span>도배만, 장판만이면 기술자 한 분께 바로 맡기세요. 코디비가 아끼는 돈보다 크면 받지 않습니다.</span></div>
   </div>
-  <a class="room" href="showroom.html"><b>가양동 샘플실</b><span>서울 강서구 가양동 세신종합상가 B156호. 벽지, 바닥, 싱크대 실물을 보실 수 있습니다.</span><em>상담 예약</em></a>
+
+</section>
+
+<!-- 샘플실: 견본을 보고 상담까지, 예약 흐름 전부 -->
+<section class="room2" id="room">
+  <header class="pn"><h3>가양동 샘플실</h3><p>화면으로는 모르는 색감과 질감, 손으로 만져 보고 코디와 마주 앉아 고르세요</p></header>
+  <div class="rmeta">
+    <div><dt>주소</dt><dd>서울 강서구 공항대로41길 66 세신종합상가 지하 1층 B156호</dd></div>
+    <div><dt>볼 수 있는 것</dt><dd>벽지, 장판, 마루, 싱크대, 타일, 도어 실물 견본</dd></div>
+    <div><dt>상담</dt><dd>방문 상담 또는 전화 상담, 예약제</dd></div>
+  </div>
+  <h4 class="flowt">상담 예약은 이렇게 합니다</h4>
+  <ol class="srflow">
+    <li><figure><img src="assets/home/sr/1.jpg" alt="샘플실 쪽 열기" loading="lazy"></figure><b>샘플실 쪽 열기</b><span>벽지, 바닥, 싱크대, 타일, 도어 견본이 한곳에</span></li>
+    <li><figure><img src="assets/home/sr/2.jpg" alt="오시는 길 확인" loading="lazy"></figure><b>오시는 길 확인</b><span>가양동 세신종합상가 지하 1층 B156호</span></li>
+    <li><figure><img src="assets/home/sr/3.jpg" alt="상담 예약 누르기" loading="lazy"></figure><b>상담 예약 누르기</b><span>방문 상담과 전화 상담 중 고르기</span></li>
+    <li><figure><img src="assets/home/sr/4.jpg" alt="날짜와 시각 고르기" loading="lazy"></figure><b>날짜와 시각 고르기</b><span>이미 찬 시각은 회색으로 막힙니다</span></li>
+    <li><figure><img src="assets/home/sr/5.jpg" alt="이름과 연락처 적기" loading="lazy"></figure><b>이름과 연락처 적기</b><span>상담 내용, 평수, 주소는 골라서 선택</span></li>
+    <li><figure><img src="assets/home/sr/6.jpg" alt="접수 완료" loading="lazy"></figure><b>접수 완료</b><span>코디가 확인해 확정 문자를 보냅니다</span></li>
+  </ol>
+  <p class="note">실제 예약 화면을 예시 이름으로 눌러 본 모습입니다. 예약 확정은 코디가 확인한 뒤 문자로 드립니다.</p>
+  <a class="btn" href="showroom.html">샘플실 상담 예약하기</a>
 </section>
 
 <!-- 지금 바로 -->
@@ -284,7 +454,8 @@
 </footer>
 
 <script src="assets/site_config.js"></script>
-<script src="assets/home/home.js?v=20261112m"></script>
+<script src="assets/home/home.js?v=20261112r"></script>
+<script src="assets/home/estim.js?v=20261112r"></script>
 <script src="assets/chatbot.js" defer></script>
 </body>
 </html>

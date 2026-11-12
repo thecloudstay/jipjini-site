@@ -57,7 +57,7 @@
   function kakao() {
     var s = document.createElement('script');
     s.src = 'https://dapi.kakao.com/v2/maps/sdk.js?autoload=false&appkey=' + encodeURIComponent(window.JJ_KAKAO_KEY);
-    s.onload = function () { window.kakao.maps.load(init); };
+    s.onload = function () { if (window.kakao && window.kakao.maps) window.kakao.maps.load(init); };
     document.head.appendChild(s);
   }
   function init() {
@@ -146,6 +146,10 @@
 
   /* ── 기능 그림: 보일 때 움직인다 ── */
   getPlan('A10025531').then(function (d) { ['heroPlan', 'planVis'].forEach(function (id) { var e = $(id); if (!e) return; e.innerHTML = planSVG(d.평형[0].plan, 'psvg'); fit(e); see(e); }); }).catch(function () {});
+  /* 화면 사진 넘김(작동 모습) */
+  [].forEach.call(document.querySelectorAll('.slides'), function (b) { var im = b.querySelectorAll('img'), c = b.querySelector('.sc'), k = 0; if (!im.length) return;
+    var show = function () { [].forEach.call(im, function (x, j) { x.classList.toggle('on', j === k); }); if (c) c.textContent = im[k].dataset.c || ''; };
+    show(); setInterval(function () { k = (k + 1) % im.length; show(); }, 2600); });
   ['stack', 'donut', 'ways'].forEach(function (id) { if ($(id)) see($(id)); });
   /* 고객 세분화 칸: 고르면 그 사람에게 맞는 세 걸음을 보여 준다(고른 것은 이 기기에만 기억) */
   var tabs = document.querySelectorAll('.wt button'), pans = document.querySelectorAll('.wp');
