@@ -51,6 +51,7 @@ RULES = {
  'R8': '창 없는 방(경고) — 바깥·발코니에 닿은 방·거실에 창이 하나도 없다',
  'R9': '벽 위 창 — 원본 굵은 벽선이 있는 줄에 창을 그리면 안 된다(창은 벽이 끊긴 자리에만, 2026-11-12 81평형 욕실·발코니 바깥벽)',
  'R11': '방 면적 정합성 — 방(발코니·공용·피트 빼고) 넓이 합이 전용면적의 0.8~1.25배를 벗어나면 방 경계나 축척을 잘못 읽은 것(2026-11-12)',
+ 'R12': '사선 가는 선 — 원본의 비스듬한 가는 선(창틀·난간, 600mm 넘고 한쪽 끝이 벽에 닿음)이 우리 구조에 없으면 안 된다(2026-11-12 검수 사각지대 메움)',
  'R10': '현관문 — 현관에는 문이 반드시 하나 있어야 하고, 현관 바깥쪽 경계에 창이 있으면 안 된다(2026-11-12 81평형)',
 }
 def _struct(G, mm, H, W, door_w=5):
@@ -171,6 +172,39 @@ def rules(img, p):
         px = sum(abs(cv2.contourArea(np.array(r['pts'], np.float32))) for r in R if len(r['pts']) >= 3 and r.get('kind') not in ('발코니', '공용', '피트'))
         ratio = px * mm * mm / (float(p['전용']) * 1e6)
         if not (0.8 <= ratio <= 1.25): out.append(['R11', '면적 %.2f배' % ratio, W // 2, H // 2])
+    if img is not None:   # R12: 비스듬한 가는 선 놓침(가로·세로만 보던 R6·발견의 사각지대)
+        hv_ = cv2.cvtColor(img, cv2.COLOR_BGR2HSV); vv = hv_[..., 2].astype(int); ss = hv_[..., 1].astype(int)
+        thick_ = cv2.morphologyEx((vv < 100).astype(np.uint8), cv2.MORPH_OPEN, np.ones((4, 4), np.uint8)) > 0
+        thin_ = ((((vv < 110) | ((vv < 200) & (ss < 45))) & ~thick_)).astype(np.uint8) * 255
+        X0_, Y0_, X1_, Y1_ = G.get('틀') or [0, 0, W, H]; thin_[:max(0, Y0_-4)] = 0; thin_[Y1_+5:] = 0; thin_[:, :max(0, X0_-4)] = 0; thin_[:, X1_+5:] = 0
+        Ls = cv2.HoughLinesP(thin_, 1, np.pi/360, threshold=max(10, int(500/mm)), minLineLength=max(15, int(600/mm)), maxLineGap=4)
+        sd = cv2.dilate(_S, np.ones((7, 7), np.uint8)) > 0; seen = []
+        for x1, y1, x2, y2 in (Ls.reshape(-1, 4) if Ls is not None else []):
+            a_ = np.degrees(np.arctan2(y2-y1, x2-x1)) % 180
+            if min(a_, abs(a_-90), 180-a_) < 15: continue
+            n_ = max(8, int(np.hypot(x2-x1, y2-y1)/3)); xs_ = np.linspace(x1, x2, n_).astype(int); ys_ = np.linspace(y1, y2, n_).astype(int)
+            if sd[ys_, xs_].mean() > 0.3: continue
+            if not (thick_[max(0, y1-6):y1+7, max(0, x1-6):x1+7].any() or thick_[max(0, y2-6):y2+7, max(0, x2-6):x2+7].any()): continue
+            # 네이버 창 기호 = 가는 선 두 줄 나란히(수직 단면에 선 두 줄) — 설비 가위표·문 호·기구 선은 한 줄이라 뺀다
+            Ln_ = np.hypot(x2-x1, y2-y1) or 1; ux_, uy_ = (x2-x1)/Ln_, (y2-y1)/Ln_; nx_, ny_ = -uy_, ux_; tb_ = thin_ > 0; two = 0; tot = 0
+            for tt in np.linspace(2, Ln_-2, max(8, int(Ln_/3))):
+                runs = 0; prev = False
+                for o in range(-10, 11):
+                    X_, Y_ = int(round(x1+ux_*tt+nx_*o)), int(round(y1+uy_*tt+ny_*o))
+                    on = 0 <= X_ < W and 0 <= Y_ < H and tb_[Y_, X_]
+                    if on and not prev: runs += 1
+                    prev = on
+                tot += 1; two += runs >= 2
+            if two < 0.6*tot: continue
+            # 설비 통로 가위표: 같은 가운데를 반대 기울기 선이 지나가면 뺀다
+            mx_, my_ = (x1+x2)/2.0, (y1+y2)/2.0; vx_, vy_ = ux_, -uy_; hits_ = 0
+            for o in range(-12, 13, 2):
+                X_, Y_ = int(round(mx_+vx_*o)), int(round(my_+vy_*o))
+                if 0 <= X_ < W and 0 <= Y_ < H and tb_[max(0, Y_-1):Y_+2, max(0, X_-1):X_+2].any(): hits_ += 1
+            if hits_ >= 6: continue
+            cx_, cy_ = int((x1+x2)/2), int((y1+y2)/2)
+            if any(abs(cx_-a)+abs(cy_-b) < 15 for a, b in seen): continue
+            seen.append((cx_, cy_)); out.append(['R12', '사선 선', cx_, cy_])
     for r in R:   # R8
         if r.get('kind') not in ('방', '거실'): continue
         P = np.array(r['pts']); x0, y0 = P.min(0); x1, y1 = P.max(0)
