@@ -147,6 +147,11 @@
   /* ── 기능 그림: 보일 때 움직인다 ── */
   getPlan('A10025531').then(function (d) { ['planVis', 'planVis2'].forEach(function (id) { var e = $(id); if (!e) return; e.innerHTML = planSVG(d.평형[0].plan, 'psvg'); fit(e); see(e); }); }).catch(function () {});
   see($('stack'));
+  /* 고객 세분화 칸: 고르면 그 사람에게 맞는 세 걸음을 보여 준다(고른 것은 이 기기에만 기억) */
+  var tabs = document.querySelectorAll('.wt button'), pans = document.querySelectorAll('.wp');
+  function seg(k) { [].forEach.call(tabs, function (b) { var on = b.dataset.seg === k; b.classList.toggle('on', on); b.setAttribute('aria-selected', on); }); [].forEach.call(pans, function (p) { p.hidden = p.dataset.seg !== k; }); }
+  [].forEach.call(tabs, function (b) { b.onclick = function () { seg(b.dataset.seg); track('home_seg', { seg: b.dataset.seg }); try { localStorage.setItem('jj_seg', b.dataset.seg); } catch (e) {} }; });
+  try { var sv = localStorage.getItem('jj_seg'); if (sv) seg(sv); } catch (e) {}
   [].forEach.call(document.querySelectorAll('[data-go=find]'), function (a) { a.addEventListener('click', function () { setTimeout(function () { $('q').focus(); }, 500); }); });
   function see(el) { if (!('IntersectionObserver' in window)) return el.classList.add('go'); new IntersectionObserver(function (E, o) { E.forEach(function (e) { if (e.isIntersecting) { el.classList.add('go'); o.disconnect(); } }); }, { threshold: .35 }).observe(el); }
 })();

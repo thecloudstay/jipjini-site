@@ -22,7 +22,7 @@
 <meta name="twitter:image" content="https://jipjini.com/og-cover.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
-<link rel="stylesheet" href="assets/home/home.css?v=20261112h">
+<link rel="stylesheet" href="assets/home/home.css?v=20261112i">
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-35EM7T3M9W"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
@@ -38,6 +38,7 @@
 <header class="top">
   <a href="./" class="brand"><span class="mark">집</span><b>집지니</b></a>
   <nav class="links">
+    <a href="#who">나에게 맞게</a>
     <a href="#map">지도</a>
     <a href="#how">30%의 이유</a>
     <a href="#sys">6가지 시스템</a>
@@ -54,7 +55,50 @@
     <div><b id="nAll">10,242</b><span>수도권 아파트 단지</span></div>
     <div><b>24시간</b><span>무료 견적서</span></div>
   </div>
-  <a class="btn big" href="#map">우리 집 비용 확인하기 ↓</a>
+  <a class="btn big" href="#who">나에게 맞는 길 찾기 ↓</a>
+</section>
+
+<!-- 1-1. 고객 세분화: 나는 누구? → 맞춤 길 안내 -->
+<section class="who" id="who">
+  <h2>당신은 어느 쪽이세요?</h2>
+  <div class="wt" role="tablist">
+    <button role="tab" data-seg="self" class="on" aria-selected="true"><b>셀프 인테리어가 처음</b><span>망할까 봐 망설이는 분</span></button>
+    <button role="tab" data-seg="pro"><b>물량이 필요한 기술자</b><span>견적 낼 때마다 실측 다니는 분</span></button>
+    <button role="tab" data-seg="firm"><b>도면이 필요한 인테리어 업체</b><span>고객에게 보여 줄 도면이 필요한 분</span></button>
+    <button role="tab" data-seg="busy"><b>바빠서 맡기고 싶은 분</b><span>알아볼 시간이 없는 분</span></button>
+  </div>
+  <div class="wp" data-seg="self">
+    <p class="wtag">코디가 옆에서 같이 합니다</p>
+    <ol>
+      <li><a href="#map" data-ev="seg_self_1"><figure><img src="assets/start/step1.jpg" alt="" loading="lazy"></figure><b>1</b><strong>지도에서 우리 집 도면 찾기</strong><i>10초</i></a></li>
+      <li><a href="cad.html" data-ev="seg_self_2"><figure><img src="assets/home/plan-first.jpg" alt="" loading="lazy"></figure><b>2</b><strong>바꿀 곳 찍고 예상 공사비 보기</strong><i>5분</i></a></li>
+      <li><a href="request.html" target="_blank" rel="noopener" data-ev="seg_self_3"><figure><img src="assets/home/f-schedule.jpg" alt="" loading="lazy"></figure><b>3</b><strong>코디가 자재상·기술자 연결, 휴대폰으로 확인</strong><i>24시간 견적</i></a></li>
+    </ol>
+  </div>
+  <div class="wp" data-seg="pro" hidden>
+    <p class="wtag">실측 없이 물량부터</p>
+    <ol>
+      <li><a href="cad.html" data-ev="seg_pro_1"><figure><img src="assets/home/shot-plan.jpg" alt="" loading="lazy"></figure><b>1</b><strong>단지 도면 열기 · 평면 사진 올리기</strong><i>즉시</i></a></li>
+      <li><a href="cad-guide.html" data-ev="seg_pro_2"><figure><img src="assets/home/f-cad.jpg" alt="" loading="lazy"></figure><b>2</b><strong>공종 골라 도면에 찍기</strong><i>공종별</i></a></li>
+      <li><a href="cad.html" data-ev="seg_pro_3"><figure><img src="assets/home/f-takeoff.jpg" alt="" loading="lazy"></figure><b>3</b><strong>물량표 자동 · 피디에프로 받기</strong><i>17공종</i></a></li>
+    </ol>
+  </div>
+  <div class="wp" data-seg="firm" hidden>
+    <p class="wtag">오토캐드 파일로 바로</p>
+    <ol>
+      <li><a href="#map" data-ev="seg_firm_1"><figure><img src="assets/home/shot-plan.jpg" alt="" loading="lazy"></figure><b>1</b><strong>단지 도면 열기</strong><i>즉시</i></a></li>
+      <li><a href="cad.html" data-ev="seg_firm_2"><figure><img src="assets/home/shot-sheet.jpg" alt="" loading="lazy"></figure><b>2</b><strong>공사 표시 · 작업지시서 만들기</strong><i>공정마다</i></a></li>
+      <li><a href="cad.html" data-ev="seg_firm_3"><figure><img src="assets/home/f-cad.jpg" alt="" loading="lazy"></figure><b>3</b><strong>오토캐드(.dwg)·피디에프로 내보내기</strong><i>무료</i></a></li>
+    </ol>
+  </div>
+  <div class="wp" data-seg="busy" hidden>
+    <p class="wtag">맡기되, 다 보이게</p>
+    <ol>
+      <li><a href="request.html" target="_blank" rel="noopener" data-ev="seg_busy_1"><figure><img src="assets/home/f-console.jpg" alt="" loading="lazy"></figure><b>1</b><strong>의뢰서 5분 작성</strong><i>5분</i></a></li>
+      <li><a href="cases/" data-ev="seg_busy_2"><figure><img src="assets/home/shot-sheet.jpg" alt="" loading="lazy"></figure><b>2</b><strong>공종·단가 다 적힌 견적서 받기</strong><i>24시간</i></a></li>
+      <li><a href="workflow.html" data-ev="seg_busy_3"><figure><img src="assets/home/f-schedule.jpg" alt="" loading="lazy"></figure><b>3</b><strong>공사 내내 휴대폰으로 확인</strong><i>실시간</i></a></li>
+    </ol>
+  </div>
 </section>
 
 <!-- 2. 지도 -->
@@ -179,7 +223,7 @@
 </footer>
 
 <script src="assets/site_config.js"></script>
-<script src="assets/home/home.js?v=20261112f"></script>
+<script src="assets/home/home.js?v=20261112i"></script>
 <script src="assets/chatbot.js" defer></script>
 </body>
 </html>
