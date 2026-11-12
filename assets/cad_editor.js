@@ -92,7 +92,9 @@
     // 문: 열리는 쪽은 학습 인식기가 본 문 네모의 가운데 쪽. 문짝 끝이 방 안에 들어오는 쪽·경첩 자리를 고른다(집 밖이나 벽 속으로 열리지 않게).
     // 2026-11-12 대표 지적 「안방에도 문이 있을 텐데 안 그렸다」: 학습 인식기가 못 찾은 문은 비워 두지 않는다 — 방·욕실·드레스룸에 문이 하나도 없으면,
     //   거실·주방·복도와 맞닿은 가장 긴 벽(문 폭보다 길 때)의 한쪽 끝에 표준 문을 하나 놓는다(네이버 평면처럼 방마다 문 하나).
-    if (p.mmpp > 0) { var RM = (p.rooms || []).filter(function (m) { return m.pts && m.pts.length >= 3; }), tolW = 320 / p.mmpp, D0 = (p.문 || []).slice();
+    // 2026-11-12 대표 지적 「문 위치를 왜 임의로 그리나」: 원본에서 읽은 문(경첩·여는 쪽 그대로)이 있으면 그것만 쓰고, 지어서 채우지 않는다
+    var ORIG = !!(p.그림 && p.그림.문 && p.그림.문.length); if (ORIG) p = Object.assign({}, p, { 문: p.그림.문.map(function (w) { return Object.assign({ 원본: true }, w); }) });
+    if (p.mmpp > 0 && !ORIG) { var RM = (p.rooms || []).filter(function (m) { return m.pts && m.pts.length >= 3; }), tolW = 320 / p.mmpp, D0 = (p.문 || []).slice();
       var live = function (w) { var L = Math.hypot(w.x2 - w.x1, w.y2 - w.y1) || 1, nx = -(w.y2 - w.y1) / L, ny = (w.x2 - w.x1) / L, mx = (w.x1 + w.x2) / 2, my = (w.y1 + w.y2) / 2; return [1, -1].some(function (sd) { return RM.some(function (n) { return inPoly([mx + nx * sd * L * 0.5, my + ny * sd * L * 0.5], n.pts); }); }); };   // 어느 쪽으로도 방에 안 열리는 문은 뒤에서 버려지니 없는 셈
       var hasDoor = function (m) { return D0.some(function (w) { if (!live(w)) return false; var mx = (w.x1 + w.x2) / 2, my = (w.y1 + w.y2) / 2; for (var e = 0; e < m.pts.length; e++) { var A = m.pts[e], B = m.pts[(e + 1) % m.pts.length], L2 = Math.pow(B[0] - A[0], 2) + Math.pow(B[1] - A[1], 2) || 1, t = Math.max(0, Math.min(1, ((mx - A[0]) * (B[0] - A[0]) + (my - A[1]) * (B[1] - A[1])) / L2)); if (Math.hypot(mx - A[0] - t * (B[0] - A[0]), my - A[1] - t * (B[1] - A[1])) < tolW) return true; } return false; }); };
       // 현관문: 현관에 문이 없으면 바깥으로 난 벽(바깥에 방이 없는 변) 가운데에 1,000mm 문
@@ -111,6 +113,7 @@
       p = Object.assign({}, p, { 문: D0 }); }
     var inRoom = function (x, y) { return sh.some(function (q) { return q.t === 'room' && inPoly([x, y], q.pts); }); };
     (p.문 || []).forEach(function (w) { var x1 = Math.round(w.x1), y1 = Math.round(w.y1), x2 = Math.round(w.x2), y2 = Math.round(w.y2), L = Math.hypot(x2 - x1, y2 - y1); if (L < 4) return;
+      if (w.원본) { var uX = (x2 - x1) / L, uY = (y2 - y1) / L, sd0 = ((-uY) * (w.cx - x1) + uX * (w.cy - y1)) >= 0 ? 1 : -1; sh.push({ t: 'door', c: '#b06a00', x1: x1, y1: y1, x2: x2, y2: y2, h: 2100, name: '문', auto: true, flip: sd0 < 0 }); return; }   /* 원본 그대로 */
       var ux = (x2 - x1) / L, uy = (y2 - y1) / L, side = (w.cx != null && ((w.cx - (x1 + x2) / 2) * -uy + (w.cy - (y1 + y2) / 2) * ux) < 0) ? -1 : 1, pickd = null;
       // 2026-11-12 대표 지시 「방문은 무조건 들어가는 공간 안으로」: 문 양쪽 공간을 보고, 방·욕실·드레스룸·발코니 쪽으로 연다(거실·주방·복도 쪽이 아니라). 현관문은 집 밖으로 연다.
       var kAt = function (sd) { var mx = (x1 + x2) / 2 + -uy * sd * Math.max(L * 0.5, 6), my = (y1 + y2) / 2 + ux * sd * Math.max(L * 0.5, 6), k = null; sh.forEach(function (q) { if (q.t === 'room' && inPoly([mx, my], q.pts)) k = q.kind || kindOf(q.name); }); return k; };
@@ -124,7 +127,7 @@
         sh.forEach(function (q) { if (q.t === 'room' && inPoly([tx2, ty2], q.pts)) rk2 = q.kind || ''; });
         var outerK = ''; sh.forEach(function (q) { if (q.t === 'room' && inPoly([hx2 + uy * pickd[0] * L * 0.5, hy2 - ux * pickd[0] * L * 0.5], q.pts)) outerK = q.kind || ''; });
         var std = (rk2 === '욕실' || outerK === '욕실') ? 750 : (rk2 === '현관' || outerK === '현관') ? 1000 : 900, Ls = std / p.mmpp, mx2 = (x1 + x2) / 2, my2 = (y1 + y2) / 2;
-        if (Ls < L * 1.6) { x1 = Math.round(mx2 - ux * Ls / 2); y1 = Math.round(my2 - uy * Ls / 2); x2 = Math.round(mx2 + ux * Ls / 2); y2 = Math.round(my2 + uy * Ls / 2); L = Ls; } } var o = { t: 'door', c: '#b06a00', x1: pickd[1] ? x2 : x1, y1: pickd[1] ? y2 : y1, x2: pickd[1] ? x1 : x2, y2: pickd[1] ? y1 : y2, h: 2100, name: '문', auto: true };
+        if (true) {   /* 2026-11-12 대표 지적 「문 크기가 제각각」: 원본 크기와 상관없이 늘 표준 폭으로 */ x1 = Math.round(mx2 - ux * Ls / 2); y1 = Math.round(my2 - uy * Ls / 2); x2 = Math.round(mx2 + ux * Ls / 2); y2 = Math.round(my2 + uy * Ls / 2); L = Ls; } } var o = { t: 'door', c: '#b06a00', x1: pickd[1] ? x2 : x1, y1: pickd[1] ? y2 : y1, x2: pickd[1] ? x1 : x2, y2: pickd[1] ? y1 : y2, h: 2100, name: '문', auto: true };
       if ((pickd[1] ? -pickd[0] : pickd[0]) < 0) o.flip = true; sh.push(o); });
     if (p.mmpp > 0) { var L = Math.round(1000 / p.mmpp), x0 = Math.min.apply(null, xs), y1 = Math.max.apply(null, ys), Dm = Math.max(Math.max.apply(null, xs) - x0, y1 - Math.min.apply(null, ys));
       sh.push({ t: 'scale', c: '#1d5fd0', x1: Math.round(x0 - Dm * 0.07), y1: Math.round(y1 + Dm * 0.135), x2: Math.round(x0 - Dm * 0.07) + L, y2: Math.round(y1 + Dm * 0.135), mm: 1000, by: (p.척도 && p.척도.방식) || '치수' }); }
@@ -647,7 +650,7 @@
   //   온전한 도면의 자리 옮김(여백·머리 높이)은 양식 도구와 같은 식으로 셈하고, 그림 크기가 셈과 다르면(양식이 바뀌었으면) 치수 없는 편집 바탕으로 물러난다.
   //   돌려주는 값: { svg, x, y, w, h } — 그림이 놓일 자리(원본 좌표)
   function bgSvg(opt) { if (!root.JJPlanStyle) return null; var d = bgData(), o = { noLabels: !!hide['공간'], noDims: !!hide['치수'], plain: hide['무늬'] !== false, noMark: hide['무늬'] !== false }; if (opt) Object.keys(opt).forEach(function (k) { o[k] = opt[k]; });
-    var xs = [], ys = [], s = ''; d.rooms.forEach(function (r) { r.pts.forEach(function (p) { xs.push(p[0]); ys.push(p[1]); }); }); if (d.외곽 && d.외곽.length >= 4) d.외곽.forEach(function (p) { xs.push(p[0]); ys.push(p[1]); });
+    var xs = [], ys = [], s = ''; d.rooms.forEach(function (r) { r.pts.forEach(function (p) { xs.push(p[0]); ys.push(p[1]); }); }); if (d.외곽 && d.외곽.length >= 4) d.외곽.forEach(function (p) { xs.push(p[0]); ys.push(p[1]); }); if (d.그림 && d.그림.틀) { xs.push(d.그림.틀[0], d.그림.틀[2]); ys.push(d.그림.틀[1], d.그림.틀[3]); }
     var bx0 = Math.min.apply(null, xs), bx1 = Math.max.apply(null, xs), by0 = Math.min.apply(null, ys), by1 = Math.max.apply(null, ys), bw = bx1 - bx0, bh = by1 - by0, D = Math.max(bw, bh), pad = D * 0.11, head = D * 0.15, foot = D * 0.2;
     try { s = root.JJPlanStyle.svg(d, o); } catch (e) { s = ''; }
     var vb = /viewBox="0 0 (\d+) (\d+)"/.exec(s || '');

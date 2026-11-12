@@ -35,7 +35,11 @@ def trace(path, plan):
     for r in rooms: cv2.fillPoly(house,[np.array(r['pts'],np.int32)],1)
     house=cv2.dilate(house,np.ones((25,25),np.uint8))>0
     wall=cv2.morphologyEx((v<100).astype(np.uint8),cv2.MORPH_OPEN,np.ones((4,4),np.uint8))>0
-    wall&=house
+    # 2026-11-12 대표 지시 「검정 선은 공용부까지 전부 따라 그린다」: 집 범위로 자르지 않고 건물 전체(가장 큰 벽 덩어리의 네모 안)를 딴다 — 집 범위로 자르면 벽이 잘려 튀어나간 토막이 생겼다
+    nb0,lb0,sb0,_=cv2.connectedComponentsWithStats(wall.astype(np.uint8),connectivity=8)
+    big=1+int(np.argmax(sb0[1:,4])); bx,by,bw0,bh0=sb0[big,:4]
+    bld=np.zeros((H,W),bool); bld[max(0,by-6):by+bh0+7, max(0,bx-6):bx+bw0+7]=True
+    wall&=bld
     nw,lw,sw,_=cv2.connectedComponentsWithStats(wall.astype(np.uint8),connectivity=8); kw=np.ones(nw,bool); kw[0]=False
     for j in range(1,nw):
         w_,h_,a_=sw[j,2],sw[j,3],sw[j,4]
@@ -52,8 +56,45 @@ def trace(path, plan):
         w_,h_,a_=st[j,2],st[j,3],st[j,4]
         keep[j]=not(max(w_,h_)*mm<450 or (h_*mm<350 and w_*mm<1500 and a_>=w_*h_*0.18))   # 글자 지우기
     thin=keep[lab]
+    # 문 읽기(대표 지적 2026-11-12 「문 방향이 완전히 다르다」): 원본의 4분의 1 원 + 문짝 선을 찾아 경첩 자리·여는 쪽을 그대로 가져온다
+    doors=[]
+    # 네이버 양식의 문: 흰 4분의 1 원(문이 쓸고 가는 자리) — 경첩은 원이 꽉 찬 모서리, 여는 쪽 변은 바깥이 벽 틈(흰색)인 변
+    wh=((v>=245)&(s<=12)&house).astype(np.uint8)
+    wh=cv2.morphologyEx(wh,cv2.MORPH_OPEN,np.ones((7,7),np.uint8))
+    nd,ld,sd,_=cv2.connectedComponentsWithStats(wh,connectivity=4)
+    darkish=(v<120)
+    for j in range(1,nd):
+        x,y,w_,h_,a_=sd[j]; Wm,Hm=w_*mm,h_*mm
+        if not(520<=Wm<=1250 and 520<=Hm<=1250 and abs(w_-h_)<=0.22*max(w_,h_)): continue
+        fr=a_/(w_*h_)
+        if not(0.6<=fr<=0.9): continue
+        reg=(ld[y:y+h_,x:x+w_]==j); q=max(2,int(min(w_,h_)*0.18))
+        cor=[reg[:q,:q].mean(),reg[:q,-q:].mean(),reg[-q:,-q:].mean(),reg[-q:,:q].mean()]   # 왼위 오른위 오른아래 왼아래
+        fc=int(np.argmin(cor)); hc=(fc+2)%4   # 가장 빈 모서리(호 바깥) 맞은편이 경첩
+        if cor[fc]>0.3 or sorted(cor)[1]<0.6: continue
+        C=[(x,y),(x+w_,y),(x+w_,y+h_),(x,y+h_)]
+        n1,n2=(hc+1)%4,(hc+3)%4      # 경첩에 붙은 두 모서리
+        def outside_white(k):        # 경첩→k 변의 바깥쪽(원 반대편) 3~8화소가 흰 틈인가
+            (hx,hy),(kx,ky)=C[hc],C[k]; mx,my=(hx+kx)/2,(hy+ky)/2; fx,fy=C[fc]; dx,dy=(mx-((hx+kx+fx*0)/2)),0
+            if hy==ky: sgn=-1 if fy>hy else 1; ys_=[int(hy+sgn*t) for t in range(3,9)]; xs_=[int(mx)]*6
+            else: sgn=-1 if fx>hx else 1; xs_=[int(hx+sgn*t) for t in range(3,9)]; ys_=[int(my)]*6
+            vals=[(0<=yy<H and 0<=xx<W and v[yy,xx]>=225) for xx,yy in zip(xs_,ys_)]
+            return sum(vals)
+        o1,o2=outside_white(n1),outside_white(n2)
+        ac,bc=(n1,n2) if o1>=o2 else (n2,n1)
+        doors.append({'x1':int(C[hc][0]),'y1':int(C[hc][1]),'x2':int(C[ac][0]),'y2':int(C[ac][1]),'cx':int(C[bc][0]),'cy':int(C[bc][1])})
     # 방 칸: 벽+가는 선으로 막힌 빈 곳. 방마다 가장 큰 칸 = 방 바닥, 방 안에서 바닥과 안 닿는 막힌 덩어리 = 가구·기구
     bar=(wall|cv2.dilate(thin.astype(np.uint8),np.ones((2,2),np.uint8)).astype(bool)|~house).astype(np.uint8)
+    # 2026-11-12 대표 지시 「공용부는 도형을 그리지 말고 '공용부'라고만 적고 비워 둔다」: 공용부(집 범위 밖, 건물 안)에서는 건물 바깥 테두리 벽만 남긴다
+    # 공용부 = 건물 네모 안이면서 집 범위 밖. 그 안의 벽은 건물 네모 가장자리(바깥 테두리)에 붙은 것만 남긴다
+    pubzone=bld&~house
+    edge=np.zeros((H,W),bool); e=12; edge[by-6:by+e, :]=True; edge[by+bh0-e:by+bh0+7, :]=True; edge[:, bx-6:bx+e]=True; edge[:, bx+bw0-e:bx+bw0+7]=True
+    wall=(wall&~pubzone)|(wall&pubzone&edge)
+    pz=(pubzone&~cv2.dilate(wall.astype(np.uint8),np.ones((5,5),np.uint8)).astype(bool)).astype(np.uint8)
+    npz,lpz,spz,cpz=cv2.connectedComponentsWithStats(pz,connectivity=4); publab=[]
+    for jj in range(1,npz):
+        if spz[jj,4]*mm*mm/1e6>=3: publab.append([int(cpz[jj,0]),int(cpz[jj,1])])
+    pubd=''
     cells=[]; objs=[]
     white=(v>=225)&(s<=25)
     for i,r in enumerate(rooms):
@@ -86,4 +127,4 @@ def trace(path, plan):
         else: pts=band[int(a):int(b)+1,int(c)]
         if bathmask[int((c if t=='h' else (a+b)/2)), int(((a+b)/2) if t=='h' else c)]: continue
         if pts.mean()>0.9: win.append([t,float(c),int(a),int(b)])
-    return {'벽':rect_path(wall,1.0),'칸':cells,'창선':win,'기구':objs}
+    return {'문':doors,'공용칸':publab,'틀':[int(bx),int(by),int(bx+bw0),int(by+bh0)],'공용':pubd,'벽':rect_path(wall,1.0),'칸':cells,'창선':win,'기구':objs}
