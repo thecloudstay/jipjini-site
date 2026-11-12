@@ -706,10 +706,46 @@ def close_junctions(G, bgr, mm, H, W):
             # (「서로 다른 두 덩어리」 조건은 뺌 — 외곽은 한 덩어리라 새는 틈도 같은 덩어리 두 끝 사이에 있다)
             add.append([[int(x),int(y)],[int(x+w_),int(y)],[int(x+w_),int(y+h_)],[int(x),int(y+h_)]])
     return add
+# ── 방 이름 글자 읽기(2026-11-12 대표 제안 「문자 인식」): 원본 방 이름(네이버 글자)을 한글 문자 인식(테서랙트)으로 읽어
+#   방 읽기가 「현관」「기타」로 잘못 붙인 방을 바로잡는다(134 다용도실을 현관으로). 77장에서 읽은 이름이 방 읽기와 맞은 곳 187, 어긋난 곳 7
+#   방·거실·주방은 다각형에 방 둘이 합쳐진 경우가 있어 손대지 않는다. 문자 인식 도구가 없는 컴퓨터에서는 건너뛴다
+_LAB={'다용도실':('발코니','다용도실'),'다용도':('발코니','다용도실'),'현관':('현관','현관'),'발코니':('발코니','발코니'),'욕실':('욕실','욕실'),'화장실':('욕실','욕실'),
+      '드레스룸':('드레스룸','드레스룸'),'파우더룸':('드레스룸','파우더룸'),'실외기실':('실외기실','실외기실')}
+def fix_kinds_ocr(bgr, rooms):
+    try: import pytesseract, re
+    except Exception: return rooms
+    tgt=[r for r in rooms if r.get('kind') in ('현관','기타') and len(r.get('pts') or [])>=3]
+    if not tgt: return rooms
+    try:
+        big=cv2.resize(bgr,None,fx=2,fy=2,interpolation=cv2.INTER_CUBIC)
+        d=pytesseract.image_to_data(big,lang='kor',config='--psm 11',output_type=pytesseract.Output.DICT)
+    except Exception: return rooms
+    ws=[(re.sub(r'[^가-힣]','',t),(d['left'][i]+d['width'][i]/2)/2,(d['top'][i]+d['height'][i]/2)/2) for i,t in enumerate(d['text']) if re.sub(r'[^가-힣]','',t) and float(d['conf'][i])>=70]
+    lab=lambda t: next((w for w in sorted(_LAB,key=len,reverse=True) if w in t),None)
+    H,W=bgr.shape[:2]
+    for r in tgt:
+        P=np.array(r['pts'],np.float32); L=next((lab(w[0]) for w in ws if cv2.pointPolygonTest(P,(float(w[1]),float(w[2])),False)>=0 and lab(w[0])),None)
+        if L is None:   # 방마다 잘라 진한 글자만 남겨 다시 읽기(두 줄 글자·체크무늬 바닥 위 글자)
+            x,y,w_,h_=cv2.boundingRect(P.astype(np.int32)); x0,y0=max(0,x-4),max(0,y-4); x1,y1=min(W,x+w_+4),min(H,y+h_+4)
+            hsv=cv2.cvtColor(bgr[y0:y1,x0:x1],cv2.COLOR_BGR2HSV); t=((hsv[...,2]<130)&(hsv[...,1]<60)).astype(np.uint8)
+            m=np.zeros(t.shape,np.uint8); cv2.fillPoly(m,[P.astype(np.int32)-[x0,y0]],1); t&=cv2.erode(m,np.ones((7,7),np.uint8))
+            n,l,st,_=cv2.connectedComponentsWithStats(t); keep=np.zeros(n,bool)
+            for j in range(1,n): keep[j]=3<=st[j,3]<=22 and st[j,2]<=30 and st[j,4]>=4
+            tt=(keep[l]*255).astype(np.uint8)
+            if tt.sum()>=255*20:
+                bg=cv2.copyMakeBorder(cv2.resize(255-tt,None,fx=3,fy=3,interpolation=cv2.INTER_CUBIC),20,20,20,20,cv2.BORDER_CONSTANT,value=255)
+                try: L=lab(re.sub(r'[^가-힣]','',pytesseract.image_to_string(bg,lang='kor',config='--psm 6')))
+                except Exception: L=None
+        if L is None: continue
+        kd,nm=_LAB[L]
+        if kd==r.get('kind'): continue
+        n_=sum(1 for q in rooms if q.get('kind')==kd)+1
+        r['바로잡음']=r.get('name'); r['kind']=kd; r['name']=nm if kd in ('현관',) or nm=='다용도실' else '%s%d'%(nm,n_)
+    return rooms
 def trace(path, plan):
     bgr=cv2.imread(path); H,W=bgr.shape[:2]; mm=plan.get('mmpp') or 23.0
     hsv=cv2.cvtColor(bgr,cv2.COLOR_BGR2HSV); v=hsv[...,2].astype(int); s=hsv[...,1].astype(int)
-    rooms=fix_kinds(bgr,plan['rooms']); house=np.zeros((H,W),np.uint8)
+    rooms=fix_kinds_ocr(bgr,fix_kinds(bgr,plan['rooms'])); house=np.zeros((H,W),np.uint8)
     for r in rooms: cv2.fillPoly(house,[np.array(r['pts'],np.int32)],1)
     house=cv2.dilate(house,np.ones((25,25),np.uint8))>0
     wall=cv2.morphologyEx((v<100).astype(np.uint8),cv2.MORPH_OPEN,np.ones((4,4),np.uint8))>0
