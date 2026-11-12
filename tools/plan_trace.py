@@ -589,10 +589,23 @@ def drop_inside(mask, m):
     keep=ins<tot*0.8; keep[0]=False
     return keep[lab]
 
+# ── 방 종류 바로잡기(2026-11-12 하네스 학습): 누리집 방 읽기가 발코니를 「기타」로 이름 붙인다(77장 기타 169개 중 28개) — 창·외벽 판정이 틀어짐(88·165B 창 빠짐 등)
+#   네이버 바닥 무늬는 종류마다 정해져 있다 → 발코니 = 크림색 타일(색상 14~21·채도 18~28·밝기 248 이상, 77장 발코니 248개 중 220개, 현관·주방·거실·드레스룸 0개)
+#   「기타」인데 바닥이 발코니 타일이면 발코니로(이름도 — 편집기는 이름에서 종류를 읽는다). 고친 방에는 '바로잡음' 표시
+def fix_kinds(bgr, rooms):
+    H,W=bgr.shape[:2]; hsv=cv2.cvtColor(bgr,cv2.COLOR_BGR2HSV); n=sum(1 for r in rooms if r.get('kind')=='발코니')
+    for r in rooms:
+        if r.get('kind')!='기타' or len(r.get('pts') or [])<3: continue
+        m=np.zeros((H,W),np.uint8); cv2.fillPoly(m,[np.array(r['pts'],np.int32)],1); m=cv2.erode(m,np.ones((9,9),np.uint8))>0
+        if m.sum()<80: continue
+        h_,s_,v_=[float(np.median(hsv[...,i][m])) for i in range(3)]
+        if 14<=h_<=21 and 18<=s_<=28 and v_>=248:
+            n+=1; r['바로잡음']=r.get('name'); r['kind']='발코니'; r['name']='발코니%d'%n
+    return rooms
 def trace(path, plan):
     bgr=cv2.imread(path); H,W=bgr.shape[:2]; mm=plan.get('mmpp') or 23.0
     hsv=cv2.cvtColor(bgr,cv2.COLOR_BGR2HSV); v=hsv[...,2].astype(int); s=hsv[...,1].astype(int)
-    rooms=plan['rooms']; house=np.zeros((H,W),np.uint8)
+    rooms=fix_kinds(bgr,plan['rooms']); house=np.zeros((H,W),np.uint8)
     for r in rooms: cv2.fillPoly(house,[np.array(r['pts'],np.int32)],1)
     house=cv2.dilate(house,np.ones((25,25),np.uint8))>0
     wall=cv2.morphologyEx((v<100).astype(np.uint8),cv2.MORPH_OPEN,np.ones((4,4),np.uint8))>0
