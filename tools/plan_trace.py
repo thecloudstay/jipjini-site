@@ -70,7 +70,20 @@ def trace(path, plan):
     wall=cv2.morphologyEx((v<100).astype(np.uint8),cv2.MORPH_OPEN,np.ones((4,4),np.uint8))>0
     # 2026-11-12 대표 지시 「검정 선은 공용부까지 전부 따라 그린다」: 집 범위로 자르지 않고 건물 전체(가장 큰 벽 덩어리의 네모 안)를 딴다 — 집 범위로 자르면 벽이 잘려 튀어나간 토막이 생겼다
     nb0,lb0,sb0,_=cv2.connectedComponentsWithStats(wall.astype(np.uint8),connectivity=8)
-    big=1+int(np.argmax(sb0[1:,4])); bx,by,bw0,bh0=sb0[big,:4]
+    # 건물 범위(2026-11-12 점검기에서 원인 확인: 문·창에 끊겨 벽이 여러 덩어리인 평면은 「가장 큰 덩어리」만으로는 벽 대부분을 놓쳤다 — 84%까지)
+    # → 방 범위(+1.2m)에 닿는 벽 덩어리에서 시작해, 그 네모(+0.3m)에 닿는 덩어리를 차례로 더한다. 치수선·글자는 그 바깥에 떨어져 있어 안 붙는다
+    hb=cv2.dilate(house.astype(np.uint8),np.ones((max(3,int(1200/mm)),)*2,np.uint8))>0
+    sel=np.zeros(nb0,bool)
+    for j in range(1,nb0):
+        x,y,w_,h_,a_=sb0[j]
+        if a_>=30 and hb[y:y+h_,x:x+w_].any() and (lb0[y:y+h_,x:x+w_]==j)[hb[y:y+h_,x:x+w_]].any(): sel[j]=True
+    if not sel.any(): sel[1+int(np.argmax(sb0[1:,4]))]=True
+    for _ in range(3):
+        ks=np.where(sel)[0]; X0=sb0[ks,0].min(); Y0=sb0[ks,1].min(); X1=(sb0[ks,0]+sb0[ks,2]).max(); Y1=(sb0[ks,1]+sb0[ks,3]).max(); e=int(300/mm)
+        for j in range(1,nb0):
+            x,y,w_,h_,a_=sb0[j]
+            if not sel[j] and a_>=30 and x<X1+e and x+w_>X0-e and y<Y1+e and y+h_>Y0-e and min(w_,h_)>=3: sel[j]=True
+    ks=np.where(sel)[0]; bx=int(sb0[ks,0].min()); by=int(sb0[ks,1].min()); bw0=int((sb0[ks,0]+sb0[ks,2]).max()-bx); bh0=int((sb0[ks,1]+sb0[ks,3]).max()-by)
     bld=np.zeros((H,W),bool); bld[max(0,by-6):by+bh0+7, max(0,bx-6):bx+bw0+7]=True
     wall&=bld
     # 2026-11-12 대원칙 「검정선은 똑같이 카피한다」: 건물 네모 안의 검은 선(굵은 벽·가는 선·문 호·샷시·계단)을 모두 그대로 딴다. 글자 조각과 욕실 기구만 뺀다
