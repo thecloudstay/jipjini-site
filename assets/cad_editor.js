@@ -72,8 +72,23 @@
           W0.forEach(function (w) { var wh = Math.abs(w.y2 - w.y1) < Math.abs(w.x2 - w.x1); if (wh !== hz) return; var wc = hz ? (w.y1 + w.y2) / 2 : (w.x1 + w.x2) / 2; if (Math.abs(wc - (hz ? A[1] : A[0])) > off) return; var a = Math.max(lo, Math.min(hz ? w.x1 : w.y1, hz ? w.x2 : w.y2)), b = Math.min(hi, Math.max(hz ? w.x1 : w.y1, hz ? w.x2 : w.y2)); if (b > a) cov += b - a; });
           if (cov >= L * 0.5) continue; W0 = W0.filter(function (w) { var wh = Math.abs(w.y2 - w.y1) < Math.abs(w.x2 - w.x1); if (wh !== hz) return true; var wc = hz ? (w.y1 + w.y2) / 2 : (w.x1 + w.x2) / 2; if (Math.abs(wc - (hz ? A[1] : A[0])) > off) return true; var a = Math.min(hz ? w.x1 : w.y1, hz ? w.x2 : w.y2), b = Math.max(hz ? w.x1 : w.y1, hz ? w.x2 : w.y2); return b < lo || a > hi; });   /* 같은 변에 조금만 잡힌 창은 지우고 하나로 */
           W0.push(hz ? { x1: lo + mg, y1: A[1], x2: hi - mg, y2: A[1], 종류: '발코니 샷시', w_m: Math.round((L - 2 * mg) * p.mmpp / 10) / 100, h_mm: 2300, 안: '' } : { x1: A[0], y1: lo + mg, x2: A[0], y2: hi - mg, 종류: '발코니 샷시', w_m: Math.round((L - 2 * mg) * p.mmpp / 10) / 100, h_mm: 2300, 안: '' }); } });
-      p = Object.assign({}, p, { 창: W0 }); }
-    (p.창 || []).forEach(function (w) { sh.push({ t: 'win', c: '#1d5fd0', x1: Math.round(w.x1), y1: Math.round(w.y1), x2: Math.round(w.x2), y2: Math.round(w.y2), h: w.h_mm || 1200, name: (w.종류 || '창') + (w.안 ? ' ' + w.안 : ''), auto: true }); });
+      // 2026-11-12 대표 지시 「발코니와 방이 맞닿는 곳에 샷시나 문이 없다 · 1,000mm 미만 창은 모두 문으로(발코니)」
+      var kindAt = function (x, y) { var k = null; RW.forEach(function (m) { if (inPoly([x, y], m.pts)) k = m.kind || kindOf(m.name); }); return k; }, tolS = 320 / p.mmpp, DX = [];
+      var sides = function (w) { var L = Math.hypot(w.x2 - w.x1, w.y2 - w.y1) || 1, nx = -(w.y2 - w.y1) / L, ny = (w.x2 - w.x1) / L, mx = (w.x1 + w.x2) / 2, my = (w.y1 + w.y2) / 2; return [kindAt(mx + nx * off, my + ny * off), kindAt(mx - nx * off, my - ny * off)]; };
+      var balRoom = function (ks) { return (ks[0] === '발코니' && ks[1] && ks[1] !== '발코니') || (ks[1] === '발코니' && ks[0] && ks[0] !== '발코니'); };
+      W0 = W0.filter(function (w) { var ks = sides(w), Lm = Math.hypot(w.x2 - w.x1, w.y2 - w.y1) * p.mmpp; if (balRoom(ks) && Lm < 1000) { var bs = ks[0] === '발코니' ? 1 : -1, L = Math.hypot(w.x2 - w.x1, w.y2 - w.y1) || 1, nx = -(w.y2 - w.y1) / L, ny = (w.x2 - w.x1) / L; DX.push({ x1: w.x1, y1: w.y1, x2: w.x2, y2: w.y2, cx: (w.x1 + w.x2) / 2 + nx * bs * off, cy: (w.y1 + w.y2) / 2 + ny * bs * off }); return false; } if (ks[0] && ks[1]) w.inner = true; return true; });
+      // 방·거실·주방과 발코니가 맞닿은 벽에 창도 문도 없으면: 맞닿은 길이가 1m 넘으면 분합창(양 끝 150mm 남김), 그보다 짧으면 문
+      RW.forEach(function (m) { var k = m.kind || kindOf(m.name); if (k === '발코니' || k === '욕실' || k === '피트' || k === '현관') return;
+        RW.forEach(function (b) { if ((b.kind || kindOf(b.name)) !== '발코니') return;
+          for (var e = 0; e < m.pts.length; e++) { var A = m.pts[e], B = m.pts[(e + 1) % m.pts.length], hz = Math.abs(A[1] - B[1]) < 1, vt = Math.abs(A[0] - B[0]) < 1; if (!hz && !vt) continue;
+            for (var f = 0; f < b.pts.length; f++) { var C = b.pts[f], E = b.pts[(f + 1) % b.pts.length]; if (hz ? Math.abs(C[1] - E[1]) >= 1 : Math.abs(C[0] - E[0]) >= 1) continue; if (Math.abs(hz ? C[1] - A[1] : C[0] - A[0]) > tolS * 1.6) continue;
+              var lo = Math.max(Math.min(hz ? A[0] : A[1], hz ? B[0] : B[1]), Math.min(hz ? C[0] : C[1], hz ? E[0] : E[1])), hi = Math.min(Math.max(hz ? A[0] : A[1], hz ? B[0] : B[1]), Math.max(hz ? C[0] : C[1], hz ? E[0] : E[1])); if ((hi - lo) * p.mmpp < 600) continue;
+              var cc = hz ? (A[1] + C[1]) / 2 : (A[0] + C[0]) / 2, cov = 0; W0.concat(DX, p.문 || []).forEach(function (w) { var wh = Math.abs(w.y2 - w.y1) < Math.abs(w.x2 - w.x1); if (wh !== hz) return; if (Math.abs((hz ? (w.y1 + w.y2) / 2 : (w.x1 + w.x2) / 2) - cc) > tolS * 1.6) return; var a = Math.max(lo, Math.min(hz ? w.x1 : w.y1, hz ? w.x2 : w.y2)), bb = Math.min(hi, Math.max(hz ? w.x1 : w.y1, hz ? w.x2 : w.y2)); if (bb > a) cov += bb - a; });
+              if (cov >= (hi - lo) * 0.3) continue; var bc = centroid(b.pts);
+              if ((hi - lo) * p.mmpp >= 1000) W0.push(hz ? { x1: lo + mg, y1: cc, x2: hi - mg, y2: cc, 종류: '분합창', w_m: Math.round((hi - lo - 2 * mg) * p.mmpp / 10) / 100, h_mm: 2300, 안: '', inner: true } : { x1: cc, y1: lo + mg, x2: cc, y2: hi - mg, 종류: '분합창', w_m: Math.round((hi - lo - 2 * mg) * p.mmpp / 10) / 100, h_mm: 2300, 안: '', inner: true });
+              else DX.push(hz ? { x1: lo, y1: cc, x2: hi, y2: cc, cx: bc[0], cy: bc[1] } : { x1: cc, y1: lo, x2: cc, y2: hi, cx: bc[0], cy: bc[1] }); } } }); });
+      p = Object.assign({}, p, { 창: W0, 문: (p.문 || []).concat(DX) }); }
+    (p.창 || []).forEach(function (w) { sh.push({ t: 'win', c: '#1d5fd0', x1: Math.round(w.x1), y1: Math.round(w.y1), x2: Math.round(w.x2), y2: Math.round(w.y2), h: w.h_mm || 1200, name: (w.종류 || '창') + (w.안 ? ' ' + w.안 : ''), auto: true, inner: !!w.inner }); });
     // 문: 열리는 쪽은 학습 인식기가 본 문 네모의 가운데 쪽. 문짝 끝이 방 안에 들어오는 쪽·경첩 자리를 고른다(집 밖이나 벽 속으로 열리지 않게).
     // 2026-11-12 대표 지적 「안방에도 문이 있을 텐데 안 그렸다」: 학습 인식기가 못 찾은 문은 비워 두지 않는다 — 방·욕실·드레스룸에 문이 하나도 없으면,
     //   거실·주방·복도와 맞닿은 가장 긴 벽(문 폭보다 길 때)의 한쪽 끝에 표준 문을 하나 놓는다(네이버 평면처럼 방마다 문 하나).
@@ -97,7 +112,12 @@
     var inRoom = function (x, y) { return sh.some(function (q) { return q.t === 'room' && inPoly([x, y], q.pts); }); };
     (p.문 || []).forEach(function (w) { var x1 = Math.round(w.x1), y1 = Math.round(w.y1), x2 = Math.round(w.x2), y2 = Math.round(w.y2), L = Math.hypot(x2 - x1, y2 - y1); if (L < 4) return;
       var ux = (x2 - x1) / L, uy = (y2 - y1) / L, side = (w.cx != null && ((w.cx - (x1 + x2) / 2) * -uy + (w.cy - (y1 + y2) / 2) * ux) < 0) ? -1 : 1, pickd = null;
-      [side, -side].some(function (sd) { return [0, 1].some(function (sw) { var hx = sw ? x2 : x1, hy = sw ? y2 : y1, tx = hx + -uy * sd * L * 0.9, ty = hy + ux * sd * L * 0.9; if (inRoom(tx, ty)) { pickd = [sd, sw]; return true; } return false; }); });
+      // 2026-11-12 대표 지시 「방문은 무조건 들어가는 공간 안으로」: 문 양쪽 공간을 보고, 방·욕실·드레스룸·발코니 쪽으로 연다(거실·주방·복도 쪽이 아니라). 현관문은 집 밖으로 연다.
+      var kAt = function (sd) { var mx = (x1 + x2) / 2 + -uy * sd * Math.max(L * 0.5, 6), my = (y1 + y2) / 2 + ux * sd * Math.max(L * 0.5, 6), k = null; sh.forEach(function (q) { if (q.t === 'room' && inPoly([mx, my], q.pts)) k = q.kind || kindOf(q.name); }); return k; };
+      var rk = function (k) { return k == null ? 0 : /^(방|욕실|드레스룸|발코니|실외기실|피트)$/.test(k) ? 2 : 1; }, kP = kAt(1), kM = kAt(-1), forced = 0;
+      if ((kP == null && kM === '현관') || (kM == null && kP === '현관')) { pickd = [kP == null ? 1 : -1, 0]; forced = 2; }
+      else if (rk(kP) !== rk(kM)) { side = rk(kP) > rk(kM) ? 1 : -1; forced = 1; }
+      if (!pickd) [side].concat(forced ? [] : [-side]).some(function (sd) { return [0, 1].some(function (sw) { var hx = sw ? x2 : x1, hy = sw ? y2 : y1, tx = hx + -uy * sd * L * 0.9, ty = hy + ux * sd * L * 0.9; if (inRoom(tx, ty)) { pickd = [sd, sw]; return true; } return false; }); }); if (!pickd && forced === 1) pickd = [side, 0];
       if (!pickd) return;   // 어느 쪽으로 열어도 방 안에 안 들어가는 문은 잘못 찾은 것(집 밖·계단실) — 버린다
       // 2026-11-12 대표 지적 「문 크기가 제각각」: 학습 인식기가 본 문 네모는 크기가 들쭉날쭉하다 → 가운데 자리만 쓰고 폭은 표준 문 폭으로(욕실 750 · 현관 1,000 · 그 밖 900mm)
       if (p.mmpp > 0) { var hx2 = pickd[1] ? x2 : x1, hy2 = pickd[1] ? y2 : y1, tx2 = hx2 + -uy * pickd[0] * L * 0.5, ty2 = hy2 + ux * pickd[0] * L * 0.5, rk2 = '';
@@ -886,7 +906,7 @@
     shapes.forEach(function (q) { if (q.t === 'wk' && q.f === 'p' && ok(q)) { var r = u * 0.62; OBS.push([q.x - r, q.y - r, q.x + r, q.y + r]); } });
     shapes.forEach(function (q, i) { if (q.t === 'wk' && q.f === 'a' && ok(q)) drawOne(g, q, u, N.show[i] ? N.nos[i] : 0, ord[i]); });
     var late = function (q) { return q.t === 'win' || q.t === 'door'; };   // 창·문은 벽을 다 그린 다음에 — 벽에 묻히지 않게
-    [false, true].forEach(function (ph) { shapes.forEach(function (q, i) { if (q.t === 'wk' || !ok(q) || late(q) !== ph) return; if (q.t === 'win' && q.auto && bgOn && baseOk && base && base.그림 && (noSel || shapes.indexOf(q) !== sel)) return;   /* 샷시·창은 원본을 따라 그린 바탕 그대로(대표 지시 2026-11-12) */ if (bgOn && (q.t === 'room' || q.t === 'win') && (noSel || i !== sel)) return; if (sheetMode && (q.t === 'scale')) return; drawOne(g, q, u); }); });
+    [false, true].forEach(function (ph) { shapes.forEach(function (q, i) { if (q.t === 'wk' || !ok(q) || late(q) !== ph) return; if (q.t === 'win' && q.auto && !q.inner && bgOn && baseOk && base && base.그림 && (noSel || shapes.indexOf(q) !== sel)) return;   /* 샷시·창은 원본을 따라 그린 바탕 그대로(대표 지시 2026-11-12) */ if (bgOn && (q.t === 'room' || q.t === 'win') && (noSel || i !== sel)) return; if (sheetMode && (q.t === 'scale')) return; drawOne(g, q, u); }); });
     shapes.forEach(function (q, i) { if (q.t === 'wk' && q.f === 'l' && ok(q)) drawOne(g, q, u, N.show[i] ? N.nos[i] : 0, ord[i]); });
     shapes.forEach(function (q, i) { if (q.t === 'wk' && q.f === 'p' && ok(q)) drawOne(g, q, u, N.show[i] ? N.nos[i] : 0); });
   }

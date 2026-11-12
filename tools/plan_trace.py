@@ -41,6 +41,11 @@ def trace(path, plan):
         w_,h_,a_=sw[j,2],sw[j,3],sw[j,4]
         if max(w_,h_)*mm<1200 and a_<w_*h_*0.55: kw[j]=False   # 굵은 글자
     wall=kw[lw]
+    # 욕실 안 지저분한 것 정리(대표 지적 2026-11-12): 욕실 칸 안쪽(벽에서 조금 떨어진 곳)의 검은 덩어리는 기구 그림이다 — 지운다
+    for r in rooms:
+        if r.get('kind')!='욕실': continue
+        m=np.zeros((H,W),np.uint8); cv2.fillPoly(m,[np.array(r['pts'],np.int32)],1); m=cv2.erode(m,np.ones((7,7),np.uint8))>0
+        wall&=~m
     thin=(v<175)&(s<70)&~cv2.dilate(wall.astype(np.uint8),np.ones((3,3),np.uint8)).astype(bool)&house
     n,lab,st,_=cv2.connectedComponentsWithStats(thin.astype(np.uint8),connectivity=8); keep=np.zeros(n,bool)
     for j in range(1,n):
@@ -72,9 +77,13 @@ def trace(path, plan):
             elif kind in('방','드레스룸') and Lm>=1200 and 400<=Sm<=850 and Lm/Sm>=1.6: objs.append(dict(box,k='붙박이장'))
     # 샷시·창: 벽 띠 안(벽에서 8화소 이내)에 놓인 가로·세로 직선 가운데 400mm 넘는 것
     band=cv2.dilate(wall.astype(np.uint8),np.ones((17,17),np.uint8))>0
-    win=[]
+    win=[]; bathmask=np.zeros((H,W),bool)
+    for r in rooms:
+        if r.get('kind')=='욕실':
+            mb=np.zeros((H,W),np.uint8); cv2.fillPoly(mb,[np.array(r['pts'],np.int32)],1); bathmask|=cv2.erode(mb,np.ones((5,5),np.uint8))>0
     for t,c,a,b in segs(thin&band,400/mm):
         if t=='h': pts=band[int(c),int(a):int(b)+1]
         else: pts=band[int(a):int(b)+1,int(c)]
+        if bathmask[int((c if t=='h' else (a+b)/2)), int(((a+b)/2) if t=='h' else c)]: continue
         if pts.mean()>0.9: win.append([t,float(c),int(a),int(b)])
     return {'벽':rect_path(wall,1.0),'칸':cells,'창선':win,'기구':objs}
