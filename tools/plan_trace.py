@@ -220,6 +220,163 @@ def wall_path_from_segs(wseg, sash, doors, mm):
         else: out.append('M%.1f %.1fH%.1fV%.1fH%.1fZ'%(c-h,a-0.6,c+h,b+0.6,c-h))   # 이음매 실선이 안 보이게 0.6화소만 겹침
     return ''.join(out)
 
+# ── 사선벽(2026-11-12 대표 지적 「테라스 대각선 미인식」): 벽선은 가로·세로만 담는다 → 가로·세로 벽으로 설명되지 않는
+#   검은 벽 덩어리 중 비스듬하고 길쭉한 것(최소 둘레 네모가 15~75도, 1m 넘게, 두께 400mm 아래)을 [x1,y1,x2,y2,두께mm] 로 남긴다
+def diag_walls(wall, wseg, mm, bld=None):
+    H,W=wall.shape; cov=np.zeros((H,W),np.uint8)
+    for ax,a,b,c,t in wseg:
+        h=t/mm/2.0+2
+        if ax=='h': cv2.rectangle(cov,(int(a)-2,int(c-h)),(int(b)+2,int(c+h)),1,-1)
+        else: cv2.rectangle(cov,(int(c-h),int(a)-2),(int(c+h),int(b)+2),1,-1)
+    res=(wall&~(cov>0)).astype(np.uint8)
+    if bld is not None: res&=bld.astype(np.uint8)
+    res=cv2.morphologyEx(res,cv2.MORPH_OPEN,np.ones((3,3),np.uint8))
+    n,lab,st,_=cv2.connectedComponentsWithStats(res,connectivity=8); out=[]
+    for j in range(1,n):
+        if st[j,4]<20: continue
+        ys,xs=np.where(lab==j); pts=np.stack([xs,ys],1).astype(np.float32)
+        (cx,cy),(rw,rh),ang=cv2.minAreaRect(pts)
+        L,T=(rw,rh) if rw>=rh else (rh,rw)
+        if L*mm<1000 or T*mm>400 or T<2: continue
+        a=ang if rw>=rh else ang+90   # 긴 쪽 방향
+        a=((a%180)+180)%180
+        if min(abs(a-0),abs(a-90),abs(a-180))<15: continue   # 가로·세로는 벽선이 맡는다
+        if st[j,4] < L*T*0.55: continue                     # 속이 빈 것(글자·기호)은 버린다
+        r=np.deg2rad(a); dx,dy=np.cos(r)*L/2,np.sin(r)*L/2
+        tm=250 if T*mm>=170 else 200 if T*mm>=110 else 120
+        out.append([round(cx-dx,1),round(cy-dy,1),round(cx+dx,1),round(cy+dy,1),tm])
+    return out
+
+# ── 사선창: 가는 선 두 줄이 비스듬히 나란히(간격 3~15화소), 양 끝이 벽에 닿음 — 실외기실·테라스의 비스듬한 창
+def diag_windows(img, mm):
+    hsv=cv2.cvtColor(img,cv2.COLOR_BGR2HSV); v=hsv[:,:,2].astype(int); sat=hsv[:,:,1].astype(int)
+    dark=v<110; wall=cv2.morphologyEx(dark.astype(np.uint8),cv2.MORPH_OPEN,np.ones((4,4),np.uint8))>0
+    thin=((dark|((v<200)&(sat<45)))&~wall).astype(np.uint8)*255
+    L=cv2.HoughLinesP(thin,1,np.pi/360,threshold=max(10,int(500/mm)),minLineLength=int(800/mm),maxLineGap=4)
+    if L is None: return []
+    segs=[]
+    for x1,y1,x2,y2 in L.reshape(-1,4):
+        a=np.degrees(np.arctan2(y2-y1,x2-x1))%180
+        if min(a,abs(a-90),180-a)<15: continue
+        segs.append((x1,y1,x2,y2,a))
+    out=[]; tb=thin>0
+    def hit(px,py):
+        x,y=int(round(px)),int(round(py)); return 0<=x<tb.shape[1] and 0<=y<tb.shape[0] and tb[max(0,y-1):y+2,max(0,x-1):x+2].any()
+    for (x1,y1,x2,y2,a) in segs:
+        dx,dy=x2-x1,y2-y1; Ln=np.hypot(dx,dy) or 1; ux,uy=dx/Ln,dy/Ln; nx,ny=-uy,ux
+        ts=np.linspace(0,Ln,max(8,int(Ln/2)))
+        best=None
+        for sgn in (1,-1):   # 같은 쪽으로 3~15화소 떨어진 나란한 선(창 띠의 다른 쪽 틀)
+            for off in range(3,16):
+                f=np.mean([hit(x1+ux*t+nx*off*sgn,y1+uy*t+ny*off*sgn) for t in ts])
+                if f>=0.6 and (best is None or off>best[0]): best=(off,sgn)
+        if not best: continue
+        off,sgn=best; cx0,cy0=x1+nx*off*sgn/2,y1+ny*off*sgn/2; p0=(cx0,cy0); p1=(cx0+dx,cy0+dy)
+        def touch(p):
+            x,y=int(p[0]),int(p[1]); b=wall[max(0,y-9):y+10,max(0,x-9):x+10]; return b.size and b.mean()>0.05
+        if not(touch(p0) and touch(p1)) or Ln*mm<600: continue
+        if any(np.hypot(o[0]-p0[0],o[1]-p0[1])<12 and np.hypot(o[2]-p1[0],o[3]-p1[1])<12 for o in out): continue
+        out.append([round(float(p0[0]),1),round(float(p0[1]),1),round(float(p1[0]),1),round(float(p1[1]),1),int(round(off*mm))])
+    return out
+
+# ── 모서리 잇기(2026-11-12 대표 지시 「조금씩 문제 있는 것 싹 다 분석」 — 205TEA·157 모서리 네모 구멍): 짧은 벽 조각을 버리며
+#   벽 끝이 직각으로 만나는 벽 바로 앞에서 멈춘 곳이 있다 → 끝에서 (상대 벽 두께/2 + 8화소) 안에 직각 벽이 지나가면 그 벽 바깥면까지만 늘린다(지나쳐 혹을 만들지 않음)
+def snap_corners(wseg, mm):
+    W=[list(w) for w in wseg]
+    for w in W:
+        ax,a,b,c,t=w
+        for e in (0,1):
+            p=w[1+e]; best=None
+            for u in W:
+                if u[0]==ax: continue
+                hu=u[4]/mm/2.0; hw=t/mm/2.0
+                if not(u[1]-hw-2<=c<=u[2]+hw+2): continue        # 직각 벽이 이 줄을 지나야 한다
+                far=u[3]+hu if e==1 else u[3]-hu                  # 넘어설 수 있는 끝 = 상대 벽 바깥면
+                near=u[3]-hu if e==1 else u[3]+hu
+                gap=(near-p) if e==1 else (p-near)
+                if -0.5<gap<=max(8,350.0/mm) and ((far>p) if e==1 else (far<p)):
+                    if best is None or abs(gap)<abs(best[0]): best=(gap,far)
+            if best: w[1+e]=round(float(best[1]),1)
+    return W
+
+# ── 창 자리 잇기(2026-11-12 대표 지적 「창문 쪽 외벽 끊김」 111평형, 「발코니 내부창 유실」 81평형)
+#   원인: 창은 「가는 선 두 줄 사이가 밝은 띠」만 찾았다 → ① 검은 벽선에 흰 창틀 상자가 붙은 옛 양식(발코니 안쪽 창)은 한쪽 선이 벽으로 분류돼 못 찾고
+#         ② 찾은 창도 창틀 두께(4~6화소)로만 남아 벽(250mm) 사이에 가는 선만 보여 외벽이 끊겨 보였다.
+#   고침: 같은 줄(가로·세로, 중심선 ±3화소) 벽선 둘 사이 틈마다 — 문 자리가 아니고, 한쪽이 건물 밖이나 발코니이고, 틈을 따라 선(창틀)이 이어지면 창으로 본다.
+#         모든 창은 양옆 벽의 중심선·두께에 맞추고 벽 끝에 딱 붙인다 → 외곽선이 끊기지 않는다.
+def close_openings(img, wseg, sash, doors, rooms, mm, H, W):
+    hsv=cv2.cvtColor(img,cv2.COLOR_BGR2HSV); v=hsv[:,:,2].astype(int); s=hsv[:,:,1].astype(int)
+    ln=(v<110)|((v<215)&(s<60))
+    out=outside_mask(rooms,wseg,sash,doors,mm,H,W)
+    kind=lambda x,y: next((r.get('kind') for r in rooms if len(r['pts'])>=3 and _inpoly(x,y,r['pts'])),None)
+    def side(x,y):
+        if not(0<=int(x)<W and 0<=int(y)<H) or out[int(y),int(x)]: return '밖'
+        return kind(x,y)
+    def door_in(ax,c,a,b):
+        for d in doors:
+            if ax=='h' and abs(d['y1']-d['y2'])<=3 and abs(d['y1']-c)<=10 and min(b,max(d['x1'],d['x2']))-max(a,min(d['x1'],d['x2']))>(b-a)*0.3: return True
+            if ax=='v' and abs(d['x1']-d['x2'])<=3 and abs(d['x1']-c)<=10 and min(b,max(d['y1'],d['y2']))-max(a,min(d['y1'],d['y2']))>(b-a)*0.3: return True
+        return False
+    def sash_span(q): return ('h',q[1],q[3],(q[2]+q[4])/2.0) if q[0]=='h' else ('v',q[2],q[4],(q[1]+q[3])/2.0)
+    # 같은 줄 벽선 묶기
+    lines=[]
+    for w in sorted(wseg,key=lambda w:(w[0],w[3])):
+        for L in lines:
+            if L['ax']==w[0] and abs(L['c']-w[3])<=3: L['s'].append(w); break
+        else: lines.append({'ax':w[0],'c':w[3],'s':[w]})
+    # 같은 줄 벽 끝뿐 아니라 이 줄을 가로지르는(또는 끝이 닿는) 직각 벽도 틈의 끝이 된다 — 모서리와 벽 사이의 창(93 외벽 창 등)
+    for L in lines:
+        hw=min(w[4] for w in L['s'])/mm/2.0
+        for u in wseg:
+            if u[0]==L['ax']: continue
+            hu=u[4]/mm/2.0
+            if u[1]-hw-3<=L['c']<=u[2]+hw+3: L['s'].append([L['ax'],u[3]-hu,u[3]+hu,L['c'],L['s'][0][4],'직각'])
+    used=[False]*len(sash); res=[]
+    for L in lines:
+        ss=sorted(L['s'],key=lambda w:w[1])
+        pairs=[]; cur=None   # 앞에서부터 덮인 끝을 이어 가며 틈만 뽑는다(겹친 조각 사이 가짜 틈 방지)
+        for w in ss:
+            if cur is not None and w[1]>cur[2]: pairs.append((cur,w))
+            if cur is None or w[2]>cur[2]: cur=w
+        for w1,w2 in pairs:
+            a,b=w1[2],w2[1]
+            if b-a<3 or (len(w1)>5 and len(w2)>5): continue   # 직각 벽 둘 사이(이 줄에 벽이 하나도 없는 곳)는 보지 않는다
+            ax=L['ax']; c=L['c']; t=min(w1[4],w2[4]); h=t/mm/2.0
+            hit=[i for i,q in enumerate(sash) if sash_span(q)[0]==ax and abs(sash_span(q)[3]-c)<=12 and min(b,sash_span(q)[2])-max(a,sash_span(q)[1])>0]
+            if not hit:
+                if (b-a)*mm<500 or (b-a)*mm>16000 or door_in(ax,c,a,b): continue
+                m=(a+b)/2.0; o=h+600.0/mm
+                A,B=(side(m,c-o),side(m,c+o)) if ax=='h' else (side(c-o,m),side(c+o,m))
+                if not({A,B}&{'밖','발코니'}) or A==B: continue
+                band=ln[int(c-h)-2:int(c+h)+3,int(a)+1:int(b)] if ax=='h' else ln[int(a)+1:int(b),int(c-h)-2:int(c+h)+3].T
+                if band.size==0 or band.any(0).mean()<0.75: continue
+            if not hit: res.append([ax,a,b,c,h]); continue
+            tol=450.0/mm   # 찾은 창 끝이 벽 끝에서 이만큼 안이면 벽 끝까지 붙인다(그보다 멀면 창은 제자리 — 틈 전체를 창으로 늘리지 않는다)
+            for i in hit:
+                used[i]=True; _,qa,qb,_c=sash_span(sash[i])
+                lo=a if qa-a<=tol else max(a,qa); hi=b if b-qb<=tol else min(b,qb)
+                if hi-lo>2: res.append([ax,lo,hi,c,h])
+    for i,q in enumerate(sash):   # 같은 줄 벽 사이가 아닌 창은 가까운 벽 두께로만 맞춘다
+        if used[i]: continue
+        ax,a,b,c=sash_span(q); n=None
+        for w in wseg:
+            if w[0]==ax and abs(w[3]-c)<=12 and min(b,w[2])-max(a,w[1])>-12 and (n is None or abs(w[3]-c)<abs(n[3]-c)): n=w
+        res.append([ax,a,b,n[3] if n else c,(n[4] if n else 200)/mm/2.0])
+    outq=[]
+    for ax,a,b,c,h in res:
+        if ax=='h': outq.append(['h',int(round(a)),int(round(c-h)),int(round(b)),int(round(c+h))])
+        else: outq.append(['v',int(round(c-h)),int(round(a)),int(round(c+h)),int(round(b))])
+    return outq
+
+# 욕실 안 기구 지우기(2026-11-12 원인 확인 — 101평형 욕실 윗벽·피트 벽이 사라짐): 방 다각형(누리집 방 읽기)이 벽을 넘어 그려진 평면이 있어
+#   「욕실 칸 안쪽 화소를 통째로 지우기」가 벽까지 지웠다 → 덩어리 단위로, 거의 전부(80%) 욕실 안에 있는 덩어리(기구 그림)만 지운다
+def drop_inside(mask, m):
+    n,lab,st,_=cv2.connectedComponentsWithStats(mask.astype(np.uint8),connectivity=8)
+    if n<=1: return mask
+    tot=np.bincount(lab.ravel(),minlength=n); ins=np.bincount(lab[m].ravel(),minlength=n)
+    keep=ins<tot*0.8; keep[0]=False
+    return keep[lab]
+
 def trace(path, plan):
     bgr=cv2.imread(path); H,W=bgr.shape[:2]; mm=plan.get('mmpp') or 23.0
     hsv=cv2.cvtColor(bgr,cv2.COLOR_BGR2HSV); v=hsv[...,2].astype(int); s=hsv[...,1].astype(int)
@@ -257,7 +414,7 @@ def trace(path, plan):
     for r in rooms:
         if r.get('kind')!='욕실': continue
         m=np.zeros((H,W),np.uint8); cv2.fillPoly(m,[np.array(r['pts'],np.int32)],1); m=cv2.erode(m,np.ones((9,9),np.uint8))>0
-        ink&=~m
+        ink=drop_inside(ink,m)
     # 방 한가운데 떠 있는 작은 덩어리(방 이름·면적 글자)는 뺀다 — 벽에 닿은 선(문·창·붙박이장)은 남는다
     inner=np.zeros((H,W),np.uint8)
     for r in rooms: cv2.fillPoly(inner,[np.array(r['pts'],np.int32)],1)
@@ -279,7 +436,7 @@ def trace(path, plan):
     for r in rooms:
         if r.get('kind')!='욕실': continue
         m=np.zeros((H,W),np.uint8); cv2.fillPoly(m,[np.array(r['pts'],np.int32)],1); m=cv2.erode(m,np.ones((7,7),np.uint8))>0
-        wall&=~m
+        wall=drop_inside(wall,m)
     thin=(v<175)&(s<70)&~cv2.dilate(wall.astype(np.uint8),np.ones((3,3),np.uint8)).astype(bool)&house
     n,lab,st,_=cv2.connectedComponentsWithStats(thin.astype(np.uint8),connectivity=8); keep=np.zeros(n,bool)
     for j in range(1,n):
@@ -485,10 +642,16 @@ def trace(path, plan):
     doors=[d_ for d_ in doors if not inK(min(d_['x1'],d_['x2'],d_['cx']),min(d_['y1'],d_['y2'],d_['cy']),max(d_['x1'],d_['x2'],d_['cx']),max(d_['y1'],d_['y2'],d_['cy']))]
     # 2026-11-12 대표 지시(10:45) 「네이버 평면도의 검정선만 따서 반영, 나머지는 집지니식」: 벽 그림은 원본 검정 굵은 선 그대로(다듬지 않음). cw는 공용부·승강기 찾기에만 쓴다: 굵은 벽 전부(문·샷시 자리는 메움), 가는 선·문·샷시 기호는 없음
     _ = clean_walls(wall, mm); wseg=[[a_, round(float(p0),1), round(float(p1),1), round(float(c_),1), int(t_)] for a_,p0,p1,c_,t_ in clean_walls.segs]   # 캐드용 벽선(문·창 자리는 비움)
+    wseg=snap_corners(wseg,mm)
     _w = clean_walls(w2, mm)
     wins=window_strips(bgr,mm,doors,rooms)
     sash_out=[[t,int(a_),int(round(c0)),int(b_),int(round(c1))] if t=='h' else [t,int(round(c0)),int(a_),int(round(c1)),int(b_)] for t,a_,b_,c0,c1 in wins]
     sash_out=[q for q in sash_out if not inK(q[1],q[2],q[3],q[4])]
     doors=safe_doors(doors,rooms,wseg,sash_out,mm,H,W)   # 건물 밖으로 난 문(창을 문으로 잘못 읽은 것 포함)은 그리지 않는다 — 안전   # 주방 샷시는 그리지 않는다(대표 지시 2026-11-12 「주방 … 샷시 모두 삭제」)
+    sash_out=close_openings(bgr,wseg,sash_out,doors,rooms,mm,H,W)   # 창을 벽 사이에 딱 맞추고, 못 찾은 창(발코니 안쪽 창 등)을 틈에서 찾는다
     _wall_d=wall_path_from_segs(wseg,sash_out,doors,mm)
-    return {'벽선':wseg,'샷시':sash_out,'문':doors,'공용칸':publab,'EV':ev,'틀':[int(bx),int(by),int(bx+bw0),int(by+bh0)],'공용':pubd,'벽':_wall_d,'벽채움':'nonzero','칸':cells,'창선':win,'기구':objs}
+    try: _diag=diag_walls(wall,wseg,mm,bld)
+    except Exception: _diag=[]
+    try: _dwin=diag_windows(bgr,mm)
+    except Exception: _dwin=[]
+    return {'벽선':wseg,'샷시':sash_out,'문':doors,'공용칸':publab,'EV':ev,'틀':[int(bx),int(by),int(bx+bw0),int(by+bh0)],'공용':pubd,'벽':_wall_d,'벽채움':'nonzero','사선벽':_diag,'사선창':_dwin,'칸':cells,'창선':win,'기구':objs}
