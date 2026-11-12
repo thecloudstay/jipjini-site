@@ -86,6 +86,76 @@ def clean_walls(wall, mm):
         x,y,w_,h_,a_=st[j]
         if a_>=(JJ_WALL_MM/mm)**2*0.8 and min(w_,h_)>=JJ_WALL_MM/mm*0.6 and a_>=w_*h_*0.5: cv2.rectangle(canvas,(int(x),int(y)),(int(x+w_-1),int(y+h_-1)),1,-1)
     return canvas>0
+
+# ── 창(샷시) 찾기 2026-11-12 3판 — 대표 지적 「안쪽 파란 줄 상자」 원인 분석 뒤 새로 짬(tools/naver_rules.md 「창」)
+#   예전 방식(벽 틈 = 창, 2.6m 까지)은 ① 방-발코니 사이 긴 창(3~4m)을 놓치고 ② 방 사이 문·칸막이 틈을 창으로 잡았다.
+#   네이버 창 기호 그대로 찾는다: 벽 줄 안의 띠(깊이 4~15화소), 위아래 가는 선 두 줄이 나란히, 사이에 검정이 없고 밝음이 30% 넘음,
+#   양 끝이 검은 벽에 닿음, 600mm 넘음, 문 자리 아님, 방 한가운데(욕조 테두리·가구) 아님, 한쪽은 집 안·다른 쪽은 바깥이나 발코니.
+#   창틀선은 옛 양식은 검정 1화소(바닥색 번짐으로 채도가 높게 읽힘), 새 양식은 옅은 회색 — 둘 다 받는다.
+def runs(row, gapfill, minlen):
+    r=row.astype(np.uint8)
+    if gapfill>0: r=cv2.morphologyEx(r.reshape(1,-1),cv2.MORPH_CLOSE,np.ones((1,gapfill),np.uint8)).ravel()
+    d=np.diff(np.concatenate([[0],r,[0]])); st=np.where(d==1)[0]; en=np.where(d==-1)[0]
+    return [(a,b) for a,b in zip(st,en) if b-a>=minlen]
+def strips_h(v, mm, wall, thin):
+    H,W=v.shape; T=thin.copy(); T[1:]|=thin[:-1]   # 반 화소 어긋남 허용
+    light=(v>200).astype(np.int32); cs=np.vstack([np.zeros((1,W),np.int32),np.cumsum(light,0)])
+    blk=(v<100).astype(np.int32); cb=np.vstack([np.zeros((1,W),np.int32),np.cumsum(blk,0)])
+    minlen=max(12,int(400/mm)); cand=[]
+    for d in range(4,16):
+        top=T[:-d]; bot=T[d:]
+        n=max(1,d-3)
+        frac=(cs[d-1:H][:H-d]-cs[2:H-d+2])/n     # 두 선 사이(y1+2 … y1+d-2) 밝은 비율 — 가운데 선이 있는 좁은 띠는 1/3 쯤
+        blkf=(cb[d-1:H][:H-d]-cb[2:H-d+2])/n     # 두 선 사이 검정 비율 — 벽 속이면 높다
+        M=top&bot&(frac>=0.3)&(blkf<=0.4)
+        ys=np.where(M.sum(1)>=minlen)[0]
+        for y in ys:
+            for a,b in runs(M[y],6,minlen): cand.append([int(y),int(y+d),int(a),int(b)])
+    # 같은 자리 겹친 것 → 가장 긴 것
+    cand.sort(key=lambda q:-(q[3]-q[2])); keep=[]
+    for q in cand:
+        if any(abs(q[0]-k[0])<=6 and q[2]<k[3] and q[3]>k[2] for k in keep): continue
+        keep.append(q)
+    def touch(p,y0,y1):
+        box=wall[max(0,y0-3):y1+4, max(0,p-8):p+9]; return box.size and box.mean()>0.08
+    return [q for q in keep if touch(q[2],q[0],q[1]) and touch(q[3],q[0],q[1])]
+def window_strips(img, mm, doors=None, rooms=None):
+    hsv=cv2.cvtColor(img,cv2.COLOR_BGR2HSV); v=hsv[:,:,2].astype(int); sat=hsv[:,:,1].astype(int)
+    dark=v<110; wall=cv2.morphologyEx(dark.astype(np.uint8),cv2.MORPH_OPEN,np.ones((4,4),np.uint8))>0
+    thin=(dark|((v<200)&(sat<45)))&~wall   # 검은 창틀선(옛 양식) + 옅은 회색 창틀선(새 양식) — 바닥 나뭇결은 채도가 높아 빠진다
+    out=[['h',a,b,y0,y1] for y0,y1,a,b in strips_h(v,mm,wall,thin)]
+    out+=[['v',a,b,x0,x1] for x0,x1,a,b in strips_h(v.T.copy(),mm,wall.T.copy(),thin.T.copy())]
+    def on_door(t,a,b,c0,c1):
+        for dd in doors or []:
+            xs=sorted([dd['x1'],dd['x2'],dd['cx']]); ys=sorted([dd['y1'],dd['y2'],dd['cy']])
+            X0,X1,Y0,Y1=(a,b,c0,c1) if t=='h' else (c0,c1,a,b)
+            if X0<xs[2]-2 and X1>xs[0]+2 and Y0<ys[2]+3 and Y1>ys[0]-3: return True
+        return False
+    def side(x,y):
+        for r in rooms or []:
+            P=r['pts']; c=False
+            for i in range(len(P)):
+                (x1,y1),(x2,y2)=P[i],P[(i+1)%len(P)]
+                if (y1>y)!=(y2>y) and x<(x2-x1)*(y-y1)/((y2-y1) or 1e-9)+x1: c=not c
+            if c: return r.get('kind') or '?'
+        return None
+    def deep(x,y):
+        for r in rooms or []:
+            P=np.array(r['pts'],np.float32).reshape(-1,1,2)
+            if len(P)>=3 and cv2.pointPolygonTest(P,(float(x),float(y)),True)>max(8,250.0/mm): return True
+        return False
+    off=600.0/mm; keep=[]
+    for q in out:
+        t,a,b,c0,c1=q
+        if (b-a)*mm<600 or on_door(*q): continue
+        m=(a+b)/2.0; cx,cy=(m,(c0+c1)/2.0) if t=='h' else ((c0+c1)/2.0,m)
+        if deep(cx,cy): continue   # 방 한가운데 쪽(경계에서 멀리) = 욕조 테두리·가구
+        A,B=(side(m,c0-off),side(m,c1+off)) if t=='h' else (side(c0-off,m),side(c1+off,m))
+        # 한쪽은 집 안 공간, 다른 쪽은 바깥이나 발코니(발코니끼리·방끼리·둘 다 바깥은 창이 아니다)
+        inside=lambda k: k is not None and k!='발코니'
+        if (inside(A) and (B is None or B=='발코니')) or (inside(B) and (A is None or A=='발코니')) or (A=='발코니' and B is None) or (B=='발코니' and A is None): keep.append(q)
+    return keep
+
 def trace(path, plan):
     bgr=cv2.imread(path); H,W=bgr.shape[:2]; mm=plan.get('mmpp') or 23.0
     hsv=cv2.cvtColor(bgr,cv2.COLOR_BGR2HSV); v=hsv[...,2].astype(int); s=hsv[...,1].astype(int)
@@ -345,4 +415,7 @@ def trace(path, plan):
     # 2026-11-12 대표 지시(10:45) 「네이버 평면도의 검정선만 따서 반영, 나머지는 집지니식」: 벽 그림은 원본 검정 굵은 선 그대로(다듬지 않음). cw는 공용부·승강기 찾기에만 쓴다: 굵은 벽 전부(문·샷시 자리는 메움), 가는 선·문·샷시 기호는 없음
     _ = clean_walls(wall, mm); wseg=[[a_, round(float(p0),1), round(float(p1),1), round(float(c_),1), int(t_)] for a_,p0,p1,c_,t_ in clean_walls.segs]   # 캐드용 벽선(문·창 자리는 비움)
     _w = clean_walls(w2, mm)
-    return {'벽선':wseg,'샷시':sash,'문':doors,'공용칸':publab,'EV':ev,'틀':[int(bx),int(by),int(bx+bw0),int(by+bh0)],'공용':pubd,'벽':rect_path(_w,0.8),'칸':cells,'창선':win,'기구':objs}
+    wins=window_strips(bgr,mm,doors,rooms)
+    sash_out=[[t,int(a_),int(round(c0)),int(b_),int(round(c1))] if t=='h' else [t,int(round(c0)),int(a_),int(round(c1)),int(b_)] for t,a_,b_,c0,c1 in wins]
+    sash_out=[q for q in sash_out if not inK(q[1],q[2],q[3],q[4])]   # 주방 샷시는 그리지 않는다(대표 지시 2026-11-12 「주방 … 샷시 모두 삭제」)
+    return {'벽선':wseg,'샷시':sash_out,'문':doors,'공용칸':publab,'EV':ev,'틀':[int(bx),int(by),int(bx+bw0),int(by+bh0)],'공용':pubd,'벽':rect_path(_w,0.8),'칸':cells,'창선':win,'기구':objs}
