@@ -17,3 +17,4 @@ desktop.ini
 node_modules/
 scn_shots/
 tools/plan_scenarios/last.json
+__pycache__/
