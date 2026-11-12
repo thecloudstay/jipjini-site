@@ -101,6 +101,7 @@ def trace(path, plan):
     for j in range(1,nw):
         w_,h_,a_=sw[j,2],sw[j,3],sw[j,4]
         if max(w_,h_)*mm<1200 and a_<w_*h_*0.55: kw[j]=False   # 굵은 글자
+        if max(w_,h_)*mm<400: kw[j]=False   # 기구 그림 속 작은 검은 점
     wall=kw[lw]
     # 욕실 안 지저분한 것 정리(대표 지적 2026-11-12): 욕실 칸 안쪽(벽에서 조금 떨어진 곳)의 검은 덩어리는 기구 그림이다 — 지운다
     for r in rooms:
@@ -289,5 +290,5 @@ def trace(path, plan):
         return sub.size>0 and sub.mean()>0.5
     sash=[q for q in sash if not inK(q[1],q[2],q[3],q[4])]
     doors=[d_ for d_ in doors if not inK(min(d_['x1'],d_['x2'],d_['cx']),min(d_['y1'],d_['y2'],d_['cy']),max(d_['x1'],d_['x2'],d_['cx']),max(d_['y1'],d_['y2'],d_['cy']))]
-    # 2026-11-12 대표 지시 「아웃라인만 남긴다 — 가장 굵은 선은 내부까지 모두 남긴다」: 굵은 벽 전부(문·샷시 자리는 메움), 가는 선·문·샷시 기호는 없음
-    return {'샷시':sash,'문':doors,'공용칸':publab,'EV':ev,'틀':[int(bx),int(by),int(bx+bw0),int(by+bh0)],'공용':pubd,'벽':rect_path(cw,0.8),'칸':cells,'창선':win,'기구':objs}
+    # 2026-11-12 대표 지시(10:45) 「네이버 평면도의 검정선만 따서 반영, 나머지는 집지니식」: 벽 그림은 원본 검정 굵은 선 그대로(다듬지 않음). cw는 공용부·승강기 찾기에만 쓴다: 굵은 벽 전부(문·샷시 자리는 메움), 가는 선·문·샷시 기호는 없음
+    return {'샷시':sash,'문':doors,'공용칸':publab,'EV':ev,'틀':[int(bx),int(by),int(bx+bw0),int(by+bh0)],'공용':pubd,'벽':rect_path(wall,0.8),'칸':cells,'창선':win,'기구':objs}
