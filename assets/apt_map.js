@@ -170,7 +170,21 @@
     var K = window.kakao.maps, box = $('aptKakao'); box.hidden = false;
     if (!KMAP) {
       KMAP = new K.Map(box, { center: center || new K.LatLng(37.5, 126.95), level: level || 10 }); KMAP.setMaxLevel(11);
-      KMAP.addControl(new K.ZoomControl(), K.ControlPosition.RIGHT);
+      // 2026-11-12 대표 지시 「지도 자체를 스타일을 아예 바꿀 순 없냐」: 바탕 지도는 종이색 흑백(apt_map.css 의 .apt-kakao 그림 거름),
+      // 구역 경계는 가는 차콜 선, 도면이 열린 구역은 올리브로 옅게 칠해 「열린 곳이 번져 가는」 모습. 확대 단추도 집지니 모양으로.
+      IDX.구역.forEach(function (r) {
+        var on = r.수 && r.수[2] > 0;
+        r.경계.forEach(function (ring) {
+          new K.Polygon({ map: KMAP, path: ring.map(function (q) { return new K.LatLng(q[1], q[0]); }),
+            strokeWeight: on ? 1.6 : 1, strokeColor: on ? '#33491C' : '#2A2A2A', strokeOpacity: on ? .8 : .28,
+            fillColor: on ? '#4F6B2C' : '#F5F1E8', fillOpacity: on ? .16 : 0 });
+        });
+      });
+      var zc = document.createElement('div'); zc.className = 'kzoom';
+      zc.innerHTML = '<button type="button" aria-label="확대">+</button><button type="button" aria-label="축소">−</button>';
+      zc.children[0].onclick = function () { KMAP.setLevel(KMAP.getLevel() - 1, { animate: true }); };
+      zc.children[1].onclick = function () { KMAP.setLevel(KMAP.getLevel() + 1, { animate: true }); };
+      box.parentNode.insertBefore(zc, box);
       var lim = new K.LatLngBounds(new K.LatLng(BOX.y0, BOX.x0), new K.LatLng(BOX.y1, BOX.x1));
       K.event.addListener(KMAP, 'idle', function () {
         var c = KMAP.getCenter(); if (!lim.contain(c)) return KMAP.setCenter(new K.LatLng(Math.min(BOX.y1, Math.max(BOX.y0, c.getLat())), Math.min(BOX.x1, Math.max(BOX.x0, c.getLng()))));
