@@ -63,6 +63,19 @@
     var Wd = p.W || Math.max.apply(null, xs) + Math.min.apply(null, xs), Ht = p.H || Math.max.apply(null, ys) + Math.min.apply(null, ys);
     (p.창 || []).forEach(function (w) { sh.push({ t: 'win', c: '#1d5fd0', x1: Math.round(w.x1), y1: Math.round(w.y1), x2: Math.round(w.x2), y2: Math.round(w.y2), h: w.h_mm || 1200, name: (w.종류 || '창') + (w.안 ? ' ' + w.안 : ''), auto: true }); });
     // 문: 열리는 쪽은 학습 인식기가 본 문 네모의 가운데 쪽. 문짝 끝이 방 안에 들어오는 쪽·경첩 자리를 고른다(집 밖이나 벽 속으로 열리지 않게).
+    // 2026-11-12 대표 지적 「안방에도 문이 있을 텐데 안 그렸다」: 학습 인식기가 못 찾은 문은 비워 두지 않는다 — 방·욕실·드레스룸에 문이 하나도 없으면,
+    //   거실·주방·복도와 맞닿은 가장 긴 벽(문 폭보다 길 때)의 한쪽 끝에 표준 문을 하나 놓는다(네이버 평면처럼 방마다 문 하나).
+    if (p.mmpp > 0) { var RM = (p.rooms || []).filter(function (m) { return m.pts && m.pts.length >= 3; }), tolW = 320 / p.mmpp, D0 = (p.문 || []).slice();
+      var hasDoor = function (m) { return D0.some(function (w) { var mx = (w.x1 + w.x2) / 2, my = (w.y1 + w.y2) / 2; for (var e = 0; e < m.pts.length; e++) { var A = m.pts[e], B = m.pts[(e + 1) % m.pts.length], L2 = Math.pow(B[0] - A[0], 2) + Math.pow(B[1] - A[1], 2) || 1, t = Math.max(0, Math.min(1, ((mx - A[0]) * (B[0] - A[0]) + (my - A[1]) * (B[1] - A[1])) / L2)); if (Math.hypot(mx - A[0] - t * (B[0] - A[0]), my - A[1] - t * (B[1] - A[1])) < tolW) return true; } return false; }); };
+      RM.forEach(function (m) { var k = m.kind || kindOf(m.name); if (!/^(방|욕실|드레스룸)$/.test(k) || hasDoor(m)) return; var need = (k === '욕실' ? 750 : 900) / p.mmpp, best = null;
+        RM.forEach(function (n) { var kn = n.kind || kindOf(n.name); if (n === m || !/^(거실|주방|복도|기타|현관)$/.test(kn)) return;
+          for (var e = 0; e < m.pts.length; e++) { var A = m.pts[e], B = m.pts[(e + 1) % m.pts.length], hz = Math.abs(A[1] - B[1]) < 1, vt = Math.abs(A[0] - B[0]) < 1; if (!hz && !vt) continue;
+            for (var f = 0; f < n.pts.length; f++) { var C = n.pts[f], E = n.pts[(f + 1) % n.pts.length]; if (hz ? Math.abs(C[1] - E[1]) >= 1 : Math.abs(C[0] - E[0]) >= 1) continue; var gap = hz ? Math.abs(C[1] - A[1]) : Math.abs(C[0] - A[0]); if (gap > tolW * 1.6) continue;
+              var lo = Math.max(Math.min(hz ? A[0] : A[1], hz ? B[0] : B[1]), Math.min(hz ? C[0] : C[1], hz ? E[0] : E[1])), hi = Math.min(Math.max(hz ? A[0] : A[1], hz ? B[0] : B[1]), Math.max(hz ? C[0] : C[1], hz ? E[0] : E[1]));
+              if (hi - lo < need * 1.15 || (best && hi - lo <= best.len)) continue; var cc = hz ? (A[1] + C[1]) / 2 : (A[0] + C[0]) / 2, a0 = hi - need * 0.1 - need, ctr = centroid(m.pts);
+              best = { len: hi - lo, w: hz ? { x1: a0, y1: cc, x2: a0 + need, y2: cc, cx: a0 + need / 2, cy: ctr[1] } : { x1: cc, y1: a0, x2: cc, y2: a0 + need, cx: ctr[0], cy: a0 + need / 2 } }; } } });
+        if (best) { best.w.cx = best.w.cx; D0.push(best.w); } });
+      p = Object.assign({}, p, { 문: D0 }); }
     var inRoom = function (x, y) { return sh.some(function (q) { return q.t === 'room' && inPoly([x, y], q.pts); }); };
     (p.문 || []).forEach(function (w) { var x1 = Math.round(w.x1), y1 = Math.round(w.y1), x2 = Math.round(w.x2), y2 = Math.round(w.y2), L = Math.hypot(x2 - x1, y2 - y1); if (L < 4) return;
       var ux = (x2 - x1) / L, uy = (y2 - y1) / L, side = (w.cx != null && ((w.cx - (x1 + x2) / 2) * -uy + (w.cy - (y1 + y2) / 2) * ux) < 0) ? -1 : 1, pickd = null;
