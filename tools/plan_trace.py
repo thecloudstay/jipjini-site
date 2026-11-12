@@ -50,6 +50,17 @@ def clean_walls(wall, mm):
     ts=np.array([o[4] for o in out]); tin=np.percentile(ts,25); tex=np.percentile(ts,90)
     tin=tex=JJ_WALL_MM/mm   # 2026-11-12 대표 지시 「집지니 타입 하나로 모두 통일」: 벽 두께는 모든 평면·모든 벽 같은 값
     clean_walls.T=(tin,tex)
+    # 끝 맞추기(2026-11-12 「벽 두께가 제각각·이음이 지저분」): 원본 두께로 잡힌 끝은 표준 두께로 줄인 맞은편 벽 바깥면에 맞춘다 — 튀어나온 꼬투리 없앰
+    T0=JJ_WALL_MM/mm; hs=[o for o in out if o[0]=='h']; vs=[o for o in out if o[0]=='v']
+    def snap(A,B):
+        for o in A:
+            for k,sgn in ((1,-1),(2,1)):          # 1=시작 끝(왼/위), 2=끝(오른/아래)
+                e=o[k]; best=None
+                for q in B:
+                    if q[1]-q[4]<=o[3]<=q[2]+q[4] and abs(q[3]-e)<=max(q[4],o[4])*0.9+2:
+                        if best is None or abs(q[3]-e)<abs(best[3]-e): best=q
+                if best is not None: o[k]=best[3]+sgn*T0/2.0
+    snap(hs,vs); snap(vs,hs)
     canvas=np.zeros((H,W),np.uint8); covered=(hh>0)|(vv>0)
     for ax,a,b,c,t in out:
         T=tex if abs(t-tex)<abs(t-tin) else tin; hT=T/2.0
@@ -304,4 +315,4 @@ def trace(path, plan):
     sash=[q for q in sash if not inK(q[1],q[2],q[3],q[4])]
     doors=[d_ for d_ in doors if not inK(min(d_['x1'],d_['x2'],d_['cx']),min(d_['y1'],d_['y2'],d_['cy']),max(d_['x1'],d_['x2'],d_['cx']),max(d_['y1'],d_['y2'],d_['cy']))]
     # 2026-11-12 대표 지시(10:45) 「네이버 평면도의 검정선만 따서 반영, 나머지는 집지니식」: 벽 그림은 원본 검정 굵은 선 그대로(다듬지 않음). cw는 공용부·승강기 찾기에만 쓴다: 굵은 벽 전부(문·샷시 자리는 메움), 가는 선·문·샷시 기호는 없음
-    return {'샷시':sash,'문':doors,'공용칸':publab,'EV':ev,'틀':[int(bx),int(by),int(bx+bw0),int(by+bh0)],'공용':pubd,'벽':rect_path(wall,0.8),'칸':cells,'창선':win,'기구':objs}
+    return {'샷시':sash,'문':doors,'공용칸':publab,'EV':ev,'틀':[int(bx),int(by),int(bx+bw0),int(by+bh0)],'공용':pubd,'벽':rect_path(clean_walls(wall,mm),0.8),'칸':cells,'창선':win,'기구':objs}
