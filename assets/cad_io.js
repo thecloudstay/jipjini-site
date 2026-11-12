@@ -273,5 +273,44 @@
     var out = new Uint8Array(len), p = 0; parts.forEach(function (b) { out.set(b, p); p += b.length; }); return out;
   }
 
-  root.JJCadIO = { kindOf: kindOf, pdf: pdf, model: model, dxf: dxf, dwg: dwg, parseDXF: parseDXF, toPlan: toPlan, rasterize: rasterize, open: open, writeDXF: writeDXF, LAYERS: LAYERS, BLOCKS: BLOCKS, version: VERSION };
+  // ── 9단계: 평면도가 없는 집 — 집 모양을 골라 시작(2026-11-12 대표 지시 「평면도가 아예 없는 주택 등 고객은 본인이 직접 그려서」)
+  //   공개 평면 편집기들(react-planner·blueprint3d·FloorspaceJS)은 선을 하나씩 긋는 방식이라 초보자에게 어렵다 →
+  //   흔한 집 모양을 고르고 전용면적만 넣으면 방·벽·창이 놓인 도면이 바로 나오고, 고칠 곳만 편집기에서 고친다.
+  var STARTERS = {   // 칸: [이름, x, y, 가로, 세로] mm. 발코니는 전용면적에서 뺀다
+    원룸: [['방', 0, 0, 4500, 4200], ['주방', 0, 4200, 2700, 1800], ['욕실', 2700, 4200, 1800, 1800]],
+    투룸: [['방1', 0, 0, 3300, 3300], ['방2', 3300, 0, 3000, 3300], ['거실·주방', 0, 3300, 4500, 3300], ['욕실', 4500, 3300, 1800, 2100], ['현관', 4500, 5400, 1800, 1200]],
+    방3: [['발코니', 0, 0, 11700, 1500], ['안방', 0, 1500, 3900, 4200], ['거실', 3900, 1500, 4800, 4200], ['방2', 8700, 1500, 3000, 4200],
+      ['안방 욕실', 0, 5700, 1800, 3000], ['방3', 1800, 5700, 2100, 3000], ['주방·식당', 3900, 5700, 4800, 3000], ['욕실', 8700, 5700, 1800, 3000], ['현관', 10500, 5700, 1200, 3000]],
+    빈도면: [['공간', 0, 0, 6000, 5000]]
+  };
+  function starter(type, areaM2) {
+    var T = STARTERS[type] || STARTERS.빈도면, base = 0;
+    T.forEach(function (c) { if (kindOf(c[0]) !== '발코니') base += c[3] * c[4] / 1e6; });
+    var k = areaM2 > 5 ? Math.max(0.6, Math.min(1.7, Math.sqrt(areaM2 / base))) : 1;
+    var R = T.map(function (c) { return { name: c[0], x: c[1] * k, y: c[2] * k, w: c[3] * k, h: c[4] * k }; });
+    var mm = 20, pad = 120, X1 = 0, Y1 = 0; R.forEach(function (r) { X1 = Math.max(X1, r.x + r.w); Y1 = Math.max(Y1, r.y + r.h); });
+    var px = function (v) { return Math.round((v / mm + pad) * 10) / 10; };
+    var rooms = R.map(function (r) { var x0 = px(r.x), y0 = px(r.y), x1 = px(r.x + r.w), y1 = px(r.y + r.h);
+      return { name: r.name, kind: kindOf(r.name), area: Math.round(r.w * r.h / 1e4) / 100, w: Math.round(r.w), d: Math.round(r.h), pts: [[x0, y0], [x1, y0], [x1, y1], [x0, y1]] }; });
+    // 벽: 칸 테두리를 모아 겹친 구간을 합친다. 건물 바깥 테두리 = 외벽 250, 안쪽 = 칸막이 120
+    var E = {}; R.forEach(function (r) { [['h', r.y, r.x, r.x + r.w], ['h', r.y + r.h, r.x, r.x + r.w], ['v', r.x, r.y, r.y + r.h], ['v', r.x + r.w, r.y, r.y + r.h]].forEach(function (e) { var key = e[0] + Math.round(e[1]); (E[key] = E[key] || { ax: e[0], c: e[1], iv: [] }).iv.push([e[2], e[3]]); }); });
+    var wall = [], path = [];
+    Object.keys(E).forEach(function (key) { var o = E[key], ext = (o.ax === 'h' ? (Math.abs(o.c) < 1 || Math.abs(o.c - Y1) < 1) : (Math.abs(o.c) < 1 || Math.abs(o.c - X1) < 1)), t = ext ? 250 : 120;
+      o.iv.sort(function (a, b) { return a[0] - b[0]; }); var m = []; o.iv.forEach(function (v) { if (m.length && v[0] <= m[m.length - 1][1] + 1) m[m.length - 1][1] = Math.max(m[m.length - 1][1], v[1]); else m.push(v.slice()); });
+      m.forEach(function (v) { var a = px(v[0]), b = px(v[1]), c = px(o.c), h = t / mm / 2; wall.push([o.ax, a, b, c, t]);
+        path.push(o.ax === 'h' ? 'M' + (a - h) + ' ' + (c - h) + 'H' + (b + h) + 'V' + (c + h) + 'H' + (a - h) + 'Z' : 'M' + (c - h) + ' ' + (a - h) + 'H' + (c + h) + 'V' + (b + h) + 'H' + (c - h) + 'Z'); }); });
+    // 창: 방·거실이 바깥이나 발코니와 맞닿은 변 가운데 70% (안전: 창이지 문이 아니다)
+    var sash = [], inAny = function (x, y, skip) { return R.some(function (r) { return r !== skip && x > r.x && x < r.x + r.w && y > r.y && y < r.y + r.h; }); }, kindAt = function (x, y) { var f = R.filter(function (r) { return x > r.x && x < r.x + r.w && y > r.y && y < r.y + r.h; })[0]; return f ? kindOf(f.name) : null; };
+    R.forEach(function (r) { var kd = kindOf(r.name); if (!/^(방|거실|주방)$/.test(kd)) return; var off = 400, best = null;
+      [['h', r.y, r.x, r.x + r.w, -1], ['h', r.y + r.h, r.x, r.x + r.w, 1], ['v', r.x, r.y, r.y + r.h, -1], ['v', r.x + r.w, r.y, r.y + r.h, 1]].forEach(function (e) {
+        var mid = (e[2] + e[3]) / 2, ox = e[0] === 'h' ? mid : e[1] + e[4] * off, oy = e[0] === 'h' ? e[1] + e[4] * off : mid, o = kindAt(ox, oy);
+        if (o !== null && o !== '발코니') return; var sc = (o === '발코니' ? 1e9 : 0) + (e[3] - e[2]);   // 방마다 창 하나: 발코니 쪽 먼저, 없으면 가장 긴 바깥 변
+        if (!best || sc > best.sc) best = { sc: sc, e: e, mid: mid }; });
+      if (!best) return; var e = best.e, mid = best.mid, L = (e[3] - e[2]) * 0.7, a = mid - L / 2, b = mid + L / 2, th = 6;
+      sash.push(e[0] === 'h' ? ['h', Math.round(px(a)), Math.round(px(e[1]) - th), Math.round(px(b)), Math.round(px(e[1]) + th)] : ['v', Math.round(px(e[1]) - th), Math.round(px(a)), Math.round(px(e[1]) + th), Math.round(px(b))]); });
+    var G = { 벽선: wall, 벽: path.join(''), 벽채움: 'nonzero', 샷시: sash, 문: [], EV: [], 공용칸: [], 공용: '', 틀: [px(0), px(0), px(X1), px(Y1)] };
+    return { W: Math.round(px(X1) + pad), H: Math.round(px(Y1) + pad), mmpp: mm, rooms: rooms, 창: [], 문: [], 그림: G, name: '직접 그린 도면', 척도: { 방식: '직접 그림' } };
+  }
+
+  root.JJCadIO = { starter: starter, STARTERS: STARTERS, kindOf: kindOf, pdf: pdf, model: model, dxf: dxf, dwg: dwg, parseDXF: parseDXF, toPlan: toPlan, rasterize: rasterize, open: open, writeDXF: writeDXF, LAYERS: LAYERS, BLOCKS: BLOCKS, version: VERSION };
 })(typeof window !== 'undefined' ? window : this);
