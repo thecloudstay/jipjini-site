@@ -507,6 +507,7 @@
     st.textContent = '.jje{--ln:#C8C4BC;--ink:#2A2A2A;--sub:#6B6B6B;--gr:#33491C;--soft:#E8EEDC;position:relative;display:flex;flex-direction:column;height:max(640px,calc(100vh - 96px));border:1px solid var(--ln);background:#fff;color:var(--ink);font-size:15px;line-height:1.5;font-family:' + FONT.replace(/"/g, "'") + '}' +
       '.jje *{box-sizing:border-box}.jje button{font-family:inherit;cursor:pointer;color:inherit}.jje.full{position:fixed;inset:0;z-index:400;height:auto;border:0}' +
       '.jje-top{display:flex;align-items:center;gap:8px;padding:6px 10px;border-bottom:1px solid var(--ln);min-height:54px;background:#FBF8F1}.jje-top h3{font-size:17px;font-weight:700;margin:0;white-space:nowrap}.jje-top .nm{color:var(--sub);font-size:14.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1;min-width:0}' +
+      '.jje-sv{position:relative;display:inline-block}.jje-svm{position:absolute;right:0;top:calc(100% + 6px);z-index:40;width:300px;background:#fff;border:1px solid #9A9A9A;box-shadow:0 8px 24px rgba(0,0,0,.12);padding:6px 0}.jje-svm[hidden]{display:none}.jje-svm button{display:block;width:100%;text-align:left;border:0;background:none;padding:11px 16px;font:inherit;cursor:pointer;line-height:1.45}.jje-svm button+button{border-top:1px solid #ECE7DC}.jje-svm button:hover{background:#F5F1E8}.jje-svm b{display:block;font-size:15px;color:#2A2A2A}.jje-svm small{display:block;font-size:13px;color:#6B6B6B;margin-top:2px}' +
       '.jje-b{min-height:40px;padding:0 13px;border:1px solid #9A9A9A;background:#fff;border-radius:2px;font-size:15px;font-weight:600;white-space:nowrap}.jje-b:hover{background:#F5F1E8}.jje-b{color:#2A2A2A;font-family:inherit;cursor:pointer}.jje-b.dark{background:#2A2A2A;border-color:#2A2A2A;color:#F5F1E8}.jje-b.dark:hover{background:#111}.jje-b:disabled{opacity:.4;cursor:default}' +
       '.jje-main{flex:1;display:flex;min-height:0}' +
       '.jje-rail{width:86px;border-right:1px solid var(--ln);overflow-y:auto;padding:6px 5px;display:flex;flex-direction:column;gap:2px;background:#FBF8F1;flex:none}' +
@@ -546,7 +547,7 @@
       '.jjsheet table{width:100%;border-collapse:collapse;table-layout:fixed}.jjsheet .grp{break-inside:avoid}.jjsheet h4{break-after:avoid}.jjsheet th,.jjsheet td{border:1px solid #777;padding:5px 7px;text-align:left;vertical-align:top;font-size:13.5px}.jjsheet th{background:#f0eee8;font-size:12.5px;white-space:nowrap}.jjsheet td.r,.jjsheet th.r{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}.jjsheet td.c,.jjsheet th.c{text-align:center;white-space:nowrap}.jjsheet tr{break-inside:avoid}' +
       '.jjsheet .no{display:inline-block;min-width:22px;height:22px;line-height:22px;border-radius:11px;color:#fff;font-weight:700;font-size:12.5px;text-align:center;padding:0 5px}.jjsheet .memo{border:1px solid #777;min-height:74px;padding:6px 8px;margin-top:16px}.jjsheet .memo div{min-height:44px;outline:none;margin-top:4px}.jjsheet .ft{margin-top:10px;color:#555;font-size:12.5px;line-height:1.6}' +
       '#jje3d{position:fixed;inset:0;z-index:710;background:rgba(26,26,26,.66);display:flex;align-items:center;justify-content:center;padding:14px}#jje3d .bx{background:#fff;width:min(980px,100%);max-height:96vh;overflow:auto;padding:12px;border-radius:6px}' +
-      '@media (max-width:860px){.jje{height:calc(100vh - 20px);height:calc(100dvh - 20px);font-size:15px}.jje-top{padding:5px 8px;min-height:52px;gap:6px}.jje-top .nm{display:none}.jje-top h3{flex:1;font-size:16px}.jje-b{padding:0 10px;min-height:42px}' +
+      '@media (max-width:480px){#jjeFull{display:none}.jje-top .jje-b{padding:0 8px}}@media (max-width:860px){.jje{height:calc(100vh - 20px);height:calc(100dvh - 20px);font-size:15px}.jje-top{padding:5px 8px;min-height:52px;gap:6px}.jje-top .nm{display:none}.jje-top h3{flex:1;font-size:16px}.jje-b{padding:0 10px;min-height:42px}' +
       '.jje-main{flex-direction:column}.jje-rail{width:auto;flex-direction:row;overflow-x:auto;overflow-y:hidden;border-right:0;border-bottom:1px solid var(--ln);padding:4px;gap:2px}.jje-rail button{min-width:62px;min-height:54px;padding:6px 2px 4px}.jje-rail .sep{display:none}.jje-rail .cols{display:flex;padding:0 8px;align-items:center}' +
       '.jje-side{width:auto;border-left:0;border-top:1.5px solid var(--ink);height:48px;transition:height .15s}.jje.side-open .jje-side{height:54%}.jje-tabs .fold{display:block}.jje-pane{display:none!important}.jje.side-open .jje-pane.on{display:block!important}#jjeLayers{top:54px}}' +
       '@media (max-width:640px){#jjeSheet{padding:8px}.jjsheet{padding:14px 12px;font-size:13px}.jjsheet .tb{grid-template-columns:minmax(0,1fr)}.jjsheet .tb .ti{border-right:0;border-bottom:1.5px solid #1c1c1c}.jjsheet th,.jjsheet td{padding:4px 4px;font-size:12.5px}.jjsheet .wide{overflow-x:auto}.jjsheet .wide table{min-width:560px}}' +
@@ -556,7 +557,7 @@
   function mount(el, opt) {
     EL = el; OPT = opt || {}; css();
     el.innerHTML = '<div class="jje" id="jjeRoot"><div class="jje-top"><h3>집지니 CAD</h3><span class="nm" id="jjeNm"></span>' +
-      '<button type="button" class="jje-b" data-a="undo" title="되돌리기">되돌리기</button><button type="button" class="jje-b" data-a="redo" title="다시 하기">다시</button><button type="button" class="jje-b dark" data-a="sheet">작업지시서</button><button type="button" class="jje-b" data-a="full" id="jjeFull">넓게</button></div>' +
+      '<button type="button" class="jje-b" data-a="undo" title="되돌리기">되돌리기</button><button type="button" class="jje-b" data-a="redo" title="다시 하기">다시</button><button type="button" class="jje-b dark" data-a="sheet">작업지시서</button><span class="jje-sv"><button type="button" class="jje-b" data-a="saveMenu" aria-haspopup="true" aria-expanded="false">저장</button><span class="jje-svm" id="jjeSaveMenu" hidden><button type="button" data-a="imgfile" data-v="pdf"><b>피디에프</b><small>인쇄·업체에 보내기 (A3 한 장)</small></button><button type="button" data-a="imgfile" data-v="jpg"><b>사진 파일</b><small>문자·메신저로 보내기</small></button><button type="button" data-a="cadfile" data-v="dwg"><b>오토캐드 파일 (.dwg)</b><small>설계사무소·시공사용, 벽·문·창·공사 표시가 층으로 나뉨</small></button><button type="button" data-a="cadfile" data-v="dxf"><b>캐드 교환 파일 (.dxf)</b><small>다른 캐드 프로그램용</small></button></span></span><button type="button" class="jje-b" data-a="full" id="jjeFull">넓게</button></div>' +
       '<div class="jje-say"><span id="jjeSay"></span><a href="cad-guide.html" target="_blank" rel="noopener">사용법</a></div>' +
       '<div class="jje-cost" id="jjeCost" style="display:none"></div>' +
       '<div class="jje-main"><div class="jje-rail" id="jjeRail"></div>' +
@@ -1165,6 +1166,7 @@
 
   // ── 단추 눌림 한곳에서 받기
   function onClick(ev) {
+    var smn = $('jjeSaveMenu'); if (smn && !smn.hidden && !ev.target.closest('.jje-sv')) smn.hidden = true; else if (smn && !smn.hidden && ev.target.closest('.jje-svm [data-a]')) setTimeout(function () { smn.hidden = true; }, 0);
     var b = ev.target.closest('[data-a]'); if (!b) return; var a = b.getAttribute('data-a'), v = b.getAttribute('data-v'), s = shapes[sel];
     if (a === 'tool') setTool(v);
     else if (a === 'color') { color = v; if (s && /^(circle|arrow|pen|text|rect|poly)$/.test(s.t)) { snap(); s.c = v; touch(); } railDraw(); }
@@ -1197,7 +1199,7 @@
     else if (a === 'swap' && s) { snap(); var t = [s.x1, s.y1]; s.x1 = s.x2; s.y1 = s.y2; s.x2 = t[0]; s.y2 = t[1]; s.flip = !s.flip; touch(); }
     else if (a === 'dup') dup(); else if (a === 'del') delSel();
     else if (a === 'scaleArea') scaleByArea(); else if (a === 'allLen') { allLen = !allLen; sideDraw(); redraw(); } else if (a === 'measShow') measShow();
-    else if (a === 'styled') styledSave(); else if (a === 'png') pngNow(); else if (a === 'v3d') view3d(); else if (a === 'cadfile') cadSave(v); else if (a === 'imgfile') imgSave(v);
+    else if (a === 'styled') styledSave(); else if (a === 'png') pngNow(); else if (a === 'v3d') view3d(); else if (a === 'saveMenu') { var mn = $('jjeSaveMenu'); mn.hidden = !mn.hidden; b.setAttribute('aria-expanded', String(!mn.hidden)); return; } else if (a === 'cadfile') cadSave(v); else if (a === 'imgfile') imgSave(v);
     else if (a === 'clear') { if (!shapes.some(function (q) { return !/^(room|win|door|scale)$/.test(q.t); })) return; if (!root.confirm('작업 기호와 표시를 모두 지울까요? (「되돌리기」로 되살릴 수 있습니다)')) return; snap(); shapes = shapes.filter(function (q) { return /^(room|win|door|scale)$/.test(q.t); }); sel = -1; touch(); propDraw(); }
     else if (a === 'restart') { if (OPT.onRestart) OPT.onRestart(); }
   }
