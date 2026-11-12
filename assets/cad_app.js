@@ -4,7 +4,7 @@
      → 올리기 걸음과 떨어져 있어, 나중에 「우리 집 검색」으로 미리 다시 그려 둔 도면을 받아도 같은 편집기를 그대로 쓴다.
    지키는 선: 올린 원본 그림은 이 기기 밖으로 보내지 않고 보관하지도 않는다(다시 그린 도면 자료와 표시만 localStorage 에 둔다). 인쇄·저장물에는 다시 그린 도면만 들어간다. 바깥 꾸러미 없음. */
 (function (root) {
-  var KEY = 'jj_cad_v2', OLDKEY = 'jj_cad_v1', VER = '20261112zl', REQ_URL = 'https://script.google.com/macros/s/AKfycbzxm4mmZs1yVJPa3T-wb0cdJbEUMPYl6dDKtQNSNmJy4nEsCholrEnPAN8e0JfAtOV99A/exec?type=request_form', doc = document, $ = function (id) { return doc.getElementById(id); };
+  var KEY = 'jj_cad_v2', OLDKEY = 'jj_cad_v1', VER = '20261112zm', REQ_URL = 'https://script.google.com/macros/s/AKfycbzxm4mmZs1yVJPa3T-wb0cdJbEUMPYl6dDKtQNSNmJy4nEsCholrEnPAN8e0JfAtOV99A/exec?type=request_form', doc = document, $ = function (id) { return doc.getElementById(id); };
   var S = { state: null, file: null, pending: null };
   function esc(t) { return String(t == null ? '' : t).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
   function ev(name) { try { if (root.gtag) root.gtag('event', name); } catch (e) {} }
@@ -43,11 +43,29 @@
   }
   function pick(file) {
     if (!file) return;
+    if (/\.(dwg|dxf)$/i.test(file.name || '')) { S.file = null; ev('cad_upload_cadfile'); openCadFile(file); return; }
     if (/pdf$/i.test(file.type || '') || /\.pdf$/i.test(file.name || '')) { toast('문서 파일은 읽지 못합니다. 평면도 화면을 갈무리해 그림으로 올려 주세요.'); return; }
     if (file.type && !/^image\//.test(file.type)) { toast('그림 파일만 올릴 수 있습니다.'); return; }
     if (file.size > 20 * 1024 * 1024) { toast('그림이 너무 큽니다. 화면을 갈무리한 그림으로 올려 주세요.'); return; }
     S.file = file; ev('cad_upload'); run(file);
   }
+  // 캐드 파일(.dwg·.dxf) 올리기 — 2026-11-12 대표 지시 「반대로 캐드 파일을 집지니 캐드에서 쉽게 수정」
+  //   집지니가 낸 파일이면 방·벽·문·창을 그대로 되살려 바로 편집으로, 남의 도면이면 선을 그림으로 그려 그림 읽기로 넘기고 축척은 캐드 단위로 고친다.
+  function openCadFile(file) {
+    if (file.size > 30 * 1024 * 1024) { toast('캐드 파일이 너무 큽니다(30MB 넘음). 평면 한 장만 따로 저장해 올려 주세요.'); return; }
+    var go2 = function () { root.JJCadIO.open(file, function (r) {
+      if (!r || !r.ok) { toast((r && r.why) || '캐드 파일을 열지 못했습니다.'); return; }
+      if (r.ours) { ev('cad_open_cadfile_ours'); if (!open(r.plan)) toast('도면을 열지 못했습니다.'); return; }
+      var cv = doc.createElement('canvas'); root.JJCadIO.rasterize(r.raster, cv); S.cadMmpp = r.mmpp;
+      cv.toBlob(function (b) { if (!b) { toast('캐드 도면을 그림으로 바꾸지 못했습니다.'); return; } S.file = b; run(b); }, 'image/png'); }); };
+    if (root.JJCadIO) return go2();
+    var sc = doc.createElement('script'); sc.src = 'assets/cad_io.js?v=' + VER; sc.onload = go2; sc.onerror = function () { toast('캐드 파일 읽기 도구를 불러오지 못했습니다.'); }; doc.head.appendChild(sc);
+  }
+  // 캐드에서 온 그림은 축척을 정확히 안다 — 그림 읽기가 짐작한 축척 대신 그 값으로 넓이·치수를 다시 셈한다
+  function cadScale(r) { var mm = S.cadMmpp; S.cadMmpp = 0; if (!mm || !r || !r.rooms) return r; r.mmpp = mm; r.척도 = { 방식: '캐드 파일' };
+    r.rooms.forEach(function (m) { if (!m.pts || m.pts.length < 3) return; var a = 0, xs = [], ys = []; for (var i = 0; i < m.pts.length; i++) { var p = m.pts[i], q = m.pts[(i + 1) % m.pts.length]; a += p[0] * q[1] - q[0] * p[1]; xs.push(p[0]); ys.push(p[1]); }
+      m.area = Math.round(Math.abs(a) / 2 * mm * mm / 1e4) / 100; m.w = Math.round((Math.max.apply(null, xs) - Math.min.apply(null, xs)) * mm); m.d = Math.round((Math.max.apply(null, ys) - Math.min.apply(null, ys)) * mm); });
+    return r; }
   function run(src) {
     go(2); $('cadWait').hidden = false; $('cadFail').hidden = true; $('cadRes').hidden = true; $('cadMsg').textContent = '집지니가 도면을 읽을 준비를 하고 있습니다…';
     var slow = setTimeout(function () { $('cadMsg').textContent = '평소보다 오래 걸리고 있습니다. 조금만 더 기다려 주세요…'; }, 90000);
@@ -58,7 +76,7 @@
         clearTimeout(slow);
         if (!r || !r.ok || !r.rooms || r.rooms.length < 2) return fail(r && r.why);
         if (r.engine === '보통 구성') return fail('그림에서 벽을 찾지 못했습니다.');
-        S.pending = slim(r); showResult(r);
+        r = cadScale(r); S.pending = slim(r); showResult(r);
       }, function (e) { fail(e && e.message); });
     }, function () { fail('도면 읽는 도구를 불러오지 못했습니다. 인터넷 연결을 확인하고 다시 해 보세요.'); });
   }

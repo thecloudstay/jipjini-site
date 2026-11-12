@@ -1,0 +1,1 @@
+{ "name": "jj-cad-dwg", "private": true, "type": "module", "dependencies": { "@node-projects/acad-ts": "3.8.0" }, "devDependencies": { "esbuild": "*" } }
