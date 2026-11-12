@@ -146,7 +146,7 @@
 
   /* ── 기능 그림: 보일 때 움직인다 ── */
   getPlan('A10025531').then(function (d) { ['planVis', 'planVis2'].forEach(function (id) { var e = $(id); if (!e) return; e.innerHTML = planSVG(d.평형[0].plan, 'psvg'); fit(e); see(e); }); }).catch(function () {});
-  see($('stack'));
+  ['stack', 'donut', 'ways'].forEach(function (id) { if ($(id)) see($(id)); });
   /* 고객 세분화 칸: 고르면 그 사람에게 맞는 세 걸음을 보여 준다(고른 것은 이 기기에만 기억) */
   var tabs = document.querySelectorAll('.wt button'), pans = document.querySelectorAll('.wp');
   function seg(k) { [].forEach.call(tabs, function (b) { var on = b.dataset.seg === k; b.classList.toggle('on', on); b.setAttribute('aria-selected', on); }); [].forEach.call(pans, function (p) { p.hidden = p.dataset.seg !== k; }); }

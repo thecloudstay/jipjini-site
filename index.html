@@ -22,7 +22,7 @@
 <meta name="twitter:image" content="https://jipjini.com/og-cover.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
-<link rel="stylesheet" href="assets/home/home.css?v=20261112i">
+<link rel="stylesheet" href="assets/home/home.css?v=20261112k">
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-35EM7T3M9W"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
@@ -42,7 +42,7 @@
     <a href="#map">지도</a>
     <a href="#how">30%의 이유</a>
     <a href="#sys">6가지 시스템</a>
-    <a href="#effect">효과</a>
+    <a href="#safe">약속</a>
     <a href="#ask" class="go">무료 견적</a>
   </nav>
 </header>
@@ -56,6 +56,7 @@
     <div><b>24시간</b><span>무료 견적서</span></div>
   </div>
   <a class="btn big" href="#who">나에게 맞는 길 찾기 ↓</a>
+  <p class="trust">중간 마진 0% · 정찰제 · 12개월 A/S · 모든 단가 공개<small>코디비·현장관리(PM) 파견비는 견적서에 따로 적습니다</small></p>
 </section>
 
 <!-- 1-1. 고객 세분화: 나는 누구? → 맞춤 길 안내 -->
@@ -130,31 +131,48 @@
   </div>
 </section>
 
-<!-- 3. 30%는 어디서 나오나: 구조 도식 -->
+<!-- 3. 30%는 어디서 나오나 — 기존 홈페이지 자료(견적 구성·세 가지 길·코디 개념)를 도식으로 -->
 <section class="how" id="how">
   <h2>30%는 어디서 나올까요?</h2>
-  <p class="lead">턴키 견적 안에는 공사비 말고도 <b>보이지 않는 비용</b>이 들어 있습니다.</p>
-  <div class="stack" id="stack">
-    <div class="sr">
-      <span class="sl">턴키<br><small>통째로 맡기기</small></span>
-      <div class="sb2">
-        <i class="real" style="--w:65%">실제 공사비<small>자재 · 인건비</small></i>
-        <i class="hid" style="--w:35%"><b class="hm">숨은 비용</b><span>업체 마진</span><span>리스크</span><span>하자 보수</span><span>사후 관리</span><span>잔손</span><span>직원 · 임대료</span></i>
-      </div>
-      <b class="sv">100</b>
+  <p class="lead">일반 인테리어 견적을 뜯어 보면 이렇습니다.</p>
+  <div class="donutw" id="donut">
+    <svg viewBox="0 0 220 220" class="donut" aria-label="견적 구성">
+      <circle r="80" cx="110" cy="110" pathLength="100" class="d1" style="--o:0;--l:28"/>
+      <circle r="80" cx="110" cy="110" pathLength="100" class="d2" style="--o:-28;--l:25"/>
+      <circle r="80" cx="110" cy="110" pathLength="100" class="d3" style="--o:-53;--l:1"/>
+      <circle r="80" cx="110" cy="110" pathLength="100" class="d4" style="--o:-54;--l:46"/>
+      <text x="110" y="104" text-anchor="middle" class="dt1">업체 몫</text><text x="110" y="134" text-anchor="middle" class="dt2">46%</text>
+    </svg>
+    <ul class="dl">
+      <li><i class="c1"></i>자재비<b>28%</b></li>
+      <li><i class="c2"></i>인부비<b>25%</b></li>
+      <li><i class="c3"></i>경비<b>1%</b></li>
+      <li class="big"><i class="c4"></i>업체 마진 · 영업 · 관리<b>46%</b><small>실질 순마진 약 30% — 32평이면 1,000~2,000만 원. 자재도 인부도 아닌 가산금입니다.</small></li>
+    </ul>
+  </div>
+
+  <h3 class="h3">돈이 흐르는 길이 다릅니다</h3>
+  <div class="flowm">
+    <div class="fm">
+      <p class="fmh">턴키 (통째로 맡기기)</p>
+      <div class="fr"><span class="nd">건축주</span><em class="arw">→</em><span class="nd dark">업체<small>마진 30~46%</small></span><em class="arw">→</em><span class="nd">자재상 · 기술자</span></div>
+      <p class="fmc">무엇에 얼마가 붙었는지 모릅니다</p>
     </div>
-    <div class="sr">
-      <span class="sl">직영 · 셀프<br><small>내가 다 하기</small></span>
-      <div class="sb2"><i class="real" style="--w:55%">실제 공사비</i><i class="me0" style="--w:45%">최대 40~50%↓<em> · 대신 관리·하자·위험을 모두 직접</em></i></div>
-      <b class="sv">50~60</b>
-    </div>
-    <div class="sr me">
-      <span class="sl">집지니<br><small>코디네이팅 시스템</small></span>
-      <div class="sb2"><i class="real" style="--w:62%">실제 공사비</i><i class="codi" style="--w:8%">코디</i><i class="cut" style="--w:30%">−30%<em> 거품 제거</em></i></div>
-      <b class="sv">70</b>
+    <div class="fm me">
+      <p class="fmh">집지니 (코디네이팅)</p>
+      <div class="fr"><span class="nd">건축주</span><em class="arw">→</em><span class="nd green">자재상 · 기술자<small>직접 결제</small></span></div>
+      <div class="fr sub"><span class="nd ghost">집지니 코디</span><em class="arw">⇢</em><span class="nd ghost">연결 · 단가 검증 · 공정 조율</span></div>
+      <p class="fmc">코디비는 견적서에 따로 한 줄 · 사이에 끼는 마진 0원</p>
     </div>
   </div>
-  <p class="note">턴키 견적을 100으로 놓은 구조 예시 · 비율은 현장과 업체마다 다릅니다 · 부가세 별도</p>
+
+  <h3 class="h3">32평 전체 수리, 세 가지 길</h3>
+  <div class="ways" id="ways">
+    <div class="wy"><p class="wn">턴키</p><div class="wb"><i style="--h:100%"></i></div><b>6,500만</b><ul><li class="p">가장 편함 · 전화 한 통</li><li class="m">마진 30~50% · 내역 불투명</li><li class="m">업체 부도 시 보호 없음</li></ul></div>
+    <div class="wy me"><p class="wn">집지니</p><div class="wb"><i style="--h:62%"></i><span>−30%</span></div><b>4,030만</b><ul><li class="p">턴키보다 1,970만 원 절약</li><li class="p">직영보다 시간 1/10</li><li class="p">하자 조율 — 책임은 기술자, 조율은 코디가 끝까지</li></ul></div>
+    <div class="wy"><p class="wn">직영 · 셀프</p><div class="wb"><i style="--h:54%"></i></div><b>3,500만</b><ul><li class="p">가장 저렴 · 마진 0</li><li class="m">8주 현장 출근 · 200시간 넘게 직접</li><li class="m">노쇼 · 하자 혼자 책임</li></ul></div>
+  </div>
+  <p class="note">기존 견적 사례로 잡은 예시 · 부가세 별도 · 실제는 현장마다 다릅니다</p>
 </section>
 
 <!-- 4. 그걸 가능하게 하는 6가지 시스템 -->
@@ -169,6 +187,16 @@
     <li><figure><img src="assets/home/shot-sheet.jpg" alt="" loading="lazy"></figure><b>시공 지시</b><i>도면 1장</i><span>말 대신 작업지시서</span></li>
     <li><figure><img src="assets/home/f-schedule.jpg" alt="" loading="lazy"></figure><b>시공자 관리</b><i>실시간</i><span>공정·사진·정산 확인</span></li>
   </ol>
+  <div class="proof2">
+    <figure><img src="assets/home/plan-first.jpg" alt="같은 집의 타일 공정과 조명 공정 도면" loading="lazy"><figcaption>전용 84㎡ 실제 견적에 쓴 공정별 도면 — 타일(위) · 조명(아래)</figcaption></figure>
+    <div>
+      <h3>평수로 낸 견적, 도면으로 다시 세 보니</h3>
+      <div class="qd"><span>욕실 타일</span><div class="qb"><i class="o" style="--w:76%">38㎡</i></div><div class="qb"><i class="n" style="--w:100%">50㎡</i></div></div>
+      <div class="qd"><span>매입등</span><div class="qb"><i class="o" style="--w:55%">평수 계산</i></div><div class="qb"><i class="n" style="--w:100%">+15개</i></div></div>
+      <p class="qn"><i class="o"></i>평수 × 계수 <i class="n"></i>도면에서 셈</p>
+      <p class="qc">모자란 물량은 공사 중 「추가 비용」이 됩니다. 집지니는 계약 전에 도면에서 찾아냅니다.</p>
+    </div>
+  </div>
 </section>
 
 <!-- 5. 지금 vs 집지니 -->
@@ -196,12 +224,28 @@
   </div>
   <div class="proof">
     <div class="ct">
-      <h3>실제 견적 <span id="nCase">14</span>건으로 확인하세요</h3>
+      <h3>실제 견적 <span id="nCase">14</span>건 · 산출 사례 35건</h3>
       <p class="cap" id="caseCap">평형별 공사비 · 공급가 · 부가세 별도</p>
       <a class="more" href="cases/">견적서 전부 보기 →</a>
     </div>
     <div class="chart" id="caseChart"></div>
   </div>
+</section>
+
+<!-- 6-1. 안심 장치 · 정직한 범위 · 샘플실 -->
+<section class="safe" id="safe">
+  <h2>맡겨도 되는지,<br><em>약속으로 보여 드립니다.</em></h2>
+  <div class="pr">
+    <div><b>하자 조율</b><p>책임은 시공한 기술자가 지고, 접수부터 재시공까지 코디가 무상으로 끝까지 조율합니다.</p></div>
+    <div><b>대금 관리</b><p>PM을 두시면 공정을 확인한 뒤에 지급하고 내역을 공개합니다.</p></div>
+    <div><b>12개월 A/S</b><p>공사가 끝나도 코디는 남습니다.</p></div>
+    <div><b>단가 공시</b><p>자재 모델 · 수량 · 단가를 견적서 한 줄 한 줄에.</p></div>
+  </div>
+  <div class="honest">
+    <div class="hy"><p class="ht">집지니가 맞는 분</p><b>부분 수리 3개 이상</b><span>도배 + 장판 + 싱크대 · 욕실 + 주방 + 도어처럼 공정을 맞춰야 하는 공사</span></div>
+    <div class="hn2"><p class="ht">직접 하시는 게 나은 분</p><b>부분 수리 3개 이하</b><span>도배만 · 장판만이면 기술자 한 분께 바로 맡기세요. 코디비가 아끼는 돈보다 크면 받지 않습니다.</span></div>
+  </div>
+  <a class="room" href="showroom.html"><b>샘플실</b><span>서울 강서구 가양동 세신종합상가 B156호 · 벽지 · 바닥 · 싱크대 실물</span><em>상담 예약 →</em></a>
 </section>
 
 <!-- 7. 지금 바로 -->
@@ -212,6 +256,7 @@
     <a href="cad.html"><b>2</b>바꿀 곳 찍고 물량 보기<small>집지니 CAD · 무료</small></a>
     <a href="request.html" target="_blank" rel="noopener" data-ev="home_request"><b>3</b>견적서 받기<small>24시간 · 무료</small></a>
   </div>
+  <ol class="after"><li><b>①</b>의뢰서 5분<small>평면 · 실측 · 17공종 중 할 것</small></li><li><b>②</b>즉시 접수<small>확인 메일 자동</small></li><li><b>③</b>견적서 24시간<small>단가 100% 공개 · 카톡</small></li><li><b>④</b>공정표 링크<small>진행하면 휴대폰으로</small></li></ol>
   <a class="kk" href="https://pf.kakao.com/_NjpxhC/chat" target="_blank" rel="noopener" data-ev="home_kakao">카톡으로 먼저 물어보기 →</a>
 </section>
 
@@ -223,7 +268,7 @@
 </footer>
 
 <script src="assets/site_config.js"></script>
-<script src="assets/home/home.js?v=20261112i"></script>
+<script src="assets/home/home.js?v=20261112j"></script>
 <script src="assets/chatbot.js" defer></script>
 </body>
 </html>
