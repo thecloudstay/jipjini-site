@@ -189,14 +189,15 @@
     var x0 = sw.getLng(), x1 = ne.getLng(), y0 = sw.getLat(), y1 = ne.getLat();
     var px = function (lat, lng) { var q = pj.containerPointFromCoords(new K.LatLng(lat, lng)); return [q.x, q.y]; };
     var taken = [], free = function (x, y, w, h) { for (var i = 0; i < taken.length; i++) { var t = taken[i]; if (x < t[0] + t[2] && x + w > t[0] && y < t[1] + t[3] && y + h > t[1]) return false; } taken.push([x, y, w, h]); return true; };
-    var put = function (el, lat, lng, z, xa) { var ov = new K.CustomOverlay({ position: new K.LatLng(lat, lng), content: el, yAnchor: 0.5, xAnchor: xa == null ? 0.5 : xa, zIndex: z || 1 }); ov.setMap(KMAP); KOV.push(ov); };
+    // 2026-11-12 대표 지시 「해루낚처럼 시그니처 브랜드 디자인」: 꼬리 달린 집지니 표시(jt)는 꼬리 끝(밑동)이 실제 자리 — 아래를 기준점으로
+    var put = function (el, lat, lng, z, xa) { var jt = el.classList && el.classList.contains('jt'); var ov = new K.CustomOverlay({ position: new K.LatLng(lat, lng), content: el, yAnchor: jt ? 1 : 0.5, xAnchor: xa == null ? 0.5 : (jt ? 0.5 : xa), zIndex: z || 1 }); ov.setMap(KMAP); KOV.push(ov); };
     var hitR = RBOX.filter(function (b) { return b.x1 > x0 && b.x0 < x1 && b.y1 > y0 && b.y0 < y1; });
     var wipe = function () { KOV.forEach(function (o) { o.setMap(null); }); KOV = []; };
     var cap = $('aptCapK');
     if (lv >= 10) {                                  // 아주 멀리: 시·도 셋
       wipe(); cap.textContent = '숫자는 단지 수입니다. 누르거나 확대하면 시·군·구로 나뉩니다.';
       SIDO.forEach(function (S) { var tot = 0, have = 0; IDX.구역.forEach(function (r) { if (r.짧은시도 === S[0]) { tot += r.수[0] + r.수[1] + r.수[2]; have += r.수[2]; } });
-        var d = document.createElement('button'); d.className = 'ksido'; d.innerHTML = '<b>' + S[0] + '</b><span>' + num(tot) + '</span>' + (have ? '<em>도면 ' + num(have) + '</em>' : '');
+        var d = document.createElement('button'); d.className = 'ksido jt'; d.innerHTML = '<b>' + S[0] + '</b><span>' + num(tot) + '</span>' + (have ? '<em>도면 ' + num(have) + '</em>' : '');
         d.onclick = function () { KMAP.setLevel(9); KMAP.setCenter(new K.LatLng(S[1], S[2])); }; put(d, S[1], S[2], 2); });
       return;
     }
@@ -207,7 +208,7 @@
         .sort(function (a, b) { return b.have - a.have || b.tot - a.tot; })
         .forEach(function (o) { var r = o.r, nm = r.이름.replace(/^.+시 ?(.+구)$/, '$1'), q = px(r.가운데[1], r.가운데[0]), w = nm.length * 12.5 + String(o.tot).length * 7.5 + 26, h = 26;
           if (!free(q[0] - w / 2 - 3, q[1] - h / 2 - 3, w + 6, h + 6)) { skipped++; return; } shown++;
-          var d = document.createElement('button'); d.className = 'kreg' + (o.have ? ' has' : ''); d.title = nm + ' · 도면 열림 ' + o.have + ' / 전체 ' + o.tot; d.innerHTML = '<b>' + esc(nm) + '</b><span>' + num(o.tot) + '</span>';
+          var d = document.createElement('button'); d.className = 'kreg jt' + (o.have ? ' has' : ''); d.title = nm + ' · 도면 열림 ' + o.have + ' / 전체 ' + o.tot; d.innerHTML = '<b>' + esc(nm) + '</b><span>' + num(o.tot) + '</span>';
           d.onclick = function () { pick(r.id); }; put(d, r.가운데[1], r.가운데[0], o.have ? 2 : 1); });
       cap.textContent = '숫자는 단지 수, 진한 칸은 도면이 열린 단지가 있는 구역입니다.' + (skipped ? ' 겹치는 ' + skipped + '곳은 확대하면 나옵니다.' : '');
       return;
@@ -215,8 +216,8 @@
     var left = hitR.length, all = []; if (!left) return wipe();
     hitR.forEach(function (b) { load(b.r.id, function (rows) { rows.forEach(function (x) { if (x.ll && x.ll[1] > x0 && x.ll[1] < x1 && x.ll[0] > y0 && x.ll[0] < y1) { x.rid = b.r.id; all.push(x); } }); if (!--left) draw(); }); });
     function pin(x, named) {
-      var d = document.createElement('button'); d.className = 'kpin s' + x.s + (x.s === 2 ? '' : ' off') + (OPEN === x.c ? ' on' : ''); d.title = x.n + ' · ' + ST[x.s];
-      d.innerHTML = '<i></i>' + (named ? '<span>' + esc(x.n.replace(/아파트$/, '')) + '</span>' : '');
+      var d = document.createElement('button'); d.className = 'kpin s' + x.s + (x.s === 2 ? ' jt' : ' off') + (OPEN === x.c ? ' on' : ''); d.title = x.n + ' · ' + ST[x.s];
+      d.innerHTML = (x.s === 2 ? '<i>집</i>' : '<i></i>') + (named ? '<span>' + esc(x.n.replace(/아파트$/, '')) + '</span>' : '');
       d.onclick = function () { openFromMap(x); }; put(d, x.ll[0], x.ll[1], OPEN === x.c ? 9 : x.s + 1, 0);
     }
     function draw() {
@@ -225,7 +226,7 @@
         var cell = 64, G = {};
         all.forEach(function (x) { var q = px(x.ll[0], x.ll[1]), k = Math.floor(q[0] / cell) + ':' + Math.floor(q[1] / cell), g = G[k] || (G[k] = { n: 0, have: 0, la: 0, lo: 0, one: x }); g.n++; g.la += x.ll[0]; g.lo += x.ll[1]; if (x.s === 2) g.have++; });
         Object.keys(G).forEach(function (k) { var g = G[k]; if (g.n === 1) return pin(g.one, false);
-          var d = document.createElement('button'); d.className = 'kclu' + (g.have ? ' has' : ''); d.textContent = g.n; d.title = '단지 ' + g.n + '곳' + (g.have ? ' · 도면 열림 ' + g.have + '곳' : ''); if (g.have) d.innerHTML = g.n + '<em>' + g.have + '</em>';
+          var d = document.createElement('button'); d.className = 'kclu jt' + (g.have ? ' has' : ''); d.textContent = g.n; d.title = '단지 ' + g.n + '곳' + (g.have ? ' · 도면 열림 ' + g.have + '곳' : ''); if (g.have) d.innerHTML = g.n + '<em>' + g.have + '</em>';
           var la = g.la / g.n, lo = g.lo / g.n; d.onclick = function () { KMAP.setLevel(Math.max(3, lv - 2)); KMAP.setCenter(new K.LatLng(la, lo)); }; put(d, la, lo, g.have ? 3 : 2); });
         cap.textContent = '동그라미 숫자는 그 자리에 모인 단지 수입니다. 누르면 확대됩니다.';
         return;
