@@ -21,7 +21,7 @@
     'JJ-WORK': [{ k: 'arc', lay: '0', c: [0, 0], r: 150, a0: 0, a1: 360 }, { k: 'attdef', tag: 'NAME', prompt: '공사 이름', p: [200, 0] }, { k: 'attdef', tag: 'TRADE', prompt: '공종', p: [200, -100] }, { k: 'attdef', tag: 'NOTE', prompt: '쪽지', p: [200, -200] }, { k: 'attdef', tag: 'KEY', prompt: '집지니 기호', p: [200, -300] }, { k: 'attdef', tag: 'FORM', prompt: '모양', p: [200, -400] }, { k: 'attdef', tag: 'VTX', prompt: '꼭짓점(mm)', p: [200, -500] }, { k: 'attdef', tag: 'STATE', prompt: '상태', p: [200, -600] }],
     'JJ-EVTR': [L0([0, 0], [1000, 0]), L0([1000, 0], [1000, 1000]), L0([1000, 1000], [0, 1000]), L0([0, 1000], [0, 0]), L0([0, 0], [1000, 1000]), L0([1000, 0], [0, 1000])]
   };
-  var VERSION = '20261112zr';
+  var VERSION = '20261112zu';
   function u(s) { return String(s == null ? '' : s).replace(/[^\x20-\x7e]/g, function (c) { var h = c.charCodeAt(0).toString(16).toUpperCase(); return '\\U+' + ('0000' + h).slice(-4); }); }
   function W() { this.o = []; }
   W.prototype.g = function (code, val) { this.o.push(String(code), typeof val === 'number' ? (Math.round(val * 1000) / 1000).toString() : String(val)); return this; };
@@ -220,14 +220,33 @@
     return { ok: true, ours: true, plan: { 작업: WK, W: W, H: H, mmpp: mmpp, rooms: rooms, 창: [], 문: [], 그림: G, name: name || '캐드 도면', 척도: { 방식: '캐드 파일' } } };
   }
   // 남의 도면: 선을 굵게 그린 그림으로(벽은 굵은 검정, 나머지는 가는 선) — 집지니 그림 읽기에 넘긴다
-  function rasterize(R, canvas) { var c = canvas, g = c.getContext('2d'); c.width = R.W; c.height = R.H; g.fillStyle = '#fff'; g.fillRect(0, 0, R.W, R.H); g.strokeStyle = '#000'; g.fillStyle = '#000'; g.lineJoin = 'round'; g.lineCap = 'round';
-    var wallish = function (lay) { return /wall|벽|a-wall|^wall|구조|콘크리트/i.test(lay || ''); }, P = function (p) { return [R.X(p[0]), R.Y(p[1])]; };
-    R.ents.forEach(function (e) { g.lineWidth = wallish(e.lay) ? 3 : 1.6;
-      if (e.k === 'line') { var a = P(e.a), b = P(e.b); g.beginPath(); g.moveTo(a[0], a[1]); g.lineTo(b[0], b[1]); g.stroke(); }
-      else if (e.k === 'poly') { g.beginPath(); e.pts.forEach(function (p, i) { var q = P(p); if (i) g.lineTo(q[0], q[1]); else g.moveTo(q[0], q[1]); }); if (e.closed) g.closePath(); g.stroke(); if (e.closed && !e.arc && wallish(e.lay)) g.fill(); }   /* 벽 층의 닫힌 테두리는 채운다 — 그림 읽기는 굵은 검정 벽을 찾는다 */
-      else if (e.k === 'solid') { g.beginPath(); e.q.forEach(function (p, i) { var q = P(p); if (i) g.lineTo(q[0], q[1]); else g.moveTo(q[0], q[1]); }); g.closePath(); g.fill(); }
-      else if (e.k === 'text' && e.s) { var hpx = Math.max(9, Math.min(28, (e.h || 0) / R.mmpp * 1)); g.font = Math.round(hpx || 12) + 'px sans-serif'; var q = P(e.p); g.fillText(e.s, q[0], q[1]); } });
+  // 벽 층 이름(국내외 흔한 것): 벽·벽체·조적·콘크리트·WALL·A-WALL·CONC·BRICK
+  function wallLayer(lay) { return /wall|wal\b|벽|조적|콘크리트|conc|brick|a-wal|^s-col/i.test(lay || ''); }
+  // 남의 도면 → 그림. 벽 층은 따로 그려 「닫기」(넓혔다 좁히기)로 두 줄 사이를 메워 굵은 검정 벽으로 만든다 —
+  //   국내 건축 도면은 벽을 평행선 두 줄로 그려서, 그대로면 집지니 그림 읽기가 벽을 못 찾는다(2026-11-12)
+  function rasterize(R, canvas) { var c = canvas, g = c.getContext('2d'), W = R.W, H = R.H; c.width = W; c.height = H; g.fillStyle = '#fff'; g.fillRect(0, 0, W, H); g.strokeStyle = '#000'; g.fillStyle = '#000'; g.lineJoin = 'round'; g.lineCap = 'round';
+    var P = function (p) { return [R.X(p[0]), R.Y(p[1])]; }, hasWall = R.ents.some(function (e) { return wallLayer(e.lay); });
+    var path = function (gg, e) { gg.beginPath(); (e.k === 'line' ? [e.a, e.b] : e.k === 'solid' ? e.q : e.pts).forEach(function (p, i) { var q = P(p); if (i) gg.lineTo(q[0], q[1]); else gg.moveTo(q[0], q[1]); }); if (e.closed || e.k === 'solid') gg.closePath(); };
+    var mc = null, mg = null; if (hasWall && typeof document !== 'undefined') { mc = document.createElement('canvas'); mc.width = W; mc.height = H; mg = mc.getContext('2d'); mg.strokeStyle = '#000'; mg.fillStyle = '#000'; mg.lineWidth = 2; }
+    R.ents.forEach(function (e) {
+      if (mg && wallLayer(e.lay) && e.k !== 'text') { path(mg, e); if (e.k === 'solid' || (e.closed && !e.arc)) mg.fill(); else mg.stroke(); return; }
+      g.lineWidth = (!hasWall && /wall|벽/i.test(e.lay || '')) ? 3 : 1.6;
+      if (e.k === 'line' || e.k === 'poly') { path(g, e); g.stroke(); if (!hasWall && e.closed && !e.arc && /wall|벽/i.test(e.lay || '')) g.fill(); }
+      else if (e.k === 'solid') { path(g, e); g.fill(); }
+      else if (e.k === 'text' && e.s) { var hpx = Math.max(9, Math.min(28, (e.h || 0) / R.mmpp)); g.font = Math.round(hpx || 12) + 'px sans-serif'; var q = P(e.p); g.fillText(e.s, q[0], q[1]); } });
+    if (mg) { var d = mg.getImageData(0, 0, W, H).data, m = new Uint8Array(W * H); for (var i = 0; i < W * H; i++) m[i] = d[i * 4 + 3] > 40 ? 1 : 0;
+      var r = Math.max(2, Math.min(25, Math.ceil(320 / R.mmpp / 2) + 1));   // 벽 두께 320mm 까지 메운다
+      m = morph(m, W, H, r, true); m = morph(m, W, H, r, false);           // 닫기 = 넓히기 → 좁히기
+      var img = g.getImageData(0, 0, W, H), o = img.data; for (var k = 0; k < W * H; k++) if (m[k]) { o[k * 4] = o[k * 4 + 1] = o[k * 4 + 2] = 0; o[k * 4 + 3] = 255; } g.putImageData(img, 0, 0); }
     return c; }
+  // 네모 창 넓히기(grow)·좁히기(shrink) — 가로 한 번, 세로 한 번(누적합으로 빠르게)
+  function morph(m, W, H, r, grow) { var pad = 0, full = 2 * r + 1;   /* 그림 바깥은 비었다고 본다(둘레 90화소 여백이 있어 벽이 깎이지 않는다) */
+    var pass = function (src, n, len, idx) { var dst = new Uint8Array(W * H), P = new Int32Array(len + 2 * r + 1);
+      for (var a = 0; a < n; a++) { P[0] = 0; for (var k = 0; k < len + 2 * r; k++) { var b = k - r, v = (b < 0 || b >= len) ? pad : src[idx(a, b)]; P[k + 1] = P[k] + v; }
+        for (var b2 = 0; b2 < len; b2++) { var sum = P[b2 + full] - P[b2]; dst[idx(a, b2)] = grow ? (sum > 0 ? 1 : 0) : (sum === full ? 1 : 0); } }
+      return dst; };
+    var t = pass(m, H, W, function (y, x) { return y * W + x; });
+    return pass(t, W, H, function (x, y) { return y * W + x; }); }
   // 파일 하나 열기: 교환용(글)·고유 형식(바이트) 모두. cb({ok, ours, plan | raster, why})
   function open(file, cb) { var nm = String(file.name || '').replace(/\.(dxf|dwg)$/i, ''), isDwg = /\.dwg$/i.test(file.name || '');
     var fr = new FileReader(); fr.onerror = function () { cb({ ok: false, why: '파일을 읽지 못했습니다.' }); };
