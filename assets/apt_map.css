@@ -108,3 +108,28 @@
 .apt-grow-t{width:100%;border-collapse:collapse;font-size:13px}.apt-grow-t caption{text-align:left;color:#6B6B6B;font-size:12.5px;padding:0 0 4px}
 .apt-grow-t th{font-weight:400;color:#4F4F4F;width:64px;text-align:left;padding:3px 0;border-top:1px solid #DDD6C6;white-space:nowrap}
 .apt-grow-t td{padding:3px 0 3px 8px;border-top:1px solid #DDD6C6}.apt-grow-t td span{display:block;height:8px;background:var(--ol-d)}.apt-grow-t td.num{width:64px;text-align:right;font-variant-numeric:tabular-nums}
+
+/* ── 2026-11-12 집지니 시그니처 지도 표시(대표 지시 「해루낚처럼」): 로고의 「집」 네모 + 차콜·올리브·오트밀 세 색
+   꼬리 끝(::before 삼각) 아래 점(::after)이 실제 자리. 해루낚처럼 흰 테두리·그림자로 밝은 지도 위에서도 또렷하게 */
+.jt{position:relative;filter:drop-shadow(0 3px 6px rgba(20,20,20,.28))}
+.jt::before{content:'';position:absolute;left:50%;bottom:-8px;margin-left:-6px;border-left:6px solid transparent;border-right:6px solid transparent;border-top:8px solid #2A2A2A}
+.ksido.jt,.kreg.jt,.kclu.jt{margin-bottom:6px}
+.ksido.jt{width:auto;height:auto;min-width:84px;border-radius:10px;background:#2A2A2A;border:2px solid #F5F1E8;box-shadow:none;padding:8px 14px 9px;gap:2px}
+.ksido.jt b{font-size:12.5px;font-weight:500;color:#D9D3C4;letter-spacing:.5px}
+.ksido.jt span{font-size:20px;font-weight:700;color:#F5F1E8;letter-spacing:-.3px}
+.ksido.jt em{margin-top:3px;background:var(--ol);color:#fff;font-size:11px;font-weight:600;padding:1px 8px 2px;border-radius:9px}
+.kreg.jt{height:auto;padding:5px 10px 6px;border-radius:8px;background:#2A2A2A;border:2px solid #F5F1E8;color:#F5F1E8;gap:7px}
+.kreg.jt b{color:#F5F1E8}.kreg.jt span{color:#D9D3C4}
+.kreg.jt.has{background:#2A2A2A}.kreg.jt.has span{background:var(--ol);color:#fff;padding:0 6px;border-radius:8px}
+.kreg.jt.has::before{border-top-color:#2A2A2A}
+.kclu.jt{height:auto;min-width:36px;padding:5px 9px 6px;border-radius:9px;border:2px solid #F5F1E8;background:#2A2A2A;box-shadow:none;font-size:13px}
+.kclu.jt.has{background:#2A2A2A}.kclu.jt em{background:var(--ol);border-radius:8px}
+.kreg.jt:hover,.ksido.jt:hover,.kclu.jt:hover{outline:none;transform:translateY(-2px)}
+/* 도면 열린 단지 = 「집」 로고 핀(올리브) */
+.kpin.jt{transform:none;flex-direction:column;align-items:center;padding-bottom:7px}
+.kpin.jt::before{border-top-color:var(--ol-d);bottom:auto;top:24px;margin-left:-5px;border-left-width:5px;border-right-width:5px;border-top-width:7px}
+.kpin.jt i{width:24px;height:24px;border-radius:6px;border:2px solid #F5F1E8;background:var(--ol-d);box-shadow:none;color:#fff;font-style:normal;font-size:12.5px;font-weight:700;line-height:20px;text-align:center;font-family:Pretendard,sans-serif}
+.kpin.jt span{position:absolute;left:calc(50% + 17px);top:2px;background:#F5F1E8;border:1px solid #2A2A2A;border-radius:4px}
+.kpin.jt.on i{width:30px;height:30px;line-height:26px;font-size:15px;background:#2A2A2A;box-shadow:0 0 0 2px var(--ol)}
+.kpin.jt.on::before{top:30px;border-top-color:#2A2A2A}
+.kpin.jt.on span{left:calc(50% + 20px);top:4px;background:#2A2A2A;color:#fff}
