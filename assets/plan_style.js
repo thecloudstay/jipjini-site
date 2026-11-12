@@ -183,9 +183,20 @@
       h.push('<line x1="' + X1.toFixed(1) + '" y1="' + Y1.toFixed(1) + '" x2="' + TX.toFixed(1) + '" y2="' + TY.toFixed(1) + '" stroke="' + INK + '" stroke-width="' + (TW * 0.42).toFixed(2) + '"/>');
       h.push('<path d="M' + TX.toFixed(1) + ' ' + TY.toFixed(1) + 'A' + L.toFixed(1) + ' ' + L.toFixed(1) + ' 0 0 ' + sweep + ' ' + X2.toFixed(1) + ' ' + Y2.toFixed(1) + '" fill="none" stroke="' + INK + '" stroke-width="' + (TW * 0.18).toFixed(2) + '"/>'); });
     // 이름표
-    if (!opt.noLabels) rooms.forEach(function (o) { var m = o.m, L = labelAt(o.p), big = Math.min(L.w, L.h), f1 = fs * 0.9, small = big < fs * 3.4,   /* 2026-11-12 대표 지시: 모든 방 이름·면적·치수 글씨 크기를 하나로 통일 */ cx = L.x + ox, cy = L.y + oy;
+    // 이름표(2026-11-12 대표 지적 「글자 겹침」): 한 크기로 통일하되, 칸에 안 들어가면 치수 → 면적 줄을 빼고, 그래도 넘치면 그 칸만 줄인다. 이미 놓인 이름표와 겹치면 위·아래로 비켜 놓는다
+    var tw = function (t, f) { var w = 0; for (var c = 0; c < t.length; c++) w += /[가-힣㎡]/.test(t[c]) ? f * 0.98 : (t[c] === ' ' ? f * 0.3 : f * 0.58); return w; };
+    var placed = [], hit = function (b) { return placed.some(function (q) { return b[0] < q[2] && b[2] > q[0] && b[1] < q[3] && b[3] > q[1]; }); };
+    var order = rooms.map(function (o, k) { return k; }).sort(function (a, b) { return (Number(rooms[b].m.area) || 0) - (Number(rooms[a].m.area) || 0); });
+    if (!opt.noLabels) order.forEach(function (k) { var o = rooms[k], m = o.m, L = labelAt(o.p), f1 = fs * 0.9, cx = L.x + ox, cy = L.y + oy;
       var lines = [[m.name, f1, 700, INK]]; if (m.area && m.kind !== '피트') lines.push([m.area + '㎡', f1 * 0.8, 500, SUBT]); if (m.w && m.d && !/^(발코니|피트|실외기실)$/.test(m.kind)) lines.push([m.w + ' × ' + m.d + ' m', f1 * 0.66, 400, SUBT]);
-      var tot = lines.reduce(function (s, l) { return s + l[1] * 1.28; }, 0), y = cy - tot / 2;
+      var aw = Math.max(L.room * 2, Math.min(L.w, L.h) * 0.6) * 0.95, ah = Math.max(L.room * 2, L.h * 0.5) * 0.95;
+      var size = function () { return [Math.max.apply(null, lines.map(function (l) { return tw(l[0], l[1]); })), lines.reduce(function (s0, l) { return s0 + l[1] * 1.28; }, 0)]; };
+      while (lines.length > 1 && (size()[0] > aw || size()[1] > ah)) lines.pop();
+      var sz = size(), sc = Math.max(0.5, Math.min(1, aw / sz[0], ah / sz[1])); if (sc < 1) { lines.forEach(function (l) { l[1] *= sc; }); sz = size(); }
+      var box = function (y0) { return [cx - sz[0] / 2, y0 - sz[1] / 2, cx + sz[0] / 2, y0 + sz[1] / 2]; }, yy = cy;
+      if (hit(box(yy))) { var tries = [1, -1, 2, -2], ok = false; for (var t = 0; t < tries.length && !ok; t++) { var y2 = cy + tries[t] * sz[1] * 0.75; if (!hit(box(y2))) { yy = y2; ok = true; } }
+        if (!ok) { lines = lines.slice(0, 1); sz = size(); if (hit(box(yy))) { for (var t2 = 0; t2 < tries.length; t2++) { var y3 = cy + tries[t2] * sz[1] * 1.1; if (!hit(box(y3))) { yy = y3; break; } } } } }
+      placed.push(box(yy)); var y = yy - sz[1] / 2;
       lines.forEach(function (l) { y += l[1] * 1.05; h.push('<text x="' + cx.toFixed(1) + '" y="' + y.toFixed(1) + '" text-anchor="middle" font-size="' + l[1].toFixed(1) + '" font-weight="' + l[2] + '" fill="' + l[3] + '">' + esc(l[0]) + '</text>'); y += l[1] * 0.23; }); });
     (r.창 || []).forEach(function (wn) { if (!wn._at || opt.noWinText) return; var t = wn.종류 + (wn.w_m ? ' ' + wn.w_m + 'm' : ''), f0 = fs * 0.5, x = wn._at[0], y = wn._at[1];
       if (wn._at[2]) h.push('<text x="' + x.toFixed(1) + '" y="' + (y + f0 * 0.34).toFixed(1) + '" text-anchor="middle" font-size="' + f0.toFixed(1) + '" font-weight="600" fill="' + ACC + '" stroke="' + PAPER + '" stroke-width="' + (f0 * 0.5).toFixed(1) + '" paint-order="stroke">' + esc(t) + '</text>');
