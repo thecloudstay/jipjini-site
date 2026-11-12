@@ -909,7 +909,7 @@
     shapes.forEach(function (q) { if (q.t === 'wk' && q.f === 'p' && ok(q)) { var r = u * 0.62; OBS.push([q.x - r, q.y - r, q.x + r, q.y + r]); } });
     shapes.forEach(function (q, i) { if (q.t === 'wk' && q.f === 'a' && ok(q)) drawOne(g, q, u, N.show[i] ? N.nos[i] : 0, ord[i]); });
     var late = function (q) { return q.t === 'win' || q.t === 'door'; };   // 창·문은 벽을 다 그린 다음에 — 벽에 묻히지 않게
-    [false, true].forEach(function (ph) { shapes.forEach(function (q, i) { if (q.t === 'wk' || !ok(q) || late(q) !== ph) return; if (q.t === 'win' && q.auto && !q.inner && bgOn && baseOk && base && base.그림 && (noSel || shapes.indexOf(q) !== sel)) return;   /* 샷시·창은 원본을 따라 그린 바탕 그대로(대표 지시 2026-11-12) */ if (bgOn && (q.t === 'room' || q.t === 'win') && (noSel || i !== sel)) return; if (sheetMode && (q.t === 'scale')) return; drawOne(g, q, u); }); });
+    [false, true].forEach(function (ph) { shapes.forEach(function (q, i) { if (q.t === 'wk' || !ok(q) || late(q) !== ph) return; if (q.t === 'win' && q.auto && bgOn && baseOk && base && base.그림 && (noSel || shapes.indexOf(q) !== sel)) return; if ((q.t === 'door' || q.t === 'win') && bgOn && baseOk && base && base.그림 && base.그림.먹 && (noSel || shapes.indexOf(q) !== sel)) return;   /* 문·창도 원본 검정선 그대로 보인다 — 겹쳐 그리지 않는다 */   /* 샷시·창은 원본을 따라 그린 바탕 그대로(대표 지시 2026-11-12) */ if (bgOn && (q.t === 'room' || q.t === 'win') && (noSel || i !== sel)) return; if (sheetMode && (q.t === 'scale')) return; drawOne(g, q, u); }); });
     shapes.forEach(function (q, i) { if (q.t === 'wk' && q.f === 'l' && ok(q)) drawOne(g, q, u, N.show[i] ? N.nos[i] : 0, ord[i]); });
     shapes.forEach(function (q, i) { if (q.t === 'wk' && q.f === 'p' && ok(q)) drawOne(g, q, u, N.show[i] ? N.nos[i] : 0); });
   }

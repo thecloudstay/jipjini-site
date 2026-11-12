@@ -40,6 +40,30 @@ def trace(path, plan):
     big=1+int(np.argmax(sb0[1:,4])); bx,by,bw0,bh0=sb0[big,:4]
     bld=np.zeros((H,W),bool); bld[max(0,by-6):by+bh0+7, max(0,bx-6):bx+bw0+7]=True
     wall&=bld
+    # 2026-11-12 대원칙 「검정선은 똑같이 카피한다」: 건물 네모 안의 검은 선(굵은 벽·가는 선·문 호·샷시·계단)을 모두 그대로 딴다. 글자 조각과 욕실 기구만 뺀다
+    ink=(((v<135)&((s<70)|(v<75)))|((v<205)&(s<30)))&bld   # 가는 회색 선(창·문 호)도 검정선. 아주 어두운 곳은 JPEG 번짐으로 채도가 높게 읽혀도 검정선
+    ni,li,si,_=cv2.connectedComponentsWithStats(ink.astype(np.uint8),connectivity=8); ki=np.zeros(ni,bool)
+    for j in range(1,ni):
+        w_,h_,a_=si[j,2],si[j,3],si[j,4]
+        fr=a_/float(w_*h_)
+        ki[j]=not(a_<6 or (fr<0.62 and (max(w_,h_)*mm<500 or (min(w_,h_)*mm<480 and max(w_,h_)*mm<2000 and fr>=0.12))))   # 글자 조각(성긴 작은 덩어리)만 뺀다 — 꽉 찬 벽 토막·기둥은 남긴다
+    ink=ki[li]
+    ink=ink|((cv2.morphologyEx(ink.astype(np.uint8),cv2.MORPH_CLOSE,np.ones((2,2),np.uint8))>0)&bld)   # 글자를 뺀 뒤, 가는 호의 끊긴 점을 잇는다
+    for r in rooms:
+        if r.get('kind')!='욕실': continue
+        m=np.zeros((H,W),np.uint8); cv2.fillPoly(m,[np.array(r['pts'],np.int32)],1); m=cv2.erode(m,np.ones((9,9),np.uint8))>0
+        ink&=~m
+    # 방 한가운데 떠 있는 작은 덩어리(방 이름·면적 글자)는 뺀다 — 벽에 닿은 선(문·창·붙박이장)은 남는다
+    inner=np.zeros((H,W),np.uint8)
+    for r in rooms: cv2.fillPoly(inner,[np.array(r['pts'],np.int32)],1)
+    inner=cv2.erode(inner,np.ones((11,11),np.uint8))>0
+    nf,lf,sf,_=cv2.connectedComponentsWithStats(ink.astype(np.uint8),connectivity=8)
+    out=np.bincount(lf[~inner].ravel(),minlength=nf)
+    kf=np.ones(nf,bool); kf[0]=False
+    for j in range(1,nf):
+        if out[j]==0 and max(sf[j,2],sf[j,3])*mm<1500: kf[j]=False
+    ink=kf[lf]
+    meok=rect_path(ink,eps=0.5,snap=False)
     nw,lw,sw,_=cv2.connectedComponentsWithStats(wall.astype(np.uint8),connectivity=8); kw=np.ones(nw,bool); kw[0]=False
     for j in range(1,nw):
         w_,h_,a_=sw[j,2],sw[j,3],sw[j,4]
@@ -89,7 +113,7 @@ def trace(path, plan):
     # 공용부 = 건물 네모 안이면서 집 범위 밖. 그 안의 벽은 건물 네모 가장자리(바깥 테두리)에 붙은 것만 남긴다
     pubzone=bld&~house
     edge=np.zeros((H,W),bool); e=12; edge[by-6:by+e, :]=True; edge[by+bh0-e:by+bh0+7, :]=True; edge[:, bx-6:bx+e]=True; edge[:, bx+bw0-e:bx+bw0+7]=True
-    wall=(wall&~pubzone)|(wall&pubzone&edge)
+    # 2026-11-12 대표 지시 「공용부 외곽선은 그대로 다 넣어라」: 공용부 굵은 벽은 모두 남긴다(계단·승강기 가는 선만 뺀다)
     pz=(pubzone&~cv2.dilate(wall.astype(np.uint8),np.ones((5,5),np.uint8)).astype(bool)).astype(np.uint8)
     npz,lpz,spz,cpz=cv2.connectedComponentsWithStats(pz,connectivity=4); publab=[]
     for jj in range(1,npz):
@@ -127,4 +151,17 @@ def trace(path, plan):
         else: pts=band[int(a):int(b)+1,int(c)]
         if bathmask[int((c if t=='h' else (a+b)/2)), int(((a+b)/2) if t=='h' else c)]: continue
         if pts.mean()>0.9: win.append([t,float(c),int(a),int(b)])
-    return {'문':doors,'공용칸':publab,'틀':[int(bx),int(by),int(bx+bw0),int(by+bh0)],'공용':pubd,'벽':rect_path(wall,1.0),'칸':cells,'창선':win,'기구':objs}
+    # 샷시·창(대표 지적 2026-11-12 「샷시가 빠졌다」): 벽 줄 안의 끊긴 틈 = 창. 벽을 가로·세로로 이어 붙여 메운 뒤 원래 벽을 빼면 틈만 남는다
+    K=max(9,int(2600/mm)); sash=[]
+    dz=np.zeros((H,W),bool)
+    for dd in doors:
+        x0_,x1_=sorted([dd['x1'],dd['x2']]); y0_,y1_=sorted([dd['y1'],dd['y2']]); dz[max(0,y0_-6):y1_+7,max(0,x0_-6):x1_+7]=True
+    for ax in ('h','v'):
+        ker=np.ones((1,K),np.uint8) if ax=='h' else np.ones((K,1),np.uint8)
+        gap=(cv2.morphologyEx(wall.astype(np.uint8),cv2.MORPH_CLOSE,ker)>0)&~wall&~dz
+        ng,lg,sg,_=cv2.connectedComponentsWithStats(gap.astype(np.uint8),connectivity=4)
+        for j in range(1,ng):
+            x,y,w_,h_,a_=sg[j]; Lp,Sp=(w_,h_) if ax=='h' else (h_,w_)
+            if Lp*mm<400 or Sp<3 or Sp*mm>400 or a_<w_*h_*0.7: continue
+            sash.append([ax,int(x),int(y),int(x+w_),int(y+h_)])
+    return {'먹':meok,'샷시':sash,'문':doors,'공용칸':publab,'틀':[int(bx),int(by),int(bx+bw0),int(by+bh0)],'공용':pubd,'벽':rect_path(wall,1.0),'칸':cells,'창선':win,'기구':objs}
