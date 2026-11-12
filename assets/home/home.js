@@ -42,7 +42,7 @@
     var C = d.cases.filter(function (c) { return c.total > 5e6 && c.py >= 15; });
     $('nCase').textContent = d.cases.length;
     var full = C.filter(function (c) { return c.sections.length >= 12; }), pp = full.reduce(function (s, c) { return s + c.total / c.py; }, 0) / full.length / 1e4;
-    $('caseCap').textContent = '점 하나가 견적서 한 장 · 12공종 넘는 전체 수리 평당 평균 약 ' + num(Math.round(pp)) + '만 원 · 공급가, 부가세 별도';
+    $('caseCap').textContent = '점 하나가 견적서 한 장입니다. 12공종이 넘는 전체 수리는 평당 평균 약 ' + num(Math.round(pp)) + '만 원입니다. 공급가, 부가세 별도.';
     var W = 640, H = 300, X = function (v) { return 40 + (v - 10) / 55 * (W - 60); }, Y = function (v) { return H - 20 - v / 7000 * (H - 40); }, h = [];
     h.push('<svg viewBox="0 0 ' + W + ' ' + H + '" font-family="Pretendard,sans-serif">');
     [0, 2000, 4000, 6000].forEach(function (v) { h.push('<line x1="40" x2="' + (W - 10) + '" y1="' + Y(v) + '" y2="' + Y(v) + '" stroke="#E2E4DF"/><text x="34" y="' + (Y(v) + 4) + '" font-size="11" fill="#9A9E97" text-anchor="end">' + (v ? num(v / 1000) + '천만' : '0') + '</text>'); });
@@ -145,7 +145,7 @@
   document.addEventListener('click', function (e) { if (!$('find').contains(e.target)) $('hits').hidden = true; });
 
   /* ── 기능 그림: 보일 때 움직인다 ── */
-  getPlan('A10025531').then(function (d) { ['planVis', 'planVis2'].forEach(function (id) { var e = $(id); if (!e) return; e.innerHTML = planSVG(d.평형[0].plan, 'psvg'); fit(e); see(e); }); }).catch(function () {});
+  getPlan('A10025531').then(function (d) { ['heroPlan', 'planVis'].forEach(function (id) { var e = $(id); if (!e) return; e.innerHTML = planSVG(d.평형[0].plan, 'psvg'); fit(e); see(e); }); }).catch(function () {});
   ['stack', 'donut', 'ways'].forEach(function (id) { if ($(id)) see($(id)); });
   /* 고객 세분화 칸: 고르면 그 사람에게 맞는 세 걸음을 보여 준다(고른 것은 이 기기에만 기억) */
   var tabs = document.querySelectorAll('.wt button'), pans = document.querySelectorAll('.wp');
