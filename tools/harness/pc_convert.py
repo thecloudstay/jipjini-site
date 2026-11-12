@@ -203,7 +203,7 @@ def one(f, k, plan, known):
         state = "통과"
     sc, miss, extra = pipeline.score(f, q)
     if sc is not None:
-        sc = max(0, round(sc - 2 * len(diffs), 1))
+        sc = max(0, round(sc - 2 * len(diffs) - pipeline.penalty(chk), 1))
     json.dump(dict(plan, 그림=G), open(os.path.join(OUT, "도면", k + ".json"), "w", encoding="utf-8"), ensure_ascii=False)
     return {"판정": state, "점수": sc, "자동고침": "+".join(fixed), "남은규칙": " ".join("%s%d" % (r_, v) for r_, v in sorted(left.items())),
             "점검": chk, "모양": [[d["표식"], d["x"], d["y"]] for d in new][:20]}
