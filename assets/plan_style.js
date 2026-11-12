@@ -80,6 +80,11 @@
   }
   function svg(r, opt) {
     opt = opt || {}; if (!r || !r.rooms || !r.rooms.length) return '';
+    // 2026-11-12 대표 지시 「캐드식으로」(오토캐드 화면 그림을 보여 주며): 벽선이 있는 평면은 오토캐드 화면처럼 — 짙은 바탕, 회색 벽(A-WALL-PATT),
+    //   흰 글자, 파란 창(A-GLAZ), 청록 문(A-DOOR). 이 함수 안의 색 이름을 통째로 바꾼다
+    var CADV = !!(r.그림 && r.그림.벽선 && r.그림.벽선.length && Number(r.mmpp) > 0) && opt.cadStyle !== false;
+    var DK = CADV && (opt.cadBg || (typeof window !== 'undefined' && window.JJ_CAD_BG) || 'dark') !== 'light';   // 「배경은 반전 가능하게」: 짙은 바탕(오토캐드 화면) ↔ 흰 바탕(출력)
+    var INK = DK ? '#E8EAED' : '#26302c', PAPER = DK ? '#212830' : (CADV ? '#ffffff' : '#f7f4ee'), LINE = DK ? '#5B6670' : '#c9c2b4', SUBT = DK ? '#AEB6BF' : '#7a7468', BGC = PAPER, WOUT = DK ? '#C9CDD2' : '#26302c';
     var rooms = r.rooms.filter(function (m) { return m.pts && m.pts.length >= 3; }).map(function (m) { return { m: m, p: m.pts.map(function (q) { return [q[0], q[1]]; }) }; }); if (!rooms.length) return '';
     var xs = [], ys = []; rooms.forEach(function (o) { o.p.forEach(function (q) { xs.push(q[0]); ys.push(q[1]); }); });
     var rx0 = Math.min.apply(null, xs), rx1 = Math.max.apply(null, xs), ry0 = Math.min.apply(null, ys), ry1 = Math.max.apply(null, ys);   // 방만의 범위(치수선 기준)
@@ -94,7 +99,7 @@
     var bare = opt.bare && opt.bare.W ? opt.bare : null; if (bare) { VW = bare.W; VH = bare.H; ox = 0; oy = 0; }   // 편집 바탕용: 머리·발 없이 원본 그림과 같은 자리·크기로 그린다(표시가 그대로 겹친다)
     var pts = function (p) { return p.map(function (q) { return (q[0] + ox).toFixed(1) + ',' + (q[1] + oy).toFixed(1); }).join(' '); };
     var F = "font-family=\"Pretendard,'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif\"";
-    var h = ['<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + VW.toFixed(0) + ' ' + VH.toFixed(0) + '" style="width:100%;height:auto;display:block;background:' + PAPER + '" ' + F + '>'];
+    var h = ['<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + VW.toFixed(0) + ' ' + VH.toFixed(0) + '" style="width:100%;height:auto;display:block;background:' + BGC + '" ' + F + '>'];
     h.push('<defs>' +
       '<pattern id="' + id + 'b" width="' + (D / 60).toFixed(1) + '" height="' + (D / 60).toFixed(1) + '" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="' + (D / 60).toFixed(1) + '" stroke="' + LINE + '" stroke-width="' + (D / 700).toFixed(2) + '"/></pattern>' +
       '<pattern id="' + id + 't" width="' + (D / 45).toFixed(1) + '" height="' + (D / 45).toFixed(1) + '" patternUnits="userSpaceOnUse"><path d="M0 0H' + (D / 45).toFixed(1) + 'M0 0V' + (D / 45).toFixed(1) + '" stroke="#c3d0d4" stroke-width="' + (D / 600).toFixed(2) + '" fill="none"/></pattern>' +
@@ -120,10 +125,10 @@
     var G = r.그림 && r.그림.벽 ? r.그림 : null;   // 2026-11-12 대표 지시 「네이버 도면을 그대로 가져와 우리 장점만 얹어라」: 원본을 따라 그린 벽·선이 있으면 벽·문·창·기구는 그것으로 그린다
     if (hull && !G) h.push('<polygon points="' + pts(hull) + '" fill="' + (FILL.피트 || '#ddd') + '"/><polygon points="' + pts(hull) + '" fill="url(#' + id + 'b)"/><polygon points="' + pts(hull) + '" fill="none" stroke="' + INK + '" stroke-width="' + (TW * 1.2).toFixed(2) + '" stroke-linejoin="miter" stroke-miterlimit="3"/>');   // 외곽선을 먼저 긋고 그 안에 방을 놓는다 — 방을 못 찾은 자리도 집 모양은 남는다
     var Gc = r.그림 && r.그림.칸 && r.그림.칸.length ? r.그림.칸 : null, done = {};
-    if (Gc) Gc.forEach(function (c) { var o = rooms[c.i]; if (!o) return; done[c.i] = 1; var k = o.m.kind, f = FILL[k] || FILL.기타, tr = ' transform="translate(' + ox.toFixed(1) + ' ' + oy.toFixed(1) + ')"'; h.push('<path d="' + c.d + '" fill="' + f + '" fill-rule="evenodd"' + tr + '/>');
-      if (k === '발코니' || k === '실외기실') h.push('<path d="' + c.d + '" fill="url(#' + id + 'b)" fill-rule="evenodd"' + tr + '/>'); else if (k === '욕실' || k === '현관') h.push('<path d="' + c.d + '" fill="url(#' + id + 't)" fill-rule="evenodd"' + tr + '/>'); });   // 원본에서 따 온 칸 모양으로 칠하기
-    rooms.forEach(function (o, oi) { if (done[oi]) return; var k = o.m.kind, f = FILL[k] || FILL.기타; h.push('<polygon points="' + pts(o.p) + '" fill="' + f + '"/>');
-      if (k === '발코니' || k === '실외기실') h.push('<polygon points="' + pts(o.p) + '" fill="url(#' + id + 'b)"/>'); else if (k === '욕실' || k === '현관') h.push('<polygon points="' + pts(o.p) + '" fill="url(#' + id + 't)"/>');
+    if (Gc) Gc.forEach(function (c) { var o = rooms[c.i]; if (!o) return; done[c.i] = 1; var k = o.m.kind, f = CADV ? PAPER : (FILL[k] || FILL.기타), tr = ' transform="translate(' + ox.toFixed(1) + ' ' + oy.toFixed(1) + ')"'; h.push('<path d="' + c.d + '" fill="' + f + '" fill-rule="evenodd"' + tr + '/>');
+      if (CADV) {} else if (k === '발코니' || k === '실외기실') h.push('<path d="' + c.d + '" fill="url(#' + id + 'b)" fill-rule="evenodd"' + tr + '/>'); else if (k === '욕실' || k === '현관') h.push('<path d="' + c.d + '" fill="url(#' + id + 't)" fill-rule="evenodd"' + tr + '/>'); });   // 원본에서 따 온 칸 모양으로 칠하기
+    rooms.forEach(function (o, oi) { if (done[oi]) return; var k = o.m.kind, f = CADV ? PAPER : (FILL[k] || FILL.기타); h.push('<polygon points="' + pts(o.p) + '" fill="' + f + '"/>');
+      if (CADV) {} else if (k === '발코니' || k === '실외기실') h.push('<polygon points="' + pts(o.p) + '" fill="url(#' + id + 'b)"/>'); else if (k === '욕실' || k === '현관') h.push('<polygon points="' + pts(o.p) + '" fill="url(#' + id + 't)"/>');
       else if (k === '피트') { var px = o.p.map(function (q) { return q[0]; }), py = o.p.map(function (q) { return q[1]; }), ax = Math.min.apply(null, px) + ox, bx = Math.max.apply(null, px) + ox, ay = Math.min.apply(null, py) + oy, by2 = Math.max.apply(null, py) + oy; h.push('<path d="M' + ax.toFixed(1) + ' ' + ay.toFixed(1) + 'L' + bx.toFixed(1) + ' ' + by2.toFixed(1) + 'M' + bx.toFixed(1) + ' ' + ay.toFixed(1) + 'L' + ax.toFixed(1) + ' ' + by2.toFixed(1) + '" stroke="' + INK + '" stroke-width="' + (D / 700).toFixed(2) + '" fill="none"/>'); } });
     // 2026-11-12 네이버 평면과 맞추기: 외곽 안인데 방이 아닌 곳(설비 공간 피트·PD)은 가위표 빗금, 욕실에는 욕조·변기·세면대, 주방에는 싱크대·가스레인지를 그린다(그림만 — 물량에는 넣지 않는다).
     // 기구는 원본 그림에서 읽은 자리(r.기구)에만 그린다 — 읽지 못한 칸에 지어 넣지 않는다(2026-11-12 대표 지적 「기구가 전혀 맞지 않는다」)
@@ -140,15 +145,15 @@
       else if (G.벽선 && G.벽선.length && r.mmpp > 0) {   /* 2026-11-12 대표 지시 「그냥 캐드 파일로 바로 올려줘 — 따로 메운 뒤 다듬지 말고」: 캐드 파일과 같은 자료(벽선·창·문 기호)를 그대로 그린다 */
         var cm = r.mmpp, rr = [];
         G.벽선.forEach(function (w) { var hT = w[4] / cm / 2; rr.push(w[0] === 'h' ? 'M' + (w[1] - 0.6).toFixed(1) + ' ' + (w[3] - hT).toFixed(1) + 'H' + (w[2] + 0.6).toFixed(1) + 'V' + (w[3] + hT).toFixed(1) + 'H' + (w[1] - 0.6).toFixed(1) + 'Z' : 'M' + (w[3] - hT).toFixed(1) + ' ' + (w[1] - 0.6).toFixed(1) + 'H' + (w[3] + hT).toFixed(1) + 'V' + (w[2] + 0.6).toFixed(1) + 'H' + (w[3] - hT).toFixed(1) + 'Z'); });
-        h.push('<path d="' + rr.join('') + '" fill="' + INK + '" fill-rule="nonzero"' + tr0 + '/>');
-        var sw = Math.max(0.7, TW * 0.14).toFixed(2);
+        var sw = Math.max(0.7, TW * 0.14).toFixed(2), CW = DK ? '#8E9194' : '#A9ADB2', CD = DK ? '#22B8CF' : '#0C8599', CG = DK ? '#4C6EF5' : '#1D4ED8';
+        h.push('<path d="' + rr.join('') + '" fill="' + CW + '" stroke="' + WOUT + '" stroke-width="' + (sw * 0.8).toFixed(2) + '" fill-rule="nonzero"' + tr0 + '/>');
         (G.샷시 || []).forEach(function (q) { var x0 = q[1], y0 = q[2], x1 = q[3], y1 = q[4], hz = q[0] === 'h', c = hz ? (y0 + y1) / 2 : (x0 + x1) / 2, T = hz ? (y1 - y0) : (x1 - x0), o = T * 0.12;   /* 캐드 기호 JJ-WIN-DOUBLE: 틀 + 가운데 두 줄 */
-          h.push('<rect x="' + x0.toFixed(1) + '" y="' + y0.toFixed(1) + '" width="' + (x1 - x0).toFixed(1) + '" height="' + (y1 - y0).toFixed(1) + '" fill="' + PAPER + '" stroke="' + INK + '" stroke-width="' + sw + '"' + tr0 + '/>');
-          [c - o, c + o].forEach(function (v) { h.push(hz ? '<line x1="' + x0.toFixed(1) + '" y1="' + v.toFixed(1) + '" x2="' + x1.toFixed(1) + '" y2="' + v.toFixed(1) + '" stroke="' + INK + '" stroke-width="' + sw + '"' + tr0 + '/>' : '<line x1="' + v.toFixed(1) + '" y1="' + y0.toFixed(1) + '" x2="' + v.toFixed(1) + '" y2="' + y1.toFixed(1) + '" stroke="' + INK + '" stroke-width="' + sw + '"' + tr0 + '/>'); }); });
+          h.push('<rect x="' + x0.toFixed(1) + '" y="' + y0.toFixed(1) + '" width="' + (x1 - x0).toFixed(1) + '" height="' + (y1 - y0).toFixed(1) + '" fill="' + PAPER + '" stroke="' + CG + '" stroke-width="' + sw + '"' + tr0 + '/>');
+          [c - o, c + o].forEach(function (v) { h.push(hz ? '<line x1="' + x0.toFixed(1) + '" y1="' + v.toFixed(1) + '" x2="' + x1.toFixed(1) + '" y2="' + v.toFixed(1) + '" stroke="' + CG + '" stroke-width="' + sw + '"' + tr0 + '/>' : '<line x1="' + v.toFixed(1) + '" y1="' + y0.toFixed(1) + '" x2="' + v.toFixed(1) + '" y2="' + y1.toFixed(1) + '" stroke="' + CG + '" stroke-width="' + sw + '"' + tr0 + '/>'); }); });
         (G.문 || []).forEach(function (q) { var R0 = Math.hypot(q.x2 - q.x1, q.y2 - q.y1); if (R0 < 4) return;   /* 캐드 기호 JJ-DOOR-SWING: 경첩에서 문짝 선 + 4분의 1 호 */
           var lx = q.cx - q.x1, ly = q.cy - q.y1, Ll = Math.hypot(lx, ly) || 1, ex = q.x1 + lx / Ll * R0, ey = q.y1 + ly / Ll * R0, cr = (q.x2 - q.x1) * ly - (q.y2 - q.y1) * lx;
-          h.push('<line x1="' + q.x1.toFixed(1) + '" y1="' + q.y1.toFixed(1) + '" x2="' + ex.toFixed(1) + '" y2="' + ey.toFixed(1) + '" stroke="' + INK + '" stroke-width="' + (sw * 1.6).toFixed(2) + '"' + tr0 + '/>');
-          h.push('<path d="M' + q.x2.toFixed(1) + ' ' + q.y2.toFixed(1) + 'A' + R0.toFixed(1) + ' ' + R0.toFixed(1) + ' 0 0 ' + (cr > 0 ? 1 : 0) + ' ' + ex.toFixed(1) + ' ' + ey.toFixed(1) + '" fill="none" stroke="' + INK + '" stroke-width="' + sw + '"' + tr0 + '/>'); }); }
+          h.push('<line x1="' + q.x1.toFixed(1) + '" y1="' + q.y1.toFixed(1) + '" x2="' + ex.toFixed(1) + '" y2="' + ey.toFixed(1) + '" stroke="' + CD + '" stroke-width="' + (sw * 1.6).toFixed(2) + '"' + tr0 + '/>');
+          h.push('<path d="M' + q.x2.toFixed(1) + ' ' + q.y2.toFixed(1) + 'A' + R0.toFixed(1) + ' ' + R0.toFixed(1) + ' 0 0 ' + (cr > 0 ? 1 : 0) + ' ' + ex.toFixed(1) + ' ' + ey.toFixed(1) + '" fill="none" stroke="' + CD + '" stroke-width="' + sw + '"' + tr0 + '/>'); }); }
       else h.push('<path d="' + G.벽 + '" fill="' + INK + '" fill-rule="' + (G.벽채움 === 'nonzero' ? 'nonzero' : 'evenodd') + '"' + tr0 + '/>');   /* 캐드 파일에서 읽은 벽은 네모가 겹쳐 있어 nonzero */
       if (false) (G.샷시 || []).forEach(function (q) { var x0 = q[1] + ox, y0 = q[2] + oy, x1 = q[3] + ox, y1 = q[4] + oy, w = x1 - x0, hh = y1 - y0, sw4 = (TW * 0.16).toFixed(2); h.push('<rect x="' + x0.toFixed(1) + '" y="' + y0.toFixed(1) + '" width="' + w.toFixed(1) + '" height="' + hh.toFixed(1) + '" fill="#ffffff" stroke="' + INK + '" stroke-width="' + sw4 + '"/>'); h.push(q[0] === 'h' ? '<line x1="' + x0.toFixed(1) + '" y1="' + ((y0 + y1) / 2).toFixed(1) + '" x2="' + x1.toFixed(1) + '" y2="' + ((y0 + y1) / 2).toFixed(1) + '" stroke="' + INK + '" stroke-width="' + sw4 + '"/>' : '<line x1="' + ((x0 + x1) / 2).toFixed(1) + '" y1="' + y0.toFixed(1) + '" x2="' + ((x0 + x1) / 2).toFixed(1) + '" y2="' + y1.toFixed(1) + '" stroke="' + INK + '" stroke-width="' + sw4 + '"/>'); });   // 샷시: 원본 벽 틈 자리에 네모 + 가운데 줄(네이버식)
       h.push('</g>'); }
