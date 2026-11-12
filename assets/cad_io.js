@@ -287,7 +287,12 @@
     var T = STARTERS[type] || STARTERS.빈도면, base = 0;
     T.forEach(function (c) { if (kindOf(c[0]) !== '발코니') base += c[3] * c[4] / 1e6; });
     var k = areaM2 > 5 ? Math.max(0.6, Math.min(1.7, Math.sqrt(areaM2 / base))) : 1;
-    var R = T.map(function (c) { return { name: c[0], x: c[1] * k, y: c[2] * k, w: c[3] * k, h: c[4] * k }; });
+    return fromRects(T.map(function (c) { return { name: c[0], x: c[1] * k, y: c[2] * k, w: c[3] * k, h: c[4] * k }; }));
+  }
+  // 고객이 자르고 붙여 만든 칸들(네모, mm) → 편집기 평면(방·벽·창). 칸 왼쪽 위가 음수여도 된다
+  function fromRects(R0) {
+    var mnx = Math.min.apply(null, R0.map(function (r) { return r.x; })), mny = Math.min.apply(null, R0.map(function (r) { return r.y; }));
+    var R = R0.map(function (r) { return { name: r.name, x: r.x - mnx, y: r.y - mny, w: r.w, h: r.h }; });
     var mm = 20, pad = 120, X1 = 0, Y1 = 0; R.forEach(function (r) { X1 = Math.max(X1, r.x + r.w); Y1 = Math.max(Y1, r.y + r.h); });
     var px = function (v) { return Math.round((v / mm + pad) * 10) / 10; };
     var rooms = R.map(function (r) { var x0 = px(r.x), y0 = px(r.y), x1 = px(r.x + r.w), y1 = px(r.y + r.h);
@@ -295,9 +300,15 @@
     // 벽: 칸 테두리를 모아 겹친 구간을 합친다. 건물 바깥 테두리 = 외벽 250, 안쪽 = 칸막이 120
     var E = {}; R.forEach(function (r) { [['h', r.y, r.x, r.x + r.w], ['h', r.y + r.h, r.x, r.x + r.w], ['v', r.x, r.y, r.y + r.h], ['v', r.x + r.w, r.y, r.y + r.h]].forEach(function (e) { var key = e[0] + Math.round(e[1]); (E[key] = E[key] || { ax: e[0], c: e[1], iv: [] }).iv.push([e[2], e[3]]); }); });
     var wall = [], path = [];
-    Object.keys(E).forEach(function (key) { var o = E[key], ext = (o.ax === 'h' ? (Math.abs(o.c) < 1 || Math.abs(o.c - Y1) < 1) : (Math.abs(o.c) < 1 || Math.abs(o.c - X1) < 1)), t = ext ? 250 : 120;
-      o.iv.sort(function (a, b) { return a[0] - b[0]; }); var m = []; o.iv.forEach(function (v) { if (m.length && v[0] <= m[m.length - 1][1] + 1) m[m.length - 1][1] = Math.max(m[m.length - 1][1], v[1]); else m.push(v.slice()); });
-      m.forEach(function (v) { var a = px(v[0]), b = px(v[1]), c = px(o.c), h = t / mm / 2; wall.push([o.ax, a, b, c, t]);
+    var inside = function (x, y) { return R.some(function (r) { return x > r.x && x < r.x + r.w && y > r.y && y < r.y + r.h; }); };
+    Object.keys(E).forEach(function (key) { var o = E[key], bp = [];
+      o.iv.forEach(function (v) { bp.push(v[0], v[1]); }); bp.sort(function (a, b) { return a - b; });
+      var pieces = [];   // 끝점마다 잘라 조각별로 외벽·칸막이를 가린 뒤 같은 것끼리 잇는다
+      for (var q = 0; q + 1 < bp.length; q++) { var a0 = bp[q], b0 = bp[q + 1]; if (b0 - a0 < 1) continue; var md = (a0 + b0) / 2;
+        if (!o.iv.some(function (v) { return v[0] <= md && md <= v[1]; })) continue;
+        var sA = o.ax === 'h' ? inside(md, o.c - 300) : inside(o.c - 300, md), sB = o.ax === 'h' ? inside(md, o.c + 300) : inside(o.c + 300, md), t = (sA && sB) ? 120 : 250;
+        var last = pieces[pieces.length - 1]; if (last && last[2] === t && Math.abs(last[1] - a0) < 1) last[1] = b0; else pieces.push([a0, b0, t]); }
+      pieces.forEach(function (v) { var t = v[2], a = px(v[0]), b = px(v[1]), c = px(o.c), h = t / mm / 2; wall.push([o.ax, a, b, c, t]);
         path.push(o.ax === 'h' ? 'M' + (a - h) + ' ' + (c - h) + 'H' + (b + h) + 'V' + (c + h) + 'H' + (a - h) + 'Z' : 'M' + (c - h) + ' ' + (a - h) + 'H' + (c + h) + 'V' + (b + h) + 'H' + (c - h) + 'Z'); }); });
     // 창: 방·거실이 바깥이나 발코니와 맞닿은 변 가운데 70% (안전: 창이지 문이 아니다)
     var sash = [], inAny = function (x, y, skip) { return R.some(function (r) { return r !== skip && x > r.x && x < r.x + r.w && y > r.y && y < r.y + r.h; }); }, kindAt = function (x, y) { var f = R.filter(function (r) { return x > r.x && x < r.x + r.w && y > r.y && y < r.y + r.h; })[0]; return f ? kindOf(f.name) : null; };
@@ -312,5 +323,5 @@
     return { W: Math.round(px(X1) + pad), H: Math.round(px(Y1) + pad), mmpp: mm, rooms: rooms, 창: [], 문: [], 그림: G, name: '직접 그린 도면', 척도: { 방식: '직접 그림' } };
   }
 
-  root.JJCadIO = { starter: starter, STARTERS: STARTERS, kindOf: kindOf, pdf: pdf, model: model, dxf: dxf, dwg: dwg, parseDXF: parseDXF, toPlan: toPlan, rasterize: rasterize, open: open, writeDXF: writeDXF, LAYERS: LAYERS, BLOCKS: BLOCKS, version: VERSION };
+  root.JJCadIO = { starter: starter, fromRects: fromRects, STARTERS: STARTERS, kindOf: kindOf, pdf: pdf, model: model, dxf: dxf, dwg: dwg, parseDXF: parseDXF, toPlan: toPlan, rasterize: rasterize, open: open, writeDXF: writeDXF, LAYERS: LAYERS, BLOCKS: BLOCKS, version: VERSION };
 })(typeof window !== 'undefined' ? window : this);

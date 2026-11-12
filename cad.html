@@ -77,7 +77,8 @@
 .cad-drop.over{background:#EFE9DA}
 .cad-drop .big{font-size:18px;margin-bottom:12px}
 .cad-drop .sub{font-size:15px;margin-top:12px;line-height:1.55}
-.cad-self{margin-top:30px;padding-top:22px;border-top:1px solid #D9D2C0}.cad-self h3{font-size:19px;margin:0 0 8px}.cad-self p{font-size:16px;line-height:1.7;color:#3a3a3a;margin:0 0 14px}.cad-self-ty{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}.cad-self-ty .cbtn[aria-checked="true"]{background:#2A2A2A;color:#F5F1E8;border-color:#2A2A2A}
+.cad-self{margin-top:30px;padding-top:22px;border-top:1px solid #D9D2C0}.cad-self h3{font-size:19px;margin:0 0 8px}.cad-self p{font-size:16px;line-height:1.7;color:#3a3a3a;margin:0 0 14px}
+.cdw{margin-top:18px}.cdw-row{display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px;margin:10px 0}.cdw-row label{font-weight:600}.cdw-in{display:inline-flex;align-items:center;gap:6px;font-size:16px}.cdw-in input{font:inherit;font-size:17px;height:44px;width:86px;border:1px solid #2A2A2A;border-radius:2px;padding:0 8px;background:#fff}.cdw-help{font-size:15px;color:#6B6B6B;line-height:1.7;margin:6px 0 12px}.cdw-wrap canvas{width:100%;display:block;border:1px solid #2A2A2A;background:#FBF8F1;cursor:pointer;margin-top:8px}.cdw-h{font-weight:700;font-size:17px;margin:18px 0 8px}.cdw-h small,.cdw-h2 small{font-weight:400;color:#6B6B6B;font-size:14px;margin-left:6px}.cdw-h2{font-weight:600;font-size:15px;margin:16px 0 2px;padding-top:12px;border-top:1px solid #E6DFD0}.cdw-names{display:flex;flex-wrap:wrap;gap:6px}.cdw-names .cbtn{min-height:38px;padding:0 12px;font-size:15px}.cdw-names .cbtn.on{background:#2A2A2A;color:#F5F1E8;border-color:#2A2A2A}.cdw-end{display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between;margin-top:20px;padding-top:16px;border-top:1px solid #2A2A2A}
 .cad-field{margin-top:20px}
 .cad-field label{display:block;font-weight:600;margin-bottom:6px}
 .cad-field .in{display:flex;align-items:center;gap:8px}
@@ -128,6 +129,8 @@ body.cad-sheet-on #jjc-btn{display:none!important}
   .cad-steps li{padding-right:0;margin-right:16px;font-size:15px}
   .cad-steps li:last-child{margin-right:0}
   .cbtn{width:100%}
+  .cdw-names .cbtn,.cdw-row .cbtn{width:auto;min-height:40px;padding:6px 14px;font-size:16px}
+  .cdw-in input{width:72px}
 }
 @media print{
   body>*{display:none!important}
@@ -237,14 +240,9 @@ body.cad-sheet-on #jjc-btn{display:none!important}
         </div>
         <div class="cad-self" id="cadSelf">
           <h3>평면도가 없나요?</h3>
-          <p>주택·빌라·상가처럼 평면도가 없으면 집 모양을 골라 시작하세요. 위에 전용면적을 넣으면 그 크기에 맞춰 그립니다. 방 크기·문·창은 다음 화면에서 고칩니다.</p>
-          <div class="cad-self-ty" role="radiogroup" aria-label="집 모양">
-            <button type="button" class="cbtn" data-ty="원룸" role="radio" aria-checked="false">원룸</button>
-            <button type="button" class="cbtn" data-ty="투룸" role="radio" aria-checked="false">투룸</button>
-            <button type="button" class="cbtn" data-ty="방3" role="radio" aria-checked="true">방 3 · 욕실 2</button>
-            <button type="button" class="cbtn" data-ty="빈도면" role="radio" aria-checked="false">빈 도면</button>
-          </div>
-          <button type="button" class="cbtn dark" id="cadSelfGo">이 모양으로 직접 그리기</button>
+          <p>주택·빌라·상가처럼 평면도가 없으면 직접 그립니다. 줄자로 잰 집 전체 크기로 시작해서, 방 크기대로 자르고 튀어나온 곳은 붙이면 됩니다. 벽·창·문은 저절로 들어갑니다.</p>
+          <button type="button" class="cbtn dark" id="cadSelfGo">직접 그리기</button>
+          <div class="cdw" id="cdw" hidden></div>
         </div>
         <p class="cad-safe">올린 그림은 이 기기 안에서만 읽습니다. 집지니 서버나 다른 곳으로 보내지 않습니다.</p>
         <figure class="cad-fig">
@@ -346,10 +344,10 @@ body.cad-sheet-on #jjc-btn{display:none!important}
 })();
 window.JJ_ASSET_BASE = '/assets/';
 </script>
-<script src="assets/plan_style.js?v=20261112zv"></script>
-<script src="assets/cad_io.js?v=20261112zv"></script>
-<script src="assets/cad_editor.js?v=20261112zv"></script>
-<script src="assets/cad_app.js?v=20261112zv"></script>
+<script src="assets/plan_style.js?v=20261112zw"></script>
+<script src="assets/cad_io.js?v=20261112zw"></script>
+<script src="assets/cad_editor.js?v=20261112zw"></script>
+<script src="assets/cad_app.js?v=20261112zw"></script>
 <!--SITENAV--><style>.jj-map{max-width:900px;margin:32px auto 0;padding:22px 16px 26px;border-top:2px solid #d9d2c0;font-family:Pretendard,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;color:#2a2a2a;word-break:keep-all}.jj-map .ttl{font-size:14px;font-weight:800;letter-spacing:1px;color:#1e4d3a;margin-bottom:10px;text-align:center}.jj-map .grp{display:flex;flex-wrap:wrap;gap:6px 8px;align-items:center;margin:6px 0;font-size:14px}.jj-map .grp b{min-width:70px;color:#555;font-weight:700;font-size:13px}.jj-map .grp a{display:inline-block;padding:6px 12px;border:1px solid #cfc8b8;border-radius:16px;background:#fff;color:#2a2a2a;text-decoration:none;font-size:14px;font-weight:500}.jj-map .grp a:hover{border-color:#1e4d3a;color:#1e4d3a}.jj-map .grp a[aria-current=page]{background:#1e4d3a;color:#fff;border-color:#1e4d3a;font-weight:800}.jj-map .grp a[aria-current=page]::before{content:"▶ ";font-size:11px}.jj-map .ft{font-size:13px;color:#555;margin-top:12px;text-align:center;line-height:1.8}.jj-where{max-width:1200px;margin:0 auto;padding:8px 16px;font-size:14px;color:#2a2a2a;background:#efe9db;border-bottom:1px solid #d9d2c0;display:flex;gap:6px;align-items:center;flex-wrap:wrap;word-break:keep-all}.jj-where a{color:#1e4d3a;text-decoration:none;font-weight:600}.jj-where .now{background:#1e4d3a;color:#fff;padding:2px 10px;border-radius:12px;font-weight:700;font-size:13px}.nav-item.is-current>.nav-top{color:#1e4d3a!important;font-weight:800!important;box-shadow:inset 0 -3px 0 #1e4d3a}.nav-dropdown a.is-current{background:#e6efe9!important;color:#1e4d3a!important;font-weight:700!important}@media(max-width:640px){.jj-map .grp b{min-width:100%}}</style><div class="jj-map"><div class="ttl">집지니 사이트 지도 — 지금 보는 쪽은 ▶ 짙은 녹색</div><div class="grp"><b>시작하기 ·</b><a href="index.html">홈</a><a href="self-interior-agency.html">셀인대행이란</a><a href="request.html">무료 견적 신청</a><a href="prepare.html">사전 준비</a></div><div class="grp"><b>집지니 CAD ·</b><a href="cad.html">집지니 CAD — 무료 공사 계획 도면</a></div><div class="grp"><b>샘플실 ·</b><a href="showroom.html">가양동 샘플실 · 상담 예약</a></div><div class="grp"><b>진행 방식 ·</b><a href="workflow.html">진행 방식 8단계</a><a href="interior-coordinator.html">코디네이터란</a></div><div class="grp"><b>가격·견적 ·</b><a href="pricing.html">가격·코디비</a><a href="interior-price-table.html">실견적 시세표</a><a href="cases/">견적 사례</a><a href="py/">평형별 비용</a><a href="trade/">공종별 비용</a></div><div class="grp"><b>가이드 ·</b><a href="banself-interior.html">반셀프 코디</a><a href="jikyoung-interior.html">직영 인테리어</a><a href="interior-margin-30.html">마진 30%</a><a href="interior-estimate-compare.html">견적서 비교</a><a href="apt-olsuri-cost.html">32평 올수리</a><a href="bathroom-remodel-cost.html">욕실 리모델링</a><a href="interior-scam-types.html">사기 유형</a></div><div class="grp"><b>회사 ·</b><a href="about.html">회사소개</a><a href="faq.html">자주 묻는 질문</a><a href="ai-answers.html">AI에게 물어볼 때</a><a href="sitemap.html">사이트 지도</a></div><div class="ft">서울·경기·인천 수도권 전역 · 자재상·기술자 직거래 · 정찰제 코디비 · 부가세 10% 별도<br>샘플실: <a href="showroom.html" style="color:#1e4d3a;font-weight:600">서울 강서구 공항대로41길 66 세신종합상가 지하 1층 B156호 (가양동)</a> · 상담 예약 010-9806-0422</div></div><script>(function(){try{
 var here=location.pathname.replace(/\/index\.html$/,"/");
 var norm=function(h){var a=document.createElement("a");a.href=h;return a.pathname.replace(/\/index\.html$/,"/");};
