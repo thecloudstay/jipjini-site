@@ -28,7 +28,8 @@ def segs(mask, minlen):
             else: out.append([c,a,b,[c]])
         return [[round(sum(o[3])/len(o[3]),1),o[1],o[2]] for o in out]
     return [('h',float(s[0]),int(s[1]),int(s[2])) for s in merge(H)]+[('v',float(s[0]),int(s[1]),int(s[2])) for s in merge(V)]
-JJ_WALL_MM=200   # 집지니 표준 벽 두께(mm)
+JJ_WALL_MM=200   # 집지니 표준 벽 두께(mm) — 문·샷시 메움 등 보조용
+JJ_EXT_MM,JJ_STR_MM,JJ_PART_MM=250,200,120   # 2026-11-12 캐드로 바꿔도 맞도록: 외벽 250 · 두꺼운 안벽(구조벽) 200 · 칸막이 120
 def clean_walls(wall, mm):
     """2026-11-12 대표 지시: 원본 외곽(벽)은 자리만 참고하고 집지니식으로 다시 그린다 — 가로·세로 곧은 띠, 두께는 두 가지(바깥·안)로 통일, 희끗한 점 없이"""
     H,W=wall.shape; w8=wall.astype(np.uint8)
@@ -47,11 +48,23 @@ def clean_walls(wall, mm):
                 rows=sub.sum(1); ok=rows>0; left=np.argmax(sub,1)[ok]; t=np.median(rows[ok]); c=np.median(left+rows[ok]/2.0)+x
                 out.append(['v',y,y+h_,c,t])
     if not out: return wall
-    ts=np.array([o[4] for o in out]); tin=np.percentile(ts,25); tex=np.percentile(ts,90)
-    tin=tex=JJ_WALL_MM/mm   # 2026-11-12 대표 지시 「집지니 타입 하나로 모두 통일」: 벽 두께는 모든 평면·모든 벽 같은 값
+    ts=np.array([o[4] for o in out]); t_lo=np.percentile(ts,20); t_hi=np.percentile(ts,85); mid=(t_lo+t_hi)/2.0 if t_hi>t_lo*1.25 else t_lo*0.8
+    # 벽 종류 정하기: 건물 바깥(빈 곳)과 맞닿으면 외벽, 아니면 원본 두께로 구조벽/칸막이
+    body=cv2.morphologyEx(w8,cv2.MORPH_CLOSE,np.ones((max(5,int(1300/mm)),)*2,np.uint8)); ff=(1-body).astype(np.uint8); mk=np.zeros((H+2,W+2),np.uint8); cv2.floodFill(ff,mk,(0,0),2); outside=(ff==2)
+    for o in out:
+        ax,a,b,c,t=o; probe=[]
+        for f_ in (0.25,0.5,0.75):
+            q=a+(b-a)*f_; d0=t/2+max(3,int(400/mm))
+            pts=[(q,c-d0),(q,c+d0)] if ax=='h' else [(c-d0,q),(c+d0,q)]
+            for X,Y in pts:
+                X=int(round(X)); Y=int(round(Y))
+                if 0<=X<W and 0<=Y<H: probe.append(outside[Y,X] and not body[Y,X])
+                else: probe.append(True)
+        o.append(JJ_EXT_MM if sum(probe)>=2 else (JJ_STR_MM if t>=mid else JJ_PART_MM))
+    tin=tex=JJ_WALL_MM/mm
     clean_walls.T=(tin,tex)
     # 끝 맞추기(2026-11-12 「벽 두께가 제각각·이음이 지저분」): 원본 두께로 잡힌 끝은 표준 두께로 줄인 맞은편 벽 바깥면에 맞춘다 — 튀어나온 꼬투리 없앰
-    T0=JJ_WALL_MM/mm; hs=[o for o in out if o[0]=='h']; vs=[o for o in out if o[0]=='v']
+    hs=[o for o in out if o[0]=='h']; vs=[o for o in out if o[0]=='v']
     def snap(A,B):
         for o in A:
             for k,sgn in ((1,-1),(2,1)):          # 1=시작 끝(왼/위), 2=끝(오른/아래)
@@ -59,11 +72,12 @@ def clean_walls(wall, mm):
                 for q in B:
                     if q[1]-q[4]<=o[3]<=q[2]+q[4] and abs(q[3]-e)<=max(q[4],o[4])*0.9+2:
                         if best is None or abs(q[3]-e)<abs(best[3]-e): best=q
-                if best is not None: o[k]=best[3]+sgn*T0/2.0
+                if best is not None: o[k]=best[3]+sgn*best[5]/mm/2.0
     snap(hs,vs); snap(vs,hs)
     canvas=np.zeros((H,W),np.uint8); covered=(hh>0)|(vv>0)
-    for ax,a,b,c,t in out:
-        T=tex if abs(t-tex)<abs(t-tin) else tin; hT=T/2.0
+    clean_walls.segs=[(o[0],o[1],o[2],o[3],o[5]) for o in out]   # 캐드 내보내기용: (방향, 시작, 끝, 중심선, 두께mm)
+    for ax,a,b,c,t,Tm in out:
+        T=Tm/mm; hT=T/2.0
         if ax=='h': cv2.rectangle(canvas,(int(round(a)),int(round(c-hT))),(int(round(b-1)),int(round(c+hT-1))),1,-1)
         else: cv2.rectangle(canvas,(int(round(c-hT)),int(round(a))),(int(round(c+hT-1)),int(round(b-1))),1,-1)
     rest=(w8>0)&~(cv2.dilate(covered.astype(np.uint8),np.ones((3,3),np.uint8))>0)   # 짧은 토막·기둥은 네모로
