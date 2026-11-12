@@ -52,6 +52,20 @@ def version():
     return h.hexdigest()[:10]
 
 
+def tool_version():
+    """방 읽기 도구(코드/도구 폴더) 지문 — 이것이 그대로면 방을 다시 읽지 않고 저장해 둔 읽기를 쓴다"""
+    h = hashlib.sha1()
+    for n in TOOL_FILES + (os.path.join("models", "manifest.json"),):
+        try:
+            h.update(open(os.path.join(TOOL_DIR, n), "rb").read())
+        except OSError:
+            pass
+    return h.hexdigest()[:10]
+
+
+READ = os.path.join(OUT, "방읽기")      # 키마다 방 읽기 결과(도구 판과 함께) — 2026-11-13: 그리기 도구만 바뀐 회차에 브라우저 읽기(한 장 약 29초)를 되풀이하던 것 없앰
+
+
 def rj(p, d):
     try:
         return json.load(open(p, encoding="utf-8"))
@@ -70,8 +84,14 @@ READ_JS = r"""async (c) => {
 
 
 def main(n=400):
-    os.makedirs(os.path.join(OUT, "도면"), exist_ok=True)
-    ver = version(); st = rj(os.path.join(OUT, "상태.json"), {})
+    os.makedirs(os.path.join(OUT, "도면"), exist_ok=True); os.makedirs(READ, exist_ok=True)
+    # 2026-11-13 대표 지시 「학습은 컴퓨터판에서」: 그리기 도구가 바뀌었으면 먼저 이 컴퓨터에서 관문(옛 판과 무작위 20장 견줌) → 통과한 판만 남김
+    try:
+        import subprocess
+        subprocess.call([sys.executable, "-u", os.path.join(HERE, "pc_gate.py")])
+    except Exception as e:
+        print("관문을 돌리지 못했습니다:", e, flush=True)
+    ver = version(); tver = tool_version(); st = rj(os.path.join(OUT, "상태.json"), {})
     rows = [r for r in csv.DictReader(open(LIST, encoding="utf-8-sig")) if str(r.get("순서")) == "1" and os.path.exists(r.get("파일") or "")]
     todo = [r for r in rows if (st.get("%s_%s" % (r["단지코드"], r["평형"])) or {}).get("판") != ver]
     random.seed(int(time.time())); random.shuffle(todo)
@@ -83,8 +103,11 @@ def main(n=400):
     from playwright.sync_api import sync_playwright
     known = rj(os.path.join(HERE, "알려진모양.json"), {})
     t0 = time.time(); done = 0
-    with sync_playwright() as p:
-        b = p.chromium.launch(headless=True); page = b.new_page(viewport={"width": 1200, "height": 900})
+    pw = {"p": None, "b": None, "page": None}
+    def page_get():
+        if pw["page"]:
+            return pw["page"]
+        pw["p"] = sync_playwright().start(); pw["b"] = pw["p"].chromium.launch(headless=True); page = pw["b"].new_page(viewport={"width": 1200, "height": 900})
         mdir = os.path.join(TOOL_DIR, "models")
         if os.path.isdir(mdir):
             def give(route):
@@ -99,6 +122,8 @@ def main(n=400):
             else:
                 page.add_script_tag(url="https://jipjini.com/assets/" + name)
         page.wait_for_function("() => window.JJPlanTools", timeout=60000)
+        pw["page"] = page; return page
+    if True:
         for i, r in enumerate(todo):
             k = "%s_%s" % (r["단지코드"], r["평형"]); f = r["파일"]
             try:
@@ -107,8 +132,13 @@ def main(n=400):
                 area = 0
             rec = {"판": ver, "때": time.strftime("%Y-%m-%d %H:%M")}
             try:
-                raw = open(f, "rb").read(); mime = "image/png" if f.lower().endswith(".png") else "image/jpeg"
-                a = page.evaluate(READ_JS, {"dataUrl": "data:%s;base64,%s" % (mime, base64.b64encode(raw).decode()), "area": area})
+                cf = os.path.join(READ, k + ".json"); c = rj(cf, {})
+                if c.get("도구판") == tver and c.get("읽기"):
+                    a = c["읽기"]; rec["읽기"] = "저장분"
+                else:
+                    raw = open(f, "rb").read(); mime = "image/png" if f.lower().endswith(".png") else "image/jpeg"
+                    a = page_get().evaluate(READ_JS, {"dataUrl": "data:%s;base64,%s" % (mime, base64.b64encode(raw).decode()), "area": area})
+                    json.dump({"도구판": tver, "때": time.strftime("%Y-%m-%d %H:%M"), "읽기": a}, open(cf, "w", encoding="utf-8"), ensure_ascii=False)
                 if not a.get("ok") or not a.get("rooms"):
                     rec.update(판정="예외", 남은규칙="R0 방 못 읽음 " + str(a.get("why", ""))[:40])
                 elif a.get("회전"):
@@ -131,7 +161,8 @@ def main(n=400):
             print(f"[{i + 1}/{len(todo)}] {k} {rec.get('판정')} {rec.get('점수', '')} {rec.get('남은규칙', '')[:50]}", flush=True)
             if done % 20 == 0:
                 json.dump(st, open(os.path.join(OUT, "상태.json"), "w", encoding="utf-8"), ensure_ascii=False)
-        b.close()
+    if pw["b"]:
+        pw["b"].close(); pw["p"].stop()
     json.dump(st, open(os.path.join(OUT, "상태.json"), "w", encoding="utf-8"), ensure_ascii=False)
     report(st, ver, time.time() - t0, done)
     return 0
