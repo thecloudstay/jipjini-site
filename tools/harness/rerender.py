@@ -6,6 +6,7 @@
    python3 tools/harness/rerender.py <그림폴더> <도면폴더(키.json)> [차이그림폴더]"""
 import json, os, sys
 import cv2, numpy as np
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..')); import plan_trace
 
 
 def layers(img):
@@ -90,7 +91,7 @@ if __name__ == '__main__':
     if outd: os.makedirs(outd, exist_ok=True)
     for f in sorted(os.listdir(gd)):
         if not f.endswith('.json'): continue
-        k = f[:-5]; G = json.load(open(os.path.join(gd, f), encoding='utf-8')); img = cv2.imread(os.path.join(imgd, k + '.jpg'))
+        k = f[:-5]; G = json.load(open(os.path.join(gd, f), encoding='utf-8')); img = plan_trace.imread_u(os.path.join(imgd, k + '.jpg'))
         if img is None or not G.get('벽선'): continue
         mm = G.get('mmpp') or 23.0
         r, df = compare(img, G, mm); rows.append((k, r))

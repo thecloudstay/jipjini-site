@@ -1,5 +1,9 @@
 # 원본 평면도 → 읽고(직선 토막) → 다듬고(가로·세로, 합치기) → 가려내고(싱크대·붙박이장·신발장·샷시) → 집지니 기호로 다시 그릴 자료
 import os, json, cv2, numpy as np
+def imread_u(path):
+    """2026-11-12 고침(대표 컴퓨터 일괄 변환 160장 중 158장 오류): 윈도우에서 cv2.imread 는 한글 경로(D:\\croll\\자료\\plans\\인천광역시…)를 못 연다 → 바이트로 읽어 풀기"""
+    try: return cv2.imdecode(np.fromfile(path, np.uint8), cv2.IMREAD_COLOR)
+    except Exception: return cv2.imread(path)
 def rect_path(mask, eps=1.2, snap=True):
     cs,_=cv2.findContours(mask.astype(np.uint8),cv2.RETR_CCOMP,cv2.CHAIN_APPROX_SIMPLE); d=[]
     for c in cs:
@@ -743,7 +747,7 @@ def fix_kinds_ocr(bgr, rooms):
         r['바로잡음']=r.get('name'); r['kind']=kd; r['name']=nm if kd in ('현관',) or nm=='다용도실' else '%s%d'%(nm,n_)
     return rooms
 def trace(path, plan):
-    bgr=cv2.imread(path); H,W=bgr.shape[:2]; mm=plan.get('mmpp') or 23.0
+    bgr=imread_u(path); H,W=bgr.shape[:2]; mm=plan.get('mmpp') or 23.0
     hsv=cv2.cvtColor(bgr,cv2.COLOR_BGR2HSV); v=hsv[...,2].astype(int); s=hsv[...,1].astype(int)
     rooms=fix_kinds_ocr(bgr,fix_kinds(bgr,plan['rooms'])); house=np.zeros((H,W),np.uint8)
     for r in rooms: cv2.fillPoly(house,[np.array(r['pts'],np.int32)],1)

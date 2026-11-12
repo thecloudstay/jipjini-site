@@ -12,7 +12,7 @@ for s, ex in list(cand.items())[:N]:
     for k, x, y, _ in ex[:4]:
         f = os.path.join(imgdir, k + '.jpg')
         if k not in cache: cache[k] = plan_trace.trace(f, rooms[k])
-        img = cv2.imread(f); p = dict(rooms[k], 그림=cache[k]); m = discover.struct_mask(cache[k], p['mmpp'], *img.shape[:2])
+        img = plan_trace.imread_u(f); p = dict(rooms[k], 그림=cache[k]); m = discover.struct_mask(cache[k], p['mmpp'], *img.shape[:2])
         ov = img.copy(); ov[m > 0] = (0.45*ov[m > 0] + 0.55*np.array([255, 120, 0])).astype(np.uint8)
         P = lambda I: cv2.copyMakeBorder(I, 60, 60, 60, 60, cv2.BORDER_CONSTANT, value=(255, 255, 255))[y:y+120, x:x+120]
         a, b = P(img).copy(), P(ov).copy(); cv2.circle(b, (60, 60), 10, (0, 0, 255), 1)

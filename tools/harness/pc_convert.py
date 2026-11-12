@@ -139,7 +139,7 @@ def main(n=400):
 def one(f, k, plan, known):
     """한 장: 변환 → 검수 → 자동 고침 → 다시 검수 → 가르기 → 채점. 도면 자료는 결과 폴더에."""
     import copy
-    img = cv2.imread(f); G = plan_trace.trace(f, plan); chk = plan_check.rules(img, dict(plan, 그림=G)); fixed = []
+    img = plan_trace.imread_u(f); G = plan_trace.trace(f, plan); chk = plan_check.rules(img, dict(plan, 그림=G)); fixed = []
     for rule, fn in pipeline.FIXERS:
         if not any(x[0] == rule for x in chk):
             continue

@@ -68,7 +68,7 @@ def score(img_path, p):
     """채점(검수 규칙과 따로): 원본 굵은 검정 줄(벽)을 우리가 얼마나 덮었나(놓침%), 우리 벽·창 중심선이 원본 선 위에 있나(군더더기%).
        점수 = 100 - 놓침% - 군더더기% - 2×(원본과 다른 곳)  (원본 그림만 기준 — 검수 규칙을 바꿔 점수를 올릴 수 없다)"""
     try:
-        img = cv2.imread(img_path); H, W = img.shape[:2]; G = p['그림']; mm = p['mmpp']
+        img = plan_trace.imread_u(img_path); H, W = img.shape[:2]; G = p['그림']; mm = p['mmpp']
         v = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)[..., 2].astype(int); s_ = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)[..., 1].astype(int)
         X0, Y0, X1, Y1 = G.get('틀') or [0, 0, W, H]; box = np.zeros((H, W), bool); box[max(0, Y0-4):Y1+5, max(0, X0-4):X1+5] = True
         thick = (cv2.morphologyEx((v < 100).astype(np.uint8), cv2.MORPH_OPEN, np.ones((4, 4), np.uint8)) > 0) & box
@@ -114,7 +114,7 @@ def run(imgdir, roomsf, outdir, csvf=None):
             rows.append({'키': k, '판정': '예외', '점수': None, '남은규칙': 'R0 ' + why}); box['R0'].append([k, why, 0, 0])
             print(k, '예외', why, flush=True); continue
         try:
-            img = cv2.imread(f); G = plan_trace.trace(f, p); q = dict(p, 그림=G)
+            img = plan_trace.imread_u(f); G = plan_trace.trace(f, p); q = dict(p, 그림=G)
             chk0 = plan_check.rules(img, q); fixed = []
             for rule, fn in FIXERS:
                 if not any(x[0] == rule for x in chk0): continue
