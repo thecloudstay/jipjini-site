@@ -217,6 +217,11 @@ def main(n=400):
     except OSError:
         pass
     report(st, ver, time.time() - t0, done)
+    try:   # 합성 정답지: 바꾼 도면을 네이버 양식 그림으로 찍어 학습\합성\ 에 쌓는다(이미 만든 것은 건너뜀)
+        sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "student"))
+        import synth; synth.main(3)
+    except Exception as e:
+        print("합성 정답지 건너뜀:", str(e)[:80], flush=True)
     return 0
 
 
