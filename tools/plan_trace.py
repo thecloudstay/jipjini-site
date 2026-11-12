@@ -567,7 +567,11 @@ def trace(path, plan):
     nw,lw,sw,_=cv2.connectedComponentsWithStats(wall.astype(np.uint8),connectivity=8); kw=np.ones(nw,bool); kw[0]=False
     for j in range(1,nw):
         w_,h_,a_=sw[j,2],sw[j,3],sw[j,4]
-        if max(w_,h_)*mm<1200 and a_<w_*h_*0.55: kw[j]=False   # 굵은 글자
+        if max(w_,h_)*mm<1200 and a_<w_*h_*0.55:   # 굵은 글자
+            # 2026-11-12 하네스 학습(예외함 「놓친 벽 R6」 23평면): 창에 끊겨 외따로 떨어진 짧은 벽 토막(ㄱ·ㄷ자 피트 벽 등)도 채움이 낮아 글자로 지워졌다
+            #   → 덩어리 안에 가로·세로로 400mm(최소 12화소) 넘게 곧게 이어진 검은 줄이 있으면 벽이다(글자 획은 짧다)
+            sub=(lw[sw[j,1]:sw[j,1]+h_,sw[j,0]:sw[j,0]+w_]==j).astype(np.uint8); _L=max(12,int(400/mm))
+            if not((w_>=_L and cv2.morphologyEx(sub,cv2.MORPH_OPEN,np.ones((1,_L),np.uint8)).any()) or (h_>=_L and cv2.morphologyEx(sub,cv2.MORPH_OPEN,np.ones((_L,1),np.uint8)).any())): kw[j]=False
         if max(w_,h_)*mm<400: kw[j]=False   # 기구 그림 속 작은 검은 점
     wall=kw[lw]
     # 욕실 안 지저분한 것 정리(대표 지적 2026-11-12): 욕실 칸 안쪽(벽에서 조금 떨어진 곳)의 검은 덩어리는 기구 그림이다 — 지운다
