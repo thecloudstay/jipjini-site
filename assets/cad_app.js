@@ -4,11 +4,20 @@
      → 올리기 걸음과 떨어져 있어, 나중에 「우리 집 검색」으로 미리 다시 그려 둔 도면을 받아도 같은 편집기를 그대로 쓴다.
    지키는 선: 올린 원본 그림은 이 기기 밖으로 보내지 않고 보관하지도 않는다(다시 그린 도면 자료와 표시만 localStorage 에 둔다). 인쇄·저장물에는 다시 그린 도면만 들어간다. 바깥 꾸러미 없음. */
 (function (root) {
-  var KEY = 'jj_cad_v2', OLDKEY = 'jj_cad_v1', VER = '20261112zs', REQ_URL = 'https://script.google.com/macros/s/AKfycbzxm4mmZs1yVJPa3T-wb0cdJbEUMPYl6dDKtQNSNmJy4nEsCholrEnPAN8e0JfAtOV99A/exec?type=request_form', doc = document, $ = function (id) { return doc.getElementById(id); };
+  var KEY = 'jj_cad_v2', OLDKEY = 'jj_cad_v1', VER = '20261112zt', REQ_URL = 'https://script.google.com/macros/s/AKfycbzxm4mmZs1yVJPa3T-wb0cdJbEUMPYl6dDKtQNSNmJy4nEsCholrEnPAN8e0JfAtOV99A/exec?type=request_form', doc = document, $ = function (id) { return doc.getElementById(id); };
   var S = { state: null, file: null, pending: null };
   function esc(t) { return String(t == null ? '' : t).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
   function ev(name, prm) { try { if (root.gtag) root.gtag('event', name, prm || {}); } catch (e) {} }
   // 캐드 파일 내려받기 기록(2026-11-12 10단계 1차): 어느 파일을 몇 번 받는지 방문 통계에 남긴다 — 같은 기기에서 하루 몇 개 받는지도 센다(이 기기 안에만)
+  // 10단계 1차: 캐드 파일은 콘솔 문지기(cad_file.gs)를 거친다 — 기기별 하루 한도·기록, 2분짜리 주소. 문지기가 아직 파일을 못 받았거나(창고 채우는 중) 닿지 않으면 예전처럼 바로 받는다
+  function devId() { try { var k = 'jj_dev', v = localStorage.getItem(k); if (!v) { v = Math.random().toString(36).slice(2) + Date.now().toString(36); localStorage.setItem(k, v); } return v; } catch (e) { return 'nols'; } }
+  function gateDl(a) { var href = a.getAttribute('href'), f = decodeURIComponent(href.split('/').pop()), name = a.getAttribute('download') || f, direct = function () { var x = doc.createElement('a'); x.href = href; x.download = name; doc.body.appendChild(x); x.click(); x.remove(); };
+    dlLog(href); toast('파일을 준비하고 있습니다…');
+    var done = false, t = setTimeout(function () { if (!done) { done = true; direct(); } }, 12000);
+    fetch(REQ_URL.replace(/\?type=.*$/, '?type=cad_file&f=' + encodeURIComponent(f) + '&d=' + encodeURIComponent(devId()))).then(function (r) { return r.json(); }).then(function (j) { if (done) return; done = true; clearTimeout(t);
+      if (j && j.ok && j.url) { var x = doc.createElement('a'); x.href = j.url; x.download = name; doc.body.appendChild(x); x.click(); x.remove(); return; }
+      if (j && j.why === '한도') { ev('cad_file_limit'); toast('오늘 받을 수 있는 캐드 파일(' + (j.limit || 5) + '개)을 다 받으셨습니다. 업체 이용은 상담으로 문의해 주세요.'); return; }
+      direct(); }, function () { if (!done) { done = true; clearTimeout(t); direct(); } }); }
   function dlLog(href) { try { var d = new Date().toISOString().slice(0, 10), k = 'jj_dl_' + d, n = (+localStorage.getItem(k) || 0) + 1; localStorage.setItem(k, n); ev('cad_file_download', { file: decodeURIComponent(String(href).split('/').pop()), today_count: n }); if (n >= 10) ev('cad_file_download_bulk', { today_count: n }); } catch (e) {} }
   function r1(v) { return Math.round(v * 10) / 10; }
   var toastT = 0;
@@ -140,7 +149,7 @@
           var rs = (t.plan && t.plan.rooms) || [], c = function (k) { return rs.filter(function (q) { return q.kind === k; }).length; };
           return '<tr><td>' + esc(t.이름) + '</td><td>' + (t.전용 ? esc(t.전용) + '㎡' : '–') + '</td><td>방 ' + (c('방') + c('안방')) + ' · 욕실 ' + c('욕실') + '</td><td><button type="button" class="cbtn dark" data-i="' + i + '">이 평면 열기</button>' + (t.plan && t.plan.그림 ? ' <a class="cbtn" href="data/cad/' + encodeURIComponent(m[1] + '_' + t.이름) + '.dwg" download="' + esc((j.단지 || m[1]) + '_' + t.이름) + '.dwg" title="오토캐드 고유 형식(2018 판) — 벽·문·창·방이 층과 기호로 나뉘어 있습니다">오토캐드 파일</a> <a class="cbtn" href="data/cad/' + encodeURIComponent(m[1] + '_' + t.이름) + '.dxf" download="' + esc((j.단지 || m[1]) + '_' + t.이름) + '.dxf" title="어느 캐드 프로그램에서나 열리는 교환용 파일">교환 파일</a>' : '') + '</td></tr>';
         }).join('') + '</tbody></table>';
-      box.addEventListener('click', function (e) { var dl = e.target.closest('a[href^="data/cad/"]'); if (dl) { dlLog(dl.getAttribute('href')); return; } var b = e.target.closest('button[data-i]'); if (!b) return; var t = j.평형[+b.getAttribute('data-i')]; if (!t || !t.plan) return;
+      box.addEventListener('click', function (e) { var dl = e.target.closest('a[href^="data/cad/"]'); if (dl) { e.preventDefault(); gateDl(dl); return; } var b = e.target.closest('button[data-i]'); if (!b) return; var t = j.평형[+b.getAttribute('data-i')]; if (!t || !t.plan) return;
         ev('cad_apt_open'); if (t.전용) $('cadM2').value = t.전용; S.pending = t.plan; go(2); $('cadWait').hidden = true; $('cadFail').hidden = true; showResult({ 글자: { 방이름: 1 } }); });
     }).catch(none);
   }
