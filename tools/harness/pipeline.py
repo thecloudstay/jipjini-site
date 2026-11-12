@@ -102,6 +102,9 @@ def run(imgdir, roomsf, outdir, csvf=None):
         if k in area: p['전용'] = area[k]
         # 예외함 학습 1(2026-11-12 첫 시험 62장 중 18장): 치수선이 없거나 못 읽어 축척이 0 → 전용면적과 방 넓이 합으로 축척을 정한다
         if p.get('rooms') and not p.get('mmpp') and p.get('전용'):
+            # 2026-11-12: 방 종류 바로잡기(발코니를 방·기타로 읽은 것)를 축척 계산보다 먼저 — 발코니가 방 넓이에 섞인 채 축척이 정해져 106A 면적 0.78배
+            _im = plan_trace.imread_u(os.path.join(imgdir, k + '.jpg'))
+            if _im is not None: plan_trace.fix_kinds(_im, p['rooms'])
             px = sum(abs(cv2.contourArea(np.array(r['pts'], np.float32))) for r in p['rooms'] if len(r['pts']) >= 3 and r.get('kind') not in ('발코니', '공용', '피트'))
             if px > 0: p['mmpp'] = (AREA_K * p['전용'] * 1e6 / px) ** 0.5; p['축척출처'] = '전용면적'
     known = json.load(open(os.path.join(HERE, '알려진모양.json'), encoding='utf-8'))

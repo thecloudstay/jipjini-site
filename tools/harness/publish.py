@@ -25,6 +25,7 @@ def main(imgdir, roomsf, scoref, listf, uif, cut=85.0):
         a = A[k]; area = float(a['전용면적'] or 0); u = UI[k]; mm = R[k].get('mmpp') or 0
         rooms = [dict(q) for q in R[k]['rooms'] if len(q['pts']) >= 3]
         if not mm and area:
+            plan_trace.fix_kinds(plan_trace.imread_u(src), rooms)   # 방 종류 바로잡기를 축척 계산보다 먼저
             px = sum(abs(cv2.contourArea(np.array(q['pts'], np.float32))) for q in rooms if q.get('kind') not in ('발코니', '공용', '피트'))
             mm = (AREA_K * area * 1e6 / px) ** 0.5 if px else 0
         if not mm: print(k, '건너뜀(축척 없음)'); continue
