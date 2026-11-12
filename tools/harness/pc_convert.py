@@ -38,7 +38,7 @@ except ImportError:
     import subprocess
     subprocess.call([sys.executable, "-m", "pip", "install", "--user", "-q", "opencv-python-headless", "numpy"])
     import cv2, numpy as np
-import plan_trace, plan_check, discover, pipeline
+import plan_trace, plan_check, discover, pipeline, answer_key
 
 
 def version():
@@ -63,6 +63,8 @@ def tool_version():
     return h.hexdigest()[:10]
 
 
+KEYS = os.path.join(CROLL, "학습", "집지니")     # 2026-11-13 새 정답지(세 의견 합의)
+TEACHER = os.path.join(CROLL, "학습", "선생", "floorplan-segformer.onnx")
 READ = os.path.join(OUT, "방읽기")      # 키마다 방 읽기 결과(도구 판과 함께) — 2026-11-13: 그리기 도구만 바뀐 회차에 브라우저 읽기(한 장 약 29초)를 되풀이하던 것 없앰
 
 
@@ -71,6 +73,20 @@ def rj(p, d):
         return json.load(open(p, encoding="utf-8"))
     except Exception:
         return d
+
+
+# 선생 모델 실행(plan_score.py 와 같은 것 — 512 화면에 맞춰 넣고 128 칸 분류: 바탕·방·벽·문·창)
+TEACH_INIT_JS = r"""async (b64) => { const V = window.JJVendor; if (!V || !V.ort) return '추론 실행기가 아직 없습니다'; const bin = atob(b64), u = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i);
+  window.__teach = await V.ort.InferenceSession.create(u, { executionProviders: ['wasm'], graphOptimizationLevel: 'all' }); return 'ok'; }"""
+TEACH_JS = r"""async (dataUrl) => { const s = window.__teach, V = window.JJVendor; if (!s) return null; const im = new Image(); im.src = dataUrl; await new Promise(ok => im.onload = ok);
+  const S = 512, k = S / Math.max(im.width, im.height), nw = Math.max(1, Math.round(im.width * k)), nh = Math.max(1, Math.round(im.height * k)), ox = (S - nw) >> 1, oy = (S - nh) >> 1;
+  const c = document.createElement('canvas'); c.width = S; c.height = S; const g = c.getContext('2d'); g.fillStyle = '#fff'; g.fillRect(0, 0, S, S); g.drawImage(im, ox, oy, nw, nh);
+  const d = g.getImageData(0, 0, S, S).data, N = S * S, x = new Float32Array(3 * N), M = [0.485, 0.456, 0.406], D = [0.229, 0.224, 0.225];
+  for (let i = 0; i < N; i++) for (let ch = 0; ch < 3; ch++) x[ch * N + i] = (d[i * 4 + ch] / 255 - M[ch]) / D[ch];
+  const f = {}; f[s.inputNames[0]] = new V.ort.Tensor('float32', x, [1, 3, S, S]); const o = (await s.run(f))[s.outputNames[0]], C = o.dims[1], h = o.dims[2], w = o.dims[3], L = o.data, P = h * w, cls = new Uint8Array(P);
+  for (let p = 0; p < P; p++) { let b = 0, bv = L[p]; for (let q = 1; q < C; q++) { const v = L[q * P + p]; if (v > bv) { bv = v; b = q; } } cls[p] = b; }
+  let t = ''; for (let i = 0; i < P; i++) t += String.fromCharCode(cls[i]);
+  return { w: w, h: h, S: S, k: k, ox: ox, oy: oy, classes: ['바탕', '방', '벽', '문', '창'], b64: btoa(t) }; }"""
 
 
 READ_JS = r"""async (c) => {
@@ -95,6 +111,10 @@ def main(n=400):
         subprocess.call([sys.executable, "-u", os.path.join(HERE, "pc_gate.py")])
     except Exception as e:
         print("관문을 돌리지 못했습니다:", e, flush=True)
+    try:
+        rescreen(rj(os.path.join(HERE, "알려진모양.json"), {}))
+    except Exception as e:
+        print("옛 정답지 재선별을 못 했습니다:", str(e)[:100], flush=True)
     ver = version(); tver = tool_version(); st = rj(os.path.join(OUT, "상태.json"), {})
     rows = [r for r in csv.DictReader(open(LIST, encoding="utf-8-sig")) if str(r.get("순서")) == "1" and os.path.exists(r.get("파일") or "")]
     todo = [r for r in rows if (st.get("%s_%s" % (r["단지코드"], r["평형"])) or {}).get("판") != ver]
@@ -130,6 +150,13 @@ def main(n=400):
             else:
                 page.add_script_tag(url="https://jipjini.com/assets/" + name)
         page.wait_for_function("() => window.JJPlanTools", timeout=60000)
+        pw["teach"] = False
+        if os.path.exists(TEACHER):   # 2026-11-13 세 의견 합의: 선생 모델이 본 벽·문·창을 읽기마다 같이 남긴다(정답지 합의 심판)
+            try:
+                page.wait_for_function("() => window.JJVendor && window.JJVendor.ort", timeout=60000)
+                pw["teach"] = page.evaluate(TEACH_INIT_JS, base64.b64encode(open(TEACHER, "rb").read()).decode()) == "ok"
+            except Exception as e:
+                print("선생 모델을 못 올렸습니다:", str(e)[:100], flush=True)
         pw["page"] = page; return page
     if True:
         for i, r in enumerate(todo):
@@ -142,11 +169,17 @@ def main(n=400):
             try:
                 cf = os.path.join(READ, k + ".json"); c = rj(cf, {})
                 if c.get("도구판") == tver and c.get("읽기"):
-                    a = c["읽기"]; rec["읽기"] = "저장분"
+                    a = c["읽기"]; rec["읽기"] = "저장분"; teach = c.get("선생")
                 else:
                     raw = open(f, "rb").read(); mime = "image/png" if f.lower().endswith(".png") else "image/jpeg"
                     a = page_get().evaluate(READ_JS, {"dataUrl": "data:%s;base64,%s" % (mime, base64.b64encode(raw).decode()), "area": area})
-                    json.dump({"도구판": tver, "때": time.strftime("%Y-%m-%d %H:%M"), "읽기": a}, open(cf, "w", encoding="utf-8"), ensure_ascii=False)
+                    teach = None
+                    if pw.get("teach"):
+                        try:
+                            teach = page_get().evaluate(TEACH_JS, "data:%s;base64,%s" % (mime, base64.b64encode(raw).decode()))
+                        except Exception:
+                            teach = None
+                    json.dump({"도구판": tver, "때": time.strftime("%Y-%m-%d %H:%M"), "읽기": a, "선생": teach}, open(cf, "w", encoding="utf-8"), ensure_ascii=False)
                 if not a.get("ok") or not a.get("rooms"):
                     rec.update(판정="예외", 남은규칙="R0 방 못 읽음 " + str(a.get("why", ""))[:40])
                 elif a.get("회전"):
@@ -161,8 +194,14 @@ def main(n=400):
                     if not plan["mmpp"]:
                         rec.update(판정="예외", 남은규칙="R0 축척 못 읽음")
                     else:
-                        res = one(f, k, plan, known)
+                        res = one(f, k, plan, known, teach)
                         rec.update(res)
+                        ok_, why_ = answer_key.passes(rec)
+                        if ok_:
+                            answer_key.save(KEYS, k, f, plan, res.pop("_G"), rec, teach); rec["정답지"] = True
+                        else:
+                            res.pop("_G", None); rec["정답지아님"] = why_[:3]
+                        rec.pop("_G", None)
             except Exception as e:
                 rec.update(판정="오류", 남은규칙=str(e)[:80])
             st[k] = rec; done += 1
@@ -181,7 +220,7 @@ def main(n=400):
     return 0
 
 
-def one(f, k, plan, known):
+def one(f, k, plan, known, teach=None):
     """한 장: 변환 → 검수 → 자동 고침 → 다시 검수 → 가르기 → 채점. 도면 자료는 결과 폴더에."""
     import copy
     img = plan_trace.imread_u(f); G = plan_trace.trace(f, plan); chk = plan_check.rules(img, dict(plan, 그림=G)); fixed = []
@@ -210,7 +249,11 @@ def one(f, k, plan, known):
         rr, _ = rerender.compare(img, G, plan["mmpp"]); rr = {a: float(b) for a, b in rr.items()}
     except Exception:
         rr = {}
-    return {"겹침": rr, "판정": state, "점수": sc, "자동고침": "+".join(fixed), "남은규칙": " ".join("%s%d" % (r_, v) for r_, v in sorted(left.items())),
+    try:
+        agree = answer_key.agreement(G, plan, teach, discover.struct_mask(G, plan["mmpp"], img.shape[0], img.shape[1]))
+    except Exception:
+        agree = None
+    return {"_G": G, "벽합의": agree, "겹침": rr, "판정": state, "점수": sc, "자동고침": "+".join(fixed), "남은규칙": " ".join("%s%d" % (r_, v) for r_, v in sorted(left.items())),
             "점검": chk, "모양": [[d["표식"], d["x"], d["y"]] for d in new][:20]}
 
 
@@ -220,6 +263,39 @@ def _has_tess():
         pytesseract.get_tesseract_version(); return True
     except Exception:
         return False
+
+
+def rescreen(known):
+    """옛 정답지(채점 93점, 학습\\네이버) 재선별 — 한 번만(2026-11-13 대표 지적 「93점 정답지도 미숙」). 새 기준을 넘은 것만 학습\\집지니 로 옮겨 적고, 옛 폴더는 그대로 둔다."""
+    old = os.path.join(CROLL, "학습", "네이버"); mark = os.path.join(old, "_재선별.txt")
+    if not os.path.isdir(old) or os.path.exists(mark):
+        return
+    area = {}
+    for r in csv.DictReader(open(LIST, encoding="utf-8-sig")):
+        try: area["%s_%s" % (r["단지코드"], r["평형"])] = float(r.get("전용면적") or 0)
+        except ValueError: pass
+    ok = bad = 0; why = collections.Counter()
+    for n in sorted(os.listdir(old)):
+        if not n.endswith(".json") or n.startswith("_"): continue
+        k = n[:-5]; f = os.path.join(old, k + ".jpg")
+        try:
+            d = json.load(open(os.path.join(old, n), encoding="utf-8")); lab = d.get("lab") or {}
+            plan = {"W": lab.get("W"), "H": lab.get("H"), "mmpp": 0, "전용": area.get(k, 0),
+                    "rooms": [{"name": q.get("n"), "kind": q.get("k"), "pts": q.get("p")} for q in lab.get("rooms") or [] if q.get("p")]}
+            if plan["전용"]:
+                plan_trace.fix_kinds(plan_trace.imread_u(f), plan["rooms"])
+                px = sum(abs(cv2.contourArea(np.array(q["pts"], np.float32))) for q in plan["rooms"] if len(q["pts"]) >= 3 and q.get("kind") not in ("발코니", "공용", "피트"))
+                if px > 0: plan["mmpp"] = (pipeline.AREA_K * plan["전용"] * 1e6 / px) ** 0.5
+            if not plan["mmpp"]:
+                bad += 1; why["축척 없음"] += 1; continue
+            res = one(f, k, plan, known, d.get("선생")); G = res.pop("_G")
+            good, w = answer_key.passes(res)
+            if good: answer_key.save(KEYS, k, f, plan, G, res, d.get("선생"), origin="옛 정답지 재선별"); ok += 1
+            else: bad += 1; why[w[0].split(" ")[0]] += 1
+        except Exception as e:
+            bad += 1; why["오류"] += 1
+    line = "%s 옛 정답지 재선별: 남김 %d · 뺌 %d (%s)" % (time.strftime("%Y-%m-%d %H:%M"), ok, bad, ", ".join("%s %d" % kv for kv in why.most_common(6)))
+    open(mark, "w", encoding="utf-8").write(line + "\n"); print(line, flush=True)
 
 
 def report(st, ver, sec, done):
