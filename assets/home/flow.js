@@ -12,10 +12,37 @@
 
   fetch('data/plans/A10025531.json').then(function (r) { return r.json(); }).then(function (d) {
     var p = d.평형[0].plan, mm = p.mmpp || 20, R = [], vtx = 0, xs = [], ys = [];
+    var RAW = p.rooms.map(function (r) { return r.pts; });
+    // 인식 좌표의 1~5px 흔들림 때문에 벽이 찌그러져 보인다: 가까운 x·y 값을 한 줄로 모으고, 생긴 군더더기 꼭짓점을 지운다
+    var snap = (function () {
+      var T = 6, ax = [], ay = [];
+      p.rooms.forEach(function (r) { r.pts.forEach(function (q) { ax.push(q[0]); ay.push(q[1]); }); });
+      (p.외곽 || []).forEach(function (q) { ax.push(q[0]); ay.push(q[1]); });
+      function grp(a) { a = a.slice().sort(function (u, v) { return u - v; }); var g = [], c = [a[0]];
+        for (var i = 1; i < a.length; i++) { if (a[i] - c[c.length - 1] <= T) c.push(a[i]); else { g.push(c); c = [a[i]]; } } g.push(c);
+        return g.map(function (c) { var m = c.slice().sort(function (u, v) { return u - v; })[c.length >> 1]; return { lo: c[0] - T, hi: c[c.length - 1] + T, v: m }; }); }
+      var gx = grp(ax), gy = grp(ay);
+      function f(g, v) { for (var i = 0; i < g.length; i++) if (v >= g[i].lo && v <= g[i].hi) return g[i].v; return v; }
+      return { x: function (v) { return f(gx, v); }, y: function (v) { return f(gy, v); } };
+    })();
+    function clean(pts) {
+      var a = pts.map(function (q) { return [snap.x(q[0]), snap.y(q[1])]; }), b = [];
+      a.forEach(function (q) { var l = b[b.length - 1]; if (!l || l[0] !== q[0] || l[1] !== q[1]) b.push(q); });
+      if (b.length > 1 && b[0][0] === b[b.length - 1][0] && b[0][1] === b[b.length - 1][1]) b.pop();
+      // 짧은 사선(모서리 뭉개짐)은 직각 모서리로 바꾼다
+      var o = []; b.forEach(function (q, i) { var w = b[(i + 1) % b.length]; o.push(q);
+        var dx = Math.abs(w[0] - q[0]), dy = Math.abs(w[1] - q[1]); if (dx && dy && Math.min(dx, dy) < 40) o.push(dx < dy ? [q[0], w[1]] : [w[0], q[1]]); }); b = o;
+      for (var k = 0; k < 3; k++) { var c = []; for (var i = 0; i < b.length; i++) { var u = b[(i - 1 + b.length) % b.length], q = b[i], w = b[(i + 1) % b.length];
+        if ((u[0] === q[0] && q[0] === w[0]) || (u[1] === q[1] && q[1] === w[1])) continue; c.push(q); } if (c.length < 3) break; b = c; }
+      return b;
+    }
+    p.rooms = p.rooms.map(function (r) { var o = {}; for (var k in r) o[k] = r[k]; o.pts = clean(r.pts); return o; });
+    if (p.외곽) p.외곽 = clean(p.외곽);
+    ['창', '문'].forEach(function (k) { (p[k] || []).forEach(function (o) { o.x1 = snap.x(o.x1); o.x2 = snap.x(o.x2); o.y1 = snap.y(o.y1); o.y2 = snap.y(o.y2); }); });
     (p.외곽 || []).concat.apply([], p.rooms.map(function (r) { return r.pts; })).forEach(function (q) { xs.push(q[0]); ys.push(q[1]); });
     (p.외곽 || []).forEach(function (q) { xs.push(q[0]); ys.push(q[1]); });
     p.rooms.forEach(function (r) {
-      var n = r.pts.length, L = 0, sx = 0, sy = 0; vtx += n;
+      var n = r.pts.length, L = 0, sx = 0, sy = 0;
       for (var j = 0; j < n; j++) { var a = r.pts[j], b = r.pts[(j + 1) % n]; L += Math.hypot(b[0] - a[0], b[1] - a[1]); sx += a[0]; sy += a[1]; }
       R.push({ n: r.name.replace(/\d+$/, ''), k: r.kind, a: r.area || 0, l: L * mm / 1000, pts: r.pts, cx: sx / n, cy: sy / n });
     });
@@ -36,8 +63,8 @@
 
     // ② 벡터: 선이 그려지고 꼭짓점이 찍힌다
     s.push('<g class="L L2">');
-    R.forEach(function (r) { s.push('<polygon pathLength="1" points="' + P(r.pts) + '" fill="none" stroke="#1F5E2E" stroke-width="2"/>'); });
-    R.forEach(function (r) { r.pts.forEach(function (q) { s.push('<circle cx="' + q[0] + '" cy="' + q[1] + '" r="4.5" fill="#fff" stroke="#1F5E2E" stroke-width="2"/>'); }); });
+    RAW.forEach(function (q) { s.push('<polygon pathLength="1" points="' + P(q) + '" fill="none" stroke="#1F5E2E" stroke-width="2"/>'); });
+    RAW.forEach(function (pts) { pts.forEach(function (q) { s.push('<circle cx="' + q[0] + '" cy="' + q[1] + '" r="4.5" fill="#fff" stroke="#1F5E2E" stroke-width="2"/>'); }); });
     s.push('</g>');
 
     // ④ 물량: 공종별로 방을 칠하고 넓이를 단다 (CAD 아래에 깔림)
@@ -64,7 +91,7 @@
       '<line x1="' + dx + '" y1="' + y0 + '" x2="' + dx + '" y2="' + y1 + '"/><line x1="' + (dx - 9) + '" y1="' + y0 + '" x2="' + (dx + 9) + '" y2="' + y0 + '"/><line x1="' + (dx - 9) + '" y1="' + y1 + '" x2="' + (dx + 9) + '" y2="' + y1 + '"/></g>');
     s.push('<text x="' + ((x0 + x1) / 2) + '" y="' + (dy + 30) + '" font-size="19" text-anchor="middle" fill="#1C1F1B" paint-order="stroke" stroke="#fff" stroke-width="6">' + num(Wm) + '</text>');
     s.push('<text transform="translate(' + (dx - 12) + ' ' + ((y0 + y1) / 2) + ') rotate(-90)" font-size="19" text-anchor="middle" fill="#1C1F1B" paint-order="stroke" stroke="#fff" stroke-width="6">' + num(Hm) + '</text>');
-    R.forEach(function (r) { if (r.a > 4) s.push('<text class="nm" x="' + r.cx.toFixed(0) + '" y="' + (r.cy + 2).toFixed(0) + '" font-size="18" font-weight="600" text-anchor="middle" fill="#1C1F1B">' + r.n + '</text><text class="ar" x="' + r.cx.toFixed(0) + '" y="' + (r.cy + 24).toFixed(0) + '" font-size="16" text-anchor="middle" fill="#1F5E2E">' + r.a.toFixed(1) + '㎡</text>'); });
+    R.forEach(function (r) { if (r.a > 4 || r.k === '욕실') s.push('<text class="nm" x="' + r.cx.toFixed(0) + '" y="' + (r.cy + 2).toFixed(0) + '" font-size="18" font-weight="600" text-anchor="middle" fill="#1C1F1B">' + r.n + '</text><text class="ar" x="' + r.cx.toFixed(0) + '" y="' + (r.cy + 24).toFixed(0) + '" font-size="16" text-anchor="middle" fill="#1F5E2E">' + r.a.toFixed(1) + '㎡</text>'); });
     s.push('</g></svg>');
     box.querySelector('.fsvg').innerHTML = s.join('');
 
@@ -78,7 +105,7 @@
       h.push('<tr style="--i:' + i + '"><th>' + x[0] + '<small>' + x[4] + '</small></th><td>' + num(x[1], x[2] === '곳' ? 0 : 1) + x[2] + '</td><td>' + (m ? num(Math.round(m / 1e4)) + '만 원' : '현장 확인') + '</td></tr>'); });
     h.push('</table><div class="osum"><span>어림 합계 · 실견적 단가 기준 · 부가세 별도</span><b>' + num(Math.round(sum / 1e4)) + '만 원</b></div>');
     ord.innerHTML = h.join('');
-    box.dataset.vtx = vtx;
+    RAW.forEach(function (q) { vtx += q.length; }); box.dataset.vtx = vtx;
     go(1); if (!reduce) loop();
   }).catch(function () {});
 
