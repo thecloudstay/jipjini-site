@@ -67,6 +67,16 @@ def clean_walls(wall, mm):
         x,y,w_,h_,a_=s2[j]
         if 4<=min(w_,h_)<=9 and max(w_,h_)>=12 and max(w_,h_)<L and a_>=w_*h_*0.85:
             out.append(['h',x,x+w_,y+h_/2.0,float(h_)] if w_>=h_ else ['v',y,y+h_,x+w_/2.0,float(w_)])
+        elif max(w_,h_)<L+10 and max(w_,h_)>=12:
+            # 2026-11-12 고침(111DT 외벽 샘): 벽 토막이 문틀 끝과 붙어 T자 — 꽉 찬 직사각형이 아니라 빠졌다 → 작은 외딴 덩어리 안의 곧은 벽 두께 띠(12화소 넘게)를 꺼낸다
+            sub=(l2[y:y+h_,x:x+w_]==j).astype(np.uint8)
+            for ax_,k_ in (('h',(1,12)),('v',(12,1))):
+                o_=cv2.morphologyEx(sub,cv2.MORPH_OPEN,np.ones(k_,np.uint8))
+                nn,ll,ss,_=cv2.connectedComponentsWithStats(o_,connectivity=4)
+                for i_ in range(1,nn):
+                    xx,yy,ww,hh,aa=ss[i_]
+                    if ax_=='h' and 4<=hh<=9 and ww>=12 and aa>=ww*hh*0.85: out.append(['h',x+xx,x+xx+ww,y+yy+hh/2.0,float(hh)])
+                    if ax_=='v' and 4<=ww<=9 and hh>=12 and aa>=ww*hh*0.85: out.append(['v',y+yy,y+yy+hh,x+xx+ww/2.0,float(ww)])
     if not out: return wall
     ts=np.array([o[4] for o in out]); t_lo=np.percentile(ts,20); t_hi=np.percentile(ts,85); mid=(t_lo+t_hi)/2.0 if t_hi>t_lo*1.25 else t_lo*0.8
     # 벽 종류 정하기: 건물 바깥(빈 곳)과 맞닿으면 외벽, 아니면 원본 두께로 구조벽/칸막이
