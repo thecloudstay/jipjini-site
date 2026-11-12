@@ -489,7 +489,7 @@ $SKPOLY
   9
 $TDCREATE
  40
-2461357.5203009257
+2461357.5229629627
   9
 $TDUCREATE
  40
@@ -497,7 +497,7 @@ $TDUCREATE
   9
 $TDUPDATE
  40
-2461357.5203009257
+2461357.5229629627
   9
 $TDUUPDATE
  40
@@ -549,7 +549,7 @@ $SPLINESEGS
   9
 $HANDSEED
   5
-150
+160
   9
 $SURFTAB1
  70
@@ -929,11 +929,11 @@ $PSTYLEMODE
   9
 $FINGERPRINTGUID
   2
-{F8909F2C-0369-49CE-A92C-79FD1D43A2C5}
+{0FF5057F-7BC2-437C-8DC1-87CCBA167694}
   9
 $VERSIONGUID
   2
-{DBBBE9FA-DE11-4646-B317-1B61789E7D5D}
+{44CC8DCA-9A10-4081-8D67-246470D495C0}
   9
 $EXTNAMES
 290
@@ -1323,9 +1323,9 @@ ISM
   0
 CLASS
   1
-LAYOUT
+ACDBPLACEHOLDER
   2
-AcDbLayout
+AcDbPlaceHolder
   3
 ObjectDBX Classes
  90
@@ -1339,9 +1339,9 @@ ObjectDBX Classes
   0
 CLASS
   1
-ACDBPLACEHOLDER
+LAYOUT
   2
-AcDbPlaceHolder
+AcDbLayout
   3
 ObjectDBX Classes
  90
@@ -3393,7 +3393,7 @@ JJ
   0
 APPID
   5
-14D
+15D
 330
 3
 100
@@ -3407,7 +3407,7 @@ HATCHBACKGROUNDCOLOR
   0
 APPID
   5
-14E
+15E
 330
 3
 100
@@ -5273,7 +5273,7 @@ JJ-EVTR
   0
 BLOCK_RECORD
   5
-12F
+13F
 330
 9
 100
@@ -5293,7 +5293,7 @@ AcDbBlockTableRecord
   0
 BLOCK_RECORD
   5
-13E
+14E
 330
 9
 100
@@ -6065,9 +6065,9 @@ AcDbBlockEnd
   0
 BLOCK
   5
-130
+140
 330
-12F
+13F
 100
 AcDbEntity
   8
@@ -6091,9 +6091,9 @@ AcDbBlockBegin
   0
 LINE
   5
-132
+142
 330
-12F
+13F
 100
 AcDbEntity
   8
@@ -6115,9 +6115,9 @@ AcDbLine
   0
 LINE
   5
-133
+143
 330
-12F
+13F
 100
 AcDbEntity
   8
@@ -6139,9 +6139,9 @@ AcDbLine
   0
 INSERT
   5
-134
+144
 330
-12F
+13F
 100
 AcDbEntity
   8
@@ -6165,9 +6165,9 @@ _ARCHTICK
   0
 INSERT
   5
-136
+146
 330
-12F
+13F
 100
 AcDbEntity
   8
@@ -6189,9 +6189,9 @@ _ARCHTICK
   0
 LINE
   5
-138
+148
 330
-12F
+13F
 100
 AcDbEntity
   8
@@ -6213,9 +6213,9 @@ AcDbLine
   0
 MTEXT
   5
-139
+149
 330
-12F
+13F
 100
 AcDbEntity
   8
@@ -6239,9 +6239,9 @@ OpenSansCondensed-Light
   0
 POINT
   5
-13A
+14A
 330
-12F
+13F
 100
 AcDbEntity
   8
@@ -6257,9 +6257,9 @@ AcDbPoint
   0
 POINT
   5
-13B
+14B
 330
-12F
+13F
 100
 AcDbEntity
   8
@@ -6275,9 +6275,9 @@ AcDbPoint
   0
 POINT
   5
-13C
+14C
 330
-12F
+13F
 100
 AcDbEntity
   8
@@ -6293,9 +6293,9 @@ AcDbPoint
   0
 ENDBLK
   5
-131
+141
 330
-12F
+13F
 100
 AcDbEntity
   8
@@ -6305,9 +6305,9 @@ AcDbBlockEnd
   0
 BLOCK
   5
-13F
+14F
 330
-13E
+14E
 100
 AcDbEntity
   8
@@ -6331,9 +6331,9 @@ AcDbBlockBegin
   0
 LINE
   5
-141
+151
 330
-13E
+14E
 100
 AcDbEntity
   8
@@ -6355,9 +6355,9 @@ AcDbLine
   0
 LINE
   5
-142
+152
 330
-13E
+14E
 100
 AcDbEntity
   8
@@ -6379,9 +6379,9 @@ AcDbLine
   0
 INSERT
   5
-143
+153
 330
-13E
+14E
 100
 AcDbEntity
   8
@@ -6405,9 +6405,9 @@ _ARCHTICK
   0
 INSERT
   5
-145
+155
 330
-13E
+14E
 100
 AcDbEntity
   8
@@ -6431,9 +6431,9 @@ _ARCHTICK
   0
 LINE
   5
-147
+157
 330
-13E
+14E
 100
 AcDbEntity
   8
@@ -6455,9 +6455,9 @@ AcDbLine
   0
 MTEXT
   5
-148
+158
 330
-13E
+14E
 100
 AcDbEntity
   8
@@ -6483,9 +6483,9 @@ OpenSansCondensed-Light
   0
 POINT
   5
-149
+159
 330
-13E
+14E
 100
 AcDbEntity
   8
@@ -6501,9 +6501,9 @@ AcDbPoint
   0
 POINT
   5
-14A
+15A
 330
-13E
+14E
 100
 AcDbEntity
   8
@@ -6519,9 +6519,9 @@ AcDbPoint
   0
 POINT
   5
-14B
+15B
 330
-13E
+14E
 100
 AcDbEntity
   8
@@ -6537,9 +6537,9 @@ AcDbPoint
   0
 ENDBLK
   5
-140
+150
 330
-13E
+14E
 100
 AcDbEntity
   8
@@ -9705,17 +9705,15 @@ AcDbBlockReference
   2
 JJ-DOOR-SWING
  10
-1877.7
+4828.5
  20
-7407.8
+9120.5
  30
 0.0
  41
 0.9
  42
 0.9
- 50
--90.0
   0
 ATTRIB
   5
@@ -9731,21 +9729,19 @@ AcDbEntity
 100
 AcDbText
  10
-1742.7
+4828.5
  20
-7407.8
+8985.5
  30
 0.0
  40
 72.0
   1
 900
- 50
--90.0
  11
-1742.7
+4828.5
  21
-7407.8
+8985.5
  31
 0.0
 100
@@ -9769,21 +9765,19 @@ AcDbEntity
 100
 AcDbText
  10
-1652.7
+4828.5
  20
-7407.8
+8895.5
  30
 0.0
  40
 72.0
   1
 여닫이
- 50
--90.0
  11
-1652.7
+4828.5
  21
-7407.8
+8895.5
  31
 0.0
 100
@@ -9811,6 +9805,468 @@ F0
 100
 AcDbEntity
   8
+A-DOOR
+100
+AcDbBlockReference
+ 66
+1
+  2
+JJ-DOOR-SWING
+ 10
+2331.7
+ 20
+6850.7
+ 30
+0.0
+ 41
+0.9
+ 42
+0.9
+ 50
+90.0
+  0
+ATTRIB
+  5
+F2
+330
+17
+100
+AcDbEntity
+  8
+0
+ 60
+1
+100
+AcDbText
+ 10
+2466.7
+ 20
+6850.7
+ 30
+0.0
+ 40
+72.0
+  1
+900
+ 50
+90.0
+ 11
+2466.7
+ 21
+6850.7
+ 31
+0.0
+100
+AcDbAttribute
+  2
+폭
+ 70
+0
+  0
+ATTRIB
+  5
+F3
+330
+17
+100
+AcDbEntity
+  8
+0
+ 60
+1
+100
+AcDbText
+ 10
+2556.7
+ 20
+6850.7
+ 30
+0.0
+ 40
+72.0
+  1
+여닫이
+ 50
+90.0
+ 11
+2556.7
+ 21
+6850.7
+ 31
+0.0
+100
+AcDbAttribute
+  2
+종류
+ 70
+0
+  0
+SEQEND
+  5
+F1
+330
+F0
+100
+AcDbEntity
+  8
+A-DOOR
+  0
+INSERT
+  5
+F4
+330
+17
+100
+AcDbEntity
+  8
+A-DOOR
+100
+AcDbBlockReference
+ 66
+1
+  2
+JJ-DOOR-SWING
+ 10
+4993.6
+ 20
+6231.6
+ 30
+0.0
+ 41
+0.9
+ 42
+0.9
+  0
+ATTRIB
+  5
+F6
+330
+17
+100
+AcDbEntity
+  8
+0
+ 60
+1
+100
+AcDbText
+ 10
+4993.6
+ 20
+6096.6
+ 30
+0.0
+ 40
+72.0
+  1
+900
+ 11
+4993.6
+ 21
+6096.6
+ 31
+0.0
+100
+AcDbAttribute
+  2
+폭
+ 70
+0
+  0
+ATTRIB
+  5
+F7
+330
+17
+100
+AcDbEntity
+  8
+0
+ 60
+1
+100
+AcDbText
+ 10
+4993.6
+ 20
+6006.6
+ 30
+0.0
+ 40
+72.0
+  1
+여닫이
+ 11
+4993.6
+ 21
+6006.6
+ 31
+0.0
+100
+AcDbAttribute
+  2
+종류
+ 70
+0
+  0
+SEQEND
+  5
+F5
+330
+F4
+100
+AcDbEntity
+  8
+A-DOOR
+  0
+INSERT
+  5
+F8
+330
+17
+100
+AcDbEntity
+  8
+A-DOOR
+100
+AcDbBlockReference
+ 66
+1
+  2
+JJ-DOOR-SWING
+ 10
+2331.7
+ 20
+4993.6
+ 30
+0.0
+ 41
+0.75
+ 42
+-0.75
+ 50
+180.0
+  0
+ATTRIB
+  5
+FA
+330
+17
+100
+AcDbEntity
+  8
+0
+ 60
+1
+100
+AcDbText
+ 10
+-2331.7
+ 20
+4881.1
+ 30
+0.0
+ 40
+60.0
+  1
+750
+ 50
+7.016709298534876e-15
+ 11
+-2331.7
+ 21
+4881.1
+ 31
+0.0
+210
+0.0
+220
+0.0
+230
+-1.0
+100
+AcDbAttribute
+  2
+폭
+ 70
+0
+  0
+ATTRIB
+  5
+FB
+330
+17
+100
+AcDbEntity
+  8
+0
+ 60
+1
+100
+AcDbText
+ 10
+-2331.7
+ 20
+4806.1
+ 30
+0.0
+ 40
+60.0
+  1
+여닫이
+ 50
+7.016709298534876e-15
+ 11
+-2331.7
+ 21
+4806.1
+ 31
+0.0
+210
+0.0
+220
+0.0
+230
+-1.0
+100
+AcDbAttribute
+  2
+종류
+ 70
+0
+  0
+SEQEND
+  5
+F9
+330
+F8
+100
+AcDbEntity
+  8
+A-DOOR
+  0
+INSERT
+  5
+FC
+330
+17
+100
+AcDbEntity
+  8
+A-DOOR
+100
+AcDbBlockReference
+ 66
+1
+  2
+JJ-DOOR-SWING
+ 10
+3611.1
+ 20
+4663.4
+ 30
+0.0
+ 41
+0.9
+ 42
+0.9
+ 50
+180.0
+  0
+ATTRIB
+  5
+FE
+330
+17
+100
+AcDbEntity
+  8
+0
+ 60
+1
+100
+AcDbText
+ 10
+3611.1
+ 20
+4798.4
+ 30
+0.0
+ 40
+72.0
+  1
+900
+ 50
+180.0
+ 11
+3611.1
+ 21
+4798.4
+ 31
+0.0
+100
+AcDbAttribute
+  2
+폭
+ 70
+0
+  0
+ATTRIB
+  5
+FF
+330
+17
+100
+AcDbEntity
+  8
+0
+ 60
+1
+100
+AcDbText
+ 10
+3611.1
+ 20
+4888.4
+ 30
+0.0
+ 40
+72.0
+  1
+여닫이
+ 50
+180.0
+ 11
+3611.1
+ 21
+4888.4
+ 31
+0.0
+100
+AcDbAttribute
+  2
+종류
+ 70
+0
+  0
+SEQEND
+  5
+FD
+330
+FC
+100
+AcDbEntity
+  8
+A-DOOR
+  0
+INSERT
+  5
+100
+330
+17
+100
+AcDbEntity
+  8
 A-GLAZ
 100
 AcDbBlockReference
@@ -9831,7 +10287,7 @@ JJ-WIN-DOUBLE
   0
 ATTRIB
   5
-F2
+102
 330
 17
 100
@@ -9871,7 +10327,7 @@ AcDbAttribute
   0
 ATTRIB
   5
-F3
+103
 330
 17
 100
@@ -9911,9 +10367,9 @@ AcDbAttribute
   0
 SEQEND
   5
-F1
+101
 330
-F0
+100
 100
 AcDbEntity
   8
@@ -9921,7 +10377,7 @@ A-GLAZ
   0
 INSERT
   5
-F4
+104
 330
 17
 100
@@ -9947,7 +10403,7 @@ JJ-WIN-DOUBLE
   0
 ATTRIB
   5
-F6
+106
 330
 17
 100
@@ -9987,7 +10443,7 @@ AcDbAttribute
   0
 ATTRIB
   5
-F7
+107
 330
 17
 100
@@ -10027,9 +10483,9 @@ AcDbAttribute
   0
 SEQEND
   5
-F5
+105
 330
-F4
+104
 100
 AcDbEntity
   8
@@ -10037,7 +10493,7 @@ A-GLAZ
   0
 INSERT
   5
-F8
+108
 330
 17
 100
@@ -10065,7 +10521,7 @@ JJ-WIN-DOUBLE
   0
 ATTRIB
   5
-FA
+10A
 330
 17
 100
@@ -10107,7 +10563,7 @@ AcDbAttribute
   0
 ATTRIB
   5
-FB
+10B
 330
 17
 100
@@ -10149,9 +10605,9 @@ AcDbAttribute
   0
 SEQEND
   5
-F9
+109
 330
-F8
+108
 100
 AcDbEntity
   8
@@ -10159,7 +10615,7 @@ A-GLAZ
   0
 INSERT
   5
-FC
+10C
 330
 17
 100
@@ -10187,7 +10643,7 @@ JJ-WIN-DOUBLE
   0
 ATTRIB
   5
-FE
+10E
 330
 17
 100
@@ -10227,7 +10683,7 @@ AcDbAttribute
   0
 ATTRIB
   5
-FF
+10F
 330
 17
 100
@@ -10267,9 +10723,9 @@ AcDbAttribute
   0
 SEQEND
   5
-FD
+10D
 330
-FC
+10C
 100
 AcDbEntity
   8
@@ -10277,7 +10733,7 @@ A-GLAZ
   0
 INSERT
   5
-100
+110
 330
 17
 100
@@ -10305,7 +10761,7 @@ JJ-WIN-DOUBLE
   0
 ATTRIB
   5
-102
+112
 330
 17
 100
@@ -10347,7 +10803,7 @@ AcDbAttribute
   0
 ATTRIB
   5
-103
+113
 330
 17
 100
@@ -10389,9 +10845,9 @@ AcDbAttribute
   0
 SEQEND
   5
-101
+111
 330
-100
+110
 100
 AcDbEntity
   8
@@ -10399,7 +10855,7 @@ A-GLAZ
   0
 LWPOLYLINE
   5
-104
+114
 330
 17
 100
@@ -10463,7 +10919,7 @@ JJ
   0
 MTEXT
   5
-105
+115
 330
 17
 100
@@ -10487,7 +10943,7 @@ AcDbMText
   0
 MTEXT
   5
-106
+116
 330
 17
 100
@@ -10511,7 +10967,7 @@ AcDbMText
   0
 LWPOLYLINE
   5
-107
+117
 330
 17
 100
@@ -10551,7 +11007,7 @@ JJ
   0
 MTEXT
   5
-108
+118
 330
 17
 100
@@ -10575,7 +11031,7 @@ AcDbMText
   0
 MTEXT
   5
-109
+119
 330
 17
 100
@@ -10599,7 +11055,7 @@ AcDbMText
   0
 LWPOLYLINE
   5
-10A
+11A
 330
 17
 100
@@ -10639,7 +11095,7 @@ JJ
   0
 MTEXT
   5
-10B
+11B
 330
 17
 100
@@ -10663,7 +11119,7 @@ AcDbMText
   0
 MTEXT
   5
-10C
+11C
 330
 17
 100
@@ -10687,7 +11143,7 @@ AcDbMText
   0
 LWPOLYLINE
   5
-10D
+11D
 330
 17
 100
@@ -10727,7 +11183,7 @@ JJ
   0
 MTEXT
   5
-10E
+11E
 330
 17
 100
@@ -10751,7 +11207,7 @@ AcDbMText
   0
 MTEXT
   5
-10F
+11F
 330
 17
 100
@@ -10775,7 +11231,7 @@ AcDbMText
   0
 LWPOLYLINE
   5
-110
+120
 330
 17
 100
@@ -10823,7 +11279,7 @@ JJ
   0
 MTEXT
   5
-111
+121
 330
 17
 100
@@ -10847,7 +11303,7 @@ AcDbMText
   0
 MTEXT
   5
-112
+122
 330
 17
 100
@@ -10871,7 +11327,7 @@ AcDbMText
   0
 LWPOLYLINE
   5
-113
+123
 330
 17
 100
@@ -10911,7 +11367,7 @@ JJ
   0
 MTEXT
   5
-114
+124
 330
 17
 100
@@ -10935,7 +11391,7 @@ AcDbMText
   0
 MTEXT
   5
-115
+125
 330
 17
 100
@@ -10959,7 +11415,7 @@ AcDbMText
   0
 LWPOLYLINE
   5
-116
+126
 330
 17
 100
@@ -10999,7 +11455,7 @@ JJ
   0
 MTEXT
   5
-117
+127
 330
 17
 100
@@ -11023,7 +11479,7 @@ AcDbMText
   0
 MTEXT
   5
-118
+128
 330
 17
 100
@@ -11047,7 +11503,7 @@ AcDbMText
   0
 LWPOLYLINE
   5
-119
+129
 330
 17
 100
@@ -11087,7 +11543,7 @@ JJ
   0
 MTEXT
   5
-11A
+12A
 330
 17
 100
@@ -11111,7 +11567,7 @@ AcDbMText
   0
 MTEXT
   5
-11B
+12B
 330
 17
 100
@@ -11135,7 +11591,7 @@ AcDbMText
   0
 LWPOLYLINE
   5
-11C
+12C
 330
 17
 100
@@ -11175,7 +11631,7 @@ JJ
   0
 MTEXT
   5
-11D
+12D
 330
 17
 100
@@ -11199,7 +11655,7 @@ AcDbMText
   0
 MTEXT
   5
-11E
+12E
 330
 17
 100
@@ -11223,7 +11679,7 @@ AcDbMText
   0
 LWPOLYLINE
   5
-11F
+12F
 330
 17
 100
@@ -11263,7 +11719,7 @@ JJ
   0
 MTEXT
   5
-120
+130
 330
 17
 100
@@ -11287,7 +11743,7 @@ AcDbMText
   0
 MTEXT
   5
-121
+131
 330
 17
 100
@@ -11311,7 +11767,7 @@ AcDbMText
   0
 LWPOLYLINE
   5
-122
+132
 330
 17
 100
@@ -11351,7 +11807,7 @@ JJ
   0
 MTEXT
   5
-123
+133
 330
 17
 100
@@ -11375,7 +11831,7 @@ AcDbMText
   0
 MTEXT
   5
-124
+134
 330
 17
 100
@@ -11399,7 +11855,7 @@ AcDbMText
   0
 LWPOLYLINE
   5
-125
+135
 330
 17
 100
@@ -11439,7 +11895,7 @@ JJ
   0
 MTEXT
   5
-126
+136
 330
 17
 100
@@ -11463,7 +11919,7 @@ AcDbMText
   0
 MTEXT
   5
-127
+137
 330
 17
 100
@@ -11487,7 +11943,7 @@ AcDbMText
   0
 LWPOLYLINE
   5
-128
+138
 330
 17
 100
@@ -11527,7 +11983,7 @@ JJ
   0
 MTEXT
   5
-129
+139
 330
 17
 100
@@ -11551,7 +12007,7 @@ AcDbMText
   0
 MTEXT
   5
-12A
+13A
 330
 17
 100
@@ -11575,7 +12031,7 @@ AcDbMText
   0
 INSERT
   5
-12B
+13B
 330
 17
 100
@@ -11599,7 +12055,7 @@ JJ-EVTR
   0
 MTEXT
   5
-12D
+13D
 330
 17
 100
@@ -11623,7 +12079,7 @@ AcDbMText
   0
 DIMENSION
   5
-12E
+13E
 330
 17
 100
@@ -11677,7 +12133,7 @@ AcDbRotatedDimension
   0
 DIMENSION
   5
-13D
+14D
 330
 17
 100
@@ -11731,7 +12187,7 @@ AcDbRotatedDimension
   0
 MTEXT
   5
-14C
+15C
 330
 17
 100
@@ -12843,7 +13299,7 @@ CREATED_BY_EZDXF
   3
 WRITTEN_BY_EZDXF
 350
-14F
+15F
   0
 DICTIONARYVAR
   5
@@ -12855,7 +13311,7 @@ DictionaryVariables
 280
 0
   1
-1.4.5 @ 2026-11-12T03:29:14.173316+00:00
+1.4.5 @ 2026-11-12T03:33:04.111430+00:00
   0
 VISUALSTYLE
   5
@@ -13559,7 +14015,7 @@ X-Ray
   0
 DICTIONARYVAR
   5
-14F
+15F
 330
 2D
 100
@@ -13567,7 +14023,7 @@ DictionaryVariables
 280
 0
   1
-1.4.5 @ 2026-11-12T03:29:14.184199+00:00
+1.4.5 @ 2026-11-12T03:33:04.121870+00:00
   0
 ENDSEC
   0
