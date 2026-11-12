@@ -408,7 +408,10 @@ def front_doors(img, rooms, doors, sash, wall, mm, H, W):
         near=cv2.dilate(rm,np.ones((int(500/mm)|1,)*2,np.uint8))>0
         # 2026-11-12 고침(93·105·101·205TEA 현관문 빠짐 R10): ① 현관 둘레에 방문 등 다른 문이 하나라도 있으면 건너뛰었다 → 같은 자리 문만 겹침으로 본다(아래)
         #   ② 찾는 띠가 현관 다각형 밖 40화소뿐이라 벽 두께·문틀 띠 너머 바깥으로 열린 호 끝이 잘려 원 맞추기에서 떨어졌다 → 벽·문틀 몫 25화소를 더 본다
-        has=any(near[min(H-1,max(0,int((d['y1']+d['y2'])/2))),min(W-1,max(0,int((d['x1']+d['x2'])/2)))] for d in doors)   # 둘레에 문이 있으면 새로 찾지는 않되, 아래 창 정리는 한다(205TEA)
+        # 둘레에 이미 현관문(현관 밖으로 여는 문)이 있으면 새로 찾지는 않되, 아래 창 정리는 한다(205TEA)
+        # 2026-11-12 고침(156B): 안으로 여는 옆방 문까지 「현관문 있음」으로 보고 건너뛰었다 → 문짝 끝이 현관 밖으로 나가는 문만 센다
+        _dp=lambda x,y: cv2.pointPolygonTest(P,(float(x),float(y)),True)
+        has=any(near[min(H-1,max(0,int((d['y1']+d['y2'])/2))),min(W-1,max(0,int((d['x1']+d['x2'])/2)))] and _dp(d.get('cx',0),d.get('cy',0))<_dp((d['x1']+d['x2'])/2.0,(d['y1']+d['y2'])/2.0)-8 for d in doors)
         zone=(cv2.dilate(rm,np.ones(((2*NV_DOOR_R+70)|1,)*2,np.uint8))>0)&~(cv2.erode(rm,np.ones((5,5),np.uint8))>0)
         if has: zone=np.zeros_like(zone)   # 둘레 문을 없애고 찾으면 108A·100A 에 엉뚱한 현관문이 들어가 외벽이 샜다(2026-11-12 시도 버림) — 156B 는 다음에
         n,lab,st,_=cv2.connectedComponentsWithStats((arc&zone).astype(np.uint8),connectivity=8); cands=[]
