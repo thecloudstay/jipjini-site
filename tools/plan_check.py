@@ -55,6 +55,7 @@ RULES = {
  'R12': '사선 가는 선 — 원본의 비스듬한 가는 선(창틀·난간, 600mm 넘고 한쪽 끝이 벽에 닿음)이 우리 구조에 없으면 안 된다(2026-11-12 검수 사각지대 메움)',
  'R14': '원본에 없는 선 — 우리 벽·창을 원본 같은 자리에 겹쳐 받쳐 주는 원본 선이 절반도 없으면 지어낸 것(2026-11-12 겹쳐 보기 교차 검증)',
  'R13': '가짜 사선 창 — 원본에 가는 선 두 줄이 없거나 피트 X 가위표 위에 그린 사선 창은 창이 아니다(2026-11-12)',
+ 'R15': '방 경계 흔들림 — 방 테두리에 벽 두께 안(120mm)짜리 S자 계단이나 모서리를 깎은 짧은 사선(300mm 미만)이 있으면 안 된다(2026-11-13 「도면이 찌그러졌다」)',
  'R10': '현관문 — 현관에는 문이 반드시 하나 있어야 하고, 현관 바깥쪽 경계에 창이 있으면 안 된다(2026-11-12 81평형)',
 }
 def _struct(G, mm, H, W, door_w=5):
@@ -268,4 +269,12 @@ def rules(img, p):
         touch = (ring & outside).any() or any(rr.get('kind') == '발코니' and (ring & (cv2.fillPoly(np.zeros((H, W), np.uint8), [poly(rr)], 1) > 0)).any() for rr in R)
         has = any(a0 < x1+12 and a1 > x0-12 and b0 < y1+12 and b1 > y0-12 for _, a0, b0, a1, b1 in G['샷시'])
         if touch and not has: out.append(['R8', r.get('name'), int((x0+x1)/2), int((y0+y1)/2)])
+    # R15: 방 경계 흔들림 — 방 안의 짧은 사선 모서리·S자 계단(plan_trace.room_jogs). 방마다 한 번
+    try:
+        import plan_trace as _pt
+        for r in R:
+            if len(r['pts']) >= 4 and r.get('kind') != '공용' and _pt.room_jogs(r['pts'], mm):
+                xs = [q[0] for q in r['pts']]; ys = [q[1] for q in r['pts']]; out.append(['R15', r.get('name'), int(sum(xs)/len(xs)), int(sum(ys)/len(ys))])
+    except Exception:
+        pass
     return out

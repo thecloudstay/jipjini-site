@@ -637,6 +637,53 @@ def fix_kinds(bgr, rooms):
 # ── 방 다각형 맞추기(2026-11-12 하네스 학습, R7 160곳: 욕실 다각형이 옆 피트·팬트리까지, 발코니·피트가 벽 너머로 — 누리집 방 읽기의 넘침)
 #   우리 도면은 벽·창·문으로 칸이 닫혀 있다 → 방 다각형 ∩ 그 방이 들어 있는 닫힌 칸(겹침이 가장 큰 칸). 벽 없이 이어진 거실·주방은 같은 칸이라 원래 경계 그대로
 #   자른 넓이가 원래의 60%에 못 미치면(칸이 덜 닫힘 등) 손대지 않는다. 고친 방에는 '맞춤' 표시
+# ── 방 꼭짓점 곧게 펴기(2026-11-13 대표 지적 「산출 도면이 다 찌그러졌다」): fit_rooms 의 외곽선 단순화(1.5화소)가 방 테두리에
+#   1~5화소짜리 계단(S자 꺾임)과 모서리를 깎은 짧은 사선을 남겨, 곧아야 할 벽이 울퉁불퉁하게 그려졌다(R15)
+#   → 방마다: 짧은 사선(300mm 미만)은 직각 모서리로, 벽 두께 안(120mm) 계단은 긴 쪽 변에 맞춰 편다. 들어간 홈(U자)은 벽 토막일 수 있어 그대로 둔다
+#   (첫 시도: 모든 방의 x·y 를 한 줄로 모았더니 이웃 방 줄로 끌려가 벽을 품음 — 무작위 40장 관문 R7 14→17 로 버림)
+def room_jogs(P, mm):
+    """방 다각형의 흔들림: [('사선'|'계단', i)] — R15 와 square_rooms 가 같이 쓴다"""
+    T=max(3.0,120.0/mm); D=max(4.0,300.0/mm); n=len(P); out=[]
+    for i in range(n):
+        a,b=P[i],P[(i+1)%n]; dx=abs(b[0]-a[0]); dy=abs(b[1]-a[1])
+        if dx and dy and min(dx,dy)<D: out.append(('사선',i)); continue
+        L=dx+dy
+        if 0<L<=T:
+            pa,pb=P[i-1],P[(i+2)%n]
+            v0=(a[0]-pa[0],a[1]-pa[1]); v2=(pb[0]-b[0],pb[1]-b[1])
+            if v0[0]*v2[0]+v0[1]*v2[1]>0: out.append(('계단',i))   # 앞뒤 변이 같은 쪽으로 간다 = S자 계단
+    return out
+def _simplify(P):
+    o=[q for i,q in enumerate(P) if q!=P[i-1]]
+    for _ in range(4):
+        c=[q for i,q in enumerate(o) if not ((o[i-1][0]==q[0]==o[(i+1)%len(o)][0]) or (o[i-1][1]==q[1]==o[(i+1)%len(o)][1]))]
+        if len(c)<3 or c==o: break
+        o=c
+    return o
+def square_rooms(rooms, mm):
+    for r in rooms:
+        P=[list(map(int,q)) for q in (r.get('pts') or [])]
+        if len(P)<4 or r.get('kind')=='공용': continue
+        a0=abs(cv2.contourArea(np.array(P,np.float32)))
+        for _ in range(40):
+            J=room_jogs(P,mm)
+            if not J: break
+            t,i=J[0]; n=len(P); a,b=P[i],P[(i+1)%n]
+            if t=='사선':
+                dx=abs(b[0]-a[0]); dy=abs(b[1]-a[1]); P.insert(i+1,[a[0],b[1]] if dx<dy else [b[0],a[1]])
+            else:
+                pa,pb=P[i-1],P[(i+2)%n]; la=abs(a[0]-pa[0])+abs(a[1]-pa[1]); lb=abs(pb[0]-b[0])+abs(pb[1]-b[1])
+                k=1 if a[0]==b[0] else 0   # 짧은 세로 토막이면 앞뒤 가로 변의 y(k=1)를, 가로 토막이면 x(k=0)를 긴 쪽에 맞춘다
+                if la>=lb: b[k]=a[k]; pb[k]=a[k]
+                else: a[k]=b[k]; pa[k]=b[k]
+            P=_simplify(P)
+            if len(P)<3: break
+        if len(P)>=3:
+            a1=abs(cv2.contourArea(np.array(P,np.float32)))
+            if a0>0 and 0.97<=a1/a0<=1.03:
+                r['pts']=P
+                if 'area' in r: r['area']=round(a1*mm*mm/1e6,2)
+    return rooms
 def fit_rooms(rooms, G, mm, H, W):
     import plan_check
     st=cv2.dilate(plan_check._struct(G,mm,H,W),np.ones((3,3),np.uint8))
@@ -1057,6 +1104,9 @@ def trace(path, plan):
     try: _rest=_rest+close_junctions(G_,bgr,mm,H,W); G_['벽윤곽']=_rest
     except Exception: pass
     try: fit_rooms(plan['rooms'],G_,mm,H,W)
+    except Exception: pass
+    try:
+        if not __import__('os').environ.get('JJ_NO_SQUARE'): square_rooms(plan['rooms'],mm)
     except Exception: pass
     try:   # 변환할 때마다 규칙 점검(tools/plan_check.py RULES) — 어긴 곳을 자료에 남긴다
         import plan_check; _chk=plan_check.rules(bgr,dict(plan,그림=G_,H=H,W=W))
