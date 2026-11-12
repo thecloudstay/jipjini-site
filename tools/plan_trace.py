@@ -43,13 +43,22 @@ def clean_walls(wall, mm):
         n,lab,st,_=cv2.connectedComponentsWithStats(m,connectivity=4)
         for j in range(1,n):
             x,y,w_,h_,a_=st[j]; sub=(lab[y:y+h_,x:x+w_]==j)
-            if ax=='h':
-                cols=sub.sum(0); ok=cols>0; ys=np.arange(h_)[:,None]
-                top=np.argmax(sub,0)[ok]; t=np.median(cols[ok]); c=np.median(top+cols[ok]/2.0)+y
-                out.append(['h',x,x+w_,c,t])
-            else:
-                rows=sub.sum(1); ok=rows>0; left=np.argmax(sub,1)[ok]; t=np.median(rows[ok]); c=np.median(left+rows[ok]/2.0)+x
-                out.append(['v',y,y+h_,c,t])
+            # 2026-11-12 고침(157·165·205TEA·94 놓친 굵은 벽 R6): 몇 화소 꺾여 이어진 벽(높이 다른 두 벽)이 한 덩어리로 묶여 중심선이 하나로 정해져
+            #   소수 쪽 벽이 6~10화소 비켜 그려졌다 → 열(행)마다 중심을 재어 벽 두께 절반 넘게 바뀌는 곳에서 끊는다
+            S_=sub if ax=='h' else sub.T; o0,o1=(x,y) if ax=='h' else (y,x)
+            cols=S_.sum(0); ok=np.where(cols>0)[0]
+            if not len(ok): continue
+            top=np.argmax(S_,0); cen=top+cols/2.0; t=float(np.median(cols[ok])); groups=[]; g=[ok[0]]
+            nz=[ok[0]]   # 기준 = 겹치지 않은 최근 200열의 중심(두 띠가 겹친 열 = 꺾인 자리는 기준에서 뺀다)
+            for i in ok[1:]:
+                if i==g[-1]+1 and (cols[i]>1.4*t or abs(cen[i]-np.median(cen[nz[-200:]]))<=max(2.0,t*0.5)):
+                    g.append(i)
+                    if cols[i]<=1.4*t: nz.append(i)
+                else: groups.append(g); g=[i]; nz=[i]
+            groups.append(g)
+            for g in groups:
+                if len(g)<min(L,len(ok)) and len(groups)>1: continue
+                gi=np.array(g); out.append([ax,o0+gi[0],o0+gi[-1]+1,float(np.median(cen[gi]))+o1,float(np.median(cols[gi]))])
     # 2026-11-12 고침(111DT·120OT-5 외벽 샘): 창 사이·창과 문틀 사이 짧은 벽 토막(약 17화소)이 450mm 열기로 지워졌다
     #   → 가로·세로 열기에 안 걸린 덩어리 중 벽 두께(4~9화소)의 꽉 찬 직사각형이고 12화소 넘게 길면 그대로 벽 조각으로 넣는다
     #   (외따로 떨어진 덩어리 전체가 그 직사각형일 때만 — 두께 다른 벽 모서리의 남은 조각은 아니다: 108A 피트 상자, 첫 시도 R4 3→5 로 버림)
