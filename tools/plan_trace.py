@@ -16,7 +16,7 @@ def paths(mask, eps):
         if len(a)<3: continue
         d.append('M'+'L'.join('%d %d'%(x,y) for x,y in a)+'Z')
     return ''.join(d)
-def trace(path, rooms, scale=1.0):
+def trace(path, rooms, scale=1.0, plan=None):
     bgr=cv2.imread(path); H,W=bgr.shape[:2]
     hsv=cv2.cvtColor(bgr,cv2.COLOR_BGR2HSV); v=hsv[...,2].astype(int); s=hsv[...,1].astype(int)
     dark=(v<100)
@@ -29,6 +29,29 @@ def trace(path, rooms, scale=1.0):
     # 글자 지우기
     for x,y,w,h in ocr_boxes(bgr):
         if h<28 and w<160: line[int(y)-2:int(y+h)+3,int(x)-2:int(x+w)+3]=False
+    # 2026-11-12 대표 지시 「방문·창호·싱크대만 우리가 그리면 된다」: 그 자리의 원본 선은 지우고, 집지니 기호로 다시 그린다
+    fix=[]
+    if plan:
+        mm=plan.get('mmpp') or 0
+        # 샷시·창은 원본 그대로 둔다(대표 지시 2026-11-12 「샷시는 네이버랑 동일하게」)
+        for d in plan.get('문') or []:
+            L=max(abs(d['x2']-d['x1']),abs(d['y2']-d['y1']))*1.15+3; cx=(d['x1']+d['x2'])/2; cy=(d['y1']+d['y2'])/2
+            line[max(0,int(cy-L)):int(cy+L)+1, max(0,int(cx-L)):int(cx+L)+1]=False
+        # 욕실 기구는 그리지 않는다(대표 지시 2026-11-12) — 욕실 칸 안의 원본 선을 지운다
+        for r in plan.get('rooms') or []:
+            if r.get('kind')!='욕실': continue
+            m=np.zeros((H,W),np.uint8); cv2.fillPoly(m,[np.array(r['pts'],np.int32)],1); m=cv2.dilate(m,np.ones((5,5),np.uint8))>0
+            line[m]=False
+        if mm:
+            for r in plan.get('rooms') or []:
+                if r.get('kind')!='주방': continue
+                m=np.zeros((H,W),np.uint8); cv2.fillPoly(m,[np.array(r['pts'],np.int32)],1); m=cv2.dilate(m,np.ones((9,9),np.uint8))
+                wh=((v>=225)&(s<=25)&(m>0)).astype(np.uint8)
+                n3,l3,s3,_=cv2.connectedComponentsWithStats(wh,connectivity=4)
+                for j in range(1,n3):
+                    x,y,w_,h_,a=s3[j]; Lm=max(w_,h_)*mm; Sm=min(w_,h_)*mm
+                    if Lm>=1200 and 420<=Sm<=900 and Lm/Sm>=2.0 and a>=w_*h_*0.45:
+                        line[y-2:y+h_+3, x-2:x+w_+3]=False; fix.append({'k':'싱크대','x0':int(x),'y0':int(y),'x1':int(x+w_),'y1':int(y+h_)})
     # 아주 작은 점(글자 조각·잡음) 빼기
     n,lab,st,_=cv2.connectedComponentsWithStats(line.astype(np.uint8),connectivity=8)
     keep=np.zeros(n,bool); keep[1:]=(np.maximum(st[1:,2],st[1:,3])>=9)
@@ -47,6 +70,6 @@ def trace(path, rooms, scale=1.0):
             if cm.sum()>tot*3: continue   # 집 바깥까지 샌 칸
             cm=cv2.dilate(cm.astype(np.uint8),np.ones((3,3),np.uint8))>0
             cells.append({'i':i,'d':paths(cm,0.8)})
-    return {'벽':paths(wall,0.8),'선':paths(line,0.6),'칸':cells}
+    return {'벽':paths(wall,0.8),'선':paths(line,0.6),'칸':cells,'기구':fix}
 if __name__=='__main__':
     print(json.dumps(trace(sys.argv[1], json.loads(open(sys.argv[2]).read())))[:300])
