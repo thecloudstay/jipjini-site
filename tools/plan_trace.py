@@ -612,6 +612,33 @@ def fix_kinds(bgr, rooms):
         if 14<=h_<=21 and 18<=s_<=28 and v_>=248:
             n+=1; r['바로잡음']=r.get('name'); r['kind']='발코니'; r['name']='발코니%d'%n
     return rooms
+# ── 방 다각형 맞추기(2026-11-12 하네스 학습, R7 160곳: 욕실 다각형이 옆 피트·팬트리까지, 발코니·피트가 벽 너머로 — 누리집 방 읽기의 넘침)
+#   우리 도면은 벽·창·문으로 칸이 닫혀 있다 → 방 다각형 ∩ 그 방이 들어 있는 닫힌 칸(겹침이 가장 큰 칸). 벽 없이 이어진 거실·주방은 같은 칸이라 원래 경계 그대로
+#   자른 넓이가 원래의 60%에 못 미치면(칸이 덜 닫힘 등) 손대지 않는다. 고친 방에는 '맞춤' 표시
+def fit_rooms(rooms, G, mm, H, W):
+    import plan_check
+    st=cv2.dilate(plan_check._struct(G,mm,H,W),np.ones((3,3),np.uint8))
+    n,lab=cv2.connectedComponents((st==0).astype(np.uint8),connectivity=4)
+    for r in rooms:
+        if r.get('kind')=='공용' or len(r.get('pts') or [])<3: continue
+        rm=np.zeros((H,W),np.uint8); cv2.fillPoly(rm,[np.array(r['pts'],np.int32)],1); a0=int(rm.sum())
+        if a0<50: continue
+        ids,cnt=np.unique(lab[(rm>0)&(lab>0)],return_counts=True)
+        if not len(ids): continue
+        cell=ids[np.argmax(cnt)]
+        if lab[0,0]==cell or lab[H-1,W-1]==cell: continue   # 바깥과 이어진 칸(외벽이 덜 닫힘)
+        # 전용면적은 벽 중심선까지 잰다 → 칸을 벽 두께 절반(약 4화소)만큼 넓혀 원래 다각형과 겹친다 = 벽 중심선 너머로 넘친 것만 자른다(첫 시도는 벽 안쪽 면에서 잘라 R11 3→10)
+        inter=(cv2.dilate((lab==cell).astype(np.uint8),np.ones((9,9),np.uint8))>0)&(rm>0); inter=inter.astype(np.uint8)
+        if inter.sum()<a0*0.6 or inter.sum()>a0*0.97: continue   # 많이 깎이면 손대지 않고, 거의 그대로면 원래 것
+        cs,_=cv2.findContours(inter,cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_SIMPLE)
+        if not cs: continue
+        c=max(cs,key=cv2.contourArea); c=cv2.approxPolyDP(c,1.5,True).reshape(-1,2)
+        if len(c)>=3:
+            r['맞춤']=1; r['pts']=[[int(x),int(y)] for x,y in c]
+            if 'area' in r:   # 누리집 자료의 넓이·가로·세로도 새 다각형으로(편집기·견적이 이 값을 쓴다)
+                ar=abs(cv2.contourArea(c.astype(np.float32)))*mm*mm/1e6; bx_,by_,bw_,bh_=cv2.boundingRect(c.astype(np.int32))
+                r['area']=round(ar,2); r['w']=round(max(bw_,bh_)*mm/1000,1) if 'w' in r else r.get('w'); r['d']=round(ar/r['w'],1) if r.get('w') else r.get('d')
+    return rooms
 # ── 남은 벽 외곽선 따라가기(2026-11-12 대표 제안 「사선·계단식은 선을 따라가기만 해도」): 벽은 가로·세로 곧은 띠 + 사선벽으로 다시 그리는데,
 #   그 둘이 못 덮은 검은 벽(계단처럼 꺾인 자리·조금 기운 벽·곡선 벽·토막)이 비어 외벽이 새거나 벽을 놓쳤다
 #   → 원본 벽 덩어리 중 덮이지 않은 나머지만 테두리를 따라가(오픈씨브이 외곽선 + 더글러스-포이커 단순화) 다각형으로 채운다. 곧은 벽은 집지니식 그대로
@@ -942,6 +969,8 @@ def trace(path, plan):
     try: _rest=trace_rest(wall,wseg,_diag,sash_out,mm,bld,H,W)
     except Exception: _rest=[]
     G_={'벽선':wseg,'샷시':sash_out,'문':doors,'틀':[int(bx),int(by),int(bx+bw0),int(by+bh0)],'사선벽':_diag,'사선창':_dwin,'벽윤곽':_rest}
+    try: fit_rooms(plan['rooms'],G_,mm,H,W)
+    except Exception: pass
     try:   # 변환할 때마다 규칙 점검(tools/plan_check.py RULES) — 어긴 곳을 자료에 남긴다
         import plan_check; _chk=plan_check.rules(bgr,dict(plan,그림=G_,H=H,W=W))
     except Exception as e: _chk=[['오류',str(e)[:60],0,0]]
