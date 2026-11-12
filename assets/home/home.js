@@ -30,7 +30,7 @@
   /* ── 숫자 ── */
   fetch('data/apt/index.json').then(function (r) { return r.json(); }).then(function (d) {
     IDX = d; var t = d.합계, all = t[0] + t[1] + t[2];
-    $('nAll').textContent = num(all); $('nHave').textContent = num(t[1] + t[2]); $('nOpen').textContent = num(t[2]);
+    $('nAll').textContent = num(all); if ($('nAll2')) $('nAll2').textContent = num(all); $('nHave').textContent = num(t[1] + t[2]); $('nOpen').textContent = num(t[2]);
     if (window.JJ_KAKAO_KEY) kakao();
   });
   fetch('data/plans/opened.json', { cache: 'no-cache' }).then(function (r) { return r.json(); }).then(function (L) {
@@ -146,6 +146,7 @@
 
   /* ── 기능 그림: 보일 때 움직인다 ── */
   getPlan('A10025531').then(function (d) { ['planVis', 'planVis2'].forEach(function (id) { var e = $(id); if (!e) return; e.innerHTML = planSVG(d.평형[0].plan, 'psvg'); fit(e); see(e); }); }).catch(function () {});
-  see($('bars'));
+  see($('stack'));
+  [].forEach.call(document.querySelectorAll('[data-go=find]'), function (a) { a.addEventListener('click', function () { setTimeout(function () { $('q').focus(); }, 500); }); });
   function see(el) { if (!('IntersectionObserver' in window)) return el.classList.add('go'); new IntersectionObserver(function (E, o) { E.forEach(function (e) { if (e.isIntersecting) { el.classList.add('go'); o.disconnect(); } }); }, { threshold: .35 }).observe(el); }
 })();
