@@ -62,7 +62,13 @@
     if (!xs.length) return null;
     var Wd = p.W || Math.max.apply(null, xs) + Math.min.apply(null, xs), Ht = p.H || Math.max.apply(null, ys) + Math.min.apply(null, ys);
     (p.창 || []).forEach(function (w) { sh.push({ t: 'win', c: '#1d5fd0', x1: Math.round(w.x1), y1: Math.round(w.y1), x2: Math.round(w.x2), y2: Math.round(w.y2), h: w.h_mm || 1200, name: (w.종류 || '창') + (w.안 ? ' ' + w.안 : ''), auto: true }); });
-    (p.문 || []).forEach(function (w) { sh.push({ t: 'door', c: '#b06a00', x1: Math.round(w.x1), y1: Math.round(w.y1), x2: Math.round(w.x2), y2: Math.round(w.y2), h: 2100, name: '문', auto: true }); });
+    // 문: 열리는 쪽은 학습 인식기가 본 문 네모의 가운데 쪽. 문짝 끝이 방 안에 들어오는 쪽·경첩 자리를 고른다(집 밖이나 벽 속으로 열리지 않게).
+    var inRoom = function (x, y) { return sh.some(function (q) { return q.t === 'room' && inPoly([x, y], q.pts); }); };
+    (p.문 || []).forEach(function (w) { var x1 = Math.round(w.x1), y1 = Math.round(w.y1), x2 = Math.round(w.x2), y2 = Math.round(w.y2), L = Math.hypot(x2 - x1, y2 - y1); if (L < 4) return;
+      var ux = (x2 - x1) / L, uy = (y2 - y1) / L, side = (w.cx != null && ((w.cx - (x1 + x2) / 2) * -uy + (w.cy - (y1 + y2) / 2) * ux) < 0) ? -1 : 1, pickd = null;
+      [side, -side].some(function (sd) { return [0, 1].some(function (sw) { var hx = sw ? x2 : x1, hy = sw ? y2 : y1, tx = hx + -uy * sd * L * 0.9, ty = hy + ux * sd * L * 0.9; if (inRoom(tx, ty)) { pickd = [sd, sw]; return true; } return false; }); });
+      if (!pickd) return;   // 어느 쪽으로 열어도 방 안에 안 들어가는 문은 잘못 찾은 것(집 밖·계단실) — 버린다 var o = { t: 'door', c: '#b06a00', x1: pickd[1] ? x2 : x1, y1: pickd[1] ? y2 : y1, x2: pickd[1] ? x1 : x2, y2: pickd[1] ? y1 : y2, h: 2100, name: '문', auto: true };
+      if ((pickd[1] ? -pickd[0] : pickd[0]) < 0) o.flip = true; sh.push(o); });
     if (p.mmpp > 0) { var L = Math.round(1000 / p.mmpp), x0 = Math.min.apply(null, xs), y1 = Math.max.apply(null, ys), Dm = Math.max(Math.max.apply(null, xs) - x0, y1 - Math.min.apply(null, ys));
       sh.push({ t: 'scale', c: '#1d5fd0', x1: Math.round(x0 - Dm * 0.07), y1: Math.round(y1 + Dm * 0.135), x2: Math.round(x0 - Dm * 0.07) + L, y2: Math.round(y1 + Dm * 0.135), mm: 1000, by: (p.척도 && p.척도.방식) || '치수' }); }
     return { v: 2, W: Math.round(Wd), H: Math.round(Ht), shapes: sh, base: { 외곽: p.외곽 || null, 치수줄: p.치수줄 || null }, baseOk: true, name: p.name || '우리 집', at: Date.now() };
@@ -798,6 +804,13 @@
     [[x0 + ix, y0 + iy], [x1 - ix, y0 + iy], [x0 + ix, y1 - iy], [x1 - ix, y1 - iy], [x0 + ix, y0 + iy + u * 0.85], [x1 - ix, y0 + iy + u * 0.85], [x0 + ix, y1 - iy - u * 0.85], [x1 - ix, y1 - iy - u * 0.85], [c0[0], y0 + iy], [c0[0], y1 - iy]].forEach(function (c) { if (x1 - x0 > lw + u * 0.4 && inPoly(c, q.pts)) zc.push(c); }); zc.push([c0[0], c0[1] + u * 1.3], [c0[0], c0[1] - u * 1.3], c0);
     label(g, txz, zc, u, col, showNo ? String(no) : '', 0.46);
   }
+  // 창 기호(2026-11-12): 벽을 창 길이만큼 끊고, 그 자리에 틀(바깥 두 줄)과 유리(가운데 한 줄)를 그린다 — 건축 평면의 창 표기. 굵은 벽에 묻혀 안 보이던 것을 고침.
+  function drawWin(g, q, u) { var L = Math.hypot(q.x2 - q.x1, q.y2 - q.y1) || 1, ux = (q.x2 - q.x1) / L, uy = (q.y2 - q.y1) / L, nx = -uy, ny = ux, mmD = mmpp(), T = Math.max(5, u / 1.6, mmD ? 260 / mmD : 0), hT = T / 2;
+    g.save(); g.lineCap = 'butt'; g.strokeStyle = sheetMode ? '#ffffff' : '#f7f4ee'; g.lineWidth = T + 1; g.beginPath(); g.moveTo(q.x1, q.y1); g.lineTo(q.x2, q.y2); g.stroke();
+    g.strokeStyle = '#26302c'; g.lineWidth = Math.max(0.9, u / 18);
+    [-hT, hT].forEach(function (o) { g.beginPath(); g.moveTo(q.x1 + nx * o, q.y1 + ny * o); g.lineTo(q.x2 + nx * o, q.y2 + ny * o); g.stroke(); });
+    [[q.x1, q.y1], [q.x2, q.y2]].forEach(function (e) { g.beginPath(); g.moveTo(e[0] - nx * hT, e[1] - ny * hT); g.lineTo(e[0] + nx * hT, e[1] + ny * hT); g.stroke(); });
+    g.strokeStyle = '#1d5fd0'; g.lineWidth = Math.max(1.2, u / 12); g.beginPath(); g.moveTo(q.x1, q.y1); g.lineTo(q.x2, q.y2); g.stroke(); g.restore(); }
   function drawDoor(g, q, u) { var L = Math.hypot(q.x2 - q.x1, q.y2 - q.y1) || 1, ux = (q.x2 - q.x1) / L, uy = (q.y2 - q.y1) / L, s = q.flip ? -1 : 1, nx = -uy * s, ny = ux * s, a0 = Math.atan2(ny, nx), a1 = Math.atan2(uy, ux);
     g.save(); g.strokeStyle = sheetMode ? '#ffffff' : '#f7f4ee'; g.lineCap = 'butt'; var mmD = mmpp(); g.lineWidth = Math.max(4, u / 1.7, mmD ? 250 / mmD : 0); g.beginPath(); g.moveTo(q.x1, q.y1); g.lineTo(q.x2, q.y2); g.stroke();   // 문 자리의 벽선을 지운다
     g.strokeStyle = '#26302c'; g.lineWidth = Math.max(1.3, u / 11); g.beginPath(); g.moveTo(q.x1, q.y1); g.lineTo(q.x1 + nx * L, q.y1 + ny * L); g.stroke(); g.lineWidth = Math.max(0.7, u / 24); g.beginPath(); var dlt = a1 - a0; while (dlt > Math.PI) dlt -= Math.PI * 2; while (dlt < -Math.PI) dlt += Math.PI * 2; g.arc(q.x1, q.y1, L, a0, a0 + dlt, dlt < 0); g.stroke();
@@ -813,7 +826,7 @@
     else if (q.t === 'dim') { var Ld = Math.hypot(q.x2 - q.x1, q.y2 - q.y1) || 1, dx = (q.x2 - q.x1) / Ld, dy = (q.y2 - q.y1) / Ld, t2 = u * 0.26; g.strokeStyle = '#111827'; g.fillStyle = '#111827'; g.lineCap = 'butt'; g.lineWidth = Math.max(1, u / 14);
       g.beginPath(); g.moveTo(q.x1, q.y1); g.lineTo(q.x2, q.y2); g.moveTo(q.x1 - dy * t2, q.y1 + dx * t2); g.lineTo(q.x1 + dy * t2, q.y1 - dx * t2); g.moveTo(q.x2 - dy * t2, q.y2 + dx * t2); g.lineTo(q.x2 + dy * t2, q.y2 - dx * t2); g.stroke(); g.lineWidth = Math.max(1.2, u / 11); g.beginPath(); [[q.x1, q.y1], [q.x2, q.y2]].forEach(function (p) { g.moveTo(p[0] - (dx - dy) * t2 * 0.6, p[1] - (dy + dx) * t2 * 0.6); g.lineTo(p[0] + (dx - dy) * t2 * 0.6, p[1] + (dy + dx) * t2 * 0.6); }); g.stroke();
       var r10 = Math.round(Ld * mm / 10) * 10, txd = mm ? r10.toLocaleString('ko-KR') : '척도 없음', mxd = (q.x1 + q.x2) / 2, myd = (q.y1 + q.y2) / 2; var dc = []; [0.5, 0.25, 0.75, 0.12, 0.88].forEach(function (t) { var ax = q.x1 + (q.x2 - q.x1) * t, ay = q.y1 + (q.y2 - q.y1) * t; dc.push([ax - dy * u * 0.55, ay + dx * u * 0.55], [ax + dy * u * 0.55, ay - dx * u * 0.55]); }); label(g, txd, dc, u, mm ? '#111827' : '#b4232a', '', 0.5); }
-    else if (q.t === 'win') { g.strokeStyle = '#1d5fd0'; g.lineWidth = Math.max(3, u / 3); g.lineCap = 'butt'; g.beginPath(); g.moveTo(q.x1, q.y1); g.lineTo(q.x2, q.y2); g.stroke(); g.strokeStyle = '#fff'; g.lineWidth = Math.max(1, u / 9); g.beginPath(); g.moveTo(q.x1, q.y1); g.lineTo(q.x2, q.y2); g.stroke(); }
+    else if (q.t === 'win') drawWin(g, q, u);
     else if (q.t === 'door') drawDoor(g, q, u);
     else if (q.t === 'guide') { var ge = gExt(q), gv = q.o === 'v', sg = spanAt(q.x, q.y), gc = q.c || '#d11a2a'; g.strokeStyle = gc; g.lineCap = 'butt'; g.lineWidth = Math.max(0.9, u / 18); g.setLineDash([u * 0.55, u * 0.12, u * 0.07, u * 0.12]); g.beginPath(); if (gv) { g.moveTo(q.x, ge[0]); g.lineTo(q.x, ge[1]); } else { g.moveTo(ge[0], q.y); g.lineTo(ge[1], q.y); } g.stroke(); g.setLineDash([]);
       if (mm && sg) { var a1 = gv ? sg.L : sg.T, b1 = gv ? sg.R : sg.B, pv = gv ? q.x : q.y, both = !sheetMode && shapes[sel] === q, gtx = function (px) { return (Math.round(px * mm / 10) * 10).toLocaleString('ko-KR'); }, gl = function (m0, tx) { label(g, tx, gv ? [[m0, q.y], [m0, q.y - u * 0.9], [m0, q.y + u * 0.9], [m0, q.y - u * 1.8], [m0, q.y + u * 1.8]] : [[q.x, m0], [q.x - u * 1.5, m0], [q.x + u * 1.5, m0], [q.x - u * 3, m0], [q.x + u * 3, m0]], u, gc, '', 0.4); };
@@ -835,7 +848,8 @@
     if (shapes.some(function (q) { return ok0(q) && dim(q); })) { g.save(); g.globalAlpha = 0.25; mute = true; try { ['a', 'l', 'p'].forEach(function (f) { shapes.forEach(function (q, i) { if (q.t === 'wk' && q.f === f && ok0(q) && dim(q)) drawOne(g, q, u, 0, ord[i]); }); }); } finally { mute = false; } g.restore(); }
     shapes.forEach(function (q) { if (q.t === 'wk' && q.f === 'p' && ok(q)) { var r = u * 0.62; OBS.push([q.x - r, q.y - r, q.x + r, q.y + r]); } });
     shapes.forEach(function (q, i) { if (q.t === 'wk' && q.f === 'a' && ok(q)) drawOne(g, q, u, N.show[i] ? N.nos[i] : 0, ord[i]); });
-    shapes.forEach(function (q, i) { if (q.t === 'wk' || !ok(q)) return; if (bgOn && (q.t === 'room' || q.t === 'win') && (noSel || i !== sel)) return; if (sheetMode && (q.t === 'scale')) return; drawOne(g, q, u); });
+    var late = function (q) { return q.t === 'win' || q.t === 'door'; };   // 창·문은 벽을 다 그린 다음에 — 벽에 묻히지 않게
+    [false, true].forEach(function (ph) { shapes.forEach(function (q, i) { if (q.t === 'wk' || !ok(q) || late(q) !== ph) return; if (bgOn && (q.t === 'room' || q.t === 'win') && (noSel || i !== sel)) return; if (sheetMode && (q.t === 'scale')) return; drawOne(g, q, u); }); });
     shapes.forEach(function (q, i) { if (q.t === 'wk' && q.f === 'l' && ok(q)) drawOne(g, q, u, N.show[i] ? N.nos[i] : 0, ord[i]); });
     shapes.forEach(function (q, i) { if (q.t === 'wk' && q.f === 'p' && ok(q)) drawOne(g, q, u, N.show[i] ? N.nos[i] : 0); });
   }

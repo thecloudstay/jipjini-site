@@ -296,12 +296,16 @@
           if (bestD >= gap * 0.7 || (bothLong && bestL >= gap * 0.7)) for (var t2 = g0; t2 <= g1; t2++) add.push(idx(a, t2)); } } };
     var add = []; bridge(true); bridge(false); add.forEach(function (k) { wall[k] = 1; });
     // 문 틈 막기(2026-11-11): 학습 인식기가 문이라고 본 자리에, 양 끝이 벽에 닿을 때만 벽을 한 줄 긋는다 — 문으로 이어진 욕실·방이 따로 나뉜다
+    var doorOut = [];   // 문 자리(2026-11-12): 막음 선을 그은 자리를 문으로 내보낸다 — 평면에 문 기호를 그리는 데 쓴다
     var doorN = 0; (doors || []).forEach(function (b) { var x0 = Math.round(b[0] * s), y0 = Math.round(b[1] * s), x1 = Math.round(b[2] * s), y1 = Math.round(b[3] * s), reach = Math.max(4, Math.round(U0 * tv('doorReach', 0.9))), best = null;
       // 문 네모 안팎에서, 벽에서 벽까지 가장 짧게 가로지르는 줄(가로 또는 세로)을 찾는다
       var tryLine = function (hz, c) { var lo = hz ? x0 : y0, hi = hz ? x1 : y1, at = function (t) { return hz ? c * w + t : t * w + c; }, lim = hz ? w : h, a = Math.round((lo + hi) / 2), z = a; if (c < 1 || c >= (hz ? h : w) - 1 || wall[at(a)]) return;
         while (a > 0 && !wall[at(a)] && (lo - a) <= reach) a--; while (z < lim - 1 && !wall[at(z)] && (z - hi) <= reach) z++; if (!wall[at(a)] || !wall[at(z)]) return; var len = z - a; if (len < 3 || len > U0 * tv('doorLen', 1.6)) return; if (!best || len < best.len) best = { hz: hz, c: c, a: a, z: z, len: len }; };
       for (var cy = y0 - 1; cy <= y1 + 1; cy++) tryLine(true, cy); for (var cx = x0 - 1; cx <= x1 + 1; cx++) tryLine(false, cx);
-      if (best) { doorN++; for (var t = best.a; t <= best.z; t++) wall[best.hz ? best.c * w + t : t * w + best.c] = 1; } });
+      if (best) { doorN++; for (var t = best.a; t <= best.z; t++) wall[best.hz ? best.c * w + t : t * w + best.c] = 1;
+        // 막음 선은 벽에서 벽까지라 문보다 길 수 있다 → 문으로 내보낼 때는 학습 인식기가 본 문 네모와 겹치는 구간만(문 폭)
+        var lo2 = best.hz ? x0 : y0, hi2 = best.hz ? x1 : y1, da = Math.max(best.a, lo2 - 1), dz = Math.min(best.z, hi2 + 1); if (dz - da < 3) { da = best.a; dz = best.z; } best = { hz: best.hz, c: best.c, a: da, z: dz };
+        var bcx = (b[0] + b[2]) / 2, bcy = (b[1] + b[3]) / 2; doorOut.push(best.hz ? { x1: Math.round(best.a / s), y1: Math.round(best.c / s), x2: Math.round(best.z / s), y2: Math.round(best.c / s), cx: Math.round(bcx), cy: Math.round(bcy) } : { x1: Math.round(best.c / s), y1: Math.round(best.a / s), x2: Math.round(best.c / s), y2: Math.round(best.z / s), cx: Math.round(bcx), cy: Math.round(bcy) }); } });
     var wc = 0; for (i = 0; i < N; i++) wc += wall[i]; if (wc < N * 0.006 || wc > N * 0.35) return null;   // 굵은 검은 벽이 없는 도면 → 다른 방식으로
     // 도면 크기 어림(화소/m): 벽이 차지한 네모의 80% ≈ 전용 + 발코니(전용의 1.3배)
     var bx0 = w, bx1 = 0, by0 = h, by1 = 0; for (i = 0; i < N; i++) if (wall[i]) { x = i % w; y = (i / w) | 0; if (x < bx0) bx0 = x; if (x > bx1) bx1 = x; if (y < by0) by0 = y; if (y > by1) by1 = y; }
@@ -590,7 +594,7 @@
       var bwA = x1a - x0a + 1, bhA = y1a - y0a + 1, hor = bwA >= bhA, len = hor ? bwA : bhA, thick = hor ? bhA : bwA; if (len < U * 0.45 || thick > U * 0.6 || len < thick * 2) continue;
       var cxA = (x0a + x1a) / 2, cyA = (y0a + y1a) / 2, off = thick / 2 + Math.max(4, U * 0.22);
       wins.push({ x1: (hor ? x0a : cxA) / s, y1: (hor ? cyA : y0a) / s, x2: (hor ? x1a + 1 : cxA) / s, y2: (hor ? cyA : y1a + 1) / s, a: [(hor ? cxA : cxA - off) / s, (hor ? cyA - off : cyA) / s], b: [(hor ? cxA : cxA + off) / s, (hor ? cyA + off : cyA) / s] }); }
-    found.창선 = wins;
+    found.창선 = wins; found.문선 = doorOut;
     // 2026-11-11 집 외곽선 먼저 따기: 찾은 공간을 벽 두께만큼 불려 한 덩어리로 잇고(방 사이 벽이 메워진다) 속 구멍을 메운 뒤 가장 큰 덩어리의 바깥선을 딴다.
     //   방마다 따로 직각을 맞추면 방들이 서로 떨어져 「집 모양」이 사라지던 문제 — 외곽선은 방과 별개로 한 줄로 그리고, 사선 벽은 사선 그대로 둔다.
     try { (function () { var inL = {}, m = new Uint8Array(N), k, tt = Math.max(2, Math.round(U * 0.22)); found.forEach(function (f) { inL[f.l] = 1; }); for (k = 0; k < N; k++) if (inL[lab[k]]) m[k] = 1;
@@ -654,12 +658,12 @@
         var base = A.analyzeImage(clean, { areaM2: opt.areaM2 }); base.dataUrl = dataUrl; base.W = W; base.H = H;
         // 방 이름이 3곳 이상 읽히면 글자 기준 나누기가 우선 (부동산 사이트 도면)
         if (items && items.length) { var seeded = null; try { seeded = seedRooms(clean, items, W, H, opt.areaM2, false, DOORS); if (!seeded) seeded = seedRooms(clean, items, W, H, opt.areaM2, true, DOORS); } catch (e) { if (root.JJ_PLAN_DEBUG) console.error(e); seeded = null; }
-          if (seeded) { var mk = function () { capBath(seeded, opt.areaM2); base = A.finalize(seeded, W, H, dataUrl, opt.areaM2, '글자 기준'); base.wallPx = seeded.wallPx; base.창선 = seeded.창선; base.외곽 = seeded.외곽; }; mk();
+          if (seeded) { var mk = function () { capBath(seeded, opt.areaM2); base = A.finalize(seeded, W, H, dataUrl, opt.areaM2, '글자 기준'); base.wallPx = seeded.wallPx; base.창선 = seeded.창선; if (seeded.문선 && seeded.문선.length) base.문 = seeded.문선; base.외곽 = seeded.외곽; }; mk();
             var blind = seeded.filter(function (f) { return f.guess; }).sort(function (a, b) { return b.px - a.px; }).slice(0, 5);
             if (blind.length) { step('이름이 안 읽힌 칸을 다시 읽고 있습니다'); seedJob = blind.reduce(function (pr, f) { return pr.then(function () { return readRegion(keep, f).then(function (k) { if (k) { f.kind = k.kind; f.nm = k.nm; f.guess = false; items.push(k.item); } }, function () {}); }); }, Promise.resolve()).then(mk); } } }
         return seedJob.then(aiReady).then(function (ai) { if (!ai || !ai.spa) return null; step('공간을 가려 읽고 있습니다'); return aiAnalyze(ai, clean).catch(function () { return null; }); }).then(function (aiRes) {
           if (aiRes && aiRes.found.length >= 2) { base = A.finalize(aiRes.found, W, H, dataUrl, opt.areaM2, '학습'); base.문 = aiRes.문; base.창 = aiRes.창; }
-          if (!base.ok || !items || !items.length) { if (base.ok) { base.글자 = { 개수: 0, 방이름: 0, 치수: [], 실패: items === null }; try { var fr = base.rooms.map(function (r) { return { pts: r.pts, px: r.px, kind: r.kind, nm: r.nm }; }); squareUp(fr); var b2 = A.finalize(fr, W, H, dataUrl, opt.areaM2, base.engine); b2.글자 = base.글자; if (base.외곽) b2.외곽 = base.외곽; base = b2; } catch (_q) {} } return base; }
+          if (!base.ok || !items || !items.length) { if (base.ok) { base.글자 = { 개수: 0, 방이름: 0, 치수: [], 실패: items === null }; try { var fr = base.rooms.map(function (r) { return { pts: r.pts, px: r.px, kind: r.kind, nm: r.nm }; }); squareUp(fr); var b2 = A.finalize(fr, W, H, dataUrl, opt.areaM2, base.engine); b2.글자 = base.글자; if (base.외곽) b2.외곽 = base.외곽; if (base.문) b2.문 = base.문; if (base.창선) b2.창선 = base.창선; base = b2; } catch (_q) {} } return base; }
           return refine(base, items, opt.areaM2);
         });
       }).then(function (res) { if (res && turned) res.회전 = turned; return res; });
