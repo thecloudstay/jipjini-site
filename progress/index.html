@@ -154,6 +154,14 @@ details.sample dd{font-size:13px;color:var(--mute)}
 .pltabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
 .pltabs button{border:1.5px solid var(--line);background:#fff;color:var(--ink);font:inherit;font-size:13px;font-weight:700;padding:6px 12px;border-radius:4px;cursor:pointer}
 .pltabs button.on{border-color:var(--g);background:var(--gl);color:var(--g)}
+/* 2026-11-13 코디에게 답하기(가정통신문) */
+.nq{border-top:1px solid var(--line);padding:14px 0 6px}
+.nq p{font-weight:700;font-size:15px;line-height:1.55;margin-bottom:10px}
+.nq .cs{display:flex;flex-wrap:wrap;gap:8px}
+.nq .cs button{border:1.5px solid var(--line);background:#fff;color:var(--ink);font:inherit;font-size:14px;padding:8px 12px;border-radius:4px;cursor:pointer;line-height:1.3}
+.nq .cs button.on{border-color:var(--g);background:var(--gl);color:var(--g);font-weight:700}
+.ntop{background:var(--gl);border-radius:4px;padding:12px 14px;line-height:1.7;font-size:15px;margin-bottom:6px}
+.nlast{font-size:13px;color:var(--mute);margin-top:6px;line-height:1.6}
 .plimg{position:relative;border:1px solid var(--line);border-radius:4px;overflow:hidden;background:#fff}
 .plimg img{display:block;width:100%;height:auto;cursor:zoom-in}
 .plimg .zoom{position:absolute;right:8px;bottom:8px;background:rgba(31,94,70,.9);color:#fff;font-size:12px;font-weight:700;border:0;border-radius:4px;padding:5px 10px;cursor:pointer}
@@ -521,6 +529,39 @@ table.plm td.r,table.plm th.r{padding-left:10px}
     var rt = e.target.closest('[data-plrot]'); if (rt) { var btn2 = app.querySelector('[data-pl3d]'); if (btn2) btn2.classList.add('on'); if (PL3V && PL3V.ready) PL3V.rotate(Number(rt.getAttribute('data-plrot')) || 0); else pl3dOpen('orbit'); }
   });
 
+  // 2026-11-13 코디에게 답하기(가정통신문) — 고르신 공사만 견적에 넣었으니, 정말 이것만인지 · 더 필요한 공사 · 메모
+  var NT = { 답: {} };
+  function noteHtml(N) {
+    NT.Q = N.질문 || []; NT.답 = {}; var last = N.지난;
+    if (last && last.답) Object.keys(last.답).forEach(function (k) { NT.답[k] = last.답[k]; });
+    var h = ['<section class="card" id="note"><h2>코디에게 답하기</h2><div class="ntop">' + (N.고른공사 ? '이번 견적은 고객님이 의뢰서에서 고르신 <b>' + esc(N.고른공사) + '</b>만 넣었습니다.<br>' : '이번 견적은 의뢰서에서 고르신 공사만 넣었습니다.<br>') + '올수리나 도배·장판, 싱크대, 욕실 리모델링 등이 더 필요하시면 아래에서 눌러 주세요. 고르신 대로 견적을 고쳐 다시 보내 드립니다.</div>'];
+    NT.Q.forEach(function (q) {
+      var cur = NT.답[q.키], has = function (v) { return q.여럿 ? (cur || []).indexOf(v) >= 0 : cur === v; };
+      h.push('<div class="nq"><p>' + esc(q.질문) + (q.여럿 ? ' <span style="font-weight:400;color:var(--mute);font-size:13px">여러 개 고를 수 있어요</span>' : '') + '</p><div class="cs">' + q.고르기.map(function (v) { return '<button type="button" data-nk="' + esc(q.키) + '" data-nv="' + esc(v) + '"' + (q.여럿 ? ' data-nm="1"' : '') + ' class="' + (has(v) ? 'on' : '') + '" aria-pressed="' + (has(v) ? 'true' : 'false') + '">' + esc(v) + '</button>'; }).join('') + '</div></div>');
+    });
+    h.push('<div class="f" style="margin-top:12px"><label for="ntX">코디에게 남길 말 (가정통신문)</label><textarea id="ntX" maxlength="1500" placeholder="예) 안방 욕실은 꼭 하고 싶고, 주방은 예산 보고 정할게요. 평일 저녁 7시 이후 통화 가능해요.">' + esc((last && last.메모) || '') + '</textarea><button type="button" class="btn pri" id="ntGo">코디에게 보내기</button><div class="msg" id="ntMsg"></div>' + (last ? '<div class="nlast">' + esc(last.시각) + '에 보내 주신 답이 저장돼 있습니다. 바꿔서 다시 보내셔도 됩니다.</div>' : '') + '</div></section>');
+    return h.join('');
+  }
+  app.addEventListener('click', function (e) {
+    var b = e.target.closest('[data-nk]'); if (!b) return;
+    var nk = b.getAttribute('data-nk'), v = b.getAttribute('data-nv'), multi = b.hasAttribute('data-nm'), box = b.parentNode;
+    if (multi) { var L = NT.답[nk] || []; if (v === '없어요') L = L.indexOf(v) >= 0 ? [] : [v]; else { L = L.filter(function (x) { return x !== '없어요'; }); var i = L.indexOf(v); if (i >= 0) L.splice(i, 1); else L.push(v); } NT.답[nk] = L; }
+    else NT.답[nk] = NT.답[nk] === v ? '' : v;
+    Array.prototype.forEach.call(box.querySelectorAll('button'), function (x) { var xv = x.getAttribute('data-nv'), on = multi ? (NT.답[nk] || []).indexOf(xv) >= 0 : NT.답[nk] === xv; x.classList.toggle('on', on); x.setAttribute('aria-pressed', on ? 'true' : 'false'); });
+  });
+  app.addEventListener('click', function (e) {
+    if (!e.target.closest('#ntGo')) return;
+    var btn = document.getElementById('ntGo'), msg = document.getElementById('ntMsg'), memo = document.getElementById('ntX').value.trim();
+    if (PV || STAFF) { msg.textContent = '미리보기·직원 화면에서는 보내지지 않습니다.'; return; }
+    var any = Object.keys(NT.답).some(function (k) { var v = NT.답[k]; return Array.isArray(v) ? v.length : !!v; });
+    if (!any && memo.length < 2) { msg.textContent = '하나 이상 고르시거나 남길 말을 적어 주세요.'; return; }
+    btn.disabled = true; msg.textContent = '집지니가 코디에게 전하고 있습니다…';
+    fetch(EXEC + '?type=portal_note', { method: 'POST', redirect: 'follow', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ k: k, 답: NT.답, 메모: memo }) }).then(function (r) { return r.json(); }).then(function (j) {
+      if (j && j.ok) { msg.innerHTML = '<b style="color:var(--g)">' + esc(j.안내 || '전달했습니다.') + '</b>'; setTimeout(load, 1500); }
+      else { btn.disabled = false; msg.textContent = (j && j.err) || '보내지 못했습니다. 코디에게 연락해 주세요.'; }
+    }).catch(function () { btn.disabled = false; msg.textContent = '연결이 원활하지 않습니다. 잠시 뒤 다시 눌러 주세요.'; });
+  });
+
   function asHtml(P) {
     var h = ['<section class="card" id="as"><h2>하자 접수 · 기술자 연결</h2>'];
     if (!P.AS가능) h.push('<p class="empty">계약 후 이곳에서 바로 접수하실 수 있습니다. 지금은 아래 코디 연락처로 말씀해 주세요.</p>');
@@ -545,6 +586,7 @@ table.plm td.r,table.plm th.r{padding-left:10px}
 
     var P = d.포털 || null; LASTP = P;
     if (P && P.체인) h.push(chainHtml(P.체인, P.계약요약 ? null : P.샘플실));
+    if (P && P.가정통신문) h.push(noteHtml(P.가정통신문));   // 2026-11-13 견적 뒤 코디에게 답하기
     if (P && P.샘플실 && P.샘플실.링크 && !P.계약요약) h.push(showroomHtml(P.샘플실));
     if (P && P.도면) h.push(planHtml(P.도면));   // 2026-11-09 우리 집 도면·측정·입체 보기
     if (P) h.push(planUpHtml(P.도면));   // 2026-11-10 고객이 직접 도면 넣기 → 자동 방 나누기·면적
@@ -727,7 +769,7 @@ table.plm td.r,table.plm th.r{padding-left:10px}
         { t: 'win', name: '거실 분합창', x1: 200, y1: 100, x2: 520, y2: 100, h: 2200 }, { t: 'win', name: '안방 창', x1: 700, y1: 100, x2: 900, y2: 100, h: 1200 }, { t: 'door', name: '안방문', x1: 640, y1: 300, x2: 640, y2: 375, h: 2100 }, { t: 'door', name: '욕실문', x1: 920, y1: 560, x2: 920, y2: 627, h: 2100 }] }],
       측정: { 도면ID: 'PL-DEMO', 날짜: '2026-11-09', 공간: [{ 이름: '거실', 면적: 28.5, 평: 8.6 }, { 이름: '안방', 면적: 21.2, 평: 6.4 }, { 이름: '작은방', 면적: 10.5, 평: 3.2 }, { 이름: '욕실1', 면적: 7.3, 평: 2.2 }, { 이름: '주방', 면적: 16.5, 평: 5 }], 바닥: 84, 창: [{ 이름: '거실 분합창', 폭: 3.84, 높이: 2.2 }, { 이름: '안방 창', 폭: 2.4, 높이: 1.2 }], 창면적: 11.33, 창자: 123, 문: [{ 이름: '안방문', 폭: 0.9, 높이: 2.1 }, { 이름: '욕실문', 폭: 0.8, 높이: 2.1 }], 도배: 268.4, 걸레받이: 71.2, 몰딩: 74.5, 욕실벽: 20.3 },
       건물: { 전용면적: 84.96, 전용평: 25.7, 준공년도: '2016', 단지명: '예시 단지' } },
-    체인: { 단계: [{ 키: '의뢰', 이름: '상담·의뢰 접수', 설명: '의뢰서를 받고 담당 코디가 정해집니다.', 날짜: '2026-11-09', 상태: '끝남' }, { 키: '가견적', 이름: '가견적', 설명: '의뢰서 기준 예상 견적을 보내 드립니다.', 날짜: '2026-11-09', 상태: '지금' }, { 키: '샘플실', 이름: '샘플실 상담', 설명: '견본을 직접 보고 고릅니다.', 날짜: '', 상태: '다음' }], 지금: '가견적', 다음: '샘플실 상담' }, 서류: [], 계약예시: [], AS가능: false, AS목록: [] } };
+    체인: { 단계: [{ 키: '의뢰', 이름: '상담·의뢰 접수', 설명: '의뢰서를 받고 담당 코디가 정해집니다.', 날짜: '2026-11-09', 상태: '끝남' }, { 키: '가견적', 이름: '가견적', 설명: '의뢰서 기준 예상 견적을 보내 드립니다.', 날짜: '2026-11-09', 상태: '지금' }, { 키: '샘플실', 이름: '샘플실 상담', 설명: '견본을 직접 보고 고릅니다.', 날짜: '', 상태: '다음' }], 지금: '가견적', 다음: '샘플실 상담' }, 서류: [], 계약예시: [], AS가능: false, AS목록: [], 가정통신문: { 고른공사: '사전준비 · 철거 · 조명', 질문: [{ 키: '범위', 질문: '정말 이 공사만 하시는 게 맞나요?', 고르기: ['네, 이것만 할게요', '올수리(집 전체)로 받아 보고 싶어요', '몇 가지 더 하고 싶어요', '줄이고 싶은 공사가 있어요', '상담 때 정할게요'] }, { 키: '더할공사', 여럿: true, 질문: '더 필요하신 공사를 골라 주세요 (따로 부르면 출장·철거·보양을 또 하게 됩니다)', 고르기: ['도배', '장판·마루', '싱크대 교체', '욕실 리모델링', '주방 벽타일·후드', '필름(문·문틀·몰딩)', '스위치·콘센트', '샷시', '중문', '붙박이장·수납', '베란다 탄성코트', '입주 청소', '없어요'] }, { 키: '확장', 질문: '베란다(발코니)가 확장된 집인가요?', 고르기: ['확장됨', '확장 안 됨', '일부만 확장', '잘 모르겠어요'] }], 지난: null } } };
   function load() {
     if (new URLSearchParams(location.search).get('demo') === '1') { loadedOnce = true; render(DEMO); return; }
     if (!/^[A-Za-z0-9_-]{12,64}$/.test(k)) { state('링크가 올바르지 않습니다', '받으신 문자의 링크를 다시 눌러 주시거나 담당 코디에게 문의해 주세요.'); return; }
