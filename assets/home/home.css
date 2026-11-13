@@ -638,3 +638,9 @@ h2{font-size:clamp(28px,3.2vw,40px);line-height:1.3;letter-spacing:-.8px;font-we
 .ford .ov p span{color:var(--ink);font-variant-numeric:tabular-nums}
 .ford .ovh b small{margin-left:8px;font-size:12px;color:var(--g);font-weight:600}
 @media(max-width:560px){.flow{aspect-ratio:1/1}.flow[data-s="6"] .ford,.fqty{width:94%}.fqty{padding:10px 12px 8px;font-size:11.5px}.fqty .qhd b{font-size:14px}.fqty th small{display:none}.fst b{font-size:11px}}
+
+/* 2026-11-13 정체성 꼬리표 · 바닥글 한 줄 · 상담 도우미 카톡 단추 */
+.btag{font-size:12.5px;font-weight:500;color:var(--pencil);letter-spacing:0;margin-left:10px;padding-left:10px;border-left:1px solid var(--rule)}
+@media (max-width:640px){.btag{display:none}}
+.foot .fid{color:var(--ink);margin-bottom:6px}
+.jjc-bt.k{background:#fff!important;color:var(--ink)!important;border-color:var(--ink)!important}
