@@ -132,6 +132,38 @@ def check():
         print("파이토치 없음:", e)
 
 
+def weights(tr):
+    """2026-11-13 대표 「거시적으로 본 장점을 학습 모델에도」: 약한 묶음을 더 자주 보여 준다.
+       묶음 = 네이버 등록 연도(양식 시대) × 전용면적 구간. 묶음 통과율은 일괄 변환 결과(자료\변환\상태.json)에서 센다.
+       무게 = 1 + 2 × (그 묶음의 탈락률), 실제 정답지(학습\집지니)는 합성보다 2배 — 합성만 많아 실제 도면과 결이 달라 지던 것(두 번 패배)도 함께 줄인다."""
+    import csv, re, collections
+    D = os.path.join(CROLL, "자료"); A = {}; grp = {}
+    try:
+        for r in csv.DictReader(open(os.path.join(D, "원본_목록.csv"), encoding="utf-8-sig")):
+            if str(r.get("순서")) != "1": continue
+            m = re.search(r"/(20\d\d)\d{4}_", r.get("원래주소", "")); yr = int(m.group(1)) if m else 0
+            try: ar = float(r.get("전용면적") or 0)
+            except ValueError: ar = 0
+            A["%s_%s" % (r["단지코드"], r["평형"])] = ("~12" if yr and yr <= 2012 else "13~19" if yr and yr <= 2019 else "20~" if yr else "?",
+                                                      "~40" if ar < 40 else "~85" if ar <= 85 else "~135" if ar <= 135 else "135~")
+        st = json.load(open(os.path.join(D, "변환", "상태.json"), encoding="utf-8"))
+        cnt = collections.defaultdict(lambda: [0, 0])
+        for k, v in st.items():
+            g = A.get(k)
+            if not g or v.get("판정") == "오류": continue
+            cnt[g][0] += 1; cnt[g][1] += 1 if (v.get("판정") == "통과" or (v.get("판정") == "예외" and (v.get("점수") or 0) >= 85)) else 0
+        grp = {g: 1 - (b / a) for g, (a, b) in cnt.items() if a >= 5}
+    except Exception as e:
+        print("묶음 무게를 못 셌습니다(고르게 학습):", str(e)[:80], flush=True)
+    out = []
+    for im, j in tr:
+        k = re.sub(r"_s\d+$", "", os.path.basename(j)[:-5])
+        w = 1 + 2 * grp.get(A.get(k), 0.5)
+        if os.path.basename(os.path.dirname(j)) == "집지니": w *= 2
+        out.append(w)
+    return out
+
+
 def train(epochs=40):
     import torch, torch.nn.functional as F
     it = items()
@@ -148,10 +180,11 @@ def train(epochs=40):
     ws = torch.tensor([0.3, 1.0, 3.0, 3.0], device=dev)
     opt = torch.optim.AdamW(net.parameters(), 2e-3, weight_decay=1e-4); sched = torch.optim.lr_scheduler.OneCycleLR(opt, 2e-3, total_steps=epochs * max(1, len(tr) // 4 + 1))
     scaler = torch.amp.GradScaler(enabled=dev == "cuda"); B = 4; t0 = time.time(); log = []
+    wt = weights(tr); print("묶음 무게: 평균 %.2f · 최소 %.2f · 최대 %.2f (약한 묶음·실제 정답지를 더 자주)" % (sum(wt) / len(wt), min(wt), max(wt)), flush=True)
     for ep in range(epochs):
-        net.train(); random.shuffle(tr); tot = 0
+        net.train(); tr_e = random.choices(tr, weights=wt, k=len(tr)); tot = 0
         for i in range(0, len(tr), B):
-            xs, ys, yp = zip(*[letterbox(*load(p), aug=True) for p in tr[i:i + B]])
+            xs, ys, yp = zip(*[letterbox(*load(p), aug=True) for p in tr_e[i:i + B]])
             x = torch.tensor(np.stack(xs), device=dev); a = torch.tensor(np.stack(ys), device=dev).long(); b = torch.tensor(np.stack(yp), device=dev).long()
             with torch.autocast(dev, enabled=dev == "cuda"):
                 os_, op = net(x); loss = F.cross_entropy(os_.float(), a, weight=ws) + 0.7 * F.cross_entropy(op.float(), b)
