@@ -684,7 +684,10 @@ def square_rooms(rooms, mm):
             if len(P)<3: break
         if len(P)>=3:
             a1=abs(cv2.contourArea(np.array(P,np.float32)))
-            if a0>0 and 0.97<=a1/a0<=1.03:
+            # 2026-11-13 고침: 작은 방(욕실·피트·현관·발코니)은 120mm 턱 하나만 펴도 넓이가 3% 넘게 바뀌어 펴기가 통째로 버려지고
+            # R15 가 그대로 남던 것(표본 28장 중 흔들림 남은 13곳 전부) → 바뀐 넓이가 0.3㎡ 안이면 12% 까지는 받아 준다
+            da=abs(a1-a0)*mm*mm/1e6
+            if a0>0 and (0.97<=a1/a0<=1.03 or (da<=0.3 and 0.88<=a1/a0<=1.12)):
                 r['pts']=P
                 if 'area' in r: r['area']=round(a1*mm*mm/1e6,2)
     return rooms
