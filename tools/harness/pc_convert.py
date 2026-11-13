@@ -99,23 +99,56 @@ READ_JS = r"""async (c) => {
 }"""
 
 
+def workers():
+    """2026-11-13 대표 「원본 변환 왜 이렇게 느리냐」: 한 장씩 한 줄로만 돌던 것 → 처리기 수에 맞춰 여러 줄로.
+       한 줄마다 화면 밖 브라우저 하나(메모리 약 0.3~0.5GB)를 띄우므로 많아야 4줄. 학습·받기가 같이 돌 몫은 남긴다."""
+    try:
+        v = int(os.environ.get("CROLL_CONVERT_WORKERS") or 0)
+        if v > 0: return min(v, 6)
+    except ValueError:
+        pass
+    c = os.cpu_count() or 2   # 2026-11-13 대표 「여유가 있으면 병렬로 여러 개 동시에」: 처리기 3개당 한 줄, 2~4줄
+    return max(2, min(4, c // 3))
+
+
+def shard_file(i):
+    return os.path.join(OUT, "상태_조각%d.json" % i)
+
+
+def merge_shards(st):
+    for f in [os.path.join(OUT, x) for x in os.listdir(OUT) if x.startswith("상태_조각") and x.endswith(".json")]:
+        st.update(rj(f, {}))
+    return st
+
+
 def main(n=400):
     os.makedirs(os.path.join(OUT, "도면"), exist_ok=True); os.makedirs(READ, exist_ok=True)
+    shard = None
+    if "--조각" in sys.argv:   # 여러 줄 가운데 한 줄(자식): 관문·재선별·잠금·보고·합성은 어미가 한다
+        a = sys.argv[sys.argv.index("--조각") + 1].split("/"); shard = (int(a[0]), int(a[1]))
     busy = os.path.join(OUT, "변환_돌림.txt")      # 2026-11-13: 손으로 띄운 변환과 통합 실행의 변환이 겹쳐 상태.json 을 서로 덮던 것 막음
-    if os.path.exists(busy) and time.time() - os.path.getmtime(busy) < 15 * 60:
+    if shard is None and os.path.exists(busy) and time.time() - os.path.getmtime(busy) < 15 * 60:
         print("다른 창에서 일괄 변환이 돌고 있어 이번에는 건너뜁니다.", flush=True); return 0
-    open(busy, "w", encoding="utf-8").write(time.strftime("%Y-%m-%d %H:%M:%S"))
+    if shard is None:
+        open(busy, "w", encoding="utf-8").write(time.strftime("%Y-%m-%d %H:%M:%S"))
+    if shard is not None:
+        return run_items(n, shard, busy)
+    return run_items(n, None, busy)
+
+
+def run_items(n, shard, busy):
     # 2026-11-13 대표 지시 「학습은 컴퓨터판에서」: 그리기 도구가 바뀌었으면 먼저 이 컴퓨터에서 관문(옛 판과 무작위 20장 견줌) → 통과한 판만 남김
-    try:
-        import subprocess
-        subprocess.call([sys.executable, "-u", os.path.join(HERE, "pc_gate.py")])
-    except Exception as e:
-        print("관문을 돌리지 못했습니다:", e, flush=True)
-    try:
-        rescreen(rj(os.path.join(HERE, "알려진모양.json"), {}))
-    except Exception as e:
-        print("옛 정답지 재선별을 못 했습니다:", str(e)[:100], flush=True)
-    ver = version(); tver = tool_version(); st = rj(os.path.join(OUT, "상태.json"), {})
+    import subprocess
+    if shard is None:
+        try:
+            subprocess.call([sys.executable, "-u", os.path.join(HERE, "pc_gate.py")])
+        except Exception as e:
+            print("관문을 돌리지 못했습니다:", e, flush=True)
+        try:
+            rescreen(rj(os.path.join(HERE, "알려진모양.json"), {}))
+        except Exception as e:
+            print("옛 정답지 재선별을 못 했습니다:", str(e)[:100], flush=True)
+    ver = version(); tver = tool_version(); st = merge_shards(rj(os.path.join(OUT, "상태.json"), {}))
     rows = [r for r in csv.DictReader(open(LIST, encoding="utf-8-sig")) if str(r.get("순서")) == "1" and os.path.exists(r.get("파일") or "")]
     todo = [r for r in rows if (st.get("%s_%s" % (r["단지코드"], r["평형"])) or {}).get("판") != ver]
     random.seed(int(time.time())); random.shuffle(todo)
@@ -134,6 +167,17 @@ def main(n=400):
     passed = [r for r in todo if r not in never and r not in pub and r not in fail]
     todo = pub + never + fail + passed
     if n > 0: todo = todo[:n]
+    kids = []; mine = {}
+    if shard is None:
+        W = workers()
+        if W > 1 and len(todo) > 40:
+            for j in range(1, W):
+                lf = open(os.path.join(CROLL, "기록", "변환_조각%d_log.txt" % j), "a", encoding="utf-8")
+                kids.append(subprocess.Popen([sys.executable, "-u", os.path.abspath(__file__), str(n), "--조각", "%d/%d" % (j, W)], stdout=lf, stderr=subprocess.STDOUT))
+            print("=== %d줄로 나눠 동시에 변환합니다 (이 창이 1줄, 나머지는 기록\\변환_조각N_log.txt) ===" % W, flush=True)
+            todo = todo[0::W]
+    else:
+        todo = todo[shard[0]::shard[1]]
     print(f"=== 평면도 일괄 변환 · 판 {ver} · 원본 {len(rows)}장 중 이번 {len(todo)}장 (남은 {len([r for r in rows if (st.get('%s_%s' % (r['단지코드'], r['평형'])) or {}).get('판') != ver])}장) ===", flush=True)
     if not todo:
         try:
@@ -221,17 +265,29 @@ def main(n=400):
                 rec.update(판정="오류", 남은규칙=str(e)[:80])
             try: rec["초"] = [round((_t1 or time.time()) - _t0, 1), round(time.time() - (_t1 or time.time()), 1)]
             except Exception: pass
-            st[k] = rec; done += 1
-            open(busy, "w", encoding="utf-8").write(time.strftime("%Y-%m-%d %H:%M:%S"))
+            st[k] = rec; done += 1; mine[k] = rec
+            if shard is None: open(busy, "w", encoding="utf-8").write(time.strftime("%Y-%m-%d %H:%M:%S"))
             print(f"[{i + 1}/{len(todo)}] {k} {rec.get('판정')} {rec.get('점수', '')} {rec.get('남은규칙', '')[:50]} · 읽기 {rec.get('초', ['?'])[0]}초 변환 {rec.get('초', ['?', '?'])[1]}초", flush=True)
             if done % 20 == 0:
-                json.dump(st, open(os.path.join(OUT, "상태.json"), "w", encoding="utf-8"), ensure_ascii=False)
-            if done % 200 == 0:   # 끝까지 도는 동안에도 검수표·예외함을 새로 써서 클로드가 중간에 묶음으로 볼 수 있게
+                if shard is not None:
+                    json.dump(mine, open(shard_file(shard[0]), "w", encoding="utf-8"), ensure_ascii=False)
+                else:
+                    merge_shards(st); json.dump(st, open(os.path.join(OUT, "상태.json"), "w", encoding="utf-8"), ensure_ascii=False)
+            if shard is None and done % 200 == 0:   # 끝까지 도는 동안에도 검수표·예외함을 새로 써서 클로드가 중간에 묶음으로 볼 수 있게
                 try: report(st, ver, time.time() - t0, done)
                 except Exception: pass
     if pw["b"]:
         pw["b"].close(); pw["p"].stop()
+    if shard is not None:
+        json.dump(mine, open(shard_file(shard[0]), "w", encoding="utf-8"), ensure_ascii=False); return 0
+    for kp in kids:   # 나머지 줄이 끝나길 기다리는 동안에도 잠금은 살려 둔다
+        while kp.poll() is None:
+            open(busy, "w", encoding="utf-8").write(time.strftime("%Y-%m-%d %H:%M:%S")); time.sleep(30)
+    merge_shards(st)
     json.dump(st, open(os.path.join(OUT, "상태.json"), "w", encoding="utf-8"), ensure_ascii=False)
+    for f in [os.path.join(OUT, x) for x in os.listdir(OUT) if x.startswith("상태_조각") and x.endswith(".json")]:
+        try: os.remove(f)
+        except OSError: pass
     try:
         os.remove(busy)
     except OSError:
