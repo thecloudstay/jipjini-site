@@ -704,3 +704,13 @@ h2{font-size:clamp(28px,3.2vw,40px);line-height:1.3;letter-spacing:-.8px;font-we
 .sys,.sys .phs,.sys .ph2,.phb,.phb>*{min-width:0;max-width:100%}
 @media (max-width:860px){.phb ol{width:100%}.dev{width:100%}}
 .phb button i{grid-row:auto!important;margin:0!important}
+
+/* 도면 완성률 막대 (2026-11-13): 숫자는 assets/live_stats.js 가 data/apt/index.json · data/plans/opened.json 에서 채운다 */
+.lv{margin-top:26px;max-width:760px}
+.lv p{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 14px;font-size:15px;line-height:1.7;color:var(--pencil)}
+.lv p b{font-size:17px;font-weight:600;color:var(--ink)}
+.lv p b span{color:var(--g);font-variant-numeric:tabular-nums}
+.lvt{margin-top:10px;height:6px;background:#E3E6DF;overflow:hidden}
+.lvt i{display:block;height:100%;background:var(--g);transition:width .9s ease}
+@media (prefers-reduced-motion:reduce){.lvt i{transition:none}}
+.irlv{margin-top:28px}
