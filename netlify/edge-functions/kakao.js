@@ -4,9 +4,19 @@
 // 앱스 스크립트는 응답을 302로 넘기는데 카카오 서버가 이를 따라가지 못해 이 중계가 필요하다.
 const GAS_URL = "https://script.google.com/macros/s/AKfycbyTMw196qwKBmpz_TA3erW4OcBsmRFWTYioecO5evjq4poPOEXpyqkSKZZ91eTHWUI-/exec";
 
+// 2026-11-13 「스킬 서버 연결 오류」(12:20): 앱스 스크립트가 진단 한 번에도 3.4초 걸려, 엣지 첫 기동까지 더하면 카카오 5초를 넘겼다.
+//   → 2.8초에 끊고 쓸모 있는 안내(바로가기 단추)로 먼저 답한다. 앱스 스크립트 요청은 끊지 않고 뒤에서 끝까지 보내 기록·텔레그램 알림은 그대로 남긴다.
+const SITE = "https://jipjini.com";
 const FALLBACK = {
   version: "2.0",
-  template: { outputs: [{ simpleText: { text: "문의 감사합니다. 담당자가 확인 후 곧 연락드리겠습니다." } }] }
+  template: { outputs: [
+    { simpleText: { text: "문의 감사합니다. 남겨 주신 내용은 대표가 직접 확인해 곧 답변드립니다.\n\n먼저 아래에서 바로 확인하실 수 있습니다." } },
+    { basicCard: { title: "집지니 바로가기", description: "무료 견적 신청 · 내 진행 상황 · 상담 예약", buttons: [
+      { action: "webLink", label: "무료 견적 신청", webLinkUrl: SITE + "/request.html" },
+      { action: "webLink", label: "서비스·가격 보기", webLinkUrl: SITE + "/pricing.html" },
+      { action: "operator", label: "상담직원과 채팅하기" }
+    ] } }
+  ] }
 };
 
 const json = (obj, extra) =>
@@ -15,7 +25,7 @@ const json = (obj, extra) =>
     headers: Object.assign({ "content-type": "application/json; charset=utf-8" }, extra || {})
   });
 
-export default async (request) => {
+export default async (request, context) => {
   if (request.method === "GET") {
     const u = new URL(request.url);
     if (u.searchParams.get("probe") === "1") {  // 진단: 엣지 → 앱스 스크립트 왕복 시간 측정 (응답 본문은 버림)
@@ -35,36 +45,24 @@ export default async (request) => {
     return new Response("Method Not Allowed", { status: 405, headers: { allow: "GET, POST" } });
   }
   const body = await request.text();
-  const controller = new AbortController();
-  // 2026-10-12 4.3초 → 3.5초: 엣지 첫 기동 시간까지 더해 카카오 5초 제한을 넘기면 「스킬 서버 연결 오류」가 떴다 → 늦으면 일찍 끊고 안내 문구로 답한다
-  const timer = setTimeout(() => controller.abort(), 3500);
   const t0 = Date.now();
-  try {
-    // 앱스 스크립트는 POST 결과를 302(script.googleusercontent.com)로 넘긴다. 자동 따라가기(follow)는 엣지에서 4초 넘게 걸려
-    // (진단 결과: 수동 2단계 = 약 3.3초, 자동 = 시간 초과) 직접 두 단계로 처리한다.
-    const r1 = await fetch(GAS_URL, {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body,
-      redirect: "manual",
-      signal: controller.signal
-    });
+  // 앱스 스크립트 요청은 끊지 않는다(뒤에서 끝까지) — 카카오에는 2.8초 안에 온 답만 쓰고, 늦으면 안내로 먼저 답한다
+  const work = (async () => {
+    const r1 = await fetch(GAS_URL, { method: "POST", headers: { "content-type": "application/json" }, body, redirect: "manual" });
     let r = r1;
     const loc = r1.headers.get("location");
-    if (loc && r1.status >= 300 && r1.status < 400) {
-      r = await fetch(loc, { redirect: "follow", signal: controller.signal });
-    }
+    if (loc && r1.status >= 300 && r1.status < 400) r = await fetch(loc, { redirect: "follow" });
     const text = await r.text();
-    try {
-      const data = JSON.parse(text);
-      if (data && data.version === "2.0") return json(data, { "x-relay": "edge", "x-relay-ms": String(Date.now() - t0) });
-    } catch (_) {}
+    try { const data = JSON.parse(text); if (data && data.version === "2.0") return data; } catch (_) {}
     console.log("relay(edge): non-kakao response", r.status, text.slice(0, 200));
-  } catch (err) {
-    console.log("relay(edge): fetch error", err && err.name, err && err.message);
-  } finally {
-    clearTimeout(timer);
-  }
+    return null;
+  })().catch((err) => { console.log("relay(edge): fetch error", err && err.name, err && err.message); return null; });
+  let timer;
+  const late = new Promise((ok) => { timer = setTimeout(() => ok("late"), 2800); });
+  const won = await Promise.race([work, late]);
+  clearTimeout(timer);
+  if (won && won !== "late") return json(won, { "x-relay": "edge", "x-relay-ms": String(Date.now() - t0) });
+  if (won === "late") { try { context && context.waitUntil && context.waitUntil(work); } catch (_) {} console.log("relay(edge): late, answered with fallback", Date.now() - t0); }
   return json(FALLBACK, { "x-relay": "edge-fallback", "x-relay-ms": String(Date.now() - t0) });
 };
 
