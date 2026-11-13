@@ -3098,3 +3098,6 @@ main p+p,article p+p{margin-top:1em}
 @media (max-width: 680px) {
   main table:not([class^="quotedoc"]), article table:not([class^="quotedoc"]) { display: block; max-width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
 }
+
+/* 2026-11-13 점검: 오른쪽 끝 메뉴의 펼침이 화면 밖으로 나가 넓은 화면에서도 가로 스크롤이 생기던 것 → 오른쪽 끝 두 메뉴는 오른쪽에 맞춰 펼친다 */
+.nav-item:last-child .nav-dropdown,.nav-item:nth-last-child(2) .nav-dropdown{left:auto;right:0}
