@@ -473,7 +473,7 @@ h2{font-size:clamp(28px,3.2vw,40px);line-height:1.3;letter-spacing:-.8px;font-we
 .ph2 li em{font-style:normal;font-size:12px;font-weight:600;color:var(--g)}
 /* 구성도 + 역량 */
 .arch{margin:36px 0 0}
-.arch img{width:100%;border:1px solid var(--rule);border-radius:4px}
+.arch img{width:100%;height:auto;border:1px solid var(--rule);border-radius:4px}
 .arch figcaption{font-size:13px;color:var(--pencil);margin-top:8px}
 .capg{display:grid;grid-template-columns:5fr 7fr;gap:48px;margin-top:64px}
 .capg h3{font-size:20px;font-weight:600}
