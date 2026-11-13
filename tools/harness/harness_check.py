@@ -85,6 +85,17 @@ def main():
         if lose >= 2: fix.append("자체 모델 %d번 잇달아 패배 — 실제 정답지 비중·약한 묶음 가중 학습(11-13 넣음) 효과 확인, 계속 지면 공간 분할 경로·축척 점검" % lose)
     except Exception:
         pass
+    # 7 그래픽 카드 — 놀고 있으면 일을 더 준다(2026-11-13 대표 「그래픽 카드를 최대한 뽑아 먹을 방법」)
+    try:
+        import torch
+        if torch.cuda.is_available():
+            fr, tot = torch.cuda.mem_get_info(); nm = torch.cuda.get_device_name(0)
+            L.append("7 그래픽 카드: %s · 메모리 %.1f/%.1fGB 여유" % (nm, fr / 1e9, tot / 1e9))
+            if fr / tot > 0.8: fix.append("그래픽 카드가 거의 놀고 있음 — 학습 후보 동시 학습·글자 인식·변환 가속에 쓸 것")
+        else:
+            L.append("7 그래픽 카드: 이 파이썬에서는 안 보임(학습 환경 파이썬으로 돌리면 보임)")
+    except Exception as e:
+        L.append("7 그래픽 카드: 확인 못 함 " + str(e)[:40])
     txt = "하네스 점검 · %s · 판 %s\n\n지킨 것·숫자\n  %s\n\n고칠 것 (%d)\n  %s\n" % (
         time.strftime("%Y-%m-%d %H:%M"), ver, "\n  ".join(L), len(fix), "\n  ".join(fix) if fix else "없음")
     open(os.path.join(LOG, "하네스_점검.txt"), "w", encoding="utf-8").write(txt)
