@@ -34,6 +34,7 @@
     if (window.JJ_KAKAO_KEY) kakao();
   });
   fetch('data/plans/opened.json', { cache: 'no-cache' }).then(function (r) { return r.json(); }).then(function (L) {
+    try { var _l = L[L.length - 1]; ['dh1', 'dh2'].forEach(function (id) { var e = document.getElementById(id); if (e && _l) e.textContent = Number(_l.평형).toLocaleString('ko-KR'); }); } catch (_d) {}
     if (L.length > 1) { var a = L[L.length - 1], b = L[L.length - 2]; if (a.단지 > b.단지) document.querySelector('.stats .hot span').textContent = '도면 열림 · 어제보다 +' + num(a.단지 - b.단지); }
   }).catch(function () {});
 

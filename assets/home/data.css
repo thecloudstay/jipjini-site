@@ -1,0 +1,70 @@
+/* 집지니 데이터 — 첫 화면 「데이터」 구획과 data.html 이 함께 쓴다 (2026-11-13)
+   자료 목록은 상자 대신 가는 선으로 나눈 표, 숫자는 가는 300 글씨(도면 치수 글자), 초록은 우리 자료에만. */
+.dt{border-top:1.5px solid var(--ink);margin-top:40px}
+.dt .row{display:grid;grid-template-columns:56px 1.25fr 1.6fr 1fr;gap:28px;padding:26px 0;border-bottom:1px solid var(--rule);align-items:start}
+.dt .no{font-size:13px;color:var(--pencil);padding-top:5px;font-variant-numeric:tabular-nums}
+.dt h3{font-size:21px;font-weight:600;letter-spacing:-.4px;line-height:1.4}
+.dt h3 small{display:block;margin-top:4px;font-size:13.5px;font-weight:400;color:var(--pencil);letter-spacing:0}
+.dt .what{font-size:15.5px;line-height:1.85;color:var(--ink)}
+.dt .what em{font-style:normal;color:var(--pencil)}
+.dt .spec{font-size:13.5px;line-height:1.9;color:var(--pencil)}
+.dt .spec b{display:block;font-size:30px;font-weight:300;color:var(--g);letter-spacing:-.6px;line-height:1.15;font-variant-numeric:tabular-nums}
+.dt .spec span{display:block}
+.dt .tag{display:inline-block;margin-top:6px;font-size:12.5px;color:var(--g);font-weight:600}
+.dt .tag.wait{color:var(--pencil)}
+
+.dbuy{display:grid;grid-template-columns:1fr 1fr;gap:56px;margin-top:64px;align-items:start}
+.dbuy h3{font-size:22px;font-weight:600;letter-spacing:-.4px}
+.who4{margin-top:16px;list-style:none;border-top:1px solid var(--rule)}
+.who4 li{display:grid;grid-template-columns:9.5em 1fr;gap:16px;padding:13px 0;border-bottom:1px solid var(--rule);font-size:15px;line-height:1.7}
+.who4 li b{font-weight:600}
+.who4 li span{color:var(--pencil)}
+.rules{margin-top:16px;list-style:none;font-size:15px;line-height:1.85}
+.rules li{padding-left:18px;position:relative;margin-top:8px}
+.rules li::before{content:"";position:absolute;left:0;top:.8em;width:8px;height:1.5px;background:var(--g)}
+
+/* 견본 물량표 */
+.qs{margin-top:20px;border-top:1.5px solid var(--ink)}
+.qs table{width:100%;border-collapse:collapse;font-size:14px;font-variant-numeric:tabular-nums}
+.qs th,.qs td{padding:9px 6px;border-bottom:1px solid var(--rule);text-align:right}
+.qs th:first-child,.qs td:first-child{text-align:left}
+.qs th{font-weight:500;color:var(--pencil);font-size:12.5px}
+.qs tfoot td{font-weight:600;border-bottom:1.5px solid var(--ink)}
+.qs caption{caption-side:bottom;text-align:left;padding-top:10px;font-size:12.5px;color:var(--pencil);line-height:1.7}
+
+/* 연동창구 견본 */
+.api{margin-top:20px;background:#F6F7F4;border-left:3px solid var(--g);padding:18px 20px;font-family:ui-monospace,"D2Coding",Consolas,monospace;font-size:13px;line-height:1.75;overflow-x:auto;white-space:pre;color:var(--ink)}
+.api .c{color:var(--pencil)}
+.ep{margin-top:16px;width:100%;border-collapse:collapse;font-size:14px}
+.ep td{padding:10px 6px;border-bottom:1px solid var(--rule);vertical-align:top;line-height:1.7}
+.ep td:first-child{font-family:ui-monospace,Consolas,monospace;font-size:13px;white-space:nowrap;color:var(--g)}
+
+/* 구입 문의 */
+.dform{display:grid;gap:14px;margin-top:18px}
+.dform label{display:grid;gap:6px;font-size:13.5px;color:var(--pencil)}
+.dform input,.dform select,.dform textarea{font:inherit;font-size:16px;color:var(--ink);border:1.5px solid var(--rule);border-radius:4px;padding:11px 12px;background:#fff;width:100%}
+.dform input:focus,.dform select:focus,.dform textarea:focus{outline:none;border-color:var(--g)}
+.dform .two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.dform .chk{display:flex;flex-wrap:wrap;gap:8px}
+.dform .chk label{display:flex;align-items:center;gap:8px;border:1.5px solid var(--rule);border-radius:4px;padding:8px 12px;color:var(--ink);font-size:14.5px;cursor:pointer}
+.dform .chk input{width:auto;margin:0}
+.dform .chk label:has(input:checked){border-color:var(--g);background:var(--gl);color:var(--g)}
+.dmsg{font-size:14.5px;min-height:1.6em}
+.dmsg.ok{color:var(--g);font-weight:600}
+
+/* 첫 화면 줄임판 */
+.dhome .dt .row{grid-template-columns:56px 1.3fr 1.6fr .9fr}
+.dact{display:flex;gap:12px;flex-wrap:wrap;margin-top:32px}
+
+@media (max-width:860px){
+  .ep td:first-child{white-space:normal;word-break:break-all}
+  .api{font-size:12px}
+  .dt .row,.dhome .dt .row{grid-template-columns:40px 1fr;gap:10px 16px;padding:22px 0}
+  .dt .what,.dt .spec{grid-column:2}
+  .dt .spec b{font-size:26px}
+  .dbuy{grid-template-columns:1fr;gap:48px}
+  .who4 li{grid-template-columns:1fr;gap:2px}
+  .dform .two{grid-template-columns:1fr}
+}
+
+.sec2>div,.dbuy>div{min-width:0}

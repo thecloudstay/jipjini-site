@@ -23,6 +23,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/home/home.css?v=20261113h">
+<link rel="stylesheet" href="assets/home/data.css?v=20261113a">
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-35EM7T3M9W"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
@@ -42,6 +43,7 @@
     <a href="#cp">고객 화면</a>
     <a href="#pos">시장의 자리</a>
     <a href="#suite">제품</a>
+    <a href="#data">데이터</a>
     <a href="#room">샘플실</a>
     <a href="#ir">IR</a>
     <a href="#ask" class="go">무료 견적</a>
@@ -396,7 +398,7 @@
     <div class="ly"><div class="k">현장<small>시공 관리</small></div><div class="v"><span class="me">공정별 작업지시서</span><span class="me">공정표·사진</span><span class="me">알림톡 6종</span><span class="me">노무비 청구·지급</span></div></div>
     <div class="ly"><div class="k">거래<small>견적·계약·돈</small></div><div class="v"><span class="me">자동 견적·자가 점검</span><span class="me">단가 근거 공개</span><span class="me">전자 계약</span><span class="me">입금·정산 장부</span><span>자재 수수료 주문</span></div></div>
     <div class="ly"><div class="k">설계<small>도면·물량</small></div><div class="v"><span class="me">집지니 CAD</span><span class="me">오토캐드 파일 읽고 쓰기</span><span class="me">물량 자동 산출 17공종</span><span class="me">공법 선택</span></div></div>
-    <div class="ly base"><div class="k">데이터<small>바닥</small></div><div class="v"><span class="me">수도권 10,242단지</span><span class="me">평면도 6,768장 수집</span><span class="me">도면 자동 변환·채점</span><span class="me">자가 학습 고리</span></div></div>
+    <div class="ly base"><div class="k">데이터<small>바닥</small></div><div class="v"><span class="me">수도권 10,242단지</span><span class="me">평면도 8,311장 수집</span><span class="me">도면 자동 변환·채점</span><span class="me">자가 학습 고리</span></div></div>
   
     </div>
     <div class="cmp"><h3>흔한 인테리어 서비스와 비교</h3><p class="cap0">● 있음 ◐ 일부 ○ 없음 · 일반적인 경우 기준</p>
@@ -417,6 +419,27 @@
     </table>
     </div>
   </div>
+</section>
+
+<!-- 데이터 구입 (2026-11-13): 데이터 기업을 내세우면서 파는 자료가 안 보였다 → 살 수 있는 자료·앞으로 낼 자료·연동창구를 첫 화면에 -->
+<section class="dhome" id="data">
+  <header class="pn"><h3>집지니 데이터</h3><p>아파트 한 채를 도면과 숫자로, 단지·평형 단위로 팝니다</p></header>
+  <div class="dt">
+    <div class="row"><span class="no">01</span><h3>단지·평형 표준 물량표<small>엑셀 · CSV</small></h3>
+      <p class="what">방별 바닥·벽 면적, 걸레받이, 문·창, 욕실 타일. 집마다 재지 않고 바로 셉니다.</p>
+      <p class="spec"><b id="dh1">79</b><span>개 평형 · 매일 늘어남</span></p></div>
+    <div class="row"><span class="no">02</span><h3>평형별 캐드 도면<small>DWG · DXF · PDF</small></h3>
+      <p class="what">벽·문·창·방·치수를 층으로 나눈 집지니 재작도 도면. 원본 평면도 그림은 팔지 않습니다.</p>
+      <p class="spec"><b id="dh2">79</b><span>개 평형</span></p></div>
+    <div class="row"><span class="no">03</span><h3>수도권 단지 기본자료 결합본<small>CSV · 연동창구</small></h3>
+      <p class="what">세대수·준공·난방·관리 방식에 건축물대장(구조·층수·연면적)을 붙인 단지 대장.</p>
+      <p class="spec"><b>10,244</b><span>개 단지</span></p></div>
+    <div class="row"><span class="no">04</span><h3>연동창구(API)<small>JSON · 월 구독</small></h3>
+      <p class="what">단지 코드·주소로 평형, 도면, 방별 물량을 바로 불러옵니다. 우리 화면과 같은 자료라 매일 갱신.</p>
+      <p class="spec"><b>시험판</b><span>견본 응답 공개</span></p></div>
+  </div>
+  <p class="note" style="margin-top:22px"><b style="color:var(--ink);font-weight:600">앞으로 낼 자료</b> · 보험 누수·하자 복구비 산정 · 하자 범위·보수비 근거 · 장기수선계획·충당금 산정 · 경매·매매 수리비 어림 · 노후 단지 리모델링 통계</p>
+  <div class="dact"><a class="btn" href="data.html#buy" data-ev="home_data_buy">견본·견적 받기</a><a class="btn ghost" href="data.html">자료 목록 전체 보기</a></div>
 </section>
 
 <!-- 약속 -->
@@ -475,7 +498,7 @@
     </div>
     <dl class="irn">
       <div><dt>지도에 올린 수도권 단지</dt><dd>10,242</dd></div>
-      <div><dt>모은 평면도</dt><dd>6,768</dd></div>
+      <div><dt>모은 평면도</dt><dd>8,311</dd></div>
       <div><dt>도면 공개 단지 · 매일 늘어남</dt><dd id="irOpen">53</dd></div>
       <div><dt>벽 인식률 · 표본 77장</dt><dd>98.8%</dd></div>
       <div><dt>단가 공개 실견적</dt><dd>14</dd></div>
@@ -513,7 +536,7 @@
 
 <footer class="foot">
   <div class="fl">
-    <a href="classic.html">집지니 자세히</a><a href="pricing.html">가격</a><a href="cases/">견적 사례</a><a href="showroom.html">샘플실</a><a href="faq.html">자주 묻는 질문</a><a href="files/jipjini-guide.pdf?v=20261112" target="_blank" rel="noopener">안내서 PDF</a><a href="https://blog.naver.com/cloudstay_" target="_blank" rel="noopener">블로그</a>
+    <a href="classic.html">집지니 자세히</a><a href="pricing.html">가격</a><a href="cases/">견적 사례</a><a href="showroom.html">샘플실</a><a href="faq.html">자주 묻는 질문</a><a href="data.html">데이터 구입</a><a href="files/jipjini-guide.pdf?v=20261112" target="_blank" rel="noopener">안내서 PDF</a><a href="https://blog.naver.com/cloudstay_" target="_blank" rel="noopener">블로그</a>
   </div>
   <p class="fid"><b>집지니 — 인테리어 데이터 솔루션 기업.</b> 아파트 평면도를 캐드 도면·공정별 물량·공사 자료로 바꾸고, 그 자료로 견적부터 시공 관리까지 합니다.</p>
   <p>© 2026 집지니. 서울, 경기, 인천. 대표 박찬영, 사업자등록번호 874-10-00088, thecloudstay@gmail.com</p>
@@ -521,7 +544,7 @@
 
 <script src="assets/site_config.js"></script>
 <script src="assets/home/sys.js?v=20261113b"></script>
-<script src="assets/home/home.js?v=20261113a"></script>
+<script src="assets/home/home.js?v=20261113b"></script>
 <script src="assets/home/flow.js?v=20261113b" defer></script>
 <script src="assets/home/estim.js?v=20261112v"></script>
 <script src="assets/chatbot.js" defer></script>
