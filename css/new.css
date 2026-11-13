@@ -1,0 +1,69 @@
+/* 옛 쪽을 첫 화면(assets/home/home.css)의 「공사 도면 한 장」 양식에 맞추는 덮개 — 2026-11-13
+   흰 종이 · 먹색 글씨 · 초록은 집지니 것에만 · 글꼴은 IBM Plex Sans KR 하나 · 모서리 4px.
+   각 쪽 </head> 바로 앞에서 마지막으로 읽힌다. */
+@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@300;400;500;600;700&display=swap");
+
+:root{
+  --jjf:"IBM Plex Sans KR",-apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+  --jj-paper:#FFFFFF; --jj-ink:#1C1F1B; --jj-pencil:#6B7067; --jj-rule:#DCDFD8; --jj-grid:#EEF0EB;
+  --jj-g:#1F5E2E; --jj-gl:#EAF2E6; --jj-gd:#164421;
+  /* css/style.css 이름표 */
+  --jp-charcoal:#1C1F1B; --jp-charcoal-soft:#2E322C; --jp-gray:#5E635A; --jp-gray-soft:#7D8278; --jp-gray-line:#DCDFD8;
+  --jp-oatmeal:#FFFFFF; --jp-oatmeal-soft:#FFFFFF; --jp-oatmeal-deep:#F3F5F0; --jp-darker:#1C1F1B; --jp-border-soft:rgba(28,31,27,.10);
+  /* 쪽마다 따로 둔 이름표 */
+  --charcoal:#1C1F1B; --charcoal-soft:#2E322C; --ink:#1C1F1B; --ink2:#2E322C; --gray:#6B7067; --mute:#6B7067; --gray-soft:#8E9389; --hint:#8E9389;
+  --line:#DCDFD8; --line2:#DCDFD8; --oatmeal:#FFFFFF; --oatmeal-soft:#FFFFFF; --oatmeal-deep:#F3F5F0; --oat:#FFFFFF; --oat2:#FFFFFF; --oat3:#F3F5F0; --oat-soft:#FFFFFF;
+  --clay:#1F5E2E; --clay-deep:#164421; --forest:#1F5E2E; --ok:#1F5E2E;
+  --serif:var(--jjf); --latin:var(--jjf); --sans:var(--jjf);
+}
+
+/* 글꼴 하나로 — 아이콘 글꼴(ti)은 건드리지 않는다 */
+html body, html body *:not(.ti):not([class^="ti-"]):not(code):not(pre):not(kbd){font-family:var(--jjf)!important}
+body{background:var(--jj-paper)!important;color:var(--jj-ink);-webkit-font-smoothing:antialiased;word-break:keep-all}
+h1,h2,h3{letter-spacing:-.6px;font-weight:600}
+h1{font-weight:700;letter-spacing:-1px}
+em,i:not(.ti){font-style:normal}
+:focus-visible{outline:2px solid var(--jj-g);outline-offset:3px}
+
+/* 위 띠: 첫 화면과 같게 */
+.nav{background:rgba(255,255,255,.96)!important;border-bottom:1px solid var(--jj-rule)!important;box-shadow:none!important;height:64px}
+.logo-box{background:var(--jj-g)!important;border-radius:4px!important}
+.logo-text{font-weight:700!important;letter-spacing:-.3px}
+.logo-tag{display:none!important}
+.nav-item .nav-top{color:var(--jj-pencil)!important;font-weight:500!important;background:none!important}
+.nav-item .nav-top:hover,.nav-item.active .nav-top{color:var(--jj-ink)!important}
+.nav-item.active .nav-top::after{background:var(--jj-g)!important}
+.nav-dropdown{border:1px solid var(--jj-rule)!important;border-radius:4px!important;box-shadow:0 8px 24px rgba(28,31,27,.08)!important}
+.nav-phone{background:var(--jj-ink)!important;color:#fff!important;border-radius:4px!important}
+.nav-phone:hover{background:var(--jj-g)!important}
+
+/* 단추·입력: 모서리 4px, 초록 기본 */
+.btn,button.btn,a.btn,[class*="btn-"],.cta,.cta-btn,input[type=submit]{border-radius:4px!important;box-shadow:none!important}
+input,select,textarea{border-radius:4px!important}
+.btn-dark,.btn-accent,.btn-naver{background:var(--jj-g)!important;color:#fff!important}
+.btn-dark:hover,.btn-accent:hover,.btn-naver:hover{background:var(--jj-gd)!important}
+.btn-kakao,[class*="kakao"].btn{color:#1C1F1B!important}
+
+/* 상자는 그림자 대신 가는 선 */
+[class*="card"],[class*="box"]:not(.logo-box){box-shadow:none!important}
+
+/* 검은 띠 → 흰 종이(제도용 모눈) */
+:is(.brand-hero,.story,.why-principles,.cta-final,.mission,.hero-bridge,.concept-jipjini,.prep-hero,.final-cta,.pricing-calc-cta,.sv,header:has(>.eb)){
+  background:var(--jj-paper)!important;color:var(--jj-ink)!important;
+  background-image:linear-gradient(var(--jj-grid) 1px,transparent 1px),linear-gradient(90deg,var(--jj-grid) 1px,transparent 1px)!important;
+  background-size:24px 24px!important;border-top:1px solid var(--jj-rule);border-bottom:1px solid var(--jj-rule)
+}
+:is(.brand-hero,.story,.why-principles,.cta-final,.mission,.hero-bridge,.concept-jipjini,.prep-hero,.final-cta,.pricing-calc-cta,.sv,header:has(>.eb)) :is(h1,h2,h3,h4,p,li,span,strong,b,em,small,div,dt,dd,blockquote,label,figcaption,td,th):not([class*="btn"]):not(.ti):not([style*="background"]){color:inherit!important}
+:is(.brand-hero,.story,.why-principles,.cta-final,.mission,.hero-bridge,.concept-jipjini,.prep-hero,.final-cta,.pricing-calc-cta,.sv,header:has(>.eb)) :is(p,small,.sub,.desc,[class*="desc"],[class*="sub"],[class*="note"]):not([style*="background"]){color:var(--jj-pencil)!important}
+:is(.brand-hero,.story,.why-principles,.cta-final,.mission,.hero-bridge,.concept-jipjini,.prep-hero,.final-cta,.pricing-calc-cta,.sv,header:has(>.eb)) a:not([class]):not([style*="background"]){color:var(--jj-g)!important}
+:is(.brand-hero,.story,.why-principles,.cta-final,.mission,.hero-bridge,.concept-jipjini,.prep-hero,.final-cta,.pricing-calc-cta,.sv,header:has(>.eb)) a[style*="background:#FFFFFF"],:is(.brand-hero,.story,.why-principles,.cta-final,.mission,.hero-bridge,.concept-jipjini,.prep-hero,.final-cta,.pricing-calc-cta,.sv,header:has(>.eb)) a[style*="background:#fff"]{box-shadow:inset 0 0 0 1.5px var(--jj-ink)!important}
+:is(.brand-hero,.story,.why-principles,.cta-final,.mission,.hero-bridge,.concept-jipjini,.prep-hero,.final-cta,.pricing-calc-cta,.sv,header:has(>.eb)) a[style*="background:#1F5E2E"],:is(.brand-hero,.story,.why-principles,.cta-final,.mission,.hero-bridge,.concept-jipjini,.prep-hero,.final-cta,.pricing-calc-cta,.sv,header:has(>.eb)) a[style*="background:#1F5E2E"] *{color:#fff!important}
+:is(.brand-hero,.story,.why-principles,.cta-final,.mission,.hero-bridge,.concept-jipjini,.prep-hero,.final-cta,.pricing-calc-cta,.sv,header:has(>.eb)) :is(blockquote,[class*="quote"],[class*="card"],[class*="box"]):not(a){background:var(--jj-paper)!important;border:1px solid var(--jj-rule)!important}
+
+/* 상담 도우미 단추 — 첫 화면과 같게 */
+#jjc-btn{background:var(--jj-ink)!important;color:#fff!important;border-radius:4px!important}
+/* 샘플실 첫 띠 단추 */
+.sv .cta{background:var(--jj-g)!important;color:#fff!important}
+.sv .cta *{color:#fff!important}
+.sv .cta.line{background:none!important;color:var(--jj-ink)!important;box-shadow:inset 0 0 0 1.5px var(--jj-ink)!important;border:0!important}
+.sv .cta.line *{color:var(--jj-ink)!important}

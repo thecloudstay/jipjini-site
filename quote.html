@@ -8,7 +8,7 @@
 <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
 <link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@700;800&display=swap" rel="stylesheet">
 <style>
-:root{--charcoal:#2A2A2A;--gray:#6B6B6B;--line:#D9D2C0;--oat:#F5F1E8;--oat-soft:#FBF8F1;--clay:#4F6B2C;--white:#fff;
+:root{--charcoal:#1C1F1B;--gray:#6B7067;--line:#DCDFD8;--oat:#FFFFFF;--oat-soft:#FFFFFF;--clay:#1F5E2E;--white:#fff;
 --serif:'Nanum Myeongjo',serif;--sans:'Pretendard','Apple SD Gothic Neo',sans-serif}
 *{margin:0;padding:0;box-sizing:border-box}
 body{background:var(--oat-soft);font-family:var(--sans);color:var(--charcoal);-webkit-font-smoothing:antialiased;letter-spacing:-.2px}
@@ -21,7 +21,7 @@ h1{font-family:var(--serif);font-weight:800;font-size:26px;line-height:1.4;margi
 .kv{display:flex;justify-content:space-between;gap:12px;padding:7px 0;font-size:14px;border-bottom:1px dashed var(--line)}
 .kv:last-child{border-bottom:none}.kv span:first-child{color:var(--gray)}.kv b{font-weight:600;text-align:right}
 .total{background:var(--charcoal);color:var(--oat-soft);border-radius:14px;padding:18px 16px;margin-top:16px}
-.total .kv{border-color:#555}.total .kv span:first-child{color:#C8C4BC}.total .big{font-family:var(--serif);font-size:23px}
+.total .kv{border-color:#555}.total .kv span:first-child{color:#DCDFD8}.total .big{font-family:var(--serif);font-size:23px}
 details{border-bottom:1px solid var(--line)}details:last-child{border-bottom:none}
 summary{list-style:none;cursor:pointer;display:flex;gap:8px;padding:12px 0;font-weight:600;font-size:15px}
 summary::-webkit-details-marker{display:none}summary span:last-child{margin-left:auto}
@@ -48,6 +48,7 @@ summary::after{content:'＋';color:var(--gray)}details[open] summary::after{cont
 @media print{body{background:#fff}.wrap{max-width:none;padding:0}.tabs,.tools,.cta{display:none}.pane{display:block !important}.pane+.pane{margin-top:18px}details{break-inside:avoid}details:not([open])>*:not(summary){display:block}summary::after{content:''}.total{-webkit-print-color-adjust:exact;print-color-adjust:exact}.card{break-inside:avoid}}
 </style>
 <style>body,p,li,td,th,h1,h2,h3,h4,dd,dt,blockquote,figcaption{word-break:keep-all;overflow-wrap:break-word}</style>
+<link rel="stylesheet" href="css/new.css?v=20261113">
 </head>
 <body>
 <div class="wrap" id="app"><div class="err">견적서를 불러오는 중입니다…</div></div>
@@ -110,9 +111,9 @@ summary::after{content:'＋';color:var(--gray)}details[open] summary::after{cont
       (pm?'<div class="kv"><span>현장관리 미선택 시</span><b>'+won(t+codi)+'</b></div>':'')+
       ((d.alternatives||[]).map(function(a){return'<div class="kv"><span>'+esc(a.label)+' (시공 '+won(a.total)+')</span><b>'+won(a.total+Math.round(a.codi||0))+'</b></div>'}).join(''))+'</div>';
     /* 2026-11-03 점검 4번: 실측을 마친 고객에게는 「실측 신청」 상자 대신 「계약 진행」 안내 */
-    if(d.measured){sum+='<div class="card" style="border:1.5px solid #4F6B2C"><h2>실측 치수로 맞춘 견적입니다</h2><p style="font-size:14px;line-height:1.8;color:#3d3d3d">현장 실측 치수로 수량을 맞춘 정밀 견적입니다. 내용이 맞으면 받으신 문자에 「진행」이라고 답장하시거나 아래로 연락 주세요. 계약서(전자 서명)를 바로 보내 드립니다.</p><a href="https://pf.kakao.com/_NjpxhC/chat" style="display:block;text-align:center;margin-top:12px;background:#4F6B2C;color:#fbf8f1;padding:14px;border-radius:10px;text-decoration:none;font-weight:700">카톡으로 진행 요청 →</a></div>';}
-    else if(d.precise){sum+='<div class="card" style="border:1.5px solid #4F6B2C"><h2>고르신 사양으로 낸 정밀 견적입니다</h2><p style="font-size:14px;line-height:1.8;color:#3d3d3d">고르신 자재와 상담에서 정한 내용을 항목마다 반영했습니다. 수량은 도면 기준이어서, 현장 실측 뒤 달라지는 부분만 조정합니다. 견본을 실물로 보시거나 실측을 원하시면 아래에서 신청해 주세요.</p><a href="visit.html" style="display:block;text-align:center;margin-top:12px;background:#2a2a2a;color:#fbf8f1;padding:14px;border-radius:10px;text-decoration:none;font-weight:700">실측·방문 상담 신청 (3만 원, 네이버 결제) →</a></div>';}   // 2026-11-11 정밀 견적용 안내
-    else{sum+='<div class="card" style="border:1.5px solid #4F6B2C"><h2>정확한 금액은 현장에서</h2><p style="font-size:14px;line-height:1.8;color:#3d3d3d">이 견적은 의뢰서 숫자로 낸 예상 금액입니다. 샘플실에서 견본을 실물로 보고 상담하신 뒤, 코디가 직접 방문해 실측·집 상태 점검을 하고 24시간 안에 정밀 견적을 드립니다.</p><a href="visit.html" style="display:block;text-align:center;margin-top:12px;background:#2a2a2a;color:#fbf8f1;padding:14px;border-radius:10px;text-decoration:none;font-weight:700">실측·방문 상담 신청 (3만 원, 네이버 결제) →</a></div>';}   // 2026-10-14 유료 실측·방문 상담
+    if(d.measured){sum+='<div class="card" style="border:1.5px solid #1F5E2E"><h2>실측 치수로 맞춘 견적입니다</h2><p style="font-size:14px;line-height:1.8;color:#2E322C">현장 실측 치수로 수량을 맞춘 정밀 견적입니다. 내용이 맞으면 받으신 문자에 「진행」이라고 답장하시거나 아래로 연락 주세요. 계약서(전자 서명)를 바로 보내 드립니다.</p><a href="https://pf.kakao.com/_NjpxhC/chat" style="display:block;text-align:center;margin-top:12px;background:#1F5E2E;color:#FFFFFF;padding:14px;border-radius:10px;text-decoration:none;font-weight:700">카톡으로 진행 요청 →</a></div>';}
+    else if(d.precise){sum+='<div class="card" style="border:1.5px solid #1F5E2E"><h2>고르신 사양으로 낸 정밀 견적입니다</h2><p style="font-size:14px;line-height:1.8;color:#2E322C">고르신 자재와 상담에서 정한 내용을 항목마다 반영했습니다. 수량은 도면 기준이어서, 현장 실측 뒤 달라지는 부분만 조정합니다. 견본을 실물로 보시거나 실측을 원하시면 아래에서 신청해 주세요.</p><a href="visit.html" style="display:block;text-align:center;margin-top:12px;background:#1C1F1B;color:#FFFFFF;padding:14px;border-radius:10px;text-decoration:none;font-weight:700">실측·방문 상담 신청 (3만 원, 네이버 결제) →</a></div>';}   // 2026-11-11 정밀 견적용 안내
+    else{sum+='<div class="card" style="border:1.5px solid #1F5E2E"><h2>정확한 금액은 현장에서</h2><p style="font-size:14px;line-height:1.8;color:#2E322C">이 견적은 의뢰서 숫자로 낸 예상 금액입니다. 샘플실에서 견본을 실물로 보고 상담하신 뒤, 코디가 직접 방문해 실측·집 상태 점검을 하고 24시간 안에 정밀 견적을 드립니다.</p><a href="visit.html" style="display:block;text-align:center;margin-top:12px;background:#1C1F1B;color:#FFFFFF;padding:14px;border-radius:10px;text-decoration:none;font-weight:700">실측·방문 상담 신청 (3만 원, 네이버 결제) →</a></div>';}   // 2026-10-14 유료 실측·방문 상담
     var gap='<div class="card"><h2>견적서 갑지 · 공종별 총괄표</h2><table class="tbl"><tr><th>공종</th><th class="r">항목</th><th class="r">금액</th><th class="r">비중</th></tr>';
     d.sections.forEach(function(s){gap+='<tr><td>'+esc(s.trade)+'</td><td class="r">'+s.lines.length+'</td><td class="r">'+won(s.subtotal)+'</td><td class="r">'+(s.subtotal/t*100).toFixed(1)+'%</td></tr>'});
     gap+='<tr><td><b>시공 총액</b></td><td></td><td class="r"><b>'+won(t)+'</b></td><td class="r">100%</td></tr></table></div>';

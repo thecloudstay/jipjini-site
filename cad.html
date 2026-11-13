@@ -36,83 +36,83 @@
 <style>body,p,li,td,th,h1,h2,h3,h4,dd,dt,blockquote,figcaption{word-break:keep-all;overflow-wrap:break-word}</style>
 <style>
 /* 집지니 CAD (2026-11-11 다시 짬) — 종이색 바탕에 가는 선과 표. 상자·꼬리표·그린 예시 그림은 쓰지 않는다 */
-.cad{max-width:1180px;margin:0 auto;padding:28px 20px 56px;font-size:17.5px;line-height:1.7;color:#2A2A2A}
+.cad{max-width:1180px;margin:0 auto;padding:28px 20px 56px;font-size:17.5px;line-height:1.7;color:#1C1F1B}
 .cad h1{font-family:'Noto Serif KR',serif;font-weight:500;font-size:34px;letter-spacing:-.6px;line-height:1.3;margin:0}
 .cad h2{font-family:'Noto Serif KR',serif;font-size:23px;font-weight:500;text-align:left;letter-spacing:-.4px;line-height:1.4;margin:0 0 12px}
 .cad h3{font-size:18px;font-weight:700;margin:0 0 6px}
 .cad p{margin:0 0 10px}
-.cad-apt{border-top:2px solid #2A2A2A;border-bottom:1px solid #C8C4BC;padding:20px 0 22px;margin:0 0 28px}
+.cad-apt{border-top:2px solid #1C1F1B;border-bottom:1px solid #DCDFD8;padding:20px 0 22px;margin:0 0 28px}
 .cad-apt h3{font-family:'Noto Serif KR',serif;font-weight:500;font-size:22px;margin:0 0 8px;text-align:left}
-.cad-apt p{max-width:40em;color:#3D3D3D}
+.cad-apt p{max-width:40em;color:#2E322C}
 .cad-apt table{width:100%;border-collapse:collapse;font-size:15px;margin-top:10px}
-.cad-apt th{font-weight:500;color:#6B6B6B;font-size:13px;text-align:left;padding:9px 12px 9px 0;border-bottom:1px solid #2A2A2A}
-.cad-apt td{padding:11px 12px 11px 0;border-bottom:1px solid #C8C4BC;font-variant-numeric:tabular-nums}
+.cad-apt th{font-weight:500;color:#6B7067;font-size:13px;text-align:left;padding:9px 12px 9px 0;border-bottom:1px solid #1C1F1B}
+.cad-apt td{padding:11px 12px 11px 0;border-bottom:1px solid #DCDFD8;font-variant-numeric:tabular-nums}
 .cad-apt td:last-child{text-align:right;padding-right:0}
 .cad a{color:inherit;text-decoration:underline;text-underline-offset:3px}
-.cad .sub{color:#6B6B6B}
+.cad .sub{color:#6B7067}
 .cad [hidden]{display:none!important}
-.cad-head{padding:8px 0 20px;border-bottom:2px solid #2A2A2A;margin-bottom:0}
+.cad-head{padding:8px 0 20px;border-bottom:2px solid #1C1F1B;margin-bottom:0}
 .cad-head .say{font-size:19px;margin:12px 0 0;max-width:760px}
-.cad-head .free{font-size:15.5px;color:#6B6B6B;margin:6px 0 0}
+.cad-head .free{font-size:15.5px;color:#6B7067;margin:6px 0 0}
 /* 걸음 표시: 글 한 줄 */
-.cad-steps{display:flex;gap:0;margin:0 0 30px;padding:0;list-style:none;border-bottom:1px solid #C8C4BC}
+.cad-steps{display:flex;gap:0;margin:0 0 30px;padding:0;list-style:none;border-bottom:1px solid #DCDFD8}
 .cad-steps li{padding:11px 26px 10px 0;margin-right:26px;font-size:16px;color:#8a8478;display:flex;gap:7px;align-items:baseline;min-width:0;border-bottom:3px solid transparent;margin-bottom:-1px}
 .cad-steps li i{font-style:normal;font-family:'Noto Serif KR',serif;font-size:17px}
 .cad-steps li i::after{content:"."}
-.cad-steps li.on{color:#2A2A2A;font-weight:700;border-bottom-color:#2A2A2A}
-.cad-steps li.done{color:#2A2A2A}
+.cad-steps li.on{color:#1C1F1B;font-weight:700;border-bottom-color:#1C1F1B}
+.cad-steps li.done{color:#1C1F1B}
 .cad-pane{display:none}
 .cad-pane.on{display:block}
-.cbtn{min-height:50px;padding:11px 22px;border:1.5px solid #2A2A2A;background:#fff;color:#2A2A2A;font:inherit;font-size:17.5px;font-weight:600;border-radius:2px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:8px;text-decoration:none!important;line-height:1.3}
-.cbtn:hover{background:#F5F1E8}
-.cbtn.dark{background:#2A2A2A;color:#F5F1E8}
+.cbtn{min-height:50px;padding:11px 22px;border:1.5px solid #1C1F1B;background:#fff;color:#1C1F1B;font:inherit;font-size:17.5px;font-weight:600;border-radius:2px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:8px;text-decoration:none!important;line-height:1.3}
+.cbtn:hover{background:#FFFFFF}
+.cbtn.dark{background:#1C1F1B;color:#FFFFFF}
 .cbtn.dark:hover{background:#111}
 .cbtn.wide{width:100%}
 .cbtn:disabled{opacity:.45;cursor:not-allowed}
 .crow{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
-.cad-resume{border-left:3px solid #2A2A2A;padding:2px 0 4px 16px;margin:0 0 30px;display:none}
+.cad-resume{border-left:3px solid #1C1F1B;padding:2px 0 4px 16px;margin:0 0 30px;display:none}
 .cad-resume.on{display:block}
 .cad-up{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,6fr);gap:44px;align-items:start}
-.cad-drop{border:1px solid #2A2A2A;background:#fff;padding:26px 20px 22px;text-align:center;cursor:pointer}
+.cad-drop{border:1px solid #1C1F1B;background:#fff;padding:26px 20px 22px;text-align:center;cursor:pointer}
 .cad-drop.over{background:#EFE9DA}
 .cad-drop .big{font-size:18px;margin-bottom:12px}
 .cad-drop .sub{font-size:15px;margin-top:12px;line-height:1.55}
-.cad-self{margin-top:30px;padding-top:22px;border-top:1px solid #D9D2C0}.cad-self h3{font-size:19px;margin:0 0 8px}.cad-self p{font-size:16px;line-height:1.7;color:#3a3a3a;margin:0 0 14px}
-.cdw{margin-top:18px}.cdw-row{display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px;margin:10px 0}.cdw-row label{font-weight:600}.cdw-in{display:inline-flex;align-items:center;gap:6px;font-size:16px}.cdw-in input{font:inherit;font-size:17px;height:44px;width:86px;border:1px solid #2A2A2A;border-radius:2px;padding:0 8px;background:#fff}.cdw-help{font-size:15px;color:#6B6B6B;line-height:1.7;margin:6px 0 12px}.cdw-wrap canvas{width:100%;display:block;border:1px solid #2A2A2A;background:#FBF8F1;cursor:pointer;margin-top:8px}.cdw-h{font-weight:700;font-size:17px;margin:18px 0 8px}.cdw-h small,.cdw-h2 small{font-weight:400;color:#6B6B6B;font-size:14px;margin-left:6px}.cdw-h2{font-weight:600;font-size:15px;margin:16px 0 2px;padding-top:12px;border-top:1px solid #E6DFD0}.cdw-names{display:flex;flex-wrap:wrap;gap:6px}.cdw-names .cbtn{min-height:38px;padding:0 12px;font-size:15px}.cdw-names .cbtn.on{background:#2A2A2A;color:#F5F1E8;border-color:#2A2A2A}.cdw-end{display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between;margin-top:20px;padding-top:16px;border-top:1px solid #2A2A2A}
+.cad-self{margin-top:30px;padding-top:22px;border-top:1px solid #DCDFD8}.cad-self h3{font-size:19px;margin:0 0 8px}.cad-self p{font-size:16px;line-height:1.7;color:#2E322C;margin:0 0 14px}
+.cdw{margin-top:18px}.cdw-row{display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px;margin:10px 0}.cdw-row label{font-weight:600}.cdw-in{display:inline-flex;align-items:center;gap:6px;font-size:16px}.cdw-in input{font:inherit;font-size:17px;height:44px;width:86px;border:1px solid #1C1F1B;border-radius:2px;padding:0 8px;background:#fff}.cdw-help{font-size:15px;color:#6B7067;line-height:1.7;margin:6px 0 12px}.cdw-wrap canvas{width:100%;display:block;border:1px solid #1C1F1B;background:#FFFFFF;cursor:pointer;margin-top:8px}.cdw-h{font-weight:700;font-size:17px;margin:18px 0 8px}.cdw-h small,.cdw-h2 small{font-weight:400;color:#6B7067;font-size:14px;margin-left:6px}.cdw-h2{font-weight:600;font-size:15px;margin:16px 0 2px;padding-top:12px;border-top:1px solid #E6DFD0}.cdw-names{display:flex;flex-wrap:wrap;gap:6px}.cdw-names .cbtn{min-height:38px;padding:0 12px;font-size:15px}.cdw-names .cbtn.on{background:#1C1F1B;color:#FFFFFF;border-color:#1C1F1B}.cdw-end{display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between;margin-top:20px;padding-top:16px;border-top:1px solid #1C1F1B}
 .cad-field{margin-top:20px}
 .cad-field label{display:block;font-weight:600;margin-bottom:6px}
 .cad-field .in{display:flex;align-items:center;gap:8px}
-.cad-field input{font:inherit;font-size:19px;height:50px;width:150px;border:1px solid #2A2A2A;border-radius:2px;padding:0 12px;background:#fff;color:#2A2A2A}
-.cad-field small{display:block;font-size:15px;color:#6B6B6B;margin-top:6px;line-height:1.55}
-.cad-safe{font-size:15px;color:#6B6B6B;margin-top:14px;line-height:1.6}
+.cad-field input{font:inherit;font-size:19px;height:50px;width:150px;border:1px solid #1C1F1B;border-radius:2px;padding:0 12px;background:#fff;color:#1C1F1B}
+.cad-field small{display:block;font-size:15px;color:#6B7067;margin-top:6px;line-height:1.55}
+.cad-safe{font-size:15px;color:#6B7067;margin-top:14px;line-height:1.6}
 .cad-fig{margin:28px 0 0}
-.cad-fig img{display:block;width:100%;height:auto;border:1px solid #C8C4BC}
-.cad-fig figcaption{font-size:14.5px;color:#6B6B6B;margin-top:7px;line-height:1.55}
+.cad-fig img{display:block;width:100%;height:auto;border:1px solid #DCDFD8}
+.cad-fig figcaption{font-size:14.5px;color:#6B7067;margin-top:7px;line-height:1.55}
 .cad-guide ol.how{margin:0 0 20px;padding:0 0 0 24px}
 .cad-guide ol.how li{padding:3px 0 3px 4px}
-.cad-tbl{width:100%;border-collapse:collapse;border-top:2px solid #2A2A2A;margin:0 0 12px;font-size:16.5px}
-.cad-tbl th,.cad-tbl td{text-align:left;vertical-align:top;padding:9px 10px 9px 0;border-bottom:1px solid #C8C4BC;font-weight:400;line-height:1.55}
+.cad-tbl{width:100%;border-collapse:collapse;border-top:2px solid #1C1F1B;margin:0 0 12px;font-size:16.5px}
+.cad-tbl th,.cad-tbl td{text-align:left;vertical-align:top;padding:9px 10px 9px 0;border-bottom:1px solid #DCDFD8;font-weight:400;line-height:1.55}
 .cad-tbl th{font-weight:700;font-size:15.5px}
 .cad-tbl td:first-child,.cad-tbl th:first-child{width:50%}
 .cad-tbl.two td:first-child{width:32%;font-weight:600}
 .cad-guide h2{margin-top:34px}
 .cad-guide h2:first-child{margin-top:0}
-.cad-wait{max-width:640px;margin:20px auto;padding:34px 22px;border:1px solid #C8C4BC;background:#fff;text-align:center}
+.cad-wait{max-width:640px;margin:20px auto;padding:34px 22px;border:1px solid #DCDFD8;background:#fff;text-align:center}
 .cad-wait .msg{font-size:20px;font-weight:600;min-height:64px}
-.cad-bar{height:4px;background:#EBE5D5;overflow:hidden;margin:18px 0 14px}
-.cad-bar i{display:block;height:100%;width:30%;background:#2A2A2A;animation:cadbar 1.6s linear infinite}
+.cad-bar{height:4px;background:#F3F5F0;overflow:hidden;margin:18px 0 14px}
+.cad-bar i{display:block;height:100%;width:30%;background:#1C1F1B;animation:cadbar 1.6s linear infinite}
 @keyframes cadbar{from{transform:translateX(-100%)}to{transform:translateX(340%)}}
 .cad-res{display:grid;grid-template-columns:minmax(0,7fr) minmax(0,4fr);gap:30px;align-items:start}
-.cad-paper{border:1px solid #C8C4BC;background:#f7f4ee}
-.cad-sum{margin:0 0 14px;padding:0;list-style:none;border-top:2px solid #2A2A2A}
-.cad-sum li{display:flex;justify-content:space-between;padding:9px 2px;border-bottom:1px solid #C8C4BC}
+.cad-paper{border:1px solid #DCDFD8;background:#f7f4ee}
+.cad-sum{margin:0 0 14px;padding:0;list-style:none;border-top:2px solid #1C1F1B}
+.cad-sum li{display:flex;justify-content:space-between;padding:9px 2px;border-bottom:1px solid #DCDFD8}
 .cad-sum li b{font-weight:600}
-.cad-note{border-left:3px solid #2A2A2A;padding:2px 0 2px 14px;font-size:16.5px;margin:14px 0}
+.cad-note{border-left:3px solid #1C1F1B;padding:2px 0 2px 14px;font-size:16.5px;margin:14px 0}
 .cad-fail{max-width:720px;margin:10px auto}
-.cad-after{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:30px;align-items:start;margin-top:24px;padding-top:18px;border-top:1px solid #C8C4BC}
+.cad-after{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:30px;align-items:start;margin-top:24px;padding-top:18px;border-top:1px solid #DCDFD8}
 .cad-out{display:grid;gap:8px}
-.cad-restart button{background:none;border:0;font:inherit;font-size:15.5px;color:#6B6B6B;text-decoration:underline;text-underline-offset:3px;cursor:pointer;min-height:44px;padding:0}
-.cad-toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#2A2A2A;color:#F5F1E8;padding:12px 18px;font-size:16.5px;border-radius:2px;z-index:800;display:none;max-width:92vw;text-align:center}
+.cad-restart button{background:none;border:0;font:inherit;font-size:15.5px;color:#6B7067;text-decoration:underline;text-underline-offset:3px;cursor:pointer;min-height:44px;padding:0}
+.cad-toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#1C1F1B;color:#FFFFFF;padding:12px 18px;font-size:16.5px;border-radius:2px;z-index:800;display:none;max-width:92vw;text-align:center}
 .cad-toast.on{display:block}
 /* 편집 화면을 넓게 띄운 동안은 상담 도우미 단추가 도구를 가리지 않게 숨긴다 */
 body.cad-sheet-on #jjc-btn{display:none!important}
@@ -143,6 +143,7 @@ body.cad-sheet-on #jjc-btn{display:none!important}
   body{background:#fff!important}
 }
 </style>
+<link rel="stylesheet" href="css/new.css?v=20261113">
 </head>
 <body>
 <nav class="nav">
@@ -333,7 +334,7 @@ body.cad-sheet-on #jjc-btn{display:none!important}
 <div class="cad-toast" id="cadToast" role="status"></div>
 <div id="cadPrint"></div>
 
-<div style="max-width:1180px;margin:0 auto;padding:0 20px 8px;font-size:15px;color:#6B6B6B;line-height:1.7">
+<div style="max-width:1180px;margin:0 auto;padding:0 20px 8px;font-size:15px;color:#6B7067;line-height:1.7">
   집지니가 다시 그린 도면은 참고용입니다. 문·창 위치와 정확한 치수는 현장 실측으로 확정합니다. · <a href="index.html" style="text-decoration:underline">집지니 홈</a> · <a href="pricing.html" style="text-decoration:underline">가격·견적</a> · <a href="sitemap.html" style="text-decoration:underline">사이트 지도</a>
 </div>
 
@@ -348,7 +349,7 @@ window.JJ_ASSET_BASE = '/assets/';
 <script src="assets/cad_io.js?v=20261113f"></script>
 <script src="assets/cad_editor.js?v=20261113f"></script>
 <script src="assets/cad_app.js?v=20261113f"></script>
-<!--SITENAV--><style>.jj-map{max-width:900px;margin:32px auto 0;padding:22px 16px 26px;border-top:2px solid #d9d2c0;font-family:Pretendard,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;color:#2a2a2a;word-break:keep-all}.jj-map .ttl{font-size:14px;font-weight:800;letter-spacing:1px;color:#1e4d3a;margin-bottom:10px;text-align:center}.jj-map .grp{display:flex;flex-wrap:wrap;gap:6px 8px;align-items:center;margin:6px 0;font-size:14px}.jj-map .grp b{min-width:70px;color:#555;font-weight:700;font-size:13px}.jj-map .grp a{display:inline-block;padding:6px 12px;border:1px solid #cfc8b8;border-radius:16px;background:#fff;color:#2a2a2a;text-decoration:none;font-size:14px;font-weight:500}.jj-map .grp a:hover{border-color:#1e4d3a;color:#1e4d3a}.jj-map .grp a[aria-current=page]{background:#1e4d3a;color:#fff;border-color:#1e4d3a;font-weight:800}.jj-map .grp a[aria-current=page]::before{content:"▶ ";font-size:11px}.jj-map .ft{font-size:13px;color:#555;margin-top:12px;text-align:center;line-height:1.8}.jj-where{max-width:1200px;margin:0 auto;padding:8px 16px;font-size:14px;color:#2a2a2a;background:#efe9db;border-bottom:1px solid #d9d2c0;display:flex;gap:6px;align-items:center;flex-wrap:wrap;word-break:keep-all}.jj-where a{color:#1e4d3a;text-decoration:none;font-weight:600}.jj-where .now{background:#1e4d3a;color:#fff;padding:2px 10px;border-radius:12px;font-weight:700;font-size:13px}.nav-item.is-current>.nav-top{color:#1e4d3a!important;font-weight:800!important;box-shadow:inset 0 -3px 0 #1e4d3a}.nav-dropdown a.is-current{background:#e6efe9!important;color:#1e4d3a!important;font-weight:700!important}@media(max-width:640px){.jj-map .grp b{min-width:100%}}</style><div class="jj-map"><div class="ttl">집지니 사이트 지도 — 지금 보는 쪽은 ▶ 짙은 녹색</div><div class="grp"><b>시작하기 ·</b><a href="index.html">홈</a><a href="self-interior-agency.html">셀인대행이란</a><a href="request.html">무료 견적 신청</a><a href="prepare.html">사전 준비</a></div><div class="grp"><b>집지니 CAD ·</b><a href="cad.html">집지니 CAD — 무료 공사 계획 도면</a></div><div class="grp"><b>샘플실 ·</b><a href="showroom.html">가양동 샘플실 · 상담 예약</a></div><div class="grp"><b>진행 방식 ·</b><a href="workflow.html">진행 방식 8단계</a><a href="interior-coordinator.html">코디네이터란</a></div><div class="grp"><b>가격·견적 ·</b><a href="pricing.html">가격·코디비</a><a href="interior-price-table.html">실견적 시세표</a><a href="cases/">견적 사례</a><a href="py/">평형별 비용</a><a href="trade/">공종별 비용</a></div><div class="grp"><b>가이드 ·</b><a href="banself-interior.html">반셀프 코디</a><a href="jikyoung-interior.html">직영 인테리어</a><a href="interior-margin-30.html">마진 30%</a><a href="interior-estimate-compare.html">견적서 비교</a><a href="apt-olsuri-cost.html">32평 올수리</a><a href="bathroom-remodel-cost.html">욕실 리모델링</a><a href="interior-scam-types.html">사기 유형</a></div><div class="grp"><b>회사 ·</b><a href="about.html">회사소개</a><a href="faq.html">자주 묻는 질문</a><a href="ai-answers.html">AI에게 물어볼 때</a><a href="sitemap.html">사이트 지도</a></div><div class="ft">서울·경기·인천 수도권 전역 · 자재상·기술자 직거래 · 정찰제 코디비 · 부가세 10% 별도<br>샘플실: <a href="showroom.html" style="color:#1e4d3a;font-weight:600">서울 강서구 공항대로41길 66 세신종합상가 지하 1층 B156호 (가양동)</a> · 상담 예약 010-9806-0422</div></div><script>(function(){try{
+<!--SITENAV--><style>.jj-map{max-width:900px;margin:32px auto 0;padding:22px 16px 26px;border-top:2px solid #DCDFD8;font-family:Pretendard,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;color:#1C1F1B;word-break:keep-all}.jj-map .ttl{font-size:14px;font-weight:800;letter-spacing:1px;color:#1F5E2E;margin-bottom:10px;text-align:center}.jj-map .grp{display:flex;flex-wrap:wrap;gap:6px 8px;align-items:center;margin:6px 0;font-size:14px}.jj-map .grp b{min-width:70px;color:#555;font-weight:700;font-size:13px}.jj-map .grp a{display:inline-block;padding:6px 12px;border:1px solid #D3D7CF;border-radius:16px;background:#fff;color:#1C1F1B;text-decoration:none;font-size:14px;font-weight:500}.jj-map .grp a:hover{border-color:#1F5E2E;color:#1F5E2E}.jj-map .grp a[aria-current=page]{background:#1F5E2E;color:#fff;border-color:#1F5E2E;font-weight:800}.jj-map .grp a[aria-current=page]::before{content:"▶ ";font-size:11px}.jj-map .ft{font-size:13px;color:#555;margin-top:12px;text-align:center;line-height:1.8}.jj-where{max-width:1200px;margin:0 auto;padding:8px 16px;font-size:14px;color:#1C1F1B;background:#F3F5F0;border-bottom:1px solid #DCDFD8;display:flex;gap:6px;align-items:center;flex-wrap:wrap;word-break:keep-all}.jj-where a{color:#1F5E2E;text-decoration:none;font-weight:600}.jj-where .now{background:#1F5E2E;color:#fff;padding:2px 10px;border-radius:12px;font-weight:700;font-size:13px}.nav-item.is-current>.nav-top{color:#1F5E2E!important;font-weight:800!important;box-shadow:inset 0 -3px 0 #1F5E2E}.nav-dropdown a.is-current{background:#EAF2E6!important;color:#1F5E2E!important;font-weight:700!important}@media(max-width:640px){.jj-map .grp b{min-width:100%}}</style><div class="jj-map"><div class="ttl">집지니 사이트 지도 — 지금 보는 쪽은 ▶ 짙은 녹색</div><div class="grp"><b>시작하기 ·</b><a href="index.html">홈</a><a href="self-interior-agency.html">셀인대행이란</a><a href="request.html">무료 견적 신청</a><a href="prepare.html">사전 준비</a></div><div class="grp"><b>집지니 CAD ·</b><a href="cad.html">집지니 CAD — 무료 공사 계획 도면</a></div><div class="grp"><b>샘플실 ·</b><a href="showroom.html">가양동 샘플실 · 상담 예약</a></div><div class="grp"><b>진행 방식 ·</b><a href="workflow.html">진행 방식 8단계</a><a href="interior-coordinator.html">코디네이터란</a></div><div class="grp"><b>가격·견적 ·</b><a href="pricing.html">가격·코디비</a><a href="interior-price-table.html">실견적 시세표</a><a href="cases/">견적 사례</a><a href="py/">평형별 비용</a><a href="trade/">공종별 비용</a></div><div class="grp"><b>가이드 ·</b><a href="banself-interior.html">반셀프 코디</a><a href="jikyoung-interior.html">직영 인테리어</a><a href="interior-margin-30.html">마진 30%</a><a href="interior-estimate-compare.html">견적서 비교</a><a href="apt-olsuri-cost.html">32평 올수리</a><a href="bathroom-remodel-cost.html">욕실 리모델링</a><a href="interior-scam-types.html">사기 유형</a></div><div class="grp"><b>회사 ·</b><a href="about.html">회사소개</a><a href="faq.html">자주 묻는 질문</a><a href="ai-answers.html">AI에게 물어볼 때</a><a href="sitemap.html">사이트 지도</a></div><div class="ft">서울·경기·인천 수도권 전역 · 자재상·기술자 직거래 · 정찰제 코디비 · 부가세 10% 별도<br>샘플실: <a href="showroom.html" style="color:#1F5E2E;font-weight:600">서울 강서구 공항대로41길 66 세신종합상가 지하 1층 B156호 (가양동)</a> · 상담 예약 010-9806-0422</div></div><script>(function(){try{
 var here=location.pathname.replace(/\/index\.html$/,"/");
 var norm=function(h){var a=document.createElement("a");a.href=h;return a.pathname.replace(/\/index\.html$/,"/");};
 var isCur=function(h){var p=norm(h);return p===here||(p!=="/"&&p.slice(-1)==="/"&&here.indexOf(p)===0);};
