@@ -237,15 +237,18 @@
   }
   function aiAnalyze(ai, canvas) {
     var S = ai.size, W = canvas.width, H = canvas.height, K = Math.min(1, 1600 / Math.max(W, H));
-    return (ai.str ? segment(ai.str, canvas, S) : Promise.resolve(null)).then(function (st) {
-      return (ai.spa ? segment(ai.spa, canvas, S) : Promise.resolve(null)).then(function (sp) {
+    // 2026-11-13 자체 모델이 빠른 판에서 84.8→35.1 로 진 원인: 학습 때는 이미지넷 정규화로 넣었는데 여기선 정규화 없이(0~1) 넣고 있었다 → 매니페스트 norm 을 그대로 넘긴다.
+    //   구조 분류 번호도 매니페스트 strMap 을 따른다(선생 모델은 벽2·문3·창4, 자체 모델은 벽1·문2·창3).
+    var MP = ai.map || { wall: 1, door: 2, window: 3 };
+    return (ai.str ? segment(ai.str, canvas, S, ai.norm) : Promise.resolve(null)).then(function (st) {
+      return (ai.spa ? segment(ai.spa, canvas, S, ai.norm) : Promise.resolve(null)).then(function (sp) {
         var doors = [], wins = [];
         var back = function (seg, x, y) { return [(x - seg.ox) / seg.k, (y - seg.oy) / seg.k]; };
-        if (st) { var cs = components(st.cls, st.w, st.h, function (c) { return c === 2 || c === 3; }, 6);
+        if (st) { var cs = components(st.cls, st.w, st.h, function (c) { return c === MP.door || c === MP.window; }, 6);
           cs.list.forEach(function (o) { var a = back(st, o.x0, o.y0), b = back(st, o.x1 + 1, o.y1 + 1), horiz = (b[0] - a[0]) >= (b[1] - a[1]);
-            var seg = horiz ? { x1: a[0], y1: (a[1] + b[1]) / 2, x2: b[0], y2: (a[1] + b[1]) / 2 } : { x1: (a[0] + b[0]) / 2, y1: a[1], x2: (a[0] + b[0]) / 2, y2: b[1] }; seg.box = [a[0], a[1], b[0], b[1]]; (o.c === 2 ? doors : wins).push(seg); });
+            var seg = horiz ? { x1: a[0], y1: (a[1] + b[1]) / 2, x2: b[0], y2: (a[1] + b[1]) / 2 } : { x1: (a[0] + b[0]) / 2, y1: a[1], x2: (a[0] + b[0]) / 2, y2: b[1] }; seg.box = [a[0], a[1], b[0], b[1]]; (o.c === MP.door ? doors : wins).push(seg); });
           // 문 자리를 공간 분류 그림에서 지워, 문이 열려 이어진 방을 끊는다
-          if (sp && sp.w === st.w && sp.h === st.h) for (var i = 0; i < st.cls.length; i++) if (st.cls[i] === 1 || st.cls[i] === 2) sp.cls[i] = 0; }
+          if (sp && sp.w === st.w && sp.h === st.h) for (var i = 0; i < st.cls.length; i++) if (st.cls[i] === MP.wall || st.cls[i] === MP.door) sp.cls[i] = 0; }
         if (!sp) return null;
         var minPx = Math.max(12, Math.round(sp.w * sp.h * 0.0015)), cc = components(sp.cls, sp.w, sp.h, function (c) { return c >= 1 && c <= 9; }, minPx), found = [];
         cc.list.forEach(function (o) { var raw = contour(cc.lab, sp.w, sp.h, o); if (raw.length < 6) return; var poly = tidy(raw, Math.max(1.2, sp.w / 220)); if (poly.length < 3) return;
