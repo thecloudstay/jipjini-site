@@ -120,7 +120,13 @@ def main(n=400):
     todo = [r for r in rows if (st.get("%s_%s" % (r["단지코드"], r["평형"])) or {}).get("판") != ver]
     random.seed(int(time.time())); random.shuffle(todo)
     never = [r for r in todo if "%s_%s" % (r["단지코드"], r["평형"]) not in st]
-    todo = (never + [r for r in todo if r not in never])[:n]      # 처음 보는 것부터, 그다음 옛 판으로 바꾼 것
+    # 2026-11-13 대표 제안 「우선 벌크로 싹 다 변환한 다음 클로드가 직접 찾는 방식」:
+    #  ① 한 번도 안 바꾼 것 전부 먼저(장수 0 = 끝까지)  ② 판이 바뀌면 떨어진 것(출고보류·예외·오류)만 다시  ③ 이미 통과한 것은 맨 뒤
+    #  — 고칠 때마다 8천 장을 처음부터 다시 돌리던 것(70시간 남짓)을 떨어진 것만 다시 돌게
+    fail = [r for r in todo if r not in never and (st.get("%s_%s" % (r["단지코드"], r["평형"])) or {}).get("판정") != "통과"]
+    passed = [r for r in todo if r not in never and r not in fail]
+    todo = never + fail + passed
+    if n > 0: todo = todo[:n]
     print(f"=== 평면도 일괄 변환 · 판 {ver} · 원본 {len(rows)}장 중 이번 {len(todo)}장 (남은 {len([r for r in rows if (st.get('%s_%s' % (r['단지코드'], r['평형'])) or {}).get('판') != ver])}장) ===", flush=True)
     if not todo:
         try:
@@ -209,6 +215,9 @@ def main(n=400):
             print(f"[{i + 1}/{len(todo)}] {k} {rec.get('판정')} {rec.get('점수', '')} {rec.get('남은규칙', '')[:50]}", flush=True)
             if done % 20 == 0:
                 json.dump(st, open(os.path.join(OUT, "상태.json"), "w", encoding="utf-8"), ensure_ascii=False)
+            if done % 200 == 0:   # 끝까지 도는 동안에도 검수표·예외함을 새로 써서 클로드가 중간에 묶음으로 볼 수 있게
+                try: report(st, ver, time.time() - t0, done)
+                except Exception: pass
     if pw["b"]:
         pw["b"].close(); pw["p"].stop()
     json.dump(st, open(os.path.join(OUT, "상태.json"), "w", encoding="utf-8"), ensure_ascii=False)
@@ -304,6 +313,10 @@ def rescreen(known):
 
 
 def report(st, ver, sec, done):
+    try:   # 2026-11-13 묶음 경향표(트렌드.txt) — 클로드가 이 파일 하나로 공통 분모를 본다
+        import trend; trend.main(os.path.join(OUT, "상태.json"), LIST, os.path.join(OUT, "트렌드.txt"))
+    except Exception as e:
+        print("경향표 건너뜀:", str(e)[:80], flush=True)
     cur = {k: v for k, v in st.items() if v.get("판") == ver}
     with open(os.path.join(OUT, "검수표.csv"), "w", encoding="utf-8-sig", newline="") as fo:
         w = csv.writer(fo); w.writerow(["키", "판정", "점수", "자동고침", "남은규칙", "판", "때"])
@@ -345,4 +358,4 @@ def report(st, ver, sec, done):
 
 
 if __name__ == "__main__":
-    sys.exit(main(int(sys.argv[1]) if len(sys.argv) > 1 else 400))
+    sys.exit(main(int(sys.argv[1]) if len(sys.argv) > 1 else 0))
