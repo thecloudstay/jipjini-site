@@ -178,9 +178,27 @@ def run_harness():
         note("하네스 점검 오류: " + str(e)[:200])
 
 
+def run_ocr_trial():
+    """2026-11-13 한국어 글자 인식 시험 한 번(결과 파일이 없을 때만) — 학습 환경 파이썬으로, 뒤에서"""
+    try:
+        out = os.path.join(ps.ROOT, "기록", "채점", "글자인식_시험.txt"); flag = out + ".돌림"
+        if os.path.exists(out) or (os.path.exists(flag) and time.time() - os.path.getmtime(flag) < 3 * 3600):
+            return
+        py = os.path.join(ps.ROOT, "학습", "환경", "Scripts", "python.exe")
+        if not os.path.exists(py): py = sys.executable
+        open(flag, "w", encoding="utf-8").write(time.strftime("%Y-%m-%d %H:%M"))
+        import subprocess
+        lf = open(os.path.join(ps.ROOT, "기록", "채점", "글자인식_시험_log.txt"), "a", encoding="utf-8")
+        subprocess.Popen([py, "-u", os.path.join(ps.ROOT, "코드", "변환", "tools", "harness", "ocr_trial.py"), "60"], stdout=lf, stderr=subprocess.STDOUT)
+        note("한국어 글자 인식 시험 시작 (60장, 결과 기록\\채점\\글자인식_시험.txt)")
+    except Exception as e:
+        note("글자 인식 시험 못 띄움: " + str(e)[:200])
+
+
 def prep():
     """바퀴마다 먼저 — 정답지(실제·합성)를 늘리고, 늘었으면 자체 모델을 뒤에서 학습. 할 것이 없으면 바로 지나간다"""
     run_harness()
+    run_ocr_trial()
     try:
         train_done()
         a = run_rescreen()
