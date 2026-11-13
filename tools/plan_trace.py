@@ -691,6 +691,59 @@ def square_rooms(rooms, mm):
                 r['pts']=P
                 if 'area' in r: r['area']=round(a1*mm*mm/1e6,2)
     return rooms
+def split_kitchen(rooms, mm, H, W):
+    """2026-11-13 R17(주방 과대) 원인: 거실은 네모로 잘리고, 남은 복도·식당 띠가 전부 주방 다각형에 붙는다
+       (표본 10장 중 6장: 주방 8~33꼭짓점, 떨어지는 띠 4~10㎡ — 대부분 거실이 아니라 현관·방 쪽으로 가는 복도).
+       고침: 주방을 폭 1.8m 사각 붓으로 열어(opening) 넓은 몸통만 주방으로 남긴다. 떨어져 나간 좁은 띠는
+         · 거실과 맞닿으면(벽 틈 450mm 안) 거실에 붙이고
+         · 아니면 1㎡ 이상이면 「복도」(종류 기타)로 따로 세우고, 작은 부스러기는 주방에 돌려준다.
+       검사 기준(15㎡·거실보다 큼)은 그대로 둔다 — 넓은 집의 큰 주방·식당은 그대로 걸린다."""
+    ar=lambda P: abs(cv2.contourArea(np.array(P,np.float32)))*mm*mm/1e6
+    lv=[r for r in rooms if r.get('kind')=='거실' and len(r.get('pts') or [])>=3]
+    if not lv: return rooms
+    L=max(lv,key=lambda r: ar(r['pts']))
+    def poly(M):
+        cs,_=cv2.findContours(M.astype(np.uint8),cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_SIMPLE)
+        if not cs: return None
+        c=max(cs,key=cv2.contourArea); a_=cv2.approxPolyDP(c,1.2,True).reshape(-1,2)
+        return [[int(x),int(y)] for x,y in a_] if len(a_)>=3 else None
+    add=[]
+    for r in rooms:
+        if r.get('kind')!='주방' or len(r.get('pts') or [])<5: continue
+        a=ar(r['pts']); la=ar(L['pts'])
+        if not (a>15 or a>la): continue
+        K=np.zeros((H,W),np.uint8); cv2.fillPoly(K,[np.array(r['pts'],np.int32)],1)
+        s=max(5,int(round(1800.0/mm))); core=cv2.morphologyEx(K,cv2.MORPH_OPEN,np.ones((s,s),np.uint8))
+        n,lab,st,_=cv2.connectedComponentsWithStats(core,8)
+        if n<2: continue
+        j=1+int(np.argmax(st[1:,cv2.CC_STAT_AREA])); core=(lab==j).astype(np.uint8)
+        if core.sum()<0.35*K.sum() or core.sum()>0.95*K.sum(): continue
+        rest=(K&(1-core)).astype(np.uint8); dk=max(5,int(round(450.0/mm)))|1
+        LM=np.zeros((H,W),np.uint8); cv2.fillPoly(LM,[np.array(L['pts'],np.int32)],1)
+        n2,lab2,st2,_=cv2.connectedComponentsWithStats(rest,4); give=np.zeros((H,W),np.uint8); hall=[]
+        for k in range(1,n2):
+            c=(lab2==k).astype(np.uint8); m2=st2[k,cv2.CC_STAT_AREA]*mm*mm/1e6
+            if m2<0.3: core|=c
+            elif (cv2.dilate(c,np.ones((dk,dk),np.uint8))&LM).any(): give|=c   # 방 다각형 사이에는 벽 두께만큼 틈이 있다
+            elif m2>=1.0: hall.append(c)
+            else: core|=c
+        if not give.any() and not hall: continue
+        newK=poly(core)
+        if not newK or ar(newK)>=a: continue
+        if give.any():
+            U=cv2.morphologyEx(((LM|give)>0).astype(np.uint8),cv2.MORPH_CLOSE,np.ones((dk,dk),np.uint8))   # 벽 틈을 메워 한 덩어리로
+            newL=poly(U)
+            if newL and ar(newL)>la:
+                L['pts']=newL
+                if 'area' in L: L['area']=round(ar(newL),2)
+            else: core|=give; newK=poly(core) or newK
+        r['pts']=newK
+        if 'area' in r: r['area']=round(ar(newK),2)
+        for c in hall:
+            P=poly(c)
+            if P: add.append({'name':'복도' if not any(x.get('name')=='복도' for x in rooms+add) else '복도%d'%(len(add)+1),'kind':'기타','area':round(ar(P),2),'w':0,'d':0,'pts':P})
+    rooms.extend(add)
+    return rooms
 def fit_rooms(rooms, G, mm, H, W):
     import plan_check
     st=cv2.dilate(plan_check._struct(G,mm,H,W),np.ones((3,3),np.uint8))
@@ -1111,6 +1164,9 @@ def trace(path, plan):
     try: _rest=_rest+close_junctions(G_,bgr,mm,H,W); G_['벽윤곽']=_rest
     except Exception: pass
     try: fit_rooms(plan['rooms'],G_,mm,H,W)
+    except Exception: pass
+    try:
+        if not __import__('os').environ.get('JJ_NO_KSPLIT'): split_kitchen(plan['rooms'],mm,H,W)
     except Exception: pass
     try:
         if not __import__('os').environ.get('JJ_NO_SQUARE'): square_rooms(plan['rooms'],mm)
