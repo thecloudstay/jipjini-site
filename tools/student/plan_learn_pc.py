@@ -166,8 +166,21 @@ def widen_tune():
     return True
 
 
+def run_harness():
+    """2026-11-13 하네스 점검 — 30분마다 약속(공개 도면 최신 판·속도·받기 멈춤·자체 모델 패배 등)을 검사해 기록\하네스_점검.txt 에"""
+    try:
+        f = os.path.join(ps.ROOT, "기록", "하네스_점검.txt")
+        if os.path.exists(f) and time.time() - os.path.getmtime(f) < 30 * 60:
+            return
+        import subprocess
+        subprocess.call([sys.executable, os.path.join(ps.ROOT, "코드", "변환", "tools", "harness", "harness_check.py")], timeout=600)
+    except Exception as e:
+        note("하네스 점검 오류: " + str(e)[:200])
+
+
 def prep():
     """바퀴마다 먼저 — 정답지(실제·합성)를 늘리고, 늘었으면 자체 모델을 뒤에서 학습. 할 것이 없으면 바로 지나간다"""
+    run_harness()
     try:
         train_done()
         a = run_rescreen()
