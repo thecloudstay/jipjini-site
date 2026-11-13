@@ -365,14 +365,35 @@
   function aArea(k, r, st) { return { t: 'wk', k: k, st: st || 'new', f: 'a', pts: r.pts.map(function (p) { return [p[0], p[1]]; }) }; }
   function aLoop(k, r) { return { t: 'wk', k: k, st: 'new', f: 'l', loop: true, pts: r.pts.concat([r.pts[0]]).map(function (p) { return [p[0], p[1]]; }) }; }
   function aPt(k, p, rot) { var o = { t: 'wk', k: k, st: 'new', f: 'p', x: Math.round(p[0]), y: Math.round(p[1]) }; if (rot) o.rot = autoRot(p[0], p[1]); return o; }
+  var LIGHT = {};   // 방 이름 → { 개수, 평균, 최소, 음영(%), 목표 } — 마지막 조명 계산 결과 (물량 표에 함께 보인다)
+  function lightRoom(r, k) {
+    var mm = mmpp(); if (!mm) return null; var E = { 거실: 200, 주방: 300, 방: 150, 욕실: 200, 드레스룸: 200 }[k] || 150, h = 2.3 - 0.85, I0 = 1200 * 0.8 / Math.PI, st = 100 / mm;
+    var xs = r.pts.map(function (p) { return p[0]; }), ys = r.pts.map(function (p) { return p[1]; }), x0 = Math.min.apply(0, xs), x1 = Math.max.apply(0, xs), y0 = Math.min.apply(0, ys), y1 = Math.max.apply(0, ys);
+    var C = []; for (var gx = x0 + st / 2; gx < x1; gx += st) for (var gy = y0 + st / 2; gy < y1; gy += st) if (inPoly([gx, gy], r.pts)) C.push([gx, gy]); if (!C.length) return null;
+    var w = (x1 - x0) * mm / 1000, d = (y1 - y0) * mm / 1000, a = rM2(r), nx = Math.max(1, Math.round(w / 1.5)), ny = Math.max(1, Math.round(d / 1.5));
+    if (w / nx > 1.8) nx++; if (d / ny > 1.8) ny++; if (k === '욕실' || k === '드레스룸') { if (d >= w) { nx = 1; ny = 2; } else { nx = 2; ny = 1; } }
+    var mn = k === '방' ? (/안방/.test(r.name) || a >= 12 ? 6 : 4) : 0, grow = function () { if (w / nx >= d / ny) nx++; else ny++; };
+    while (nx * ny < mn) grow();
+    var P, v, avg, low, lo;
+    for (var t = 0; t < 8; t++) {
+      P = []; for (var i = 0; i < nx; i++) for (var j = 0; j < ny; j++) { var p = [x0 + (i + 0.5) * (x1 - x0) / nx, y0 + (j + 0.5) * (y1 - y0) / ny]; if (inPoly(p, r.pts)) P.push(p); }
+      avg = 0; low = 0; lo = 1e9; C.forEach(function (c) { var e = 0; P.forEach(function (f) { var dd = Math.hypot(c[0] - f[0], c[1] - f[1]) * mm / 1000, q = dd * dd + h * h, cs = h / Math.sqrt(q); e += I0 * cs * cs / q; }); e *= 1.25; avg += e; if (e < 0.5 * E) low++; if (e < lo) lo = e; });
+      avg /= C.length; if (avg >= E && low / C.length <= 0.03) break; grow();
+    }
+    return { pts: P, 개수: P.length, 평균: Math.round(avg), 최소: Math.round(lo), 음영: Math.round(low / C.length * 1000) / 10, 목표: E };
+  }
   // [항목, 공종, 이름, 설명, 올수리 기본, 만들기(방 목록) → 기호들]
   var PICKS = [
     ['dm', '철거', '기존 마감 철거', '방·거실·주방의 바닥재와 벽지를 걷어 냅니다', 1, function (R) { return R.filter(isDry).map(function (r) { return aArea('dmA', r, 'remove'); }); }],
     ['dmB', '철거', '욕실 철거', '욕실 타일·도기·천장을 뜯습니다(덧방이면 끄세요)', 1, function (R) { return R.filter(isBath).map(function (r) { return aArea('dmA', r, 'remove'); }); }],
-    // 개수 = 목표 밝기(럭스) × 넓이 ÷ (등 하나 800루멘 × 조명률 0.65 × 유지율 0.8). 목표 밝기: 거실 200 · 주방 250 · 방 150 (어림 — 등 사양이 다르면 고친다)
-    ['lt', '전기', '조명 (매입등)', '밝기 기준으로 개수를 잡습니다(거실 200 · 주방 250 · 방 150럭스, 등 하나 800루멘). 베란다는 직부등', 1, function (R) { var o = []; R.forEach(function (r) { var a = rM2(r), k = rk(r);
+    // 2026-11-13 대표 기준(항상 탑재): 전체 매입등 · 베란다 직부등 · 현관 센서등 · 등 간격 약 1.5m · 작은 방 4개 · 큰 방(안방) 6개 이상.
+    //   그 배치로 바닥 위 0.85m 작업면을 10cm 칸으로 나눠 등마다 거리·각도로 밝기를 더해(점광원, 1,200루멘·보수율 0.8·천장 2.3m)
+    //   평균이 목표(거실 200 · 주방 300 · 방 150 · 욕실·드레스룸 200럭스) 이상, 음영(목표 절반 미만 칸) 3% 이하가 될 때까지 등을 더한다. 사이트 tools/light_calc.py 와 같은 식.
+    ['lt', '전기', '조명 (매입등 · 조도 계산)', '등 간격 약 1.5m · 작은 방 4개 · 안방 6개 이상으로 놓고, 방마다 밝기·음영을 계산해 모자라면 더합니다. 베란다는 직부등, 현관은 센서등', 1, function (R) { var o = []; LIGHT = {}; R.forEach(function (r) { var k = rk(r);
         if (isBal(r)) return ptsIn(r, 1).forEach(function (p) { o.push(aPt('cl', p)); });
-        var n = k === '욕실' ? 2 : k === '현관' ? 1 : isDry(r) ? Math.max(2, Math.min(16, Math.ceil((a || 9) * (k === '거실' ? 200 : k === '주방' ? 250 : 150) / 416))) : 0; if (n) ptsIn(r, n).forEach(function (p) { o.push(aPt('dl', p)); }); }); return o; }],
+        if (k === '현관') return ptsIn(r, 1).forEach(function (p) { var q = aPt('dl', p); q.memo = '센서등'; o.push(q); });
+        if (!isDry(r) && k !== '욕실') return;
+        var L = lightRoom(r, k); if (!L) return; LIGHT[r.name] = L; L.pts.forEach(function (p) { var q = aPt('dl', p); if (k === '욕실') q.memo = '방습형'; o.push(q); }); }); return o; }],
     ['sw', '전기', '스위치 · 콘센트', '방마다 스위치 1, 콘센트는 방 3·거실 4·주방 4', 1, function (R) { var o = []; R.forEach(function (r) { var k = rk(r); if (!isDry(r) && k !== '욕실' && k !== '현관') return; var nO = k === '방' ? 3 : k === '거실' || k === '주방' ? 4 : k === '드레스룸' ? 1 : k === '욕실' ? 1 : 0, P = ptsWall(r, nO + 1); if (P[0]) o.push(aPt('sw', P[0])); P.slice(1).forEach(function (p) { o.push(aPt('ol', p)); }); }); return o; }],
     ['fan', '전기', '욕실 환풍기', '욕실마다 하나', 1, function (R) { return R.filter(isBath).map(function (r) { var c = centroid(r.pts), u = U(); return aPt('fan', inPoly([c[0] + u, c[1] - u], r.pts) ? [c[0] + u, c[1] - u] : c); }); }],
     ['mold', '목공', '몰딩', '방·거실·주방 천장 둘레', 1, function (R) { return R.filter(isDry).map(function (r) { return aLoop('mold', r); }); }],
@@ -390,7 +411,7 @@
   function pickSet(id, on) { var P = PICKS.filter(function (x) { return x[0] === id; })[0]; if (!P) return 0; shapes = shapes.filter(function (q) { return q.au !== id; }); var n = 0;
     if (on) { P[5](rooms()).forEach(function (q) { q.au = id; rqStamp(q); shapes.push(q); n++; }); pick[id] = 1; } else delete pick[id]; return n; }
   function pickQty(id) { var mm = mmpp(), n = 0, A = 0, L = 0; shapes.forEach(function (q) { if (q.au !== id || q.t !== 'wk') return; if (q.f === 'p') n++; else if (q.f === 'a') A += mm ? pxArea(q.pts) * mm * mm / 1e6 : 0; else L += mm ? lineLen(q.pts) * mm / 1000 : 0; });
-    var o = []; if (n) o.push(n + '개'); if (A) o.push(R2(A) + '㎡'); if (L) o.push(R2(L) + 'm'); if (!o.length) { var c = shapes.filter(function (q) { return q.au === id; }).length; if (c) o.push(c + '곳'); } return o.join(' · '); }
+    var o = []; if (n) o.push(n + '개'); if (id === 'lt' && Object.keys(LIGHT).length) { var ks = Object.keys(LIGHT), sh = ks.filter(function (x) { return LIGHT[x].음영 > 3; }); o.push(sh.length ? '음영 남은 방 ' + sh.join('·') : '모든 방 음영 3% 이하'); } if (A) o.push(R2(A) + '㎡'); if (L) o.push(R2(L) + 'm'); if (!o.length) { var c = shapes.filter(function (q) { return q.au === id; }).length; if (c) o.push(c + '곳'); } return o.join(' · '); }
   function pickKinds(id) { var ks = {}; shapes.forEach(function (q) { if (q.au === id) ks[q.k] = 1; }); return ks; }
   // 도배지 롤 수: 광폭(실크) 1롤 = 폭 1.06m × 길이 15.6m ≈ 16.5㎡(5평), 소폭(합지) 1롤 = 폭 0.53m × 길이 12.5m ≈ 6.6㎡(2평). 무늬 맞춤·자투리 여유 10%.
   function paperRolls(a) { return a > 0 ? '광폭(실크·광폭합지) ' + Math.ceil(a * 1.1 / 16.5) + '롤 · 소폭(합지) ' + Math.ceil(a * 1.1 / 6.6) + '롤 <span>(여유 10% 포함)</span>' : ''; }
