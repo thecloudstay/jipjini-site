@@ -654,7 +654,7 @@ table.plm td.r,table.plm th.r{padding-left:10px}
     var b = e.target.closest('[data-doc]'); if (!b || b.disabled) return;
     if (b.getAttribute('data-pv')) { pvOpen(b.getAttribute('data-pv')); return; }
     var w = window.open('about:blank', '_blank'), go = b.querySelector('.go'), was = go.textContent; go.textContent = '집지니가 열고 있습니다…';
-    fetch(EXEC + '?type=portal_doc&k=' + encodeURIComponent(k) + '&d=' + encodeURIComponent(b.getAttribute('data-doc')), { redirect: 'follow', cache: 'no-store' }).then(function (r) { return r.json(); }).then(function (j) {
+    fetch(EXEC + '?type=portal_doc&k=' + encodeURIComponent(k) + '&d=' + encodeURIComponent(b.getAttribute('data-doc')) + ((PV || STAFF) ? '&pv=1' : ''), { redirect: 'follow', cache: 'no-store' }).then(function (r) { return r.json(); }).then(function (j) {
       go.textContent = was; var u = j && j.ok ? safeUrl(j.주소) : '';
       if (u) { if (w) w.location.href = u; else location.href = u; } else { if (w) w.close(); alertBox((j && j.err) || '지금 열 수 없습니다. 코디에게 문의해 주세요.'); }
     }).catch(function () { go.textContent = was; if (w) w.close(); alertBox('연결이 원활하지 않습니다. 잠시 뒤 다시 눌러 주세요.'); });
