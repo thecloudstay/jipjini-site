@@ -123,9 +123,16 @@ def main(n=400):
     # 2026-11-13 대표 제안 「우선 벌크로 싹 다 변환한 다음 클로드가 직접 찾는 방식」:
     #  ① 한 번도 안 바꾼 것 전부 먼저(장수 0 = 끝까지)  ② 판이 바뀌면 떨어진 것(출고보류·예외·오류)만 다시  ③ 이미 통과한 것은 맨 뒤
     #  — 고칠 때마다 8천 장을 처음부터 다시 돌리던 것(70시간 남짓)을 떨어진 것만 다시 돌게
-    fail = [r for r in todo if r not in never and (st.get("%s_%s" % (r["단지코드"], r["평형"])) or {}).get("판정") != "통과"]
-    passed = [r for r in todo if r not in never and r not in fail]
-    todo = never + fail + passed
+    # 2026-11-13 하네스 약속 1 「손님이 보는 도면이 가장 먼저 최신 판」: 홈페이지에 열린 평형(공개 기준을 넘은 것 + 공개목록.json)을 맨 앞에
+    try: pubk = set(json.load(open(os.path.join(OUT, "공개목록.json"), encoding="utf-8")))
+    except Exception: pubk = set()
+    def _pub(r):
+        v = st.get("%s_%s" % (r["단지코드"], r["평형"])) or {}
+        return "%s_%s" % (r["단지코드"], r["평형"]) in pubk or (isinstance(v.get("점수"), (int, float)) and v["점수"] >= 85 and v.get("판정") in ("통과", "예외"))
+    pub = [r for r in todo if r not in never and _pub(r)]
+    fail = [r for r in todo if r not in never and r not in pub and (st.get("%s_%s" % (r["단지코드"], r["평형"])) or {}).get("판정") != "통과"]
+    passed = [r for r in todo if r not in never and r not in pub and r not in fail]
+    todo = pub + never + fail + passed
     if n > 0: todo = todo[:n]
     print(f"=== 평면도 일괄 변환 · 판 {ver} · 원본 {len(rows)}장 중 이번 {len(todo)}장 (남은 {len([r for r in rows if (st.get('%s_%s' % (r['단지코드'], r['평형'])) or {}).get('판') != ver])}장) ===", flush=True)
     if not todo:
@@ -172,6 +179,7 @@ def main(n=400):
             except ValueError:
                 area = 0
             rec = {"판": ver, "때": time.strftime("%Y-%m-%d %H:%M")}
+            _t0 = time.time(); _t1 = None   # 2026-11-13 어디서 시간이 드는지 재기(읽기 = 브라우저 방 읽기, 변환 = 파이썬 변환·검수·채점)
             try:
                 cf = os.path.join(READ, k + ".json"); c = rj(cf, {})
                 if c.get("도구판") == tver and c.get("읽기"):
@@ -186,6 +194,7 @@ def main(n=400):
                         except Exception:
                             teach = None
                     json.dump({"도구판": tver, "때": time.strftime("%Y-%m-%d %H:%M"), "읽기": a, "선생": teach}, open(cf, "w", encoding="utf-8"), ensure_ascii=False)
+                _t1 = time.time()
                 if not a.get("ok") or not a.get("rooms"):
                     rec.update(판정="예외", 남은규칙="R0 방 못 읽음 " + str(a.get("why", ""))[:40])
                 elif a.get("회전"):
@@ -210,9 +219,11 @@ def main(n=400):
                         rec.pop("_G", None)
             except Exception as e:
                 rec.update(판정="오류", 남은규칙=str(e)[:80])
+            try: rec["초"] = [round((_t1 or time.time()) - _t0, 1), round(time.time() - (_t1 or time.time()), 1)]
+            except Exception: pass
             st[k] = rec; done += 1
             open(busy, "w", encoding="utf-8").write(time.strftime("%Y-%m-%d %H:%M:%S"))
-            print(f"[{i + 1}/{len(todo)}] {k} {rec.get('판정')} {rec.get('점수', '')} {rec.get('남은규칙', '')[:50]}", flush=True)
+            print(f"[{i + 1}/{len(todo)}] {k} {rec.get('판정')} {rec.get('점수', '')} {rec.get('남은규칙', '')[:50]} · 읽기 {rec.get('초', ['?'])[0]}초 변환 {rec.get('초', ['?', '?'])[1]}초", flush=True)
             if done % 20 == 0:
                 json.dump(st, open(os.path.join(OUT, "상태.json"), "w", encoding="utf-8"), ensure_ascii=False)
             if done % 200 == 0:   # 끝까지 도는 동안에도 검수표·예외함을 새로 써서 클로드가 중간에 묶음으로 볼 수 있게

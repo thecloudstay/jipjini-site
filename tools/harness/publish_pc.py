@@ -51,8 +51,11 @@ def main(cdir, listf):
                 '외곽': None, '치수줄': None, '기구': G.pop('기구', None), '그림': {kk: vv for kk, vv in G.items() if kk not in ('점검',)}}
         pf = os.path.join(PL, code + '.json')
         P = json.load(open(pf, encoding='utf-8')) if os.path.exists(pf) else {'단지': a.get('단지명') or code, '평형': []}
-        if any(t['이름'] == name for t in P['평형']):
-            continue                                   # 이미 열린 평형은 그대로(다시 그리기는 apply.py)
+        old_i = [i for i, t in enumerate(P['평형']) if t['이름'] == name]
+        if old_i:   # 2026-11-13 하네스 약속 1: 이미 열린 평형도 새 판으로 다시 통과하면 바꿔 끼운다(같은 판이면 그대로)
+            if str(v.get('판') or '') and str(v.get('판')) in str(P['평형'][old_i[0]].get('출처', '')):
+                continue
+            P['평형'].pop(old_i[0]); replaced = globals().setdefault('_REPL', [0]); replaced[0] += 1
         P['평형'].append({'이름': name, '전용': area, '점수': round(float(v['점수'])), 'plan': plan, '출처': '컴퓨터 일괄 변환 ' + str(v.get('판') or '')})
         P['평형'].sort(key=lambda t: t.get('전용') or 0)
         json.dump(P, open(pf, 'w', encoding='utf-8'), ensure_ascii=False, separators=(',', ':')); added += 1
@@ -63,7 +66,7 @@ def main(cdir, listf):
     lf = os.path.join(PL, 'opened.json'); log = json.load(open(lf, encoding='utf-8')) if os.path.exists(lf) else []
     day = time.strftime('%Y-%m-%d'); log = [x for x in log if x['날'] != day] + [{'날': day, '단지': len(codes), '평형': nt}]
     json.dump(sorted(log, key=lambda x: x['날']), open(lf, 'w', encoding='utf-8'), ensure_ascii=False)
-    print('새로 연 평형', added, '· 건너뜀', skipped, '· 열린 단지', len(codes), '· 열린 평형', nt)
+    print('새로 연·새 판으로 바꾼 평형', added, '(그중 바꿔 끼움 %d)' % globals().get('_REPL', [0])[0], '· 건너뜀', skipped, '· 열린 단지', len(codes), '· 열린 평형', nt)
     return added
 
 
