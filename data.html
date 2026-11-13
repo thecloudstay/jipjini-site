@@ -14,7 +14,7 @@
 <meta property="og:image" content="https://jipjini.com/og-cover.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/home/home.css?v=20261113i">
+<link rel="stylesheet" href="assets/home/home.css?v=20261113j">
 <link rel="stylesheet" href="assets/home/data.css?v=20261113a">
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-35EM7T3M9W"></script>
 <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());(function(){try{if(localStorage.getItem('jj_staff'))window['ga-disable-G-35EM7T3M9W']=true}catch(e){}})();gtag('config','G-35EM7T3M9W');</script>
@@ -49,9 +49,10 @@
   <dl class="dnum">
     <div><dt>단지 기본자료</dt><dd id="dAll">10,244</dd></div>
     <div><dt>모은 평면도</dt><dd>8,311</dd></div>
-    <div><dt>도면·물량이 열린 평형 · 매일 늘어남</dt><dd id="dOpen">79</dd></div>
+    <div><dt>도면·물량이 열린 평형 · 매일 늘어남</dt><dd id="dOpen" data-live="types">79</dd></div>
     <div><dt>물량 산출 공종</dt><dd>17</dd></div>
   </dl>
+  <div class="lv"><p><b>도면 완성률 <span data-live="pct">11.3</span>%</b><span class="lvm">평면을 확보한 <span data-live="have">692</span>단지 중 <span data-live="open">78</span>단지 도면 열림 · 오늘 새로 연 평형 <span data-live="today">26</span>개 · <span data-live="date">11월 13일</span> 기준</span></p><div class="lvt" role="progressbar" aria-label="도면 완성률" aria-valuemin="0" aria-valuemax="100"><i data-live-bar="pct" style="width:11.3%"></i></div></div>
   <p class="note">수도권(서울·경기·인천) 기준, 2026년 11월 13일. 평면도 수는 원본 보관 수이고, 판매하는 것은 집지니가 다시 그린 도면과 계산한 숫자입니다.</p>
 </section>
 
@@ -61,10 +62,10 @@
   <div class="dt">
     <div class="row"><span class="no">01</span><h3>단지·평형 표준 물량표<small>엑셀 · CSV</small></h3>
       <p class="what">평형마다 방별 바닥 면적, 벽 면적, 걸레받이 길이, 문·창 개수, 욕실 타일 면적. 도배·바닥재·타일·조명 물량을 집마다 재지 않고 바로 셉니다.</p>
-      <p class="spec"><b id="d1">79</b><span>개 평형 공개 · 매일 늘어남</span><span class="tag">지금 판매</span></p></div>
+      <p class="spec"><b id="d1" data-live="types">79</b><span>개 평형 공개 · 매일 늘어남</span><span class="tag">지금 판매</span></p></div>
     <div class="row"><span class="no">02</span><h3>평형별 캐드 도면<small>오토캐드(DWG) · DXF · PDF</small></h3>
       <p class="what">벽·문·창·방·치수를 층으로 나눈 집지니 재작도 도면. 가구·가전 배치 검토, 이사·청소 견적, 리모델링 설계 밑그림에 그대로 씁니다. <em>원본 평면도 그림은 드리지 않습니다.</em></p>
-      <p class="spec"><b id="d2">79</b><span>개 평형 · 01과 같은 범위</span><span class="tag">지금 판매</span></p></div>
+      <p class="spec"><b id="d2" data-live="types">79</b><span>개 평형 · 01과 같은 범위</span><span class="tag">지금 판매</span></p></div>
     <div class="row"><span class="no">03</span><h3>수도권 단지 기본자료 결합본<small>CSV · 연동창구</small></h3>
       <p class="what">단지 위치·세대수·동수·준공 연도·난방·관리 방식에 건축물대장(구조·층수·연면적)을 붙여 한 줄로 정리한 단지 대장. 공공 자료를 단지 코드로 맞춰 묶고 오류를 걸러 냈습니다.</p>
       <p class="spec"><b>10,244</b><span>개 단지 · 건축물대장 결합 진행 중</span><span class="tag">지금 판매</span></p></div>
@@ -263,5 +264,6 @@ GET /v1/complex/A40772202/types/111B/takeoff
   });
 })();
 </script>
+<script src="assets/live_stats.js?v=20261113a" defer></script>
 </body>
 </html>

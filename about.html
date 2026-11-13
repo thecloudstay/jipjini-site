@@ -94,7 +94,7 @@
     <h1>집지니는 인테리어 데이터 솔루션 기업입니다</h1>
     <p class="jj-id-lead">인테리어 값이 집마다 들쭉날쭉한 이유는 자료가 없어서입니다. 저희는 아파트 평면도를 캐드 도면으로 바꾸고, 그 도면에서 공정별 물량을 셈하고, 공사하면서 나온 단가와 기록을 다시 쌓습니다. 견적·발주·시공 관리는 모두 이 자료 위에서 돌아갑니다.</p>
     <table class="jj-id-t">
-      <tr><th>도면</th><td>수도권 아파트 단지·평형별 평면도를 캐드 도면으로 바꿉니다. 지도에 올린 단지 10,242곳.</td></tr>
+      <tr><th>도면</th><td>수도권 아파트 단지·평형별 평면도를 캐드 도면으로 바꿉니다. 지도에 올린 단지 <span data-live="all">10,242</span>곳, 도면이 열린 단지 <span data-live="open">78</span>곳(평형 <span data-live="types">79</span>개, 매일 늘어남).</td></tr>
       <tr><th>물량</th><td>도면에서 바닥·벽·타일·도배·조명 물량을 공정별로 셈해 적산표로 만듭니다.</td></tr>
       <tr><th>공사 기록</th><td>실제 계약 단가, 공정표, 현장 사진을 집마다 남겨 다음 견적의 근거로 씁니다.</td></tr>
     </table>
@@ -257,5 +257,6 @@ var bar=document.createElement("div");bar.className="jj-where";bar.innerHTML='<a
 var hdr=document.querySelector("header, .site-header, nav.site-nav, .navbar, .nav");if(hdr)hdr.insertAdjacentElement("afterend",bar);else document.body.insertBefore(bar,document.body.firstChild);}
 }catch(e){}})();</script><!--/SITENAV-->
 <script src="assets/chatbot.js" defer></script>
+<script src="assets/live_stats.js?v=20261113a" defer></script>
 </body>
 </html>
