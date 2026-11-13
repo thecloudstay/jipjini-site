@@ -27,34 +27,35 @@
 <link rel="stylesheet" href="assets/tour.css?v=20261111y">
 <style>
 .st h3{font-family:'Noto Serif KR',serif;font-weight:500;font-size:20px;margin:2.2em 0 .6em;text-align:left}
-.st .gl th{font-weight:500;color:#6B6B6B;font-size:13px;text-align:left;padding:9px 14px 9px 0;border-bottom:1px solid #2A2A2A}
-.st .gl td{padding:13px 14px 13px 0;border-bottom:1px solid #C8C4BC;vertical-align:top;line-height:1.7;font-size:15px}
+.st .gl th{font-weight:500;color:#6B7067;font-size:13px;text-align:left;padding:9px 14px 9px 0;border-bottom:1px solid #1C1F1B}
+.st .gl td{padding:13px 14px 13px 0;border-bottom:1px solid #DCDFD8;vertical-align:top;line-height:1.7;font-size:15px}
 .st .gl td:first-child{width:150px;font-weight:600;white-space:nowrap}
-.st .gl td:last-child{width:34%;color:#4F4F4F;font-size:14px}
-.st .toc{display:flex;flex-wrap:wrap;gap:8px 20px;font-size:14.5px;margin:18px 0 0;padding:14px 0;border-top:1px solid #C8C4BC;border-bottom:1px solid #C8C4BC}
-.st .toc a{color:#2A2A2A;text-underline-offset:3px}
-.st .ord th{width:36px;font-family:'Noto Serif KR',serif;font-weight:500;color:#33491C;text-align:left;padding:11px 0;border-bottom:1px solid #C8C4BC}
-.st .ord td{padding:11px 14px 11px 0;border-bottom:1px solid #C8C4BC;line-height:1.7}
+.st .gl td:last-child{width:34%;color:#4E534B;font-size:14px}
+.st .toc{display:flex;flex-wrap:wrap;gap:8px 20px;font-size:14.5px;margin:18px 0 0;padding:14px 0;border-top:1px solid #DCDFD8;border-bottom:1px solid #DCDFD8}
+.st .toc a{color:#1C1F1B;text-underline-offset:3px}
+.st .ord th{width:36px;font-family:'Noto Serif KR',serif;font-weight:500;color:#1F5E2E;text-align:left;padding:11px 0;border-bottom:1px solid #DCDFD8}
+.st .ord td{padding:11px 14px 11px 0;border-bottom:1px solid #DCDFD8;line-height:1.7}
 .st .ord td:nth-child(2){width:170px;font-weight:600}
-.st .blk{border-top:2px solid #2A2A2A;margin-top:56px;padding-top:26px}
+.st .blk{border-top:2px solid #1C1F1B;margin-top:56px;padding-top:26px}
 .st .blk>h2{font-size:26px}
-.st .blk>p{max-width:40em;font-size:15.5px;line-height:1.85;margin:.9em 0 0;color:#3D3D3D}
-.st .use{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:36px;padding:30px 0;border-bottom:1px solid #C8C4BC;align-items:start}
+.st .blk>p{max-width:40em;font-size:15.5px;line-height:1.85;margin:.9em 0 0;color:#2E322C}
+.st .use{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:36px;padding:30px 0;border-bottom:1px solid #DCDFD8;align-items:start}
 .st .use h3{margin:.2em 0 .5em}
-.st .use p{font-size:15px;line-height:1.85;margin:0 0 .9em;color:#3D3D3D}
-.st .use img{width:100%;border:1px solid #2A2A2A;display:block}
-.st .use figure{margin:0}.st .use figcaption{font-size:12.5px;color:#6B6B6B;margin-top:8px}
-.st .no{font-family:'Noto Serif KR',serif;font-size:28px;color:#33491C;margin:0;line-height:1}
+.st .use p{font-size:15px;line-height:1.85;margin:0 0 .9em;color:#2E322C}
+.st .use img{width:100%;border:1px solid #1C1F1B;display:block}
+.st .use figure{margin:0}.st .use figcaption{font-size:12.5px;color:#6B7067;margin-top:8px}
+.st .no{font-family:'Noto Serif KR',serif;font-size:28px;color:#1F5E2E;margin:0;line-height:1}
 @media(max-width:860px){.st .use{grid-template-columns:1fr;gap:16px}.st .gl td:first-child{width:96px;white-space:normal}.st .gl th:last-child,.st .gl td:last-child{display:none}.st .ord td:nth-child(2){width:110px}}
 </style>
 <meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="css/new.css?v=20261113b">
 </head>
 <body>
 <nav class="nav">
   <a href="index.html" class="logo">
     <div class="logo-box">집</div>
     <span class="logo-text">집지니</span>
-    <span class="logo-tag">인테리어 프롭테크</span>
+    <span class="logo-tag">인테리어 데이터 솔루션</span>
   </a>
   <button class="nav-toggle" aria-label="메뉴" onclick="document.querySelector('.nav-menu').classList.toggle('open')"><i class="ti ti-menu-2"></i></button>
   <div class="nav-menu">
@@ -114,7 +115,7 @@
     <h2>공사는 이 순서로 갑니다</h2>
     <p>순서가 바뀌면 한 일을 다시 뜯게 됩니다. 물 쓰는 일과 먼지 나는 일을 먼저 하고, 겉을 입히는 일을 뒤에 합니다.</p>
     <table class="ord" style="margin-top:18px"><tr><th>1</th><td>철거</td><td>뜯어내기, 폐기물 반출</td></tr><tr><th>2</th><td>설비</td><td>수도·배수·난방 배관</td></tr><tr><th>3</th><td>전기 배선</td><td>선을 먼저 끌어 둠</td></tr><tr><th>4</th><td>목공</td><td>가벽, 천장, 문틀, 몰딩</td></tr><tr><th>5</th><td>욕실 방수·조적</td><td>방수 뒤 물 채워 확인</td></tr><tr><th>6</th><td>타일</td><td>욕실, 주방 벽, 현관, 발코니</td></tr><tr><th>7</th><td>욕실 천장·기구</td><td>천장, 도기, 수전</td></tr><tr><th>8</th><td>필름</td><td>문, 문틀, 가구 겉</td></tr><tr><th>9</th><td>도장</td><td>발코니, 천장</td></tr><tr><th>10</th><td>도배</td><td>초배 뒤 벽지</td></tr><tr><th>11</th><td>바닥</td><td>마루, 장판</td></tr><tr><th>12</th><td>조명·스위치</td><td>등기구, 콘센트 달기</td></tr><tr><th>13</th><td>가구</td><td>싱크대, 붙박이장</td></tr><tr><th>14</th><td>청소·점검</td><td>준공 청소, 하자 확인</td></tr></table>
-    <p style="font-size:13.5px;color:#6B6B6B">집에 따라 빠지는 단계가 있고, 샷시 교체는 철거 직후에 들어갑니다.</p>
+    <p style="font-size:13.5px;color:#6B7067">집에 따라 빠지는 단계가 있고, 샷시 교체는 철거 직후에 들어갑니다.</p>
   </section>
 
   <section class="blk" id="words">

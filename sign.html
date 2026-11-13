@@ -20,9 +20,9 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.34.0/dist/tabler-icons.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" defer></script>
 <style>
-:root { --jp-dark:#33491C; --jp-oatmeal:#F5F1E8; --jp-line:#C8C4BC; --jp-gray:#6B6B6B; --jp-red:#E74C3C; }
+:root { --jp-dark:#1F5E2E; --jp-oatmeal:#FFFFFF; --jp-line:#DCDFD8; --jp-gray:#6B7067; --jp-red:#E74C3C; }
 * { box-sizing: border-box; }
-body { font-family: Pretendard, -apple-system, sans-serif; background: var(--jp-oatmeal); color: #2A2A2A; margin: 0; padding: 24px 16px 80px; }
+body { font-family: Pretendard, -apple-system, sans-serif; background: var(--jp-oatmeal); color: #1C1F1B; margin: 0; padding: 24px 16px 80px; }
 .wrap { max-width: 720px; margin: 0 auto; }
 .hero { text-align: center; padding: 24px 0; }
 .eyebrow { font-size: 11px; letter-spacing: 0.3em; color: var(--jp-gray); }
@@ -32,7 +32,7 @@ h1 { font-size: 26px; font-weight: 800; margin: 8px 0; }
 .summary table { width: 100%; border-collapse: collapse; }
 .summary th { text-align: left; padding: 6px 10px; font-size: 13px; color: var(--jp-gray); width: 35%; font-weight: 500; }
 .summary td { padding: 6px 10px; font-size: 14px; }
-.notice { background: #fffbeb; border-left: 4px solid #f59e0b; padding: 12px 16px; border-radius: 6px; font-size: 13px; line-height: 1.7; margin: 12px 0; }
+.notice { background: #F3F5F0; border-left: 4px solid #1F5E2E; padding: 12px 16px; border-radius: 6px; font-size: 13px; line-height: 1.7; margin: 12px 0; }
 .agree-box { background: #fff; border: 1px solid var(--jp-line); border-radius: 12px; padding: 20px 24px; margin-bottom: 20px; }
 .agree-box label { display: flex; align-items: flex-start; gap: 10px; padding: 8px 0; cursor: pointer; font-size: 14px; line-height: 1.6; }
 .agree-box input[type="checkbox"] { width: 18px; height: 18px; margin-top: 2px; accent-color: var(--jp-dark); }
@@ -42,10 +42,10 @@ h1 { font-size: 26px; font-weight: 800; margin: 8px 0; }
 canvas { display: block; width: 100%; height: 200px; background: #fafaf5; border: 1px dashed var(--jp-line); border-radius: 8px; cursor: crosshair; touch-action: none; }
 .canvas-btns { display: flex; gap: 8px; margin-top: 10px; }
 .btn-clear { padding: 8px 16px; background: #fff; border: 1px solid var(--jp-line); border-radius: 6px; cursor: pointer; font-size: 13px; }
-.btn-clear:hover { background: #f5f1e8; }
+.btn-clear:hover { background: #FFFFFF; }
 .submit-btn { width: 100%; padding: 16px; background: var(--jp-dark); color: #fff; border: none; border-radius: 10px; font-size: 16px; font-weight: 700; cursor: pointer; }
 .submit-btn:hover { background: #0f3a20; }
-.submit-btn:disabled { background: #9a9a9a; cursor: not-allowed; }
+.submit-btn:disabled { background: #8E9389; cursor: not-allowed; }
 .success { display: none; text-align: center; background: #fff; border: 2px solid var(--jp-dark); border-radius: 12px; padding: 40px 24px; }
 .success.show { display: block; }
 .error-box { display: none; text-align: center; background: #fff; border: 2px solid var(--jp-red); border-radius: 12px; padding: 30px 24px; margin-bottom: 16px; }
@@ -62,9 +62,9 @@ canvas { display: block; width: 100%; height: 200px; background: #fafaf5; border
 .lines th { color:var(--jp-gray); font-weight:500; font-size:12px; } .lines .r { text-align:right; white-space:nowrap; }
 .lines tr.grp td { background:#f7f3ea; font-weight:700; color:var(--jp-dark); }
 .money { width:100%; border-collapse:collapse; font-size:14px; }
-.money td { padding:8px 4px; border-bottom:1px dashed #e4ddd0; } .money td.r { text-align:right; font-weight:600; white-space:nowrap; }
+.money td { padding:8px 4px; border-bottom:1px dashed #E4E7E1; } .money td.r { text-align:right; font-weight:600; white-space:nowrap; }
 .money tr.tot td { border-top:2px solid var(--jp-dark); border-bottom:none; font-size:16px; font-weight:800; color:var(--jp-dark); }
-.ph { display:flex; justify-content:space-between; gap:10px; font-size:13.5px; padding:7px 0; border-bottom:1px dashed #e4ddd0; } .ph:last-child { border-bottom:none; } .ph span { color:var(--jp-gray); white-space:nowrap; }
+.ph { display:flex; justify-content:space-between; gap:10px; font-size:13.5px; padding:7px 0; border-bottom:1px dashed #E4E7E1; } .ph:last-child { border-bottom:none; } .ph span { color:var(--jp-gray); white-space:nowrap; }
 .pdfbtn { display:block; text-align:center; padding:12px; border:1.5px solid var(--jp-dark); color:var(--jp-dark); border-radius:10px; font-weight:700; text-decoration:none; margin-bottom:16px; background:#fff; }
 .muted { color:var(--jp-gray); font-size:12.5px; }
 .signed { background:#fff; border:2px solid var(--jp-dark); border-radius:12px; padding:18px 22px; margin-bottom:16px; }
@@ -82,6 +82,7 @@ canvas { display: block; width: 100%; height: 200px; background: #fafaf5; border
 }
 </style>
 <style>body,p,li,td,th,h1,h2,h3,h4,dd,dt,blockquote,figcaption{word-break:keep-all;overflow-wrap:break-word}</style>
+<link rel="stylesheet" href="css/new.css?v=20261113b">
 </head>
 <body>
 <div class="wrap">
@@ -284,7 +285,7 @@ canvas { display: block; width: 100%; height: 200px; background: #fafaf5; border
     canvas.height = rect.height * window.devicePixelRatio;
     ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
     ctx.lineWidth = 2.5;
-    ctx.strokeStyle = '#33491C';
+    ctx.strokeStyle = '#1F5E2E';
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
   }
@@ -314,7 +315,7 @@ canvas { display: block; width: 100%; height: 200px; background: #fafaf5; border
     if (!hasSignature) {
       hasSignature = true;
       document.getElementById('signature-status').textContent = '✓ 서명 입력됨';
-      document.getElementById('signature-status').style.color = '#33491C';
+      document.getElementById('signature-status').style.color = '#1F5E2E';
     }
   }
   function endDraw() { isDrawing = false; }
@@ -338,7 +339,7 @@ canvas { display: block; width: 100%; height: 200px; background: #fafaf5; border
     const node = document.getElementById('main-form'), hint = document.getElementById('save-hint');
     if (typeof html2canvas !== 'function') { hint.textContent = '이 휴대폰에서는 이미지 저장이 안 됩니다 — 「인쇄 · PDF 저장」을 누르거나 화면을 캡처해 주세요.'; return; }
     hint.textContent = '이미지 만드는 중…';
-    html2canvas(node, { scale: 2, backgroundColor: '#F5F1E8', useCORS: true }).then(function (cv) {
+    html2canvas(node, { scale: 2, backgroundColor: '#FFFFFF', useCORS: true }).then(function (cv) {
       const url = cv.toDataURL('image/png'), name = '집지니_계약확인서_' + (quoteId || 'sign') + '.png';
       const a = document.createElement('a'); a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove();
       hint.innerHTML = '저장했습니다. 아이폰에서 안 받아지면 아래 이미지를 길게 눌러 「사진에 저장」 하세요.<br><img src="' + url + '" style="width:100%;margin-top:8px;border:1px solid #ddd;border-radius:8px;">';

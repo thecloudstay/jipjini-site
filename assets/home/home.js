@@ -39,6 +39,7 @@
 
   /* ── 실견적 점그래프: 평형(가로) × 공사비(세로), 점 크기 = 공종 수 ── */
   fetch('data/real-quotes.json').then(function (r) { return r.json(); }).then(function (d) {
+    if (!$('caseChart')) return;
     var C = d.cases.filter(function (c) { return c.total > 5e6 && c.py >= 15; });
     $('nCase').textContent = d.cases.length;
     var full = C.filter(function (c) { return c.sections.length >= 12; }), pp = full.reduce(function (s, c) { return s + c.total / c.py; }, 0) / full.length / 1e4;

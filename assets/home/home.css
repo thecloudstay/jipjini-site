@@ -485,7 +485,7 @@ h2{font-size:clamp(28px,3.2vw,40px);line-height:1.3;letter-spacing:-.8px;font-we
 .ly .v{display:flex;flex-wrap:wrap;gap:6px;padding:11px 0}
 .ly .v span{font-size:12.5px;padding:4px 9px;border:1px solid var(--ink);border-radius:3px;background:#fff}
 .ly .v span.me{background:var(--g);color:#fff;border-color:var(--g);font-weight:600}
-.ly.top{background:var(--gl)}
+.ly.base{background:var(--gl)}
 .cmp table{border-collapse:collapse;width:100%;font-size:13.5px}
 .cmp th{font-size:12px;color:var(--pencil);font-weight:600;text-align:center;padding:0 4px 10px;border-bottom:1.5px solid var(--ink);vertical-align:bottom;line-height:1.35}
 .cmp th.me{color:var(--g);font-size:14px}
@@ -638,3 +638,69 @@ h2{font-size:clamp(28px,3.2vw,40px);line-height:1.3;letter-spacing:-.8px;font-we
 .ford .ov p span{color:var(--ink);font-variant-numeric:tabular-nums}
 .ford .ovh b small{margin-left:8px;font-size:12px;color:var(--g);font-weight:600}
 @media(max-width:560px){.flow{aspect-ratio:1/1}.flow[data-s="6"] .ford,.fqty{width:94%}.fqty{padding:10px 12px 8px;font-size:11.5px}.fqty .qhd b{font-size:14px}.fqty th small{display:none}.fst b{font-size:11px}}
+
+/* 2026-11-13 정체성 꼬리표 · 바닥글 한 줄 · 상담 도우미 카톡 단추 */
+.btag{font-size:12.5px;font-weight:500;color:var(--pencil);letter-spacing:0;margin-left:10px;padding-left:10px;border-left:1px solid var(--rule)}
+@media (max-width:640px){.btag{display:none}}
+.foot .fid{color:var(--ink);margin-bottom:6px}
+.jjc-bt.k{background:#fff!important;color:var(--ink)!important;border-color:var(--ink)!important}
+
+/* 2026-11-13 공사 순서대로 — 단계마다 실제 화면(휴대폰·모니터 틀) */
+.sys .phs{display:block;border-top:0;margin-top:32px}
+.sys .ph2{border-right:0;margin:0;padding:28px 0 36px;border-top:1.5px solid var(--ink)}
+.sys .pt3{display:flex;align-items:baseline;gap:12px}
+.sys .pt3 b{font-size:22px}
+.phb{display:grid;grid-template-columns:5fr 7fr;gap:48px;align-items:start;margin-top:14px}
+.sys .ph2 ol{margin-top:0}
+.sys .ph2 li{display:block;padding:0;border-bottom:1px dashed var(--rule)}
+.phb button{display:grid;grid-template-columns:28px 1fr auto;gap:10px;align-items:center;width:100%;text-align:left;padding:12px 10px 12px 0;border-radius:4px;transition:background .15s}
+.phb button i{font-style:normal;font-size:12px;font-weight:700;color:#fff;background:var(--ink);width:24px;height:24px;border-radius:50%;display:grid;place-items:center}
+.phb button b{font-size:15.5px;font-weight:600;line-height:1.45}
+.phb button em{font-style:normal;font-size:12px;font-weight:600;color:var(--g)}
+.phb button:hover{background:var(--grid)}
+.phb button.on{background:var(--gl)}
+.phb button.on i{background:var(--g)}
+.phb button.on b{color:var(--gd)}
+.dev{margin:0;position:sticky;top:88px;display:flex;flex-direction:column;align-items:center;min-height:620px}
+.dv{width:100%;display:flex;justify-content:center}
+.dscr{background:#fff;overflow-y:auto;overflow-x:hidden;border:10px solid var(--ink);scrollbar-width:thin}
+.dscr img{width:100%;display:block}
+.dv.m .dscr{width:300px;height:580px;border-radius:34px}
+.dv.d .dscr{width:100%;max-width:620px;aspect-ratio:2040/1230;border-radius:8px;border-width:9px}
+.dv.d{flex-direction:column;align-items:center}
+.dv.d::after{content:'';display:block;width:120px;height:14px;background:var(--ink);clip-path:polygon(18% 0,82% 0,100% 100%,0 100%);margin-top:-1px}
+.dv.x .dscr{width:300px;height:220px;border-radius:8px;border:1.5px dashed var(--rule);display:grid;place-items:center;padding:24px}
+.dx{font-size:14.5px;color:var(--pencil);line-height:1.75;text-align:center}
+.dv.in .dscr{animation:dvin .35s ease-out}
+@keyframes dvin{from{opacity:.25;transform:translateY(6px)}to{opacity:1;transform:none}}
+.dev figcaption{margin-top:14px;font-size:14px;color:var(--ink);text-align:center;max-width:30em;min-height:3em}
+@media (max-width:860px){
+  .phb{grid-template-columns:1fr;gap:20px}
+  .dev{position:static;min-height:0;order:-1}
+  .dv.m .dscr{width:260px;height:470px}
+}
+@media (max-width:860px){
+  .phb{display:flex;flex-direction:column}
+  .phb ol{display:flex;gap:8px;overflow-x:auto;padding-bottom:6px;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch}
+  .sys .ph2 li{border:0;flex:0 0 auto;scroll-snap-align:start}
+  .phb button{grid-template-columns:22px auto;padding:9px 12px;border:1px solid var(--rule);white-space:nowrap}
+  .phb button em{display:none}
+  .phb button b{font-size:14px}
+  .phb button i{width:20px;height:20px;font-size:11px}
+  .phb button.on{border-color:var(--g)}
+  .dev{order:0}
+}
+
+/* 2026-11-13 첫 화면 정체성: 회사 한 줄 + 다섯 제품 */
+.hk{font-size:15px;font-weight:500;color:var(--g);margin-bottom:18px;display:flex;align-items:center;gap:10px}
+.hk::before{content:'';width:28px;height:1.5px;background:var(--g)}
+.hk b{font-weight:700}
+.hstk{display:flex;flex-direction:column;gap:10px;margin-top:22px;padding-top:18px;border-top:1px solid var(--rule)}
+.hstk-l{font-size:13px;color:var(--pencil)}
+.hstk-v{display:flex;flex-wrap:wrap;gap:6px}
+.hstk-v b{font-size:13.5px;font-weight:600;padding:5px 11px;border:1.5px solid var(--ink);border-radius:4px;letter-spacing:.2px;background:#fff;transition:background .15s,color .15s}
+.hstk:hover .hstk-v b{background:var(--ink);color:#fff}
+/* 2026-11-13 휴대폰: 단계 가로 줄이 쪽 너비를 밀어 화면이 옆으로 길어지던 것 막음 */
+.sys,.sys .phs,.sys .ph2,.phb,.phb>*{min-width:0;max-width:100%}
+@media (max-width:860px){.phb ol{width:100%}.dev{width:100%}}
+.phb button i{grid-row:auto!important;margin:0!important}
