@@ -22,7 +22,7 @@
 <meta name="twitter:image" content="https://jipjini.com/og-cover.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/home/home.css?v=20261113e">
+<link rel="stylesheet" href="assets/home/home.css?v=20261113f">
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-35EM7T3M9W"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
@@ -51,6 +51,7 @@
 <!-- 첫 화면: 문구 + 다시 그린 실제 도면 위의 치수선 -->
 <section class="hero">
   <div class="hc">
+    <p class="hk">인테리어 데이터 솔루션 기업 <b>집지니</b></p>
     <h1>인테리어 비용,<br>지금 바로 30% 낮춰 드립니다.</h1>
     <p class="hs">평수로 어림잡은 견적 대신, 우리 집 도면에서 센 견적. 같은 자재와 같은 기술자로 업체가 얹던 몫만 뺍니다.</p>
     <div class="hb">
@@ -62,6 +63,7 @@
       <div><dt>견적서 받기까지</dt><dd>24<small>시간</small></dd></div>
       <div><dt>단가 공개</dt><dd>100<small>%</small></dd></div>
     </dl>
+    <a class="hstk" href="#suite"><span class="hstk-l">집지니가 직접 만들어 쓰는 제품</span><span class="hstk-v"><b>DB</b><b>CAD</b><b>자동적산기</b><b>ERP</b><b>CRM</b></span></a>
   </div>
   <figure class="hp">
     <div class="sheet flow" id="heroFlow" data-s="1" aria-live="polite"><p class="ftag"></p><div class="fsvg"></div><div class="fqty"></div><div class="ford"></div></div>
@@ -262,7 +264,7 @@
 <!-- 공사 순서대로 쓰이는 시스템 -->
 <section class="sys" id="sys">
   <h2>공사 순서대로, 시스템이 이렇게 붙습니다</h2>
-  <p class="sub">처음 알아볼 때부터 입주 뒤 A/S까지, 단계마다 어느 제품이 일하는지 보여 드립니다.</p>
+  <p class="sub">처음 알아볼 때부터 입주 뒤 A/S까지, 단계마다 집지니의 다섯 제품(DB·CAD·자동적산기·ERP·CRM) 가운데 어느 것이 일하는지 보여 드립니다.</p>
   <div class="phs">
     <div class="ph2"><p class="pt3"><b>공사 전</b><span>알아보기부터 계약까지</span></p><div class="phb"><ol>
       <li><button type="button" data-s="assets/home/cap/db-map.jpg" data-k="d" data-c="지도에서 우리 단지를 고르면 평형별 평면도가 나옵니다."><i>1</i><b>단지 찾기</b><em>DB</em></button></li>
@@ -394,7 +396,7 @@
     <div class="ly"><div class="k">현장<small>시공 관리</small></div><div class="v"><span class="me">공정별 작업지시서</span><span class="me">공정표·사진</span><span class="me">알림톡 6종</span><span class="me">노무비 청구·지급</span></div></div>
     <div class="ly"><div class="k">거래<small>견적·계약·돈</small></div><div class="v"><span class="me">자동 견적·자가 점검</span><span class="me">단가 근거 공개</span><span class="me">전자 계약</span><span class="me">입금·정산 장부</span><span>자재 수수료 주문</span></div></div>
     <div class="ly"><div class="k">설계<small>도면·물량</small></div><div class="v"><span class="me">집지니 CAD</span><span class="me">오토캐드 파일 읽고 쓰기</span><span class="me">물량 자동 산출 17공종</span><span class="me">공법 선택</span></div></div>
-    <div class="ly top"><div class="k">데이터<small>바닥</small></div><div class="v"><span class="me">수도권 10,242단지</span><span class="me">평면도 6,768장 수집</span><span class="me">도면 자동 변환·채점</span><span class="me">자가 학습 고리</span><span class="me">실견적 공개 14건</span></div></div>
+    <div class="ly base"><div class="k">데이터<small>바닥</small></div><div class="v"><span class="me">수도권 10,242단지</span><span class="me">평면도 6,768장 수집</span><span class="me">도면 자동 변환·채점</span><span class="me">자가 학습 고리</span></div></div>
   
     </div>
     <div class="cmp"><h3>흔한 인테리어 서비스와 비교</h3><p class="cap0">● 있음 ◐ 일부 ○ 없음 · 일반적인 경우 기준</p>
@@ -414,18 +416,6 @@
       </tbody>
     </table>
     </div>
-  </div>
-</section>
-
-<!-- 실견적 -->
-<section class="effect" id="effect">
-  <div class="proof">
-    <div>
-      <h2>실제 견적 <span id="nCase">14</span>건, 그대로 공개합니다</h2>
-      <p class="sub" id="caseCap">평형별 공사비, 공급가, 부가세 별도</p>
-      <a class="lnk" href="cases/">견적서 전부 보기</a>
-    </div>
-    <div class="chart" id="caseChart"></div>
   </div>
 </section>
 
@@ -479,7 +469,7 @@
         <li><b>다음:</b> 지금 무료 흐름 완성 → 3~6개월 업체 구독 → 내년 단지별 표준 물량 자료</li>
       </ul>
       <div class="irb">
-        <a class="btn" href="mailto:thecloudstay@gmail.com?subject=%EC%A7%91%EC%A7%80%EB%8B%88%20IR%20%EC%9E%90%EB%A3%8C%20%EC%9A%94%EC%B2%AD">IR 자료 요청하기</a>
+        <a class="btn" href="files/jipjini-ir.pdf?v=20261113" download="집지니_IR.pdf">IR 자료 받기 (PDF)</a>
         <a class="btn ghost" href="https://pf.kakao.com/_NjpxhC/chat" target="_blank" rel="noopener">카톡으로 문의</a>
       </div>
     </div>
@@ -531,7 +521,7 @@
 
 <script src="assets/site_config.js"></script>
 <script src="assets/home/sys.js?v=20261113b"></script>
-<script src="assets/home/home.js?v=20261112v"></script>
+<script src="assets/home/home.js?v=20261113a"></script>
 <script src="assets/home/flow.js?v=20261113b" defer></script>
 <script src="assets/home/estim.js?v=20261112v"></script>
 <script src="assets/chatbot.js" defer></script>
