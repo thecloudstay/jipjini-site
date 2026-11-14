@@ -84,7 +84,36 @@ def fix_R10(G, mm, img, plan=None):
         else:
             sg = -1 if hx > mx else 1; G['문'].append({'x1': int(mx), 'y1': int(y0), 'x2': int(mx), 'y2': int(y1), 'cx': int(mx + sg*L), 'cy': int(y0)})
     G['샷시'] = keep; return G
-FIXERS = [('R9', fix_R9), ('R2', fix_R2), ('R3', fix_R3), ('R4', fix_R4), ('R10', fix_R10)]
+def fix_R1(G, mm, img, plan=None):
+    """2026-11-14 보류 분석: 외벽 닫힘(R1)이 걸린 자리의 70%가 발코니·대피공간·실외기실·기타 — 바깥 끝을 난간·가는 창선·사선으로 그린 양식이라 벽이 끊겨 바깥이 샌다.
+    R1 이 걸린 바깥쪽 칸만, 그 칸 테두리에서 벽·창·문이 없는 틈(250mm 넘는 것)에 얇은 벽(100mm)을 대어 막는다. 거실·방 같은 실내 칸은 손대지 않는다."""
+    if not plan:
+        return G
+    import plan_check
+    H, W = (img.shape[:2] if img is not None else (plan['H'], plan['W']))
+    names = set(x[1] for x in plan_check.rules(img, dict(plan, 그림=G)) if x[0] == 'R1')
+    OUTK = ('발코니', '대피공간', '실외기실', '기타', '테라스', '다용도실')
+    rooms = [r for r in plan.get('rooms', []) if r.get('name') in names and (r.get('kind') in OUTK or any(k in str(r.get('name')) for k in OUTK)) and len(r.get('pts') or []) >= 3]
+    if not rooms:
+        return G
+    m = cv2.dilate(plan_check._struct(G, mm, H, W), np.ones((7, 7), np.uint8)) > 0
+    add = list(G.get('사선벽') or [])
+    for r in rooms:
+        P = r['pts']
+        for i in range(len(P)):
+            (x1, y1), (x2, y2) = P[i], P[(i + 1) % len(P)]
+            L = ((x2 - x1) ** 2 + (y2 - y1) ** 2) ** 0.5
+            if L * mm < 300: continue
+            n = max(4, int(L / 3)); run = None
+            for t in range(n + 2):   # 테두리를 따라가며 벽·창·문이 없는 구간(250mm 넘는 틈)만 막는다
+                x = int(round(x1 + (x2 - x1) * min(t, n) / n)); y = int(round(y1 + (y2 - y1) * min(t, n) / n))
+                gap = t <= n and not (0 <= x < W and 0 <= y < H and m[y, x])
+                if gap and run is None: run = (x, y)
+                if not gap and run is not None:
+                    if ((x - run[0]) ** 2 + (y - run[1]) ** 2) ** 0.5 * mm >= 250: add.append([int(run[0]), int(run[1]), int(x), int(y), 100])
+                    run = None
+    G['사선벽'] = add; return G
+FIXERS = [('R9', fix_R9), ('R2', fix_R2), ('R3', fix_R3), ('R4', fix_R4), ('R10', fix_R10), ('R1', fix_R1)]
 
 def weight(chk):
     W = {'R5': 10, 'R10': 10, 'R9': 5, 'R1': 5, 'R12': 2, 'R6': 3, 'R2': 2, 'R3': 2, 'R4': 2, 'R15': 2, 'R16': 5, 'R17': 3}
