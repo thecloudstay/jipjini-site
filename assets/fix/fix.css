@@ -1,0 +1,102 @@
+/* 집지니 수리 도구(누수 복구 견적·경매 수리비·견적서 비교) 공통 모양 — 홈페이지 문서 양식 그대로 */
+:root{--ink:#1C1F1B;--pen:#6B7067;--rule:#DCDFD8;--g:#1F5E2E;--gl:#EEF3EC;--warn:#9A3B1E;--wl:#F7ECE6;--paper:#fff}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:'IBM Plex Sans KR',Pretendard,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;font-size:15.5px;line-height:1.75;word-break:keep-all;overflow-wrap:break-word}
+main{max-width:760px;margin:0 auto;padding:28px 16px 96px}
+a{color:var(--g)}
+.top{display:flex;justify-content:space-between;align-items:center;font-size:14px;margin-bottom:28px}
+.top .logo{font-weight:600;letter-spacing:.5px;text-decoration:none;color:var(--g)}
+.top nav a{margin-left:14px;color:var(--pen);text-decoration:none}
+.top nav a[aria-current]{color:var(--ink);font-weight:600}
+h1{font-size:27px;font-weight:600;line-height:1.35;margin:0 0 8px}
+.lead{color:var(--pen);margin:0 0 26px;font-size:15px}
+h2{font-size:17px;font-weight:600;margin:34px 0 10px;padding-bottom:6px;border-bottom:1px solid var(--rule)}
+h2 .n{color:var(--g);margin-right:6px}
+label.f{display:block;font-size:13.5px;color:var(--pen);margin:14px 0 5px}
+input[type=text],input[type=number],input[type=tel],select,textarea{width:100%;font:inherit;font-size:16px;padding:10px 12px;border:1px solid var(--rule);border-radius:4px;background:#fff;color:var(--ink)}
+textarea{min-height:150px;line-height:1.6}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--g);outline-offset:1px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+.chip{font:inherit;font-size:14.5px;padding:7px 13px;border:1px solid var(--rule);border-radius:4px;background:#fff;color:var(--ink);cursor:pointer}
+.chip[aria-pressed=true]{border-color:var(--g);background:var(--gl);color:var(--g);font-weight:600}
+.chip:focus-visible{outline:2px solid var(--g);outline-offset:1px}
+.hint{font-size:13px;color:var(--pen);margin:6px 0 0}
+.find{position:relative}
+.find ul{list-style:none;margin:0;padding:0;position:absolute;left:0;right:0;top:100%;background:#fff;border:1px solid var(--rule);border-top:0;max-height:300px;overflow:auto;z-index:5}
+.find li button{display:block;width:100%;text-align:left;font:inherit;font-size:14.5px;padding:9px 12px;border:0;border-bottom:1px solid var(--rule);background:#fff;cursor:pointer;color:var(--ink)}
+.find li button:hover,.find li button:focus{background:var(--gl)}
+.find li small{color:var(--pen);margin-left:6px}
+.picked{margin-top:8px;font-size:14px;color:var(--pen)}
+.picked b{color:var(--ink);font-weight:600}
+table.rooms{width:100%;border-collapse:collapse;font-size:14.5px;margin-top:8px}
+table.rooms td,table.rooms th{border-bottom:1px solid var(--rule);padding:8px 4px;text-align:left;vertical-align:middle}
+table.rooms th{color:var(--pen);font-weight:500;font-size:13px}
+table.rooms td.a{color:var(--pen);font-variant-numeric:tabular-nums;white-space:nowrap}
+table.rooms .chips{margin:0;gap:6px}
+table.rooms .chip{padding:4px 10px;font-size:13.5px}
+.btn{display:inline-block;font:inherit;font-weight:600;font-size:15.5px;padding:12px 18px;border-radius:4px;border:1px solid var(--g);background:var(--g);color:#fff;cursor:pointer;text-decoration:none}
+.btn.line{background:#fff;color:var(--g)}
+.btn:disabled{opacity:.55;cursor:default}
+.btns{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
+/* 결과 */
+.res{margin-top:36px;border-top:2px solid var(--ink);padding-top:18px}
+.res[hidden]{display:none}
+.total{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.total .big{font-size:34px;font-weight:600;color:var(--g);font-variant-numeric:tabular-nums;line-height:1.2}
+.total .sub{color:var(--pen);font-size:14px}
+.range{font-size:14px;color:var(--pen);margin-top:2px}
+.bars{margin:18px 0 6px}
+.bar{display:grid;grid-template-columns:96px 1fr 84px;gap:10px;align-items:center;font-size:14px;margin:6px 0}
+.bar .t{height:10px;background:var(--gl);position:relative}
+.bar .t i{position:absolute;left:0;top:0;bottom:0;background:var(--g)}
+.bar .t s{position:absolute;top:-3px;bottom:-3px;border-left:1px solid var(--pen);border-right:1px solid var(--pen);background:rgba(31,94,46,.12);text-decoration:none}
+.bar .v{text-align:right;font-variant-numeric:tabular-nums}
+.facts{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);margin:16px 0}
+.facts div{padding:10px 8px;border-right:1px solid var(--rule)}
+.facts div:last-child{border-right:0}
+.facts b{display:block;font-size:20px;font-weight:600;font-variant-numeric:tabular-nums}
+.facts span{font-size:12.5px;color:var(--pen)}
+table.lines{width:100%;border-collapse:collapse;font-size:14px;margin-top:10px}
+table.lines th,table.lines td{border-bottom:1px solid var(--rule);padding:7px 4px;text-align:left;vertical-align:top}
+table.lines th{color:var(--pen);font-weight:500;font-size:12.5px}
+table.lines td.n,table.lines th.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+table.lines tr.sec td{font-weight:600;padding-top:14px;border-bottom:1px solid var(--ink)}
+table.lines td small{display:block;color:var(--pen);font-size:12.5px}
+.mark{display:inline-block;font-size:12px;font-weight:600;padding:0 6px;border:1px solid currentColor;border-radius:3px;white-space:nowrap}
+.mark.hi{color:var(--warn)}.mark.lo{color:#5a5f8a}.mark.ok{color:var(--g)}.mark.na{color:var(--pen)}
+.flags{list-style:none;padding:0;margin:10px 0}
+.flags li{padding:9px 0 9px 22px;border-bottom:1px solid var(--rule);position:relative;font-size:14.5px}
+.flags li:before{content:'';position:absolute;left:4px;top:17px;width:8px;height:8px;border:1.5px solid var(--warn);border-radius:50%}
+.flags li.good:before{border-color:var(--g);background:var(--g)}
+.note{font-size:13.5px;color:var(--pen);margin:12px 0}
+.ask{margin-top:30px;padding:18px 0 0;border-top:1px solid var(--rule)}
+.ask h3{font-size:16px;font-weight:600;margin:0 0 4px}
+.ok-msg{color:var(--g);font-weight:600;margin-top:10px}
+.err-msg{color:var(--warn);margin-top:10px;font-size:14px}
+.agree{display:flex;gap:8px;align-items:flex-start;font-size:14px;margin-top:12px}
+.agree input{margin-top:5px;width:16px;height:16px}
+.docmeta{display:none}
+footer.fix{max-width:760px;margin:0 auto;padding:22px 16px 40px;border-top:1px solid var(--rule);font-size:12.5px;color:var(--pen)}
+@media (max-width:560px){
+  h1{font-size:23px}
+  .bar{grid-template-columns:78px 1fr 72px;font-size:13px}
+  .total .big{font-size:28px}
+  .facts b{font-size:17px}
+  .top nav a{margin-left:10px}
+  table.lines .hide-s{display:none}
+}
+/* 인쇄(보험 청구·상담용 견적서) */
+@media print{
+  @page{size:A4;margin:14mm 12mm}
+  body{font-size:11.5pt}
+  .top nav,.form,.btns,.ask,.noprint,footer.fix{display:none!important}
+  main{padding:0;max-width:none}
+  .res{margin-top:0;border-top:0;padding-top:0}
+  .docmeta{display:flex;justify-content:space-between;border-bottom:2px solid var(--ink);padding-bottom:8px;margin-bottom:14px;font-size:10pt}
+  .docmeta b{color:var(--g);font-size:13pt}
+  .docfoot{display:block!important;margin-top:18px;border-top:1px solid var(--rule);padding-top:6px;font-size:9pt;color:var(--pen)}
+  table.lines tr{break-inside:avoid}
+}
+.docfoot{display:none}
