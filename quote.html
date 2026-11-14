@@ -38,6 +38,13 @@ summary::after{content:'＋';color:var(--gray)}details[open] summary::after{cont
 .ph .d{min-width:96px;font-size:12.5px;color:var(--clay);font-weight:600;line-height:1.5}
 .ph b{display:block;font-size:14.5px}.ph span{font-size:13px;color:var(--gray)}
 .bar{height:8px;background:var(--oat);border-radius:4px;margin-top:10px;overflow:hidden}.bar i{display:block;height:100%;background:var(--clay)}
+.memo{margin-top:14px;border-top:1px solid var(--line,#DCDFD8)}
+.memo-h{display:flex;align-items:baseline;gap:10px;padding:14px 0 6px}.memo-h b{font-size:16px}.memo-h span{font-size:13px;color:#6B7067}
+.memo-t{margin:0 0 6px;font-size:13.5px;color:#6B7067}
+.memo-s{border-bottom:1px solid var(--line,#DCDFD8)}.memo-s summary{cursor:pointer;list-style:none;padding:13px 2px;font-size:15px;font-weight:600;display:flex;justify-content:space-between;gap:10px}
+.memo-s summary::-webkit-details-marker{display:none}.memo-s summary::after{content:"+";color:#1F5E2E;font-weight:700}.memo-s[open] summary::after{content:"−"}
+.memo-s div{padding:0 2px 14px}.memo-s p{margin:0 0 8px;font-size:14px;line-height:1.8}
+.memo-1{margin:0;padding:12px 2px;border-bottom:1px solid var(--line,#DCDFD8);font-size:14px;line-height:1.7}
 .note{background:var(--oat);border-radius:12px;padding:14px 16px;margin-top:14px;font-size:13.5px;line-height:1.75}
 .note li{margin-left:18px}
 .cta{display:block;text-align:center;margin-top:18px;background:var(--clay);color:#fff;text-decoration:none;font-weight:700;padding:16px;border-radius:12px;font-size:16px}
@@ -135,7 +142,7 @@ summary::after{content:'＋';color:var(--gray)}details[open] summary::after{cont
       else{sch+='<div class="note">담당 기술자·자재상 연락처는 계약 후 이 화면에서 공정별로 안내해 드립니다.</div>'}
     }
     var info='';
-    if(d.memo){info+='<div class="note"><b>📌 특이사항</b><div style="margin-top:6px;line-height:1.7">'+esc(d.memo).replace(/\n/g,'<br>')+'</div></div>'}   // 2026-10-06 코디가 적은 포함·불포함·유효기간
+    if(d.memo){info+=memoHtml(d.memo)}   // 2026-10-06 코디가 적은 포함·불포함·유효기간 · 2026-11-14 대표 「안내사항 너무 장황」 → ■ 단락마다 접어 두고 제목만, 확인할 것만 펼침
     if(d.notes&&d.notes.length){info+='<div class="note"><b>확인해 주세요</b><ul>'+d.notes.map(function(n){return'<li>'+esc(n)+'</li>'}).join('')+'</ul></div>'}
     if(d.buy&&d.buy.length){info+='<div class="note"><b>고객님이 직접 고르시는 품목</b> (시공·설치비만 견적 포함)<ul>'+d.buy.map(function(n){return'<li>'+esc(n)+'</li>'}).join('')+'</ul></div>'}
     info+='<div class="card"><h2>결제 · 책임 구분</h2>'+
@@ -172,6 +179,20 @@ summary::after{content:'＋';color:var(--gray)}details[open] summary::after{cont
     if(l||!rendered)render(merge(s,l));
   }).catch(function(){if(!rendered)fail()});
 })();
+
+function memoHtml(m){
+  var L=String(m).split(/\n/),secs=[],cur=null,title='';
+  L.forEach(function(ln){var t=ln.replace(/\s+$/,'');if(!t.trim())return;
+    var h=t.match(/^\s*【(.+)】\s*$/);if(h&&!secs.length&&!cur){title=h[1];return}
+    var s=t.match(/^\s*■\s*(.+)$/);if(s){var x=s[1],i=x.search(/[:：]/),hd=i>0&&i<34?x.slice(0,i):x.slice(0,30)+(x.length>30?'…':''),bd=i>0&&i<34?x.slice(i+1).trim():(x.length>30?x:'');cur={h:hd.replace(/\(.*$/,'').trim()||hd,b:bd?[bd]:[]};secs.push(cur);return}
+    if(!cur){cur={h:'안내',b:[]};secs.push(cur)}cur.b.push(t.trim())});
+  if(!secs.length)return'';
+  var open=/확인|질문|답변|부탁/;secs=secs.filter(function(x){return open.test(x.h)}).concat(secs.filter(function(x){return!open.test(x.h)}));
+  var h='<div class="memo"><div class="memo-h"><b>안내</b><span>'+secs.length+'가지 · 필요한 것만 눌러 펼쳐 보세요</span></div>'+(title?'<p class="memo-t">'+esc(title)+'</p>':'');
+  secs.forEach(function(x){var body=x.b.map(function(b){return'<p>'+esc(b).replace(/^([①-⑳])/,'<b>$1</b>')+'</p>'}).join('');
+    h+=body?'<details class="memo-s"'+(open.test(x.h)?' open':'')+'><summary>'+esc(x.h)+'</summary><div>'+body+'</div></details>':'<p class="memo-1">'+esc(x.h)+'</p>'});
+  return h+'</div>';
+}
 </script>
 </body>
 </html>
