@@ -103,7 +103,7 @@
     h.push('<defs>' +
       '<pattern id="' + id + 'b" width="' + (D / 60).toFixed(1) + '" height="' + (D / 60).toFixed(1) + '" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="' + (D / 60).toFixed(1) + '" stroke="' + LINE + '" stroke-width="' + (D / 700).toFixed(2) + '"/></pattern>' +
       '<pattern id="' + id + 't" width="' + (D / 45).toFixed(1) + '" height="' + (D / 45).toFixed(1) + '" patternUnits="userSpaceOnUse"><path d="M0 0H' + (D / 45).toFixed(1) + 'M0 0V' + (D / 45).toFixed(1) + '" stroke="#c3d0d4" stroke-width="' + (D / 600).toFixed(2) + '" fill="none"/></pattern>' +
-      '<pattern id="' + id + 'w" width="' + (D / 3.2).toFixed(0) + '" height="' + (D / 5.5).toFixed(0) + '" patternUnits="userSpaceOnUse" patternTransform="rotate(-24)"><text x="0" y="' + (D / 11).toFixed(0) + '" font-size="' + (D / 30).toFixed(1) + '" font-weight="800" fill="' + ACC + '" fill-opacity="0.055" letter-spacing="' + (D / 160).toFixed(1) + '">집지니</text></pattern>' +
+      '<pattern id="' + id + 'w" width="' + (D / 3.2).toFixed(0) + '" height="' + (D / 5.5).toFixed(0) + '" patternUnits="userSpaceOnUse" patternTransform="rotate(-24)"><text x="0" y="' + (D / 11).toFixed(0) + '" font-size="' + (D / 30).toFixed(1) + '" font-weight="800" fill="' + ACC + '" fill-opacity="0.13" letter-spacing="' + (D / 160).toFixed(1) + '">집지니</text></pattern>' +
       '</defs>');
     h.push('<rect width="100%" height="100%" fill="' + PAPER + '"/>');
     if (!bare) {
