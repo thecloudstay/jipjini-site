@@ -78,3 +78,19 @@
 .dsm th{border-bottom:1px solid var(--ink,#1C1F1B);color:var(--pencil,#6B7067);font-weight:600;font-size:13.5px}
 .dsm .r{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
 .dsm tfoot td{color:var(--pencil,#6B7067);font-size:13.5px;border-bottom:0}
+/* 2026-11-14 상품마다 맛보기 */
+.dt .row .peek{grid-column:2/-1;margin:4px 0 0}
+.peek summary{cursor:pointer;display:inline-flex;align-items:center;gap:6px;font-size:14.5px;font-weight:600;color:#1F5E2E;padding:6px 0;list-style:none}
+.peek summary::-webkit-details-marker{display:none}
+.peek summary::before{content:"+";font-weight:700;width:14px}
+.peek[open] summary::before{content:"−"}
+.peek .pkb{padding:8px 0 4px;overflow-x:auto}
+.peek table{width:100%;min-width:520px;border-collapse:collapse;font-size:14px}
+.peek th,.peek td{padding:8px 6px;border-bottom:1px solid #DCDFD8;text-align:left}
+.peek th{border-bottom:1px solid #1C1F1B;color:#6B7067;font-weight:600;font-size:13px}
+.peek .r{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.peek .pkn{margin:10px 0 0;font-size:13.5px;color:#6B7067;line-height:1.8}
+.peek .pkd{margin:10px 0 0}.peek .pkd a{color:#1F5E2E;font-weight:600}
+.peek figure{margin:4px 0 0}.peek img{display:block;max-width:100%;height:auto;border:1px solid #DCDFD8;border-radius:4px}
+.peek figcaption{margin-top:8px;font-size:13.5px;color:#6B7067;line-height:1.7}
+@media (max-width:720px){.dt .row .peek{grid-column:1/-1}}
