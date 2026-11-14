@@ -107,8 +107,39 @@ def workers():
         if v > 0: return min(v, 6)
     except ValueError:
         pass
-    c = os.cpu_count() or 2   # 2026-11-13 대표 「여유가 있으면 병렬로 여러 개 동시에」: 처리기 3개당 한 줄, 2~4줄
-    return max(2, min(4, c // 3))
+    c = os.cpu_count() or 2
+    # 2026-11-14 대표 램 24GB로 교체 후 「램 풀로 돌려줘」: 처리기 3개당 한 줄(4코어 → 2줄)이던 것을
+    #   남은 램 2.5GB마다 한 줄, 처리기 수까지(이 컴퓨터: 4줄). 게임을 켜면 아래 game_pause 가 잠깐 쉰다.
+    free = 4.0
+    try:
+        import ctypes
+        class M(ctypes.Structure):
+            _fields_ = [("l", ctypes.c_ulong), ("load", ctypes.c_ulong), ("tot", ctypes.c_ulonglong), ("free", ctypes.c_ulonglong),
+                        ("pt", ctypes.c_ulonglong), ("pf", ctypes.c_ulonglong), ("vt", ctypes.c_ulonglong), ("vf", ctypes.c_ulonglong), ("ve", ctypes.c_ulonglong)]
+        m = M(); m.l = ctypes.sizeof(M); ctypes.windll.kernel32.GlobalMemoryStatusEx(ctypes.byref(m)); free = m.free / 2**30
+    except Exception:
+        pass
+    return max(2, min(c, int(free // 2.5), 6))
+
+
+GAMES = ("League of Legends.exe",)   # 2026-11-14 실제 대전 화면만 — 대기실(LeagueClient)은 켜 둔 채 잊기 쉬워 밤새 변환이 9시간 멈췄다
+
+
+def game_pause(busy=None):
+    """리그 오브 레전드가 켜져 있으면 변환을 쉬었다가 끄면 잇는다(2026-11-14 램 교체 때 대표 「롤 할 때도 좋아질까」)."""
+    if os.name != "nt": return
+    import subprocess
+    said = False; t0 = time.time()
+    while True:
+        try:
+            out = subprocess.run(["tasklist", "/FO", "CSV", "/NH"], capture_output=True, text=True, errors="replace").stdout
+        except Exception:
+            return
+        if not any(('"' + g.lower() + '"') in out.lower() for g in GAMES): return
+        if time.time() - t0 > 3 * 3600: print("게임이 3시간 넘게 켜져 있어 변환을 다시 이어 갑니다.", flush=True); return
+        if not said: print("게임이 켜져 있어 변환을 잠깐 쉽니다(끄면 바로 이어 갑니다).", flush=True); said = True
+        if busy: open(busy, "w", encoding="utf-8").write(time.strftime("%Y-%m-%d %H:%M:%S"))
+        time.sleep(30)
 
 
 def shard_file(i):
@@ -121,7 +152,20 @@ def merge_shards(st):
     return st
 
 
+def low_priority():
+    """2026-11-14: 변환이 처리 능력을 꽉 써서 대표 크롬(카카오 파트너센터)이 멈췄다 — 변환 쪽을 「보통 이하」 우선순위로 낮춘다.
+    윈도에서는 이 프로세스가 띄우는 조각·크로미움도 같은 우선순위를 물려받는다. 남는 힘은 그대로 다 쓰고, 사람이 쓰는 창이 먼저 돈다."""
+    if os.name != "nt":
+        return
+    try:
+        import ctypes
+        ctypes.windll.kernel32.SetPriorityClass(ctypes.windll.kernel32.GetCurrentProcess(), 0x00004000)   # 보통 이하
+    except Exception:
+        pass
+
+
 def main(n=400):
+    low_priority()
     os.makedirs(os.path.join(OUT, "도면"), exist_ok=True); os.makedirs(READ, exist_ok=True)
     shard = None
     if "--조각" in sys.argv:   # 여러 줄 가운데 한 줄(자식): 관문·재선별·잠금·보고·합성은 어미가 한다
@@ -222,6 +266,7 @@ def run_items(n, shard, busy):
                 area = float(r.get("전용면적") or 0)
             except ValueError:
                 area = 0
+            game_pause(busy if shard is None else None)
             rec = {"판": ver, "때": time.strftime("%Y-%m-%d %H:%M")}
             _t0 = time.time(); _t1 = None   # 2026-11-13 어디서 시간이 드는지 재기(읽기 = 브라우저 방 읽기, 변환 = 파이썬 변환·검수·채점)
             try:
