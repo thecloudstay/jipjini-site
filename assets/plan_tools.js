@@ -564,13 +564,16 @@
     var anyDoor = seeds.some(function (sd) { return sd.kind === '현관'; });
     found = found.filter(function (f) { if (f.kind) return true; var n = cnt[f.l] || 1, m2r = n / (U * U), ld = (lineN[f.l] || 0) / n, bx = f.pts.map(function (q) { return q[0]; }), by = f.pts.map(function (q) { return q[1]; }), fw = Math.max.apply(null, bx) - Math.min.apply(null, bx), fh = Math.max.apply(null, by) - Math.min.apply(null, by), strip = Math.max(fw, fh) / Math.max(1, Math.min(fw, fh)) >= 3.2;
       var wf = (whiteN[f.l] || 0) / n; f.dbg = [Math.round(m2r * 10) / 10, Math.round(ld * 1000) / 1000, Math.round((satN[f.l] || 0) / n * 100) / 100, Math.round(wf * 100) / 100]; if (m2r >= 9 && ld >= 0.045) return false;   // 공용부
-      if (!f.byColor && m2r >= 2.5 && ld >= 0.06 && wf >= 0.7 && !strip) return false;   // 흰 바탕에 가위표·기계 선이 빽빽한 칸 = 승강기·설비 통로(공용부) — 세대 공간이 아니다 (R-114)
+      // 2026-11-14 흑백 분양 평면(답십리 84C): 욕실 글자도 바닥색도 없는 도면에서는 변기·세면대 선 때문에 욕실(3.4~3.6㎡)이 이 「공용부」 규칙에 걸려 통째로 사라졌다(대량 변환 R16 욕실 놓침 194평면).
+      //   욕실이 하나도 안 잡힌 도면에서 2.5~6㎡ 칸은 지우지 않고 욕실 후보로 남긴다 — 수가 넘치면 capBath 가 넓이·선 밀도로 추리고, 파란 바닥 도면이면 아래에서 다시 기타로 돌린다.
+      if (!f.byColor && m2r >= 2.5 && ld >= 0.06 && wf >= 0.7 && !strip) { if (!anyBath && m2r <= 6 && ld < 0.2) { f.kind = '욕실'; f.guess = true; f.mono = true; return true; } return false; }   // 흰 바탕에 가위표·기계 선이 빽빽한 칸 = 승강기·설비 통로(공용부) — 세대 공간이 아니다 (R-114)
       f.wf = wf; if (!strip && m2r >= 1.5 && m2r <= 7.5 && ld >= 0.05 && wf < 0.6 && (f.byColor || !anyBath)) { f.kind = '욕실'; f.guess = true; return true; }   /* 바탕색이 다른 칸에 기구 선(변기·욕조)이 있으면 욕실 */
       if (f.byColor && !strip && !anyDoor && m2r <= 2.6 && ld < 0.05 && wf < 0.5) { anyDoor = true; f.kind = '현관'; f.guess = true; return true; }   /* 기구 없는 작은 색 칸 = 현관(코디 확인) */
-      if (m2r < 1.05) { f.kind = '피트'; f.nm = '피트'; f.guess = true; return true; }   /* 벽으로 닫힌 1㎡ 안쪽 작은 칸 = 설비 통로(피트·PD)로 본다 (코디 확인) */
+      if (m2r < 1.05 || (m2r < 1.6 && ld >= 0.08)) { f.kind = '피트'; f.nm = '피트'; f.guess = true; return true; }   /* 2026-11-14: 1.1㎡ 피트도 가위표 선이 빽빽하면 피트(답십리 84C) */   /* 벽으로 닫힌 1㎡ 안쪽 작은 칸 = 설비 통로(피트·PD)로 본다 (코디 확인) */
       if (strip) { f.kind = '발코니'; f.guess = true; return true; }
       if (!anyBath && !f.byColor && m2r >= 1.2 && m2r <= 7.5 && (satN[f.l] || 0) / n >= 0.12) { f.kind = '욕실'; f.guess = true; return true; }
-      f.kind = f.px >= medN ? '방' : '기타'; f.guess = true; return true; });
+      if (!anyDoor && !f.byColor && m2r >= 1.5 && m2r <= 5 && ld < 0.05 && wf >= 0.85) { anyDoor = true; f.kind = '현관'; f.guess = true; return true; }   /* 2026-11-14 흑백 평면: 현관 글자·바둑판 무늬가 없으면 비어 있는 작은 칸 하나를 현관으로(코디 확인) — 답십리 84C 2.9㎡ 가 「방4」로 나오던 것 */
+      f.kind = f.px >= medN && m2r >= 4.5 ? '방' : '기타'; f.guess = true; return true; });   // 2026-11-14 4.5㎡ 안 되는 칸을 방으로 세지 않는다
     // 2026-11-11 욕실 바닥색으로 욕실 가리기(네이버 부동산 양식): 이 양식은 욕실 바닥을 늘 같은 연한 파랑(약 228·242·244)으로 칠한다 — 시험 106장 중 103장.
     //   파란 바닥이 있는 도면이면 「파란 칸 = 욕실」이 정답이다. 이름이 안 읽힌 칸을 선 밀도로 욕실이라 어림하던 것(드레스룸·현관·대피공간까지 욕실이 됨)을 이 도면에서는 쓰지 않는다.
     (function () { var blueN = {}, tot = 0, k; for (k = 0; k < N; k++) { var o = k * 4, r = d[o], g2 = d[o + 1], b = d[o + 2]; if (b - r >= 10 && g2 - r >= 3 && Math.min(r, g2, b) > 185) { tot++; var l = lab[k]; if (l >= 2) blueN[l] = (blueN[l] || 0) + 1; } }
