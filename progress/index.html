@@ -191,6 +191,9 @@ table.plm td.r,table.plm th.r{padding-left:10px}
   .pl3d{min-height:420px}
 }
 @media (min-width:1300px){ .wrap,header .in{max-width:1040px} }
+.soonl{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.soonl li{border:1px solid var(--line,#e6e1d6);border-radius:4px;padding:10px 10px 9px;display:flex;flex-direction:column;gap:2px}.soonl b{font-size:14.5px}.soonl span{font-size:12px;color:var(--mute,#888)}
+.plmore,.plup{margin-top:10px}.plmore>summary,.plup>summary{cursor:pointer;font-weight:600;font-size:14.5px;padding:10px 0;display:flex;justify-content:space-between;gap:8px}.plmore>summary span{font-weight:400;color:var(--mute,#888);font-size:13px}.plup>summary{font-size:16px}
+.ntmore{margin-top:6px;border-top:1px solid var(--line,#eee)}.ntmore>summary{cursor:pointer;font-weight:600;font-size:15px;padding:12px 0;display:flex;justify-content:space-between}.ntmore>summary span{font-weight:400;color:var(--mute,#888);font-size:13px}
 </style>
 <meta property="og:image" content="https://jipjini.com/og-cover.png"><meta name="twitter:card" content="summary_large_image">
 <style>body,p,li,td,th,h1,h2,h3,h4,dd,dt,blockquote,figcaption{word-break:keep-all;overflow-wrap:break-word}</style>
@@ -265,9 +268,9 @@ table.plm td.r,table.plm th.r{padding-left:10px}
   function showroomHtml(S) {
     var b = S.예약, st = b ? (b.상태 === '확정' ? '<b style="color:var(--g)">예약 확정</b> · ' + esc(b.때) : b.상태 === '완료' ? '상담 마침 · ' + esc(b.때) : '<b>예약 접수</b> · ' + esc(b.때) + ' — 코디가 확인해 확정 문자를 드립니다') : '';
     return '<section class="card"><h2>샘플실 상담 예약</h2>' +
-      '<p class="vat" style="margin:0 0 10px">벽지·바닥·타일·도어 등 모든 견본은 샘플실에서 실물로 직접 보고 코디와 함께 고릅니다. 편하신 날짜·시각을 골라 예약해 주세요.</p>' +
+      '<p class="vat" style="margin:0 0 10px">견본을 실물로 보고 코디와 고릅니다.</p>' +
       (st ? '<p style="font-size:14px;margin-bottom:10px">' + st + '</p>' : '') +
-      '<div class="btns one"><a class="btn pri" href="' + esc(safeUrl(S.링크)) + '" target="_blank" rel="noopener">' + ICO_CAL + '날짜 예약하기' + '</a><a class="btn" style="margin-top:8px;border:1px solid var(--g);color:var(--g)" href="' + esc(safeUrl(S.링크 + (S.링크.indexOf('?') >= 0 ? '&' : '?') + 'm=tel')) + '" target="_blank" rel="noopener">전화 상담 예약 — 고른 시간에 코디가 전화</a></div>' +
+      '<div class="btns one"><a class="btn pri" href="' + esc(safeUrl(S.링크)) + '" target="_blank" rel="noopener">' + ICO_CAL + '날짜 예약하기' + '</a><a class="btn" style="margin-top:8px;border:1px solid var(--g);color:var(--g)" href="' + esc(safeUrl(S.링크 + (S.링크.indexOf('?') >= 0 ? '&' : '?') + 'm=tel')) + '" target="_blank" rel="noopener">전화 상담 예약</a></div>' +
       '<p class="vat">' + esc(S.장소) + ' · 예약 방문제</p></section>';
   }
   var ICO_CAL = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>';
@@ -286,7 +289,7 @@ table.plm td.r,table.plm th.r{padding-left:10px}
       P.계약예시.forEach(function (x) { h.push('<dt>' + esc(x.제목) + '</dt><dd>' + esc(x.내용) + '</dd>'); });
       h.push('</dl></details>');
     }
-    h.push('<p class="vat">입금은 반드시 사업자등록증과 같은 이름의 집지니 계좌로만 해 주세요. 다른 계좌 안내를 받으시면 입금 전에 코디에게 꼭 확인해 주세요.</p></section>');
+    h.push('<p class="vat"><b>입금은 집지니 사업자 계좌로만.</b> 다른 계좌 안내는 코디에게 먼저 확인해 주세요.</p></section>');
     return h.join('');
   }
   function buildHtml(list) {
@@ -297,7 +300,7 @@ table.plm td.r,table.plm th.r{padding-left:10px}
         '<div class="who">담당 ' + ((p.기사 || []).length ? p.기사.map(function (w) { return '<span>' + esc(w) + '</span>'; }).join('') : '<span>배정 중 — 시작 전날 알려 드려요</span>') + '</div>' +
         (p.준비 && p.상태 !== '완료' ? '<details' + (p.상태 === '진행 중' || (p.상태 === '예정' && list.filter(function (q) { return q.상태 === '예정'; })[0] === p) ? ' open' : '') + '><summary>고객님 준비사항</summary><div class="prep">' + esc(p.준비) + '</div></details>' : '') + '</div>');
     });
-    h.push('<p class="vat">기술자 연락은 담당 코디가 맡습니다. 현장 일정이나 출입 문의는 아래 코디 연락처로 주세요.</p></section>');
+    h.push('</section>');
     return h.join('');
   }
   // ── 2026-11-03 자재 고르기 — 집지니 가정통신문 「샘플 체크리스트」 구조 (타일+메지 · 도기 · 조명 · 싱크대 · 창호 · 기타, 벽지·바닥재는 방별)
@@ -420,10 +423,11 @@ table.plm td.r,table.plm th.r{padding-left:10px}
   var PLUP = null;
   function planUpHtml(D) {
     var m2 = D && D.건물 && Number(D.건물.전용면적) || 0;
-    return '<section class="card" id="plUpCard"><h2>도면 넣기</h2><p class="plnote" style="margin-top:0">평면도 그림(분양 안내문·부동산 앱 화면 캡처)을 넣으면 방·욕실·발코니를 자동으로 찾아 면적을 계산합니다. 코디가 확인한 뒤 견적 수량에 반영합니다.</p>' +
+    var hasPl = !!(D && (D.목록 || []).length);   // 2026-11-14 도면이 이미 있으면 「다른 도면 넣기」로 접어 둔다
+    return '<section class="card" id="plUpCard">' + (hasPl ? '<details class="plup"><summary>다른 도면 넣기</summary>' : '<h2>도면 넣기</h2>') + '<p class="plnote" style="margin-top:0">평면도 캡처를 넣으면 방·면적을 자동으로 잽니다.</p>' +
       '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:8px"><label style="font-size:13px">전용면적(㎡) <input id="plUpM2" type="number" step="0.01" value="' + (m2 || '') + '" style="width:92px;padding:7px 8px;border:1px solid var(--line,#ddd);border-radius:4px"></label>' +
       '<label class="btn" style="cursor:pointer;display:inline-block"><span id="plUpLbl">평면도 고르기</span><input id="plUpFile" type="file" accept="image/*" style="display:none"></label></div>' +
-      '<p id="plUpMsg" class="plnote"></p><div id="plUpOut"></div><div id="plCatBox" style="margin-top:14px;padding-top:12px;border-top:1px solid var(--line,#eee)"></div></section>';
+      '<p id="plUpMsg" class="plnote"></p><div id="plUpOut"></div><div id="plCatBox" style="margin-top:14px;padding-top:12px;border-top:1px solid var(--line,#eee)"></div>' + (hasPl ? '</details>' : '') + '</section>';
   }
   function plUpLoad(cb, fail) { if (window.JJPlanTools && window.JJPlanAuto) return cb(); var one = function (src, next) { var sc = document.createElement('script'); sc.src = src; sc.onload = next; sc.onerror = function () { fail(); }; document.head.appendChild(sc); }; one('../assets/plan_auto.js?v=20261110h', function () { one('../assets/plan_tools.js?v=20261110m', function () { one('../assets/plan_style.js?v=20261114a', function () { cb(); }); }); }); }
   var PLFILE = null;
@@ -508,11 +512,13 @@ table.plm td.r,table.plm th.r{padding-left:10px}
     }
     var M = D.측정;
     if (M && ((M.공간 || []).length || (M.창 || []).length || (M.문 || []).length)) {
+      h.push('<details class="plmore"><summary>면적 · 창 · 문 표 보기<span>공간 ' + (M.공간 || []).length + ' · 창 ' + (M.창 || []).length + ' · 문 ' + (M.문 || []).length + '</span></summary>');   // 2026-11-14 표는 접어 둠
       if ((M.공간 || []).length) { h.push('<table class="plm"><tr><th>공간</th><th class="r">면적</th><th class="r">평</th></tr>'); M.공간.forEach(function (r) { h.push('<tr><td>' + esc(r.이름) + '</td><td class="r">' + esc(r.면적) + '㎡</td><td class="r">' + esc(r.평) + '평</td></tr>'); }); h.push('<tr class="tot"><td>바닥 합계</td><td class="r">' + esc(M.바닥) + '㎡</td><td class="r">' + (M.바닥 / 3.3058).toFixed(1) + '평</td></tr></table>'); }
       if ((M.창 || []).length) { h.push('<table class="plm"><tr><th>창 · 샷시</th><th class="r">폭 × 높이</th><th class="r">면적</th></tr>'); M.창.forEach(function (w) { h.push('<tr><td>' + esc(w.이름) + '</td><td class="r">' + w.폭.toFixed(2) + ' × ' + w.높이.toFixed(2) + 'm</td><td class="r">' + (w.폭 * w.높이).toFixed(2) + '㎡</td></tr>'); }); h.push('<tr class="tot"><td>창호 합계 ' + M.창.length + '개</td><td class="r">' + esc(M.창자) + '자²</td><td class="r">' + esc(M.창면적) + '㎡</td></tr></table>'); }
       if ((M.문 || []).length) h.push('<table class="plm"><tr><th>문 ' + M.문.length + '개</th><th class="r">폭 × 높이</th></tr>' + M.문.map(function (d) { return '<tr><td>' + esc(d.이름) + '</td><td class="r">' + d.폭.toFixed(2) + ' × ' + d.높이.toFixed(2) + 'm</td></tr>'; }).join('') + '</table>');
       if (M.도배 > 0) h.push('<table class="plm"><tr><th>견적 수량 근거</th><th class="r">값</th></tr><tr><td>도배 면적 (벽에서 창·문 뺀 값 + 천장)</td><td class="r">' + esc(M.도배) + '㎡</td></tr><tr><td>걸레받이 길이 (문 폭 뺀 둘레)</td><td class="r">' + esc(M.걸레받이) + 'm</td></tr><tr><td>몰딩 길이 (천장 둘레)</td><td class="r">' + esc(M.몰딩) + 'm</td></tr>' + (M.욕실벽 ? '<tr><td>욕실 벽 타일 면적</td><td class="r">' + esc(M.욕실벽) + '㎡</td></tr>' : '') + '</table>');
-      h.push('<p class="plnote">도면 치수선을 기준으로 잰 값이라 실제와 조금 다를 수 있습니다. 현장 정밀 실측 뒤 최종 수량이 정해지고, 견적의 도배·바닥·창호 수량은 이 값을 바탕으로 계산합니다.' + (M.날짜 ? ' (측정 ' + md(M.날짜) + ')' : '') + '</p>');
+      h.push('</details>');
+      h.push('<p class="plnote">도면 치수로 잰 값입니다. 현장 실측 뒤 확정합니다.' + (M.날짜 ? ' (측정 ' + md(M.날짜) + ')' : '') + '</p>');
     } else if (cur) h.push('<p class="plnote">도면을 바탕으로 방 면적·창호를 재면 이곳에 표로 정리됩니다.</p>');
     h.push('</section>'); return h.join('');
   }
@@ -537,12 +543,14 @@ table.plm td.r,table.plm th.r{padding-left:10px}
   function noteHtml(N) {
     NT.Q = N.질문 || []; NT.답 = {}; var last = N.지난;
     if (last && last.답) Object.keys(last.답).forEach(function (k) { NT.답[k] = last.답[k]; });
-    var h = ['<section class="card" id="note"><h2>코디에게 답하기</h2><div class="ntop">' + (N.고른공사 ? '이번 견적은 고객님이 의뢰서에서 고르신 <b>' + esc(N.고른공사) + '</b>만 넣었습니다.<br>' : '이번 견적은 의뢰서에서 고르신 공사만 넣었습니다.<br>') + '올수리나 도배·장판, 싱크대, 욕실 리모델링 등이 더 필요하시면 아래에서 눌러 주세요. 고르신 대로 견적을 고쳐 다시 보내 드립니다.</div>'];
-    NT.Q.forEach(function (q) {
+    var h = ['<section class="card" id="note"><h2>코디에게 답하기</h2><div class="ntop">견적에 넣은 공사: <b>' + esc(N.고른공사 || '의뢰서에서 고르신 공사') + '</b><br>더 하실 공사는 눌러 주세요. 고쳐서 다시 보내 드립니다.</div>'];
+    NT.Q.forEach(function (q, qi) {
+      if (qi === 1) h.push('<details class="ntmore"' + (last ? ' open' : '') + '><summary>더 하실 공사 고르기<span>' + (NT.Q.length - 1) + '가지 질문</span></summary>');   // 2026-11-14 첫 질문만 펼쳐 두고 나머지는 접음
       var cur = NT.답[q.키], has = function (v) { return q.여럿 ? (cur || []).indexOf(v) >= 0 : cur === v; };
       h.push('<div class="nq"><p>' + esc(q.질문) + (q.여럿 ? ' <span style="font-weight:400;color:var(--mute);font-size:13px">여러 개 고를 수 있어요</span>' : '') + '</p><div class="cs">' + q.고르기.map(function (v) { return '<button type="button" data-nk="' + esc(q.키) + '" data-nv="' + esc(v) + '"' + (q.여럿 ? ' data-nm="1"' : '') + ' class="' + (has(v) ? 'on' : '') + '" aria-pressed="' + (has(v) ? 'true' : 'false') + '">' + esc(v) + '</button>'; }).join('') + '</div></div>');
     });
-    h.push('<div class="f" style="margin-top:12px"><label for="ntX">코디에게 남길 말 (가정통신문)</label><textarea id="ntX" maxlength="1500" placeholder="예) 안방 욕실은 꼭 하고 싶고, 주방은 예산 보고 정할게요. 평일 저녁 7시 이후 통화 가능해요.">' + esc((last && last.메모) || '') + '</textarea><button type="button" class="btn pri" id="ntGo">코디에게 보내기</button><div class="msg" id="ntMsg"></div>' + (last ? '<div class="nlast">' + esc(last.시각) + '에 보내 주신 답이 저장돼 있습니다. 바꿔서 다시 보내셔도 됩니다.</div>' : '') + '</div></section>');
+    if (NT.Q.length > 1) h.push('</details>');
+    h.push('<div class="f" style="margin-top:12px"><label for="ntX">코디에게 남길 말</label><textarea id="ntX" maxlength="1500" placeholder="예) 안방 욕실은 꼭 하고 싶고, 주방은 예산 보고 정할게요. 평일 저녁 7시 이후 통화 가능해요.">' + esc((last && last.메모) || '') + '</textarea><button type="button" class="btn pri" id="ntGo">코디에게 보내기</button><div class="msg" id="ntMsg"></div>' + (last ? '<div class="nlast">' + esc(last.시각) + '에 보내 주신 답이 저장돼 있습니다. 바꿔서 다시 보내셔도 됩니다.</div>' : '') + '</div></section>');
     return h.join('');
   }
   app.addEventListener('click', function (e) {
@@ -612,10 +620,9 @@ table.plm td.r,table.plm th.r{padding-left:10px}
 
     // 공정 — 포털이 있으면 기술자·준비사항까지 붙은 목록으로
     if (P && (P.시공 || []).length) h.push(buildHtml(P.시공));
-    else {
+    else if (phases.length) {   // 2026-11-14 대표 「텍스트가 많다」: 공정이 없을 때 빈 칸 안내 대신 아래 「계약하면 열리는 것」 한 줄로
       h.push('<section class="card"><h2>공정</h2>');
-      if (!phases.length) h.push('<p class="empty">공정표가 확정되면 이곳에 단계별 일정이 보입니다.</p>');
-      else {
+      {
         h.push('<ol class="ph">');
         phases.forEach(function (p, i) { h.push('<li class="' + (CLS[p.상태] || 's-wait') + '"><span class="no">' + (i + 1) + '</span><span class="nm"><b>' + esc(p.단계명) + '</b><small>' + range(p.시작, p.종료) + '</small></span><span class="bd">' + esc(p.상태 || '예정') + '</span></li>'); });
         h.push('</ol>');
@@ -635,7 +642,7 @@ table.plm td.r,table.plm th.r{padding-left:10px}
           (x.특이사항 ? '<dt>특이사항</dt><dd>' + esc(x.특이사항) + '</dd>' : '') + '</dl></div>');
       });
       h.push('</section>');
-    } else if (P) {   // 2026-11-14 대표 「작업일보는 어디서 보냐」: 공사 전에도 자리를 보여 주고, 어떤 모양으로 오는지 견본을 접어 둔다
+    } else if (false) {   // (아래 「계약하면 열리는 것」으로 합침): 공사 전에도 자리를 보여 주고, 어떤 모양으로 오는지 견본을 접어 둔다
       h.push('<section class="card"><h2>현장 일보</h2><p class="plnote" style="margin-top:0">공사가 시작되면 매일 저녁 현장관리자가 오늘 한 일 · 내일 할 일 · 특이사항 · 사진을 이 자리에 올립니다. 올라오면 문자로도 알려 드립니다.</p>' +
         '<details class="selrules"><summary>이런 모양으로 옵니다 (견본)</summary><div class="log"><div class="dt">견본</div><dl><dt>오늘 한 일</dt><dd>거실·주방 바닥 기존 마루 철거, 폐기물 반출</dd><dt>내일 할 일</dt><dd>바닥 수평 미장(마르는 데 하루)</dd><dt>특이사항</dt><dd>주방 벽 안 배관 녹 발견 — 사진 첨부, 교체 여부 내일 오전 연락드림</dd></dl></div></details></section>');
     }
@@ -672,7 +679,10 @@ table.plm td.r,table.plm th.r{padding-left:10px}
       h.push('</table><p class="vat">동의한 내용 합계 ' + (net < 0 ? '− ' : '+ ') + won(Math.abs(net)) + ' · 부가세 10% 별도 · 받을 금액은 위 입금 현황에 함께 들어 있습니다. 동의 전 문의는 아래 코디 연락처로 주세요.</p><div class="msg" id="aoMsg"></div></section>');
     }
 
-    if (P) h.push(asHtml(P));
+    if (P && P.AS가능) h.push(asHtml(P));
+    // 2026-11-14 대표 「최대 단순화」: 계약 전에는 빈 카드 셋(공정·현장 일보·하자 접수) 대신 한 장으로
+    if (P && !P.AS가능 && !phases.length && !logs.length) h.push('<section class="card soon"><h2>계약하면 열리는 것</h2><ul class="soonl"><li><b>공정표</b><span>날짜·담당 기술자</span></li><li><b>현장 일보</b><span>매일 저녁 · 사진</span></li><li><b>하자 접수</b><span>여기서 바로</span></li></ul>' +
+      '<details class="selrules"><summary>현장 일보 견본</summary><div class="log"><div class="dt">견본</div><dl><dt>오늘 한 일</dt><dd>거실·주방 바닥 기존 마루 철거, 폐기물 반출</dd><dt>내일 할 일</dt><dd>바닥 수평 미장(마르는 데 하루)</dd><dt>특이사항</dt><dd>주방 벽 안 배관 녹 발견 — 사진 첨부, 교체 여부 내일 오전 연락드림</dd></dl></div></details></section>');
     // 연락처
     var tel = String(d.연락처 || '').replace(/[^\d+]/g, '');
     var kakao = safeUrl(d.카톡주소) || KAKAO_URL;
