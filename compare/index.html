@@ -78,7 +78,10 @@
     items.sort(function (a, b) { return a.y - b.y || a.x - b.x; });
     var rows = [], cur = null;
     items.forEach(function (it) { if (cur && Math.abs(it.y - cur.y) <= Math.max(3, (it.h || 10) * .55)) cur.items.push(it); else { cur = { y: it.y, items: [it] }; rows.push(cur); } });
-    return rows.map(function (r) { r.items.sort(function (a, b) { return a.x - b.x; }); return r.items.map(function (i) { return i.text; }).join('\t'); }).join('\n');
+    // 글자 조각 사이 틈이 좁으면 붙이고(PDF 는 한 글자씩 끊겨 오기도 함), 넓으면 칸 나눔(탭)
+    return rows.map(function (r) { r.items.sort(function (a, b) { return a.x - b.x; }); var t = '', end = null;
+      r.items.forEach(function (i) { var h = i.h || 10, gap = end == null ? 0 : i.x - end; t += end == null ? i.text : gap > h * 1.2 ? '\t' + i.text : gap > h * .2 ? ' ' + i.text : i.text; end = i.x + (i.w || i.text.length * h * .6); });
+      return t; }).join('\n');
   }
   function readPdf(file) {
     return import('/assets/vendor/pdf/pdf.min.mjs').then(function (pdfjs) {
@@ -86,7 +89,7 @@
       return file.arrayBuffer().then(function (buf) { return pdfjs.getDocument({ data: buf }).promise; }).then(function (doc) {
         var out = [], p = Promise.resolve();
         for (var i = 1; i <= Math.min(doc.numPages, 15); i++) (function (n) { p = p.then(function () { return doc.getPage(n).then(function (pg) { return pg.getTextContent().then(function (tc) {
-          var its = tc.items.filter(function (t) { return String(t.str).trim(); }).map(function (t) { return { text: t.str.trim(), x: t.transform[4], y: -t.transform[5], h: Math.abs(t.transform[3]) || 10 }; });
+          var its = tc.items.filter(function (t) { return String(t.str).replace(/\u0000/g, '').trim(); }).map(function (t) { return { text: t.str.trim(), x: t.transform[4], y: -t.transform[5], h: Math.abs(t.transform[3]) || 10, w: t.width }; });
           out.push(rowsToText(its)); }); }); }); })(i);
         return p.then(function () { return out.join('\n'); });
       });
