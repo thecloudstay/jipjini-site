@@ -1,0 +1,27 @@
+name: plan-quality
+# 공개 도면이 바뀔 때마다 공간 구성 검사(tools/plan_quality.py) → data/plans/quality.json (콘솔 아침 보고가 읽음)
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'data/plans/A*.json'
+      - 'tools/plan_quality.py'
+permissions:
+  contents: write
+concurrency: plan-quality
+jobs:
+  q:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: 공간 구성 검사
+        run: python3 tools/plan_quality.py
+      - name: 올리기
+        run: |
+          git config user.name "jipjini-bot"
+          git config user.email "thecloudstay@gmail.com"
+          git add data/plans/quality.json
+          git commit -m "도면 품질 검사 갱신 [skip ci]" || echo "바뀐 것 없음"
+          git pull --rebase -q || true
+          git push || echo "올리기 실패(다음 번에)"
