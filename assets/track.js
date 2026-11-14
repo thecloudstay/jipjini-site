@@ -16,7 +16,11 @@
     var k = el.tagName === 'SUMMARY' ? (el.parentNode.open ? '접음: ' : '펼침: ') : el.tagName === 'A' ? '링크: ' : el.classList.contains('tab') ? '탭: ' : '';
     add(k + nameOf(el)); }, true);
   window.addEventListener('scroll', function () { var h = document.documentElement, p = Math.round((h.scrollTop + innerHeight) / Math.max(1, h.scrollHeight) * 100); if (p > sc) sc = Math.min(100, p); }, { passive: true });
-  function send(force) { var body = JSON.stringify({ jjt: 1, sid: sid, pg: PG, tok: tok, sec: secs(), sc: sc, ev: ev, dv: dv, staff: staff ? 1 : 0 }), key = secs() + '|' + sc + '|' + ev.length; if (!force && key === sent) return; sent = key;
+  // 2026-11-14 슈퍼베이스 이전 5번: 공개 열쇠가 설정돼 있으면 슈퍼베이스 track_visit 으로 바로 보낸다(앱스 스크립트를 거치지 않음)
+  var SBU = 'https://pnqyysuyrovgnmrchrrg.supabase.co/rest/v1/rpc/track_visit';
+  function nm() { var t = document.title.match(/([가-힣*]{2,4})\s*고객님/) || (document.getElementById('who') || {}).textContent; return (t && t[1]) || (typeof t === 'string' ? t.replace(/ 고객님.*$/, '') : '') || ''; }
+  function send(force) { var o = { jjt: 1, sid: sid, pg: PG, tok: tok, sec: secs(), sc: sc, ev: ev, dv: dv, staff: staff ? 1 : 0, nm: nm() }, body = JSON.stringify(o), key = secs() + '|' + sc + '|' + ev.length; if (!force && key === sent) return; sent = key;
+    var A = window.JJ_SB_ANON; if (A) { try { fetch(SBU, { method: 'POST', keepalive: true, headers: { apikey: A, Authorization: 'Bearer ' + A, 'Content-Type': 'application/json' }, body: JSON.stringify({ p: o }) }); return; } catch (eS) {} }
     try { if (navigator.sendBeacon && navigator.sendBeacon(U, new Blob([body], { type: 'text/plain' }))) return; } catch (e) {}
     try { fetch(U, { method: 'POST', body: body, mode: 'no-cors', keepalive: true, headers: { 'Content-Type': 'text/plain' } }); } catch (e2) {} }
   document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'hidden') { if (vis) { acc += Date.now() - vis; vis = 0; } add('화면 떠남'); send(true); } else { vis = Date.now(); add('다시 봄'); } });
