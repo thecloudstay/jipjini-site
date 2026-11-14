@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>재난 복구비 계산 — 누수·화재·침수·태풍 아파트 복구 공사비 · 집지니</title>
+<meta name="description" content="누수·화재·침수(풍수해)·태풍 피해를 입은 아파트의 복구 공사비를 방마다 계산합니다. 단지 도면 넓이와 집지니 실견적 단가로 공정별 물량·금액·범위가 나오고, 보험·재난지원금 청구용으로 인쇄할 수 있습니다.">
+<link rel="canonical" href="https://jipjini.com/disaster/">
+<meta property="og:title" content="재난 복구비 계산 · 집지니">
+<meta property="og:description" content="누수·화재·침수·태풍 — 방마다 고르면 복구 공사비가 공정별로 나옵니다.">
+<meta property="og:image" content="https://jipjini.com/og-cover.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/fix/fix.css?v=20261114b">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-35EM7T3M9W"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-35EM7T3M9W');</script>
+</head>
+<body>
+<main>
+<div class="top"><a class="logo" href="/">집지니</a><nav><a href="/disaster/" aria-current="page">재난 복구</a><a href="/auction/">경매 수리비</a><a href="/compare/">견적서 비교</a></nav></div>
+
+<div class="form">
+<h1>재난 복구비 계산</h1>
+<p class="lead">무슨 일이 났는지 고르고, 상한 방을 누르세요. 방 넓이와 집지니 실견적 단가로 복구 공사비가 공정별로 나옵니다. 철거 뒤에 드러나는 피해까지 범위로 함께 보여 드립니다.</p>
+
+<h2><span class="n">1</span>무슨 일이 났나요</h2>
+<div class="chips" id="hz">
+  <button type="button" class="chip" data-v="leak" aria-pressed="true">누수</button>
+  <button type="button" class="chip" data-v="fire" aria-pressed="false">화재</button>
+  <button type="button" class="chip" data-v="flood" aria-pressed="false">침수 (집중호우·하수 역류)</button>
+  <button type="button" class="chip" data-v="typhoon" aria-pressed="false">태풍 (유리·창·빗물)</button>
+</div>
+
+<h2><span class="n">2</span>어느 집인가요</h2>
+<label class="f" for="q">단지 이름</label>
+<div class="find"><input id="q" type="text" autocomplete="off" placeholder="예: 래미안위브, 부평 삼산"><ul id="ql"></ul></div>
+<div class="picked" id="picked"></div>
+<div id="typeRow" hidden><label class="f" for="type">평형</label><select id="type"></select></div>
+<div id="manual"><label class="f" for="area">전용면적(㎡)</label><input id="area" type="number" inputmode="decimal" value="84" min="20" max="250"><p class="hint">단지를 못 찾으면 전용면적만 넣어도 됩니다. 84㎡ = 흔히 말하는 34평.</p></div>
+
+<h2><span class="n">3</span>어디가 얼마나 상했나요</h2>
+<div id="global"></div>
+<table class="rooms"><thead><tr><th>공간</th><th>넓이</th><th id="rh">상한 곳</th></tr></thead><tbody id="rooms"></tbody></table>
+<div class="two" style="margin-top:6px">
+  <div><label class="f">벽지</label><div class="chips" id="wp"><button type="button" class="chip" data-v="silk" aria-pressed="true">실크</button><button type="button" class="chip" data-v="hap" aria-pressed="false">합지</button></div></div>
+  <div><label class="f">바닥</label><div class="chips" id="fl"><button type="button" class="chip" data-v="maru" aria-pressed="true">마루</button><button type="button" class="chip" data-v="vinyl" aria-pressed="false">장판</button></div></div>
+</div>
+<div class="btns"><button type="button" class="btn" id="go">복구비 보기</button></div>
+</div>
+
+<section class="res" id="res" hidden>
+  <div class="docmeta"><b>집지니</b><span id="dm"></span></div>
+  <div class="total"><div><div class="sub" id="totLabel">복구 예상 금액 · 부가세 10% 별도</div><div class="big" id="tot"></div><div class="range" id="rng"></div></div><div class="sub" id="apt"></div></div>
+  <div class="facts" id="facts"></div>
+  <div id="bars"></div>
+  <table class="lines"><thead><tr><th>항목</th><th class="n">물량 · 단가</th><th class="n">금액</th></tr></thead><tbody id="lines"></tbody></table>
+  <p class="note" id="basis"></p>
+  <h2>청구할 때 같이 내는 것</h2>
+  <ul class="flags" id="claims"></ul>
+  <p class="note">손해액을 정하는 일은 보험사·손해사정사·지자체가 합니다. 이 계산서는 복구 공사의 물량과 금액 근거 자료입니다. 가구·가전·옷 같은 살림살이와 건물 뼈대(구조) 보강은 들어 있지 않습니다.</p>
+  <div class="docfoot">집지니 · 대표 박찬영 · 사업자등록번호 874-10-00088 · 010-9806-0422 · jipjini.com — 금액은 부가세 10% 별도, 현장 확인 후 물량대로 정산합니다.</div>
+  <div class="btns noprint"><button type="button" class="btn line" onclick="window.print()">계산서 인쇄 · PDF 저장</button></div>
+
+  <div class="ask">
+    <h3>현장 확인받고 복구 맡기기</h3>
+    <p class="note" style="margin-top:0">사진을 보고 물량을 바로잡아 정식 견적서로 다시 보내 드립니다. 공사를 맡기시면 마진 없이 자재·인건비 그대로 진행합니다.</p>
+    <div class="two"><div><label class="f" for="nm">이름</label><input id="nm" type="text" autocomplete="name"></div><div><label class="f" for="ph">휴대폰</label><input id="ph" type="tel" inputmode="tel" autocomplete="tel" placeholder="010-0000-0000"></div></div>
+    <label class="f" for="ho">동·호 (선택)</label><input id="ho" type="text" placeholder="예: 201동 1203호">
+    <label class="agree"><input type="checkbox" id="ag"> 상담을 위해 이름·휴대폰·단지·위 계산 내용을 집지니에 보내는 데 동의합니다(<a href="/privacy.html">처리방침</a>, 1년 보관).</label>
+    <div class="btns"><button type="button" class="btn" id="sendBtn">상담 요청 보내기</button></div>
+    <div id="sendMsg"></div>
+  </div>
+</section>
+</main>
+<footer class="fix">집지니 · 대표 박찬영 · 사업자등록번호 874-10-00088 · 서울·경기·인천 · <a href="/privacy.html">개인정보 처리방침</a></footer>
+
+<script src="/assets/fix/fix.js?v=20261114b"></script>
+<script src="/assets/fix/damage_model.js?v=20261114"></script>
+<script>
+(function () {
+  var F = JJFix, M = JJDamage, $ = function (id) { return document.getElementById(id); };
+  var APT = null, ROOMS = [], LAST = null, SKIP = /피트|발코니|실외기/;
+  var HZN = { leak: '누수', fire: '화재', flood: '침수', typhoon: '태풍' };
+  var hz = (location.hash.match(/^#(leak|fire|flood|typhoon)$/) || [])[1] || 'leak';
+  function hzNow() { return F.picked($('hz'))[0] || 'leak'; }
+  function chipRow(opts, single) { return '<div class="chips"' + (single ? ' data-single="1"' : '') + '>' + opts.map(function (o) { return '<button type="button" class="chip" data-v="' + o[0] + '" aria-pressed="false">' + o[1] + '</button>'; }).join('') + '</div>'; }
+
+  function drawGlobal() {
+    var h = hzNow(), g = '';
+    if (h === 'leak') g = '<label class="f">얼마나 상했나요</label>' + chipRow([['1', '얼룩만'], ['2', '젖음 · 처짐'], ['3', '곰팡이 · 석고 부풂']], 1).replace('data-v="2" aria-pressed="false"', 'data-v="2" aria-pressed="true"').replace('<div class="chips"', '<div class="chips" id="lvl"') +
+      '<label class="f">물 새는 곳을 찾았나요</label>' + chipRow([['known', '찾았음'], ['unknown', '아직 모름 → 누수 탐지 포함'], ['mybath', '우리 집 욕실 방수 → 같이 고침']], 1).replace('data-v="known" aria-pressed="false"', 'data-v="known" aria-pressed="true"').replace('<div class="chips"', '<div class="chips" id="cause"');
+    if (h === 'flood') g = '<label class="f" for="hcm">물이 찬 높이(cm, 바닥에서)</label><input id="hcm" type="number" inputmode="numeric" value="20" min="1" max="200"><p class="hint">10cm 넘으면 벽지, 25cm 넘으면 콘센트, 30cm 넘으면 벽 속 석고·단열재까지 바꿔야 합니다.</p>';
+    if (h === 'typhoon') g = '<div class="two"><div><label class="f" for="glass">깨진 유리(장)</label><input id="glass" type="number" inputmode="numeric" value="0" min="0"></div><div><label class="f" for="sash">휘거나 빠진 창(개)</label><input id="sash" type="number" inputmode="numeric" value="0" min="0"></div></div><label class="f" for="sil">빗물이 샌 창틀(개)</label><input id="sil" type="number" inputmode="numeric" value="0" min="0"><label class="agree"><input type="checkbox" id="rainFloor"> 빗물이 바닥에 고였음(마루·장판 교체)</label>';
+    $('global').innerHTML = g;
+    ['lvl', 'cause'].forEach(function (id) { if ($(id)) F.chips($(id), true); });
+    $('rh').textContent = h === 'fire' ? '탄 정도' : h === 'flood' ? '물에 잠김' : h === 'typhoon' ? '빗물 들어옴' : '젖은 곳';
+    drawRooms();
+  }
+  function roomOpts(r) {
+    var h = hzNow();
+    if (h === 'leak') return r.kind === '욕실' ? [['ceil', '천장']] : r.kind === '현관' ? [['ceil', '천장'], ['wall', '벽']] : [['ceil', '천장'], ['wall', '벽'], ['floor', '바닥']];
+    if (h === 'fire') return [['1', '그을음'], ['2', '일부 탐'], ['3', '다 탐']];
+    if (h === 'flood') return r.kind === '욕실' ? [] : [['on', '잠김']];
+    return r.kind === '욕실' ? [] : [['rain', '빗물']];
+  }
+  function drawRooms() {
+    var h = hzNow();
+    $('rooms').innerHTML = ROOMS.map(function (r, i) { var o = roomOpts(r); return '<tr><td>' + F.esc(r.name) + '</td><td class="a">' + r.area.toFixed(1) + '㎡</td><td>' + (o.length ? chipRow(o, h === 'fire').replace('<div class="chips"', '<div class="chips" data-r="' + i + '"') : '<span class="hint">해당 없음</span>') + '</td></tr>'; }).join('');
+    $('rooms').querySelectorAll('.chips').forEach(function (el) { F.chips(el, el.getAttribute('data-single') === '1'); });
+  }
+  function setManual() { ROOMS = M.typicalRooms(Math.max(20, Number($('area').value) || 84)); drawRooms(); }
+  $('area').addEventListener('change', setManual);
+  F.chips($('hz'), true, function () { history.replaceState(null, '', '#' + hzNow()); drawGlobal(); });
+  ['wp', 'fl'].forEach(function (id) { F.chips($(id), true); });
+  function setHz(v) { $('hz').querySelectorAll('.chip').forEach(function (b) { b.setAttribute('aria-pressed', b.getAttribute('data-v') === v ? 'true' : 'false'); }); }
+  setHz(hz);
+  window.addEventListener('hashchange', function () { var v = (location.hash.match(/^#(leak|fire|flood|typhoon)$/) || [])[1]; if (v && v !== hzNow()) { setHz(v); drawGlobal(); } });
+
+  F.aptFinder($('q'), $('ql'), function (a) {
+    APT = a; $('picked').innerHTML = '<b>' + F.esc(a.name) + '</b> · ' + F.esc(a.gu + ' ' + a.dong) + (a.year ? ' · ' + a.year + '년 사용승인' : '');
+    if (!a.hasPlan) { $('typeRow').hidden = true; $('manual').hidden = false; setManual(); $('picked').innerHTML += '<br>이 단지는 아직 집지니 도면이 없어 전용면적으로 방 크기를 어림합니다.'; return; }
+    F.plan(a.code).then(function (d) {
+      var ts = (d['평형'] || []).filter(function (t) { return t.plan && t.plan.rooms; }); if (!ts.length) return setManual();
+      $('type').innerHTML = ts.map(function (t, i) { return '<option value="' + i + '">' + F.esc(t['이름']) + ' · 전용 ' + t['전용'] + '㎡</option>'; }).join('');
+      $('typeRow').hidden = false; $('manual').hidden = true;
+      var pick = function () { var t = ts[+$('type').value]; ROOMS = t.plan.rooms.filter(function (r) { return r.area >= 1.5 && !SKIP.test(r.kind + r.name); }).map(function (r) { return { name: r.name, kind: r.kind, area: F.r1(r.area) }; }); $('area').value = t['전용']; drawRooms(); };
+      $('type').onchange = pick; pick();
+    }).catch(setManual);
+  });
+  setManual(); drawGlobal();
+
+  var CLAIMS = {
+    leak: ['젖은 곳 사진 — 가까이 한 장, 방 전체가 보이게 한 장(날짜 보이게)', '원인 세대가 윗집이면 윗집의 일상생활배상책임보험으로 청구', '누수 탐지 소견서 또는 관리사무소 확인서', '이 계산서 — 공정별 물량·단가 근거'],
+    fire: ['소방서 「화재 증명원」(화재 난 곳 관할 소방서·누리집에서 발급)', '타기 전·후 사진, 탄 살림살이 목록(복구비와 따로 청구)', '화재보험·주택종합보험 증권 — 아파트 단체 화재보험은 관리사무소에 확인', '전기 안전 점검 뒤 통전 — 배선이 녹았으면 점검 전 전기를 켜지 말 것', '이 계산서 — 공정별 물량·단가 근거'],
+    flood: ['물 찬 높이가 보이게 벽에 줄자를 대고 찍은 사진', '읍·면·동 주민센터에 주택 침수 피해 신고 — 재난지원금은 신고가 먼저', '풍수해보험(정책보험)·주택종합보험 가입 여부 확인', '젖은 석고·단열재는 말려도 곰팡이가 남으니 잘라 낸 사진도 남기기', '이 계산서 — 공정별 물량·단가 근거'],
+    typhoon: ['깨진 유리·창 사진, 바람이 분 날짜', '창호·외벽은 공용 부분일 수 있으니 관리사무소에 먼저 알리기', '주택종합보험·풍수해보험 가입 여부 확인', '이 계산서 — 공정별 물량·단가 근거']
+  };
+  function collect() {
+    var h = hzNow(), rooms = ROOMS.map(function (r, i) {
+      var el = $('rooms').querySelector('.chips[data-r="' + i + '"]'), p = el ? F.picked(el) : [], hit = {};
+      if (h === 'fire') hit.sev = +p[0] || 0; else p.forEach(function (k) { hit[k] = 1; });
+      return { name: r.name, kind: r.kind, area: r.area, hit: hit };
+    });
+    var o = { wp: F.picked($('wp'))[0], fl: F.picked($('fl'))[0] };
+    if (h === 'leak') { o.lvl = +F.picked($('lvl'))[0] || 2; o.cause = F.picked($('cause'))[0]; }
+    if (h === 'flood') o.h = Number($('hcm').value) || 0;
+    if (h === 'typhoon') { o.glass = Number($('glass').value) || 0; o.sash = Number($('sash').value) || 0; o.sil = Number($('sil').value) || 0; o.rainFloor = $('rainFloor').checked; }
+    return { hazard: h, rooms: rooms, opt: o };
+  }
+  $('go').addEventListener('click', function () {
+    F.prices().then(function (P) {
+      var inp = collect(), R = M.estimate(inp, P);
+      if (!R) { alert(inp.hazard === 'flood' ? '잠긴 방과 물 높이를 넣어 주세요.' : inp.hazard === 'typhoon' ? '깨진 유리·창 수나 빗물 들어온 방을 넣어 주세요.' : '상한 방을 한 군데 이상 눌러 주세요.'); return; }
+      LAST = { inp: inp, R: R };
+      $('dm').textContent = HZN[inp.hazard] + ' 복구비 계산서 · ' + F.docNo('JJD') + ' · ' + F.today();
+      $('totLabel').textContent = HZN[inp.hazard] + ' 복구 예상 금액 · 부가세 10% 별도';
+      $('tot').textContent = F.won(R.mid);
+      $('rng').textContent = '철거 뒤 드러나는 피해까지 ' + F.man(R.lo) + ' ~ ' + F.man(R.hi);
+      $('apt').textContent = (APT ? APT.name + ' · ' : '') + '전용 ' + $('area').value + '㎡';
+      $('facts').innerHTML = '<div><b>' + R.surf + '㎡</b><span>다시 바를 벽·천장</span></div><div><b>' + R.floorA + '㎡</b><span>바꿀 바닥</span></div><div><b>' + R.days + '일</b><span>예상 공사 기간(건조 포함)</span></div>';
+      $('bars').innerHTML = F.bars(R.rows);
+      var h = ''; R.order.forEach(function (s) { if (!R.sec[s]) return; h += '<tr class="sec"><td colspan="3">' + F.esc(s) + '</td></tr>'; R.sec[s].forEach(function (l) { h += '<tr><td>' + F.esc(l.name) + (l.note ? '<small>' + F.esc(l.note) + '</small>' : '') + '</td><td class="n">' + l.qty + ' ' + l.unit + '<small>' + F.won(l.price) + '</small></td><td class="n">' + F.won(l.amt) + '</td></tr>'; }); });
+      h += '<tr class="sec"><td colspan="2">합계 (부가세 10% 별도)</td><td class="n">' + F.won(R.mid) + '</td></tr>';
+      $('lines').innerHTML = h;
+      $('basis').textContent = '단가 근거: ' + P.source + ' 중위값(' + P.updated + '). 실견적에 아직 줄이 없는 항목(그을음 세정·물 빼기 등)은 집지니 현장 기준값. 상한 곳: ' + R.used.join(', ') + '.';
+      $('claims').innerHTML = CLAIMS[inp.hazard].map(function (t) { return '<li class="good">' + F.esc(t) + '</li>'; }).join('');
+      $('res').hidden = false; $('res').scrollIntoView({ behavior: 'smooth' });
+      try { gtag('event', 'fix_calc', { tool: 'disaster_' + inp.hazard, value: Math.round(R.mid / 10000) }); } catch (_g) {}
+    }).catch(function () { alert('단가 자료를 못 불러왔습니다. 잠시 뒤 다시 눌러 주세요.'); });
+  });
+  $('sendBtn').addEventListener('click', function () {
+    var nm = $('nm').value.trim(), ph = $('ph').value.trim(), m = $('sendMsg');
+    if (!nm || !F.phoneOk(ph)) { m.className = 'err-msg'; m.textContent = '이름과 휴대폰 번호를 확인해 주세요.'; return; }
+    if (!$('ag').checked) { m.className = 'err-msg'; m.textContent = '보내기 동의에 표시해 주세요.'; return; }
+    if (!LAST) return;
+    this.disabled = true; m.className = ''; m.textContent = '보내는 중…';
+    var R = LAST.R, lines = []; R.order.forEach(function (s) { (R.sec[s] || []).forEach(function (l) { lines.push([s, l.name, l.qty, l.unit, l.price, l.amt]); }); });
+    F.send({ kind: 'leak', act: 'ask', hazard: HZN[LAST.inp.hazard], name: nm, phone: ph, ho: $('ho').value.trim(), want: [HZN[LAST.inp.hazard] + ' 복구'], apt: APT ? { code: APT.code, name: APT.name, gu: APT.gu } : null, area: Number($('area').value) || 0, total: R.mid, used: R.used, lvl: (LAST.inp.opt.lvl || LAST.inp.opt.h || ''), cause: LAST.inp.hazard, lines: lines })
+      .then(function () { m.className = 'ok-msg'; m.textContent = '보냈습니다. 오늘 안에(밤에는 다음 날 아침) 010-9806-0422 에서 연락드립니다. 피해 사진을 카카오톡 @집지니 로 보내 주시면 더 빨라집니다.'; try { gtag('event', 'fix_ask', { tool: 'disaster' }); } catch (_g) {} })
+      .catch(function () { m.className = 'err-msg'; m.textContent = '보내지 못했습니다. 010-9806-0422 로 문자 주세요.'; $('sendBtn').disabled = false; });
+  });
+})();
+</script>
+</body>
+</html>

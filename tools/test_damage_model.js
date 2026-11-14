@@ -1,0 +1,22 @@
+// 재난 복구비 모델 시험: node tools/test_damage_model.js
+const M = require('../assets/fix/damage_model.js'), P = require('../data/repair-prices.json');
+const R = M.typicalRooms(84); let bad = 0;
+const ok = (c, m) => { if (!c) { bad++; console.log('틀림', m); } };
+const man = n => Math.round(n / 1e4).toLocaleString() + '만';
+const run = (name, inp) => { const r = M.estimate(inp, P); console.log(name.padEnd(22), r ? man(r.mid) + ' (' + man(r.lo) + '~' + man(r.hi) + ') ' + r.days + '일 · ' + r.rows.map(x => x.k + ' ' + man(x.v)).join(', ') : '없음'); return r; };
+const set = (f) => R.map(r => Object.assign({}, r, { hit: f(r) }));
+const a = run('누수 거실 천장 젖음', { hazard: 'leak', rooms: set(r => r.name === '거실' ? { ceil: 1 } : {}), opt: { lvl: 2 } });
+const b = run('누수 곰팡이+원인 욕실', { hazard: 'leak', rooms: set(r => r.name === '안방' ? { ceil: 1, wall: 1 } : {}), opt: { lvl: 3, cause: 'mybath' } });
+ok(b.mid > a.mid, '누수 심할수록 비쌈');
+const f1 = run('화재 주방 그을음', { hazard: 'fire', rooms: set(r => r.kind === '주방' ? { sev: 1 } : {}) });
+const f2 = run('화재 주방 일부 탐', { hazard: 'fire', rooms: set(r => r.kind === '주방' ? { sev: 2 } : r.kind === '거실' ? { sev: 1 } : {}) });
+const f3 = run('화재 집 전체 다 탐', { hazard: 'fire', rooms: set(r => ({ sev: 3 })) });
+ok(f1.mid < f2.mid && f2.mid < f3.mid, '화재 단계');
+ok(f3.mid > 3e7 && f3.mid < 1.5e8, '화재 전소 84㎡ 3천만~1.5억 사이');
+const w1 = run('침수 10cm 전체', { hazard: 'flood', rooms: set(r => ({ on: 1 })), opt: { h: 10 } });
+const w2 = run('침수 50cm 전체', { hazard: 'flood', rooms: set(r => ({ on: 1 })), opt: { h: 50 } });
+ok(w1.mid < w2.mid, '침수 높이');
+const t = run('태풍 유리2 실리콘3 거실빗물', { hazard: 'typhoon', rooms: set(r => r.kind === '거실' ? { rain: 1 } : {}), opt: { glass: 2, sil: 3 } });
+ok(t && t.mid > 0, '태풍');
+ok(M.estimate({ hazard: 'fire', rooms: set(r => ({})) }, P) === null, '피해 없으면 없음');
+console.log(bad ? '실패 ' + bad : '통과'); process.exit(bad ? 1 : 0);
