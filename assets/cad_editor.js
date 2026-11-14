@@ -408,6 +408,100 @@
     ['floor', '바닥', '바닥재 (마루 · 장판)', '방·거실·주방 전체', 1, function (R) { return R.filter(isDry).map(function (r) { return aArea('floor', r); }); }],
     ['base', '바닥', '걸레받이', '방·거실·주방 둘레', 1, function (R) { return R.filter(isDry).map(function (r) { return aLoop('base', r); }); }]
   ];
+
+  // ── 2026-11-14 견적대로 놓기 + 견적·도면 물량 대조 (대표: 「견적서와 작업지시서가 따로 놀지 않게」)
+  //   콘솔 견적서 줄(공종·품목·규격·수량·단위)을 붙여 넣으면 품목마다 맞는 작업 기호를 방에 놓고, 면적·길이 항목은 도면 물량과 견적 수량을 맞대 10% 넘게 다르면 표시한다.
+  var QT_UNITS = /(개소|개|곳|짝|㎡|m2|m|롤|식|품|박스|세트|칸|EA|ea)/;
+  function qtParse(txt) {
+    txt = String(txt || '').trim(); if (!txt) return [];
+    try { var j = JSON.parse(txt); if (Array.isArray(j)) return j.map(function (x) { return { n: String(x.품목 || ''), t: [x.공종, x.품목, x.규격].filter(Boolean).join(' '), q: Number(x.수량) || 0, u: String(x.단위 || '') }; }); } catch (e) {}
+    return txt.split(/\n+/).map(function (ln) { var c = ln.split('\t'), q = 0, u = '', t = ln;
+      for (var i = c.length - 1; i > 0; i--) { var n = Number(String(c[i - 1]).replace(/,/g, '')); if (QT_UNITS.test(String(c[i]).trim()) && String(c[i]).trim().length <= 3 && isFinite(n) && n > 0) { q = n; u = String(c[i]).trim(); t = c.slice(0, i - 1).join(' '); break; } }
+      if (!q) { var m = ln.match(/([\d.,]+)\s*(개소|개|곳|짝|㎡|m|롤|식|품|박스|세트|칸)(?!\S*[가-힣]{2})/); if (m) { q = Number(m[1].replace(/,/g, '')); u = m[2]; } }
+      return { n: (c.length > 2 ? c[1] : t.slice(0, 40)), t: t, q: q, u: u }; }).filter(function (x) { return x.t && x.t.length > 1; });
+  }
+  function qtSpread(R, n) { var A = R.map(function (r) { return Math.max(0.5, rM2(r) || pxArea(r.pts)); }), S = A.reduce(function (a, b) { return a + b; }, 0) || 1, k = A.map(function (a) { return Math.floor(n * a / S); }), left = n - k.reduce(function (a, b) { return a + b; }, 0);
+    var ord = A.map(function (a, i) { return [n * a / S - k[i], i]; }).sort(function (x, y) { return y[0] - x[0]; }); for (var i = 0; i < left && i < ord.length; i++) k[ord[i][1]]++; return k; }
+  function qtDoors(kind, n) { var R = rooms(), out = [];
+    shapes.forEach(function (d) { if (d.t !== 'door' || out.length >= n) return; var mx = (d.x1 + d.x2) / 2, my = (d.y1 + d.y2) / 2, dx = d.x2 - d.x1, dy = d.y2 - d.y1, L = Math.hypot(dx, dy) || 1, nx = -dy / L, ny = dx / L, hit = false;
+      [-U(), U()].forEach(function (o) { R.forEach(function (r) { if (inPoly([mx + nx * o, my + ny * o], r.pts) && rk(r) === kind) hit = true; }); });
+      if (hit) out.push([mx, my]); }); return out; }
+  function qtInPts(r, n) { if (n <= 0) return []; var c = Math.max(1, Math.round(Math.sqrt(n))), best = ptsIn(r, n); for (var t = 0; t < 6 && best.length < n; t++) { var xs = r.pts.map(function (p) { return p[0]; }), ys = r.pts.map(function (p) { return p[1]; }), x0 = Math.min.apply(0, xs), x1 = Math.max.apply(0, xs), y0 = Math.min.apply(0, ys), y1 = Math.max.apply(0, ys), cols = c + t + 1, rows = Math.ceil(n / cols) + t + 1, o = []; for (var j = 0; j < rows; j++) for (var i = 0; i < cols; i++) { var p = [x0 + (x1 - x0) * (i + 0.5) / cols, y0 + (y1 - y0) * (j + 0.5) / rows]; if (inPoly(p, r.pts)) o.push(p); } if (o.length >= n) { var st = o.length / n; best = []; for (var k = 0; k < n; k++) best.push(o[Math.floor(k * st)]); } } return best.slice(0, n); }
+  function qtWallPts(r, n) { if (n <= 0) return []; var P = r.pts, E = [], tot = 0, C = centroid(P), u = U(); P.forEach(function (a, i) { var b = P[(i + 1) % P.length], L = Math.hypot(b[0] - a[0], b[1] - a[1]); E.push([a, b, L]); tot += L; }); var out = [], step = tot / n;
+    for (var k = 0; k < n; k++) { var d = step * (k + 0.5), j = 0; while (j < E.length - 1 && d > E[j][2]) { d -= E[j][2]; j++; } var a = E[j][0], b = E[j][1], f = E[j][2] ? d / E[j][2] : 0, m = [a[0] + (b[0] - a[0]) * f, a[1] + (b[1] - a[1]) * f], dd = Math.hypot(C[0] - m[0], C[1] - m[1]) || 1, p = [m[0] + (C[0] - m[0]) / dd * u * 0.7, m[1] + (C[1] - m[1]) / dd * u * 0.7]; out.push(inPoly(p, P) ? p : centroid(P)); } return out; }
+  function qtBaseLen(R) { var mm = mmpp(); if (!mm) return 0; var L = 0; R.forEach(function (r) { L += lineLen(r.pts.concat([r.pts[0]])) * mm / 1000; });
+    shapes.forEach(function (d) { if (d.t !== 'door') return; var w = Math.hypot(d.x2 - d.x1, d.y2 - d.y1) * mm / 1000, mx = (d.x1 + d.x2) / 2, my = (d.y1 + d.y2) / 2, nx = -(d.y2 - d.y1) / (w / mm * 1000 || 1), ny = (d.x2 - d.x1) / (w / mm * 1000 || 1); [-U(), U()].forEach(function (o) { R.forEach(function (r) { if (inPoly([mx + nx * o, my + ny * o], r.pts)) L -= w; }); }); });
+    shapes.forEach(function (q) { if (q.au === 'quote' && q.k === 'sink' && q.f === 'l') L -= lineLen(q.pts) * mm / 1000; }); return Math.max(0, L); }
+  function qtKind(x) { var t = x.t, u = x.u, nm = x.n || t.slice(0, 40);
+    if (/(기술자|조공|잡부|보조|부자재|소모자재|폐기물|사다리|운반|양중|청소|보양|동의서|실측|목수|필름공|도배공)/.test(nm)) return '';
+    if (/매입등|다운라이트/.test(t) && /개|곳/.test(u)) return 'dl';
+    if (/일괄\s*소등/.test(t)) return 'swAll';
+    if (/콘센트/.test(t) && /개|곳/.test(u)) return 'ol';
+    if (/스위치/.test(t) && !/실링팬|일괄/.test(t) && /개|곳/.test(u)) return 'sw';
+    if (/환풍기/.test(t)) return 'fan';
+    if (/(방문|욕실문|도어|문짝)/.test(t) && /짝/.test(u) && !/(가스켓|베란다|중문|현관문)/.test(t)) return /욕실/.test(t) ? 'doorB' : 'doorR';
+    if (/강마루|마루|장판|바닥재/.test(t) && /㎡|m2/.test(u)) return 'floor';
+    if (/걸레받이/.test(t) && /^m$/.test(u)) return 'base';
+    if (/몰딩/.test(t) && !/몰딩\s*없/.test(t) && /^m$/.test(u)) return 'mold';
+    if (/벽지|도배/.test(t) && /롤|㎡/.test(u)) return 'paper';
+    if (/방수/.test(t) && /욕실/.test(t)) return 'wp';
+    if (/(타일|포세린)/.test(t) && /욕실/.test(t) && !/줄눈/.test(t)) return 'tileB';
+    if (/(타일|포세린|디딤석)/.test(t) && /현관/.test(t)) return 'tileE';
+    if (/타일/.test(t) && /(발코니|베란다|세탁실|실외기)/.test(t)) return 'tileV';
+    if (/양변기/.test(t)) return 'wc';
+    if (/세면대/.test(t)) return 'bs';
+    if (/탄성코트/.test(t) || (/도장/.test(t) && !/필름/.test(t) && /(발코니|베란다|세탁실|보일러)/.test(t))) return 'paint';
+    if (/(하부장|주방 가구|싱크대|싱크장)/.test(t) && !/(걸레받이|수전|볼|후드)/.test(t)) return 'sink';
+    if (/신발장/.test(t)) return 'shoe';
+    if (/우물\s*천장/.test(t) && /거실/.test(t)) return 'ceil';
+    if (/철거/.test(t) && /품|식/.test(u) && /(전체|인력)/.test(t)) return 'dmA';
+    return ''; }
+  function qtPlace(lines) {
+    snap(); shapes = shapes.filter(function (q) { return q.au !== 'quote'; });
+    var R = rooms(), dry = R.filter(isDry), bath = R.filter(isBath), bal = R.filter(isBal), by = function (k) { return R.filter(function (r) { return rk(r) === k; }); }, all = lines.map(function (x) { return x.t; }).join(' '), add = [], doorPts = [], usedDoor = [];
+    var noMoldLiving = /거실[^\n]{0,14}무몰딩/.test(all), noPaperLivingWall = /거실\s*(벽)?[^\n]{0,10}제외/.test(all);
+    var put = function (o, i) { o.au = 'quote'; o.qi = i; rqStamp(o); add.push(o); };
+    // 같은 기호를 여러 줄이 가리키면(예: 콘센트 교체 34 + 증설 6 + 홈파기 2) 수량이 가장 큰 줄 하나로 놓고 나머지는 「포함」
+    var main = {}; lines.forEach(function (x, i) { x.kind = qtKind(x); x.hit = ''; x.incl = null; if (!x.kind) return; var m = main[x.kind]; if (m == null || (lines[m].q || 0) < (x.q || 0)) main[x.kind] = i; });
+    lines.forEach(function (x, i) { if (x.kind && main[x.kind] !== i) { x.hit = 'incl'; x.incl = main[x.kind] + 1; } });
+    Object.keys(main).forEach(function (kd) { var i = main[kd], x = lines[i], n = Math.round(x.q || 0), t = x.t; x.hit = kd;
+      if (kd === 'dl' && n) { var T = dry.concat(bath), K = qtSpread(T, n); T.forEach(function (r, j) { qtInPts(r, K[j]).forEach(function (p) { put(aPt('dl', p), i); }); }); }
+      else if (kd === 'swAll') by('현관').slice(0, 1).forEach(function (r) { var q = aPt('sw', ptsWall(r, 1)[0] || centroid(r.pts)); q.note = '일괄소등'; put(q, i); });
+      else if ((kd === 'ol' || kd === 'sw') && n) { var T2 = dry.concat(bath), K2 = qtSpread(T2, n); T2.forEach(function (r, j) { qtWallPts(r, K2[j]).forEach(function (p) { put(aPt(kd, p), i); }); }); }
+      else if (kd === 'fan') bath.forEach(function (r) { put(aPt('fan', centroid(r.pts)), i); });
+      else if ((kd === 'doorR' || kd === 'doorB') && n) qtDoors(kd === 'doorB' ? '욕실' : '방', 99).filter(function (p) { return !usedDoor.some(function (u) { return Math.hypot(u[0] - p[0], u[1] - p[1]) < 2; }); }).slice(0, n).forEach(function (p) { usedDoor.push(p); doorPts.push(p); var q = aPt('doorN', p); q.note = '견적 ' + (i + 1) + '번 줄'; put(q, i); });
+      else if (kd === 'floor') dry.forEach(function (r) { put(aArea('floor', r), i); });
+      else if (kd === 'base') dry.forEach(function (r) { put(aLoop('base', r), i); });
+      else if (kd === 'mold') dry.forEach(function (r) { if (noMoldLiving && rk(r) === '거실') return; put(aLoop('mold', r), i); });
+      else if (kd === 'paper') dry.forEach(function (r) { var q = aArea('paper', r); if (noPaperLivingWall && rk(r) === '거실') q.note = '천장만 (벽 제외)'; put(q, i); });
+      else if (kd === 'wp') bath.forEach(function (r) { put(aArea('wp', r), i); });
+      else if (kd === 'tileB') bath.forEach(function (r) { put(aArea('tileF', r), i); put(aLoop('tileW', r), i); });
+      else if (kd === 'tileE') by('현관').forEach(function (r) { put(aArea('tileF', r), i); });
+      else if (kd === 'tileV') bal.forEach(function (r) { put(aArea('tileF', r), i); });
+      else if (kd === 'wc') bath.forEach(function (r) { var P = ptsWall(r, 2); if (P[0]) put(aPt('wc', P[0], 1), i); });
+      else if (kd === 'bs') bath.forEach(function (r) { var P = ptsWall(r, 2); if (P[1]) put(aPt('bs', P[1], 1), i); });
+      else if (kd === 'paint') bal.forEach(function (r) { put(aLoop('paint', r), i); });
+      else if (kd === 'sink') by('주방').slice(0, 1).forEach(function (r) { var P = r.pts, b = 0, bl = 0; P.forEach(function (a, j) { var c = P[(j + 1) % P.length], L = Math.hypot(c[0] - a[0], c[1] - a[1]); if (L > bl) { bl = L; b = j; } }); var C = centroid(P), off = function (p) { return [p[0] + (C[0] - p[0]) * 0.12, p[1] + (C[1] - p[1]) * 0.12]; }; put({ t: 'wk', k: 'sink', st: 'new', f: 'l', pts: [off(P[b]), off(P[(b + 1) % P.length]), off(P[(b + 2) % P.length])], note: '견적 ' + (i + 1) + '번 줄' }, i); });
+      else if (kd === 'shoe') by('현관').slice(0, 1).forEach(function (r) { var xs = r.pts.map(function (p) { return p[0]; }), ys = r.pts.map(function (p) { return p[1]; }), x1 = Math.max.apply(0, xs), y0 = Math.min.apply(0, ys), y1 = Math.max.apply(0, ys), w = (x1 - Math.min.apply(0, xs)) * 0.3; put({ t: 'wk', k: 'shoe', st: 'new', f: 'a', pts: [[x1 - w, y0], [x1, y0], [x1, y1], [x1 - w, y1]] }, i); });
+      else if (kd === 'ceil') by('거실').slice(0, 1).forEach(function (r) { var C = centroid(r.pts); put({ t: 'wk', k: 'ceil', st: 'new', f: 'a', pts: r.pts.map(function (p) { return [p[0] + (C[0] - p[0]) * 0.15, p[1] + (C[1] - p[1]) * 0.15]; }), note: '우물천장' }, i); });
+      else if (kd === 'dmA') dry.concat(bath).forEach(function (r) { put(aArea('dmA', r, 'remove'), i); });
+    });
+    if (/필름/.test(all) && main.doorR != null) doorPts.forEach(function (p) { var q = aPt('film', [p[0], p[1] + U() * 0.6]); q.note = '문선 필름'; put(q, -1); });
+    add.forEach(function (q) { shapes.push(q); }); touch(); sideDraw();
+    return { n: add.length, hit: lines.filter(function (x) { return x.hit && x.hit !== 'incl'; }).length, incl: lines.filter(function (x) { return x.hit === 'incl'; }).length };
+  }
+  function qtCompare(lines) {
+    var mm = mmpp(); if (!mm) return [];
+    var out = [], sumA = function (k) { return shapes.reduce(function (a, q) { return a + (q.au === 'quote' && q.k === k && q.f === 'a' ? pxArea(q.pts) * mm * mm / 1e6 : 0); }, 0); }, sumL = function (k) { return shapes.reduce(function (a, q) { return a + (q.au === 'quote' && q.k === k && q.f === 'l' ? lineLen(q.pts) * mm / 1000 : 0); }, 0); }, cnt = function (i) { return shapes.filter(function (q) { return q.au === 'quote' && q.qi === i && q.f === 'p'; }).length; };
+    lines.forEach(function (x, i) { if (!x.hit || x.hit === 'incl') return; var d = null, u = x.u, lab = x.t.slice(0, 40);
+      if (x.hit === 'floor' && /㎡|m2/.test(u)) d = sumA('floor'); else if (x.hit === 'base' && /m/.test(u)) d = qtBaseLen(rooms().filter(isDry)); else if (x.hit === 'mold' && /m/.test(u)) d = sumL('mold');
+      else if (/^(dl|ol|sw|doorR|doorB|wc|bs|fan)$/.test(x.hit) && /개|곳|짝/.test(u)) d = cnt(i);
+      if (d == null) return; var r = x.q ? d / x.q - 1 : 0; out.push({ no: i + 1, lab: lab, q: x.q, u: u, d: Math.round(d * 10) / 10, gap: Math.round(r * 100), bad: Math.abs(r) > 0.1 }); });
+    return out;
+  }
+  function qtDraw() { var el = $('jjeQtOut'); if (!el) return; var L = qtParse(($('jjeQt') || {}).value); if (!L.length) { el.innerHTML = ''; return; } var C = qtCompare(L);
+    el.innerHTML = '<p class="jje-p">견적 ' + L.length + '줄 중 ' + L.filter(function (x) { return x.hit; }).length + '줄을 도면에 놓았습니다' + (L.some(function (x) { return x.hit === 'incl'; }) ? '(' + L.filter(function (x) { return x.hit === 'incl'; }).length + '줄은 같은 기호의 큰 줄에 포함)' : '') + '. 면적·길이는 바닥 둘레 기준이며 문 폭·가구 자리는 빼기 전 값입니다.</p>' + (C.length ? '<table class="jje-qty"><tr class="tr"><td>견적 줄</td><td>견적 → 도면</td></tr>' + C.map(function (c) { return '<tr><td>' + c.no + '. ' + esc(c.lab) + '</td><td' + (c.bad ? ' style="color:#b4232a;font-weight:700"' : '') + '>' + c.q + ' → ' + c.d + ' ' + esc(c.u) + (c.gap ? ' (' + (c.gap > 0 ? '+' : '') + c.gap + '%)' : '') + '</td></tr>'; }).join('') + '</table>' : '') + (C.some(function (c) { return c.bad; }) ? '<p class="jje-p" style="color:#b4232a">빨간 줄은 견적과 도면이 10% 넘게 다릅니다. 보내기 전에 수량을 확인하세요.</p>' : ''); }
+  var qtText = '';
   function pickSet(id, on) { var P = PICKS.filter(function (x) { return x[0] === id; })[0]; if (!P) return 0; shapes = shapes.filter(function (q) { return q.au !== id; }); var n = 0;
     if (on) { P[5](rooms()).forEach(function (q) { q.au = id; rqStamp(q); shapes.push(q); n++; }); pick[id] = 1; } else delete pick[id]; return n; }
   function pickQty(id) { var mm = mmpp(), n = 0, A = 0, L = 0; shapes.forEach(function (q) { if (q.au !== id || q.t !== 'wk') return; if (q.f === 'p') n++; else if (q.f === 'a') A += mm ? pxArea(q.pts) * mm * mm / 1e6 : 0; else L += mm ? lineLen(q.pts) * mm / 1000 : 0; });
@@ -429,9 +523,10 @@
     var live = rows.filter(function (r) { return !r.chk && r.qty; });
     if (live.length) { h += '<div class="jje-h">지금 고른 공사의 물량 · 자재 (어림)</div>';
       live.forEach(function (r) { var m = takeMats(r), ex = takeEx(r); h += '<div class="pk-r"><div class="pk-r1"><b>' + esc(r.label) + '</b><span>' + takeNum(r.qty) + ' ' + esc(r.unit) + '</span></div>' + (r.rooms.length ? '<div class="pk-r2">' + esc(r.rooms.join(' · ')) + '</div>' : '') + (m ? '<div class="pk-r2">자재 · 품: ' + m + '</div>' : '') + (ex ? '<div class="pk-r2">' + ex + '</div>' : '') + '</div>'; }); }
+    h += '<div class="jje-h" style="margin-top:18px">견적대로 놓기</div><p class="jje-p" style="margin-top:0">콘솔 견적서 줄(공종·품목·규격·수량·단위)을 그대로 붙여 넣으면 품목마다 맞는 기호를 방에 놓고, 견적 수량과 도면 물량을 맞대 봅니다.</p><textarea id="jjeQt" rows="4" style="width:100%;font:inherit;font-size:13px;border:1px solid #DCDFD8;border-radius:4px;padding:8px" placeholder="예) 바닥공사\t강마루 동화 나투스강\t…\t80\t㎡">' + esc(qtText) + '</textarea><div class="jje-chips" style="margin-top:8px"><button type="button" class="jje-chip on" data-a="qtPlace">견적대로 놓기</button></div><div id="jjeQtOut"></div>';
     h += soloChips();
     h += '<div class="jje-chips" style="margin-top:14px"><button type="button" class="jje-chip on" data-a="pane" data-v="take">물량 · 예상 공사비 보기</button><button type="button" class="jje-chip" data-a="pane" data-v="work">직접 고치기</button></div>';
-    el.innerHTML = h;
+    el.innerHTML = h; if (qtText) qtDraw();
   }
   // 보기: 한 공종만 — 공정이 겹쳐 도면이 지저분해지지 않게
   function soloChips() { var have = {}; shapes.forEach(function (q) { if (q.t === 'wk' && SYMS[q.k]) have[SYMS[q.k][0]] = 1; }); var T = TRADES.filter(function (t) { return have[t[0]]; }); if (T.length < 2) return '';
@@ -1230,6 +1325,7 @@
     else if (a === 'pane') { pane = v; if (v === 'take' && OPT.onEvent) OPT.onEvent('cad_takeoff_open'); if (root.innerWidth <= 860 && !$('jjeRoot').classList.contains('side-open')) sideOpen(true); else sideDraw(); if (v === 'meas' && mmpp()) measShow(); }
     else if (a === 'fold') sideOpen(!$('jjeRoot').classList.contains('side-open'));
     else if (a === 'pk') { snap(); var onP = !pick[v], nP = pickSet(v, onP), PP = PICKS.filter(function (x) { return x[0] === v; })[0]; if (onP) { solo = PP[1]; if (hide[PP[1]]) { hide[PP[1]] = false; laySave(); layDraw(); } } say(onP ? (nP ? PP[2] + ' — ' + nP + '곳에 넣었습니다. 지금은 ' + PP[1] + '만 보입니다.' : PP[2] + ' — 넣을 자리가 없습니다(해당하는 방이 없음).') : PP[2] + '을(를) 뺐습니다.'); if (OPT.onEvent) OPT.onEvent('cad_pick'); touch(); sideDraw(); }
+    else if (a === 'qtPlace') { qtText = ($('jjeQt') || {}).value || ''; var L = qtParse(qtText); if (!L.length) { toast('견적 줄을 붙여 넣어 주세요.'); return; } var res = qtPlace(L); say('견적 ' + L.length + '줄 중 ' + res.hit + '줄을 기호 ' + res.n + '개로 놓았습니다' + (res.incl ? ' (같은 기호를 가리키는 ' + res.incl + '줄은 큰 줄에 포함)' : '') + '.'); qtDraw(); if (OPT.onEvent) OPT.onEvent('cad_quote_place'); }
     else if (a === 'pkAll') { snap(); var tot = 0; PICKS.forEach(function (P) { if (P[4]) tot += pickSet(P[0], true); }); solo = '도배'; say('올수리 기본 공사를 모두 넣었습니다(' + tot + '곳). 안 할 공사는 체크를 끄세요. 도면은 공종 하나씩 나눠 봅니다.'); if (OPT.onEvent) OPT.onEvent('cad_pick_all'); touch(); sideDraw(); }
     else if (a === 'pkNone') { snap(); PICKS.forEach(function (P) { pickSet(P[0], false); }); solo = ''; say('자동으로 넣은 공사를 모두 뺐습니다. 직접 놓은 기호는 그대로입니다.'); touch(); sideDraw(); }
     else if (a === 'solo') { solo = v || ''; redraw(); sideDraw(); say(solo ? solo + ' 공종만 보고 있습니다.' : '모든 공종을 겹쳐서 보고 있습니다.'); }
@@ -1263,6 +1359,6 @@
     if (t.id === 'jjeCeil') { var cv = Math.round(Number(t.value)); if (cv >= 2000 && cv <= 3500) { ceilH = cv; if (ev.type === 'change') takeDraw(); saveSoon(); } return; } if (t.getAttribute && t.getAttribute('data-chk')) { var ck = t.getAttribute('data-chk'); if (t.checked) chk[ck] = true; else delete chk[ck]; takeDraw(); costDraw(); saveSoon(); return; } if (t.id === 'jjeGNv') gd.nv = gN(t.value); else if (t.id === 'jjeGNh') gd.nh = gN(t.value); else if (t.id === 'jjeGOff') gd.off = t.value; else if (t.id === 'jjeDia') { var dv = Math.round(Number(t.value)); if (dv >= 50 && dv <= 200) wk.dia = dv; } else if (t.id === 'jjeRow') { wk.row = Math.max(1, Math.min(40, Number(t.value) || 1)); if (tool === 'wk') wkHint(); } else if (t.id === 'jjeName') { planName = t.value.trim().slice(0, 30) || '우리 집'; $('jjeNm').textContent = planName; saveSoon(); } else if (t.getAttribute && t.getAttribute('data-p')) propSet(t.getAttribute('data-p'), t.value); }
   function leave() { if (full) { full = false; applyFull(); } var s = $('jjeSheet'); if (s) s.remove(); }
 
-  root.JJCadEditor = { mount: mount, open: open, fromPlan: fromPlan, fromV1: fromV1, getState: getState, quote: quotePack, leave: leave, SYMS: SYMS, TRADES: TRADES, CATS: CATS,
+  root.JJCadEditor = { mount: mount, open: open, fromQuote: function (lines) { var L = Array.isArray(lines) ? lines.map(function (x) { return { n: String(x.품목 || ''), t: [x.공종, x.품목, x.규격].filter(Boolean).join(' '), q: Number(x.수량) || 0, u: String(x.단위 || '') }; }) : qtParse(lines); var r = qtPlace(L); return { placed: r, compare: qtCompare(L) }; }, fromPlan: fromPlan, fromV1: fromV1, getState: getState, quote: quotePack, leave: leave, SYMS: SYMS, TRADES: TRADES, CATS: CATS,
     _test: { shapes: function () { return shapes; }, warn: warnAll, take: takeRows, takeText: takeText, rows: workRows, sum: function () { return workSum(workRows()); }, toClient: function (x, y) { var r = $('jjeCv').getBoundingClientRect(); return [r.left + (x - SX) * r.width / SW, r.top + (y - SY) * r.height / SH]; }, mmpp: mmpp, view: function () { return V; } } };
 })(window);
