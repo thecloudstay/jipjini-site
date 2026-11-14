@@ -37,3 +37,31 @@
   .scope-t tr.grp{padding:0}
   .scope-not{grid-template-columns:1fr}
 }
+
+/* 요율표·금액 계산 (2026-11-14) */
+.scope-fee{margin:44px 0 0;border-top:2px solid #232622;padding-top:22px}
+.scope-fee h3{margin:0 0 6px;font-size:21px;color:#232622}
+.scope-fee-lead{margin:0 0 20px;font-size:15px;line-height:1.8;color:#4a4f49}
+.scope-fee-grid{display:grid;grid-template-columns:1fr 1fr;gap:32px}
+.scope-fee-t{width:100%;border-collapse:collapse;font-size:14.5px;line-height:1.6}
+.scope-fee-t caption{text-align:left;font-weight:700;font-size:15px;color:#1e4d3a;padding:0 0 8px}
+.scope-fee-t th,.scope-fee-t td{border-bottom:1px solid #e3ddcf;padding:8px 6px;text-align:left}
+.scope-fee-t thead th{border-bottom:1px solid #232622;color:#4a4f49;font-size:13.5px}
+.scope-fee-t td:last-child{text-align:right;font-variant-numeric:tabular-nums}
+.scope-calc{margin:30px 0 0;padding:20px 0 0;border-top:1px solid #cfc8b8;display:grid;grid-template-columns:auto 1fr;gap:12px 18px;align-items:center;max-width:620px}
+.scope-calc>label[for]{font-weight:700;font-size:15px}
+.scope-calc-in{display:flex;align-items:center;gap:8px}
+.scope-calc-in input{width:170px;font-size:20px;padding:8px 10px;border:1px solid #9a958a;border-radius:3px;text-align:right;font-variant-numeric:tabular-nums}
+.scope-calc-in input:focus{outline:2px solid #1e4d3a;outline-offset:1px}
+.scope-calc-pm{grid-column:1/-1;font-size:15px;display:flex;gap:8px;align-items:center}
+.scope-calc-pm input{width:18px;height:18px;accent-color:#1e4d3a}
+.scope-calc-out{grid-column:1/-1;width:100%;border-collapse:collapse;font-size:15.5px}
+.scope-calc-out td{padding:9px 4px;border-bottom:1px solid #e3ddcf}
+.scope-calc-out td:last-child{text-align:right;font-variant-numeric:tabular-nums}
+.scope-calc-out tr.sum td{border-top:2px solid #232622;font-weight:700;font-size:17px;color:#1e4d3a}
+.scope-calc-out tr.ratio td{color:#6b6a63;font-size:14px}
+.scope-calc-note{grid-column:1/-1;margin:4px 0 0;font-size:13.5px;line-height:1.8;color:#6b6a63}
+@media (max-width:720px){.scope-fee-grid{grid-template-columns:1fr;gap:22px}.scope-calc{grid-template-columns:1fr}.scope-calc-in input{width:100%}}
+.scope-calc-in span{white-space:nowrap}
+.scope-fee-t thead th:last-child{text-align:right}
+@media (max-width:720px){.scope-calc-in input{width:auto;flex:1;min-width:0}}
