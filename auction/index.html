@@ -24,6 +24,12 @@
 <h1>경매 낙찰 전 수리비</h1>
 <p class="lead">입찰 전에 고칠 돈부터 셉니다. 단지·평형·상태를 고르면 공종별 수리비 범위가 나오고, 시세를 넣으면 얼마까지 써도 되는지 나옵니다.</p>
 
+<h2>감정평가서로 바로 채우기 <span class="hint" style="font-weight:400">(선택)</span></h2>
+<p class="hint" style="margin-top:0">법원 경매 물건 화면에서 받은 감정평가서 PDF를 올리면 단지·면적·연식·상태를 읽고, 내부 구조도를 집지니 도면으로 다시 그립니다. 파일은 이 화면 안에서만 읽고 어디에도 보내지 않습니다.</p>
+<div class="btns" style="margin-top:6px"><label class="btn line" for="apFile">감정평가서 PDF 올리기</label><input id="apFile" type="file" accept=".pdf,application/pdf" hidden></div>
+<div id="apMsg" class="hint"></div>
+<table class="lines" id="apFields" hidden><tbody></tbody></table>
+<div id="apPlan" style="margin-top:12px"></div>
 <h2><span class="n">1</span>물건</h2>
 <label class="f" for="q">단지 이름</label>
 <div class="find"><input id="q" type="text" autocomplete="off" placeholder="예: 계산 푸르지오, 부평 삼산"><ul id="ql"></ul></div>
@@ -76,22 +82,81 @@
 </main>
 <footer class="fix">집지니 · 대표 박찬영 · 사업자등록번호 874-10-00088 · 서울·경기·인천 · <a href="/privacy.html">개인정보 처리방침</a></footer>
 
-<script src="/assets/fix/fix.js?v=20261114"></script>
+<script src="/assets/fix/fix.js?v=20261114b"></script>
+<script src="/assets/fix/appraisal.js?v=20261114"></script>
 <script>
 (function () {
   var F = JJFix, $ = function (id) { return document.getElementById(id); };
   var APT = null, LAST = null, NOW = new Date().getFullYear();
   ['cond', 'goal'].forEach(function (id) { F.chips($(id), true); });
 
-  F.aptFinder($('q'), $('ql'), function (a) {
+  var ROOMS = null;
+  function showPlan(plan, title) {
+    ROOMS = (plan.rooms || []).map(function (r) { return { name: r.name, kind: r.kind, area: r.area }; });
+    var n = function (k) { return ROOMS.filter(function (r) { return r.kind === k; }).length; };
+    var draw = function () { try { $('apPlan').innerHTML = '<div style="border:1px solid var(--rule);border-radius:4px;padding:6px;max-width:520px">' + JJPlanStyle.svg(plan, { title: title, date: F.today() }) + '</div><p class="hint">방 ' + n('방') + ' · 욕실 ' + n('욕실') + ' · 공간 ' + ROOMS.length + '곳 — 수리비에 욕실 수를 반영합니다.</p>'; } catch (_e) {} };
+    window.JJPlanStyle ? draw() : JJAppraisal.planTools().then(draw).catch(function () {});
+  }
+  function pickApt(a, wantArea) {
     APT = a; if (a.year) $('year').value = a.year;
     $('picked').innerHTML = '<b>' + F.esc(a.name) + '</b> · ' + F.esc(a.gu + ' ' + a.dong) + (a.year ? ' · ' + a.year + '년 사용승인(' + (NOW - a.year) + '년 차)' : '') + (a.homes ? ' · ' + a.homes.toLocaleString('ko-KR') + '세대' : '');
     $('typeRow').hidden = true;
-    if (a.hasPlan) F.plan(a.code).then(function (d) {
-      var ts = d['평형'] || []; if (!ts.length) return;
+    if (!a.hasPlan) return Promise.resolve(false);
+    return F.plan(a.code).then(function (d) {
+      var ts = d['평형'] || []; if (!ts.length) return false;
       $('type').innerHTML = ts.map(function (t, i) { return '<option value="' + t['전용'] + '">' + F.esc(t['이름']) + ' · 전용 ' + t['전용'] + '㎡</option>'; }).join('');
-      $('typeRow').hidden = false; $('type').onchange = function () { $('area').value = $('type').value; }; $('area').value = ts[0]['전용'];
-    }).catch(function () {});
+      var bi = 0; if (wantArea) ts.forEach(function (t, i) { if (Math.abs(t['전용'] - wantArea) < Math.abs(ts[bi]['전용'] - wantArea)) bi = i; });
+      $('typeRow').hidden = false; $('type').selectedIndex = bi;
+      var use = function (i) { var t = ts[i]; $('area').value = t['전용']; if (t.plan && t.plan.rooms) showPlan(t.plan, a.name + ' ' + t['이름'] + ' · 집지니 도면'); };
+      $('type').onchange = function () { use($('type').selectedIndex); };
+      if (wantArea && Math.abs(ts[bi]['전용'] - wantArea) > 2) { $('typeRow').hidden = true; $('area').value = wantArea; $('apMsg').textContent += ' · 이 단지 집지니 도면에 ' + wantArea + '㎡ 평형이 없어 감정평가서 구조도로 그립니다'; return false; }
+      use(bi); return true;
+    }).catch(function () { return false; });
+  }
+  F.aptFinder($('q'), $('ql'), function (a) { pickApt(a, 0); });
+
+  // 감정평가서 → 단지 찾기·면적·연식·상태 채우기 → 도면(집지니 도면 우선, 없으면 구조도를 다시 그림)
+  function findApt(f) {
+    var nz = function (s) { return String(s || '').replace(/\s|아파트|단지|\(.*?\)/g, '').toLowerCase(); };
+    return F.getJSON('/data/apt/find.json').then(function (rows) {
+      var key = nz(f.name); if (key.length < 2) return null; var best = null, bs = 0;
+      var bg = function (x) { var o = {}; for (var i = 0; i < x.length - 1; i++) o[x.substr(i, 2)] = 1; return o; }, kb = bg(key);
+      var sim = function (n) { var nb = bg(n), a = 0, u = 0, k; for (k in kb) { u++; if (nb[k]) a++; } for (k in nb) if (!kb[k]) u++; return u ? a / u : 0; };   // 글자 두 개씩 겹침(삼산타운3단지 ↔ 삼산미래타운3단지)
+      rows.forEach(function (r) { var n = nz(r[1]); var sc = n === key ? 3 : (n.indexOf(key) > -1 || key.indexOf(n) > -1) && n.length >= 2 ? 2 : 0;
+        if (!sc && f.addr && r[3] && f.addr.indexOf(r[3]) > -1 && sim(n) >= .4) sc = 1.6;
+        if (!sc) return; if (f.gu && r[2].indexOf(f.gu) > -1) sc += 2; if (r[6]) sc += .5; if (sc > bs) { bs = sc; best = r; } });
+      return best && bs >= 3 ? { code: best[0], name: best[1], gu: best[2], dong: best[3], year: Number(best[4]) || 0, homes: best[5], hasPlan: !!best[6] } : null;
+    });
+  }
+  $('apFile').addEventListener('change', function () {
+    var file = this.files[0], m = $('apMsg'); if (!file) return; m.textContent = '감정평가서를 읽는 중…';
+    JJAppraisal.read(file, function (t) { m.textContent = t + '…'; }).then(function (R) {
+      var f = R.fields, rows = [];
+      if (f.caseNo) { rows.push(['사건번호', f.caseNo]); $('case').value = f.caseNo; }
+      if (f.addr) rows.push(['소재지', f.addr]);
+      if (f.area) { rows.push(['전용면적', f.area + '㎡']); $('area').value = f.area; }
+      if (f.year) { rows.push(['사용승인', f.year + '년 (' + (NOW - f.year) + '년 차)']); $('year').value = f.year; }
+      if (f.price) rows.push(['감정가', F.man(f.price)]);
+      rows.push(['상태 말', f.notes.length ? f.notes.join(', ') : '특이 사항 없음']);
+      $('cond').querySelectorAll('.chip').forEach(function (b) { b.setAttribute('aria-pressed', b.getAttribute('data-v') === String(f.cond) ? 'true' : 'false'); });
+      $('apFields').querySelector('tbody').innerHTML = rows.map(function (r) { return '<tr><td>' + F.esc(r[0]) + '</td><td>' + F.esc(r[1]) + '</td></tr>'; }).join('');
+      $('apFields').hidden = false;
+      m.textContent = (R.scanned ? '스캔본 · ' : '') + R.pages + '쪽 읽음' + (R.planPage ? ' · 내부 구조도 ' + R.planPage + '쪽' : ' · 내부 구조도 쪽은 못 찾음');
+      try { gtag('event', 'fix_appraisal', { scanned: R.scanned ? 1 : 0, plan: R.planPage ? 1 : 0 }); } catch (_g) {}
+      return findApt(f).then(function (a) {
+        var go = a ? ($('q').value = a.name, pickApt(a, f.area)) : Promise.resolve(false);
+        if (!a && f.name) $('apMsg').textContent += ' · 「' + f.name + '」 단지를 목록에서 못 찾음';
+        return go.then(function (used) {
+        if (f.year) $('year').value = f.year;   // 감정평가서 연도가 단지 목록보다 앞섬
+        if (used || !R.planCanvas) return;
+        $('apMsg').textContent += ' · 구조도를 집지니 도면으로 다시 그리는 중…';
+        return JJAppraisal.redraw(R.planCanvas, f.area, function (t) { $('apMsg').textContent = t + '…'; }).then(function (r) {
+          if (r && r.ok && r.rooms && r.rooms.length >= 2) { showPlan({ W: r.W, H: r.H, mmpp: r.mmpp, sum: r.sum, rooms: r.rooms, 창: r.창, 문: r.문, 외곽: r.외곽 }, '감정평가서 구조도 · 집지니가 다시 그림'); $('apMsg').textContent = '구조도를 다시 그렸습니다(원본 그림은 보여 주지 않습니다).'; }
+          else $('apMsg').textContent = '구조도에서 방을 나누지 못했습니다 — 면적 기준으로 계산합니다.';
+        });
+        });
+      });
+    }).catch(function () { m.textContent = '이 파일은 읽지 못했습니다. 아래에 단지·면적을 직접 넣어 주세요.'; });
   });
 
   // 목표별 공종: [공종, 넣는 방식] — 'all'은 평당값 그대로, 숫자는 평당값에 곱함
@@ -109,6 +174,7 @@
     var rows = [], lo = 0, mid = 0, hi = 0, seen = {};
     set.forEach(function (s) {
       var t = T[s[0]]; if (!t) return; var k = s[1];
+      if (s[0] === '욕실·타일' && ROOMS) { var nb = ROOMS.filter(function (r) { return r.kind === '욕실'; }).length; if (nb) k *= Math.min(1.5, Math.max(.5, nb / 2)); }
       var q = cond === 1 ? [t.p25 * .85, t.p25, t.p50] : cond === 3 ? [t.p50, t.p75, t.p75 * 1.15] : [t.p25, t.p50, t.p75];
       var r = { k: s[0], lo: q[0] * k * py, v: q[1] * k * py, hi: q[2] * k * py };
       if (seen[s[0]] != null) { var o = rows[seen[s[0]]]; o.lo += r.lo; o.v += r.v; o.hi += r.hi; } else { seen[s[0]] = rows.length; rows.push(r); }
