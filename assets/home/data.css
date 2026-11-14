@@ -68,3 +68,13 @@
 }
 
 .sec2>div,.dbuy>div{min-width:0}
+/* 2026-11-14 표준 물량 견본 표 */
+.dsm{margin:34px 0 0;padding-top:22px;border-top:1px solid var(--rule,#DCDFD8)}
+.dsm h3{font-size:18px;font-weight:600;letter-spacing:-.4px;margin:0 0 6px}
+.dsm>p{margin:0 0 14px;color:var(--pencil,#6B7067);line-height:1.8;max-width:720px}
+.dsm-w{overflow-x:auto}
+.dsm table{width:100%;border-collapse:collapse;font-size:15px;min-width:560px}
+.dsm th,.dsm td{padding:10px 8px;border-bottom:1px solid var(--rule,#DCDFD8);text-align:left}
+.dsm th{border-bottom:1px solid var(--ink,#1C1F1B);color:var(--pencil,#6B7067);font-weight:600;font-size:13.5px}
+.dsm .r{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.dsm tfoot td{color:var(--pencil,#6B7067);font-size:13.5px;border-bottom:0}
