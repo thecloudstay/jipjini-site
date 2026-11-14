@@ -175,15 +175,16 @@ summary::after{content:'＋';color:var(--gray)}details[open] summary::after{cont
   window.addEventListener('afterprint',function(){_opened.forEach(function(x){x.open=false});_opened=[]});
   var staticP=getStatic().catch(function(){return null});
   var liveP=getLive();
-  staticP.then(function(s){try{if(s&&!rendered)render(merge(s,null))}catch(e){}});
+  staticP.then(function(s){try{if(s&&!rendered)render(merge(s,null))}catch(e){rendered=false;try{console.error('견적서 그리기 오류',e)}catch(_c){}}});
   Promise.all([staticP,liveP]).then(function(res){
     var s=res[0],l=res[1];
     if(!s&&!l)throw 0;
-    if(l||!rendered)render(merge(s,l));
+    if(l||!rendered){try{render(merge(s,l))}catch(e){if(!document.querySelector('.tbl')){rendered=false;throw e}}}
   }).catch(function(){if(!rendered)fail()});
 })();
 
 function memoHtml(m){
+  var esc=function(x){return String(x==null?'':x).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})};   // 2026-11-14 memoHtml이 IIFE 밖이라 esc가 없어 견적서가 「불러오는 중」에 멈춤 → 자체 esc
   var L=String(m).split(/\n/),secs=[],cur=null,title='';
   L.forEach(function(ln){var t=ln.replace(/\s+$/,'');if(!t.trim())return;
     var h=t.match(/^\s*【(.+)】\s*$/);if(h&&!secs.length&&!cur){title=h[1];return}
