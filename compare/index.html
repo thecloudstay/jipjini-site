@@ -88,7 +88,8 @@
       pdfjs.GlobalWorkerOptions.workerSrc = '/assets/vendor/pdf/pdf.worker.min.mjs';
       return file.arrayBuffer().then(function (buf) { return pdfjs.getDocument({ data: buf }).promise; }).then(function (doc) {
         var out = [], p = Promise.resolve();
-        for (var i = 1; i <= Math.min(doc.numPages, 15); i++) (function (n) { p = p.then(function () { return doc.getPage(n).then(function (pg) { return pg.getTextContent().then(function (tc) {
+        var slow = function (pr) { return Promise.race([pr, new Promise(function (ok) { setTimeout(function () { ok({ items: [] }); }, 8000); })]); };   // 그림만 있는 쪽 등에서 멈추면 8초 뒤 건너뜀
+        for (var i = 1; i <= Math.min(doc.numPages, 15); i++) (function (n) { p = p.then(function () { return doc.getPage(n).then(function (pg) { return slow(pg.getTextContent()).then(function (tc) {
           var its = tc.items.filter(function (t) { return String(t.str).replace(/\u0000/g, '').trim(); }).map(function (t) { return { text: t.str.trim(), x: t.transform[4], y: -t.transform[5], h: Math.abs(t.transform[3]) || 10, w: t.width }; });
           out.push(rowsToText(its)); }); }); }); })(i);
         return p.then(function () { return out.join('\n'); });
