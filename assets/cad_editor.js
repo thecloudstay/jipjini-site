@@ -658,6 +658,7 @@
       '#jjeStage{position:absolute;left:0;top:0;transform-origin:0 0;background:#f7f4ee;box-shadow:0 0 0 1px #c4bfb2}#jjeStage img{position:absolute;left:0;top:0;display:none;max-width:none;user-select:none;-webkit-user-drag:none;pointer-events:none}#jjeCv{position:absolute;left:0;top:0;width:100%;height:100%}' +
       '.jje-float{position:absolute;background:rgba(255,255,255,.96);border:1px solid #9A9A9A;border-radius:2px;font-size:14px;display:flex;align-items:center;gap:2px;padding:2px}.jje-float button{border:0;background:transparent;border-radius:0;min-width:40px;height:40px;padding:0 9px;font-size:15px;font-weight:600}.jje-float button:hover{background:#EDE7D8}' +
       '.jje-say{flex:none;display:flex;gap:14px;align-items:center;padding:6px 12px;border-bottom:1px solid var(--ln);background:#fff;font-size:14.5px;line-height:1.45;min-height:37px}.jje-cost{flex:none;padding:7px 12px;border-bottom:1px solid var(--ln);background:#FBF8F1;font-size:15px;line-height:1.5}.jje-cost b{font-size:17px;font-weight:700}.jje-say span{flex:1;min-width:0}.jje-say a{flex:none;color:var(--ink);font-weight:600;text-decoration:underline;text-underline-offset:3px;white-space:nowrap}' +
+      '#jjeTrace{position:absolute;left:10px;top:60px;z-index:7;width:270px;background:#fff;border:1px solid var(--ln);border-radius:6px;box-shadow:0 4px 16px rgba(0,0,0,.16);padding:10px 12px;display:none;font-size:14px}#jjeTrace .row{display:flex;gap:4px;align-items:center;flex-wrap:wrap;margin:7px 0}#jjeTrace button{min-height:34px;padding:0 9px}' +
       '#jjeLayers{position:absolute;left:10px;top:60px;z-index:6;width:262px;max-height:calc(100% - 76px);overflow:auto;background:#fff;border:1px solid var(--ln);border-radius:6px;box-shadow:0 4px 16px rgba(0,0,0,.16);padding:6px 4px;display:none;font-size:15px}' +
       '.jje-lay{display:flex;align-items:center;gap:9px;padding:0 9px;min-height:40px;border-radius:4px;cursor:pointer;user-select:none}.jje-lay:hover{background:#F5F1E8}.jje-lay i{width:10px;height:10px;border-radius:50%;flex:none}.jje-lay .n{flex:1}.jje-lay .ct{color:var(--sub);font-size:13.5px;font-variant-numeric:tabular-nums}' +
       '.jje-sw{width:34px;height:20px;border-radius:10px;background:#bdb8ab;position:relative;flex:none}.jje-sw:after{content:"";position:absolute;left:2px;top:2px;width:16px;height:16px;border-radius:50%;background:#fff;transition:left .12s}.jje-lay.on .jje-sw{background:var(--gr)}.jje-lay.on .jje-sw:after{left:16px}.jje-lay.off .n{color:#9a958a}.jje-layh{font-size:13px;color:#8a8478;padding:8px 9px 2px}' +
@@ -703,7 +704,7 @@
       '<div class="jje-cost" id="jjeCost" style="display:none"></div>' +
       '<div class="jje-main"><div class="jje-rail" id="jjeRail"></div>' +
       '<div class="jje-view" id="jjeWrap"><div id="jjeStage"><img id="jjeBg" alt=""><canvas id="jjeCv"></canvas></div>' +
-      '<div class="jje-float" style="left:10px;top:10px;z-index:4"><button type="button" data-a="layers" title="공종별로 켜고 끄기">겹쳐 보기</button></div><div id="jjeLayers"></div>' +
+      '<div class="jje-float" style="left:10px;top:10px;z-index:4"><button type="button" data-a="layers" title="공종별로 켜고 끄기">겹쳐 보기</button><button type="button" data-a="trace" title="고객이 준 조명·콘센트 계획 그림을 도면 위에 겹쳐 놓고 그대로 따라 찍기" style="margin-left:4px">따라 찍기 그림</button></div><div id="jjeLayers"></div><div id="jjeTrace"></div>' +
       '<div class="jje-float" style="left:10px;bottom:10px;padding:6px 10px;max-width:calc(100% - 250px);font-size:13.5px"><span id="jjeScale"></span></div>' +
       '<div class="jje-float" style="right:10px;bottom:10px"><button type="button" data-a="zoomOut" title="작게" aria-label="작게">－</button><span id="jjeZoom" style="min-width:48px;text-align:center">100%</span><button type="button" data-a="zoomIn" title="크게" aria-label="크게">＋</button><button type="button" data-a="fit">맞춤</button></div><div id="jjeAsk"></div></div>' +
       '<div class="jje-side"><div class="jje-tabs" id="jjeTabs"></div><div class="jje-pane" id="jjePanePick"></div><div class="jje-pane" id="jjePaneWork"></div><div class="jje-pane" id="jjePaneTake"></div><div class="jje-pane" id="jjePaneMeas"></div><div class="jje-pane" id="jjePaneInfo"></div></div></div></div>';
@@ -767,6 +768,16 @@
   function redo() { if (!redoSt.length) return; hist.push(JSON.stringify(shapes)); shapes = JSON.parse(redoSt.pop()); sel = -1; touch(); propDraw(); }
 
   // ── 겹쳐 보기(공종별 켜고 끄기)
+  // ── 2026-11-14 따라 찍기 그림(대표: 고객이 보낸 조명·콘센트 계획을 그대로 옮기는 기능) — 고객 그림을 반투명으로 도면 위에 겹친다.
+  //   그림은 이 화면 메모리에만 있고 저장·작업지시서·내보내기에 들어가지 않는다(원본 그림을 남기지 않는 원칙 그대로).
+  var TR = { img: null, x: 0, y: 0, w: 0, h: 0, a: 0.45 };
+  function trFit() { if (!TR.img) return; var R = rooms(), xs = [], ys = []; R.forEach(function (r) { r.pts.forEach(function (p) { xs.push(p[0]); ys.push(p[1]); }); }); if (!xs.length) { xs = [0, W]; ys = [0, H]; } var x0 = Math.min.apply(0, xs), x1 = Math.max.apply(0, xs), y0 = Math.min.apply(0, ys), y1 = Math.max.apply(0, ys), k = Math.min((x1 - x0) / TR.img.width, (y1 - y0) / TR.img.height); TR.w = TR.img.width * k; TR.h = TR.img.height * k; TR.x = (x0 + x1 - TR.w) / 2; TR.y = (y0 + y1 - TR.h) / 2; }
+  function trDraw() { var el = $('jjeTrace'); if (!el) return; el.innerHTML = '<div style="display:flex;align-items:center"><b style="flex:1">따라 찍기 그림</b><button type="button" class="jje-chip" data-a="trace">닫기</button></div>' +
+      '<p class="jje-p" style="margin:6px 0">고객이 보낸 조명·콘센트 계획 그림을 겹쳐 놓고, 「직접 놓기」로 그 자리에 기호를 찍습니다. 그림은 저장되지 않습니다.</p>' +
+      '<div class="row"><label class="jje-chip" style="cursor:pointer">그림 고르기<input type="file" accept="image/*" id="jjeTrFile" style="display:none"></label>' + (TR.img ? '<button type="button" class="jje-chip" data-a="trFit">도면에 맞추기</button><button type="button" class="jje-chip" data-a="trOff">지우기</button>' : '') + '</div>' +
+      (TR.img ? '<div class="row">진하기 <input type="range" min="10" max="90" value="' + Math.round(TR.a * 100) + '" id="jjeTrA" style="flex:1"></div><div class="row">크기 <button type="button" class="jje-chip" data-a="trS" data-v="0.98">−</button><button type="button" class="jje-chip" data-a="trS" data-v="1.02">＋</button> 옮기기 <button type="button" class="jje-chip" data-a="trM" data-v="-1,0">←</button><button type="button" class="jje-chip" data-a="trM" data-v="0,-1">↑</button><button type="button" class="jje-chip" data-a="trM" data-v="0,1">↓</button><button type="button" class="jje-chip" data-a="trM" data-v="1,0">→</button></div><div class="row">가로·세로 따로 <button type="button" class="jje-chip" data-a="trSx" data-v="0.98">좁게</button><button type="button" class="jje-chip" data-a="trSx" data-v="1.02">넓게</button><button type="button" class="jje-chip" data-a="trSy" data-v="0.98">낮게</button><button type="button" class="jje-chip" data-a="trSy" data-v="1.02">높게</button></div>' : '');
+    var f = $('jjeTrFile'); if (f) f.onchange = function () { var file = f.files && f.files[0]; if (!file) return; var rd = new FileReader(); rd.onload = function () { var im = new Image(); im.onload = function () { TR.img = im; trFit(); trDraw(); redraw(); say('그림을 겹쳤습니다. 벽선이 맞게 크기·위치를 맞춘 뒤 기호를 찍으세요.'); }; im.src = rd.result; }; rd.readAsDataURL(file); };
+    var a = $('jjeTrA'); if (a) a.oninput = function () { TR.a = Number(a.value) / 100; redraw(); }; }
   function layOpen(force) { var el = $('jjeLayers'); el.style.display = (force || el.style.display !== 'block') ? 'block' : 'none'; layDraw(); }
   function layDraw() {
     var el = $('jjeLayers'); if (!el || el.style.display !== 'block') return;
@@ -1046,6 +1057,7 @@
   function orders(only) { var ord = {}, seen = []; shapes.forEach(function (q, i) { if (q.t !== 'wk' || !(q.f === 'a' || q.loop) || !visible(q) || (only && !only(q))) return; var P = q.loop ? q.pts.slice(0, -1) : q.pts, c = centroid(P), a = pxArea(P), n = 0; seen.forEach(function (s) { if (Math.abs(s.a - a) < a * 0.04 + 4 && Math.hypot(s.c[0] - c[0], s.c[1] - c[1]) < U()) n++; }); ord[i] = n; seen.push({ a: a, c: c }); }); return ord; }
   function paint(g, only, noSel) {
     var u = U(), N = numbering(), ord = orders(only), ok0 = function (q) { return visible(q) && (!only || only(q)); }; OBS = LABELS.slice();
+    if (TR.img && !sheetMode && !noSel) { g.save(); g.globalAlpha = TR.a; try { g.drawImage(TR.img, TR.x, TR.y, TR.w, TR.h); } catch (_t) {} g.restore(); }
     // 기호를 놓는 동안에는 고른 공종만 진하게, 다른 공종은 흐리게(글자 없이) 그린다 — 좁은 욕실에 여러 공종이 겹쳐도 지금 일이 보이게 (2026-11-11)
     var dim = function (q) { return focusOn && !only && !sheetMode && tool === 'wk' && q.t === 'wk' && SYMS[q.k] && SYMS[q.k][0] !== wk.trade; }, ok = function (q) { return ok0(q) && !dim(q); };
     if (shapes.some(function (q) { return ok0(q) && dim(q); })) { g.save(); g.globalAlpha = 0.25; mute = true; try { ['a', 'l', 'p'].forEach(function (f) { shapes.forEach(function (q, i) { if (q.t === 'wk' && q.f === f && ok0(q) && dim(q)) drawOne(g, q, u, 0, ord[i]); }); }); } finally { mute = false; } g.restore(); }
@@ -1331,6 +1343,11 @@
     else if (a === 'undo') undo(); else if (a === 'redo') redo(); else if (a === 'sheet') sheet(null); else if (a === 'copy') { if (!workRows().length) toast('놓은 작업 기호가 없습니다.'); else copyText(workText(null)); }
     else if (a === 'full') { full = !full; applyFull(); if (!full) { try { EL.scrollIntoView({ block: 'start' }); } catch (e) {} } }
     else if (a === 'zoomIn') zoomBy(1.25); else if (a === 'zoomOut') zoomBy(0.8); else if (a === 'fit') fit();
+    else if (a === 'trace') { var te = $('jjeTrace'); te.style.display = te.style.display === 'block' ? 'none' : 'block'; trDraw(); }
+    else if (a === 'trFit') { trFit(); redraw(); }
+    else if (a === 'trOff') { TR.img = null; trDraw(); redraw(); }
+    else if (a === 'trS' || a === 'trSx' || a === 'trSy') { var f2 = Number(v) || 1, cx = TR.x + TR.w / 2, cy = TR.y + TR.h / 2; if (a !== 'trSy') TR.w *= f2; if (a !== 'trSx') TR.h *= f2; TR.x = cx - TR.w / 2; TR.y = cy - TR.h / 2; redraw(); }
+    else if (a === 'trM') { var d2 = String(v).split(','), st2 = Math.max(TR.w, TR.h) / 200; TR.x += Number(d2[0]) * st2; TR.y += Number(d2[1]) * st2; redraw(); }
     else if (a === 'layers') layOpen(); else if (a === 'lay') layToggle(v); else if (a === 'layAll') { hide = { 무늬: hide['무늬'] }; nums = true; laySave(); layDraw(); redraw(); sideDraw(); bgApply(); }
     else if (a === 'pane') { pane = v; if (v === 'take' && OPT.onEvent) OPT.onEvent('cad_takeoff_open'); if (root.innerWidth <= 860 && !$('jjeRoot').classList.contains('side-open')) sideOpen(true); else sideDraw(); if (v === 'meas' && mmpp()) measShow(); }
     else if (a === 'fold') sideOpen(!$('jjeRoot').classList.contains('side-open'));
