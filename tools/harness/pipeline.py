@@ -116,7 +116,7 @@ def fix_R1(G, mm, img, plan=None):
 FIXERS = [('R9', fix_R9), ('R2', fix_R2), ('R3', fix_R3), ('R4', fix_R4), ('R10', fix_R10), ('R1', fix_R1)]
 
 def weight(chk):
-    W = {'R5': 10, 'R10': 10, 'R9': 5, 'R1': 5, 'R12': 2, 'R6': 3, 'R2': 2, 'R3': 2, 'R4': 2, 'R15': 2, 'R16': 5, 'R17': 3}
+    W = {'R5': 10, 'R10': 10, 'R9': 5, 'R1': 5, 'R12': 2, 'R6': 3, 'R2': 2, 'R3': 2, 'R4': 2, 'R15': 2, 'R16': 5, 'R17': 3, 'R18': 5}
     return sum(W.get(x[0], 1) for x in chk)
 
 def score(img_path, p):

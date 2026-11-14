@@ -12,7 +12,7 @@ import cv2, numpy as np
 HERE = os.path.dirname(os.path.abspath(__file__)); ROOT = os.path.dirname(os.path.dirname(HERE))
 PL = os.path.join(ROOT, 'data', 'plans')
 CUT = 85.0
-BLOCK = ('R16', 'R17', 'R8')
+BLOCK = ('R16', 'R17', 'R18', 'R8')   # R18 둘째 욕실 놓침(2026-11-15)
 
 
 def ok(v):
