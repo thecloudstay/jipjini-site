@@ -417,7 +417,7 @@ def report(st, ver, sec, done):
          "채점(원본 대조): 평균 %.1f점 · 80점 넘는 장 %d/%d" % (sum(scs) / max(1, len(scs)), sum(1 for s in scs if s >= 80), len(scs)),
          "네이버 규칙으로 다시 그려 겹침: 벽 재현 %s · 벽 정밀 %s · 가는 선 재현 %s(참고값)" % tuple(
              ("%.1f%%" % (100 * sum(v["겹침"][m] for v in cur.values() if (v.get("겹침") or {}).get(m) is not None) / max(1, sum(1 for v in cur.values() if (v.get("겹침") or {}).get(m) is not None)))) for m in ("벽재현", "벽정밀", "선재현")),
-         "글자 인식(테서랙트): " + ("켜짐" if _has_tess() else "꺼짐 — 방 이름 한 번 더 읽기 단계를 건너뜀"), "", "예외함(평면 수 많은 순)"]
+         "글자 인식: 방 읽기 단계의 한국어 글자 인식(PaddleOCR) 사용 중" + (" · 테서랙트 보조 있음" if _has_tess() else ""), "", "예외함(평면 수 많은 순)"]
     for e in ex[:15]:
         L.append("  %-30s %4d평면 %5d곳  %s" % (e["유형"][:30], e["평면"], e["곳"], e["설명"][:40]))
     open(os.path.join(OUT, "요약.txt"), "w", encoding="utf-8").write("\n".join(L) + "\n")
