@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>누수 복구 견적서 — 보험 청구용 공정별 금액 · 집지니</title>
+<meta name="description" content="아파트 단지와 젖은 곳만 고르면 천장·벽·바닥 복구 물량과 금액이 공정별로 나옵니다. 일상생활배상책임보험 청구에 붙일 견적서로 인쇄할 수 있습니다.">
+<link rel="canonical" href="https://jipjini.com/leak/">
+<meta property="og:title" content="누수 복구 견적서 · 집지니">
+<meta property="og:description" content="단지와 젖은 곳만 고르면 공정별 복구 금액이 바로 나옵니다.">
+<meta property="og:image" content="https://jipjini.com/og-cover.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/fix/fix.css?v=20261114">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-35EM7T3M9W"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-35EM7T3M9W');</script>
+</head>
+<body>
+<main>
+<div class="top"><a class="logo" href="/">집지니</a><nav><a href="/leak/" aria-current="page">누수 복구</a><a href="/auction/">경매 수리비</a><a href="/compare/">견적서 비교</a></nav></div>
+
+<div class="form">
+<h1>누수 복구 견적서</h1>
+<p class="lead">단지와 젖은 곳만 고르세요. 천장·벽·바닥을 되돌리는 데 드는 물량과 금액이 공정별로 나오고, 보험 청구에 붙일 견적서로 인쇄됩니다.</p>
+
+<h2><span class="n">1</span>어느 집인가요</h2>
+<label class="f" for="q">단지 이름</label>
+<div class="find"><input id="q" type="text" autocomplete="off" placeholder="예: 래미안위브, 검단 에코비스타"><ul id="ql"></ul></div>
+<div class="picked" id="picked"></div>
+<div id="typeRow" hidden><label class="f" for="type">평형</label><select id="type"></select></div>
+<div id="manual"><label class="f" for="area">전용면적(㎡)</label><input id="area" type="number" inputmode="decimal" value="84" min="20" max="250"><p class="hint">단지를 못 찾으면 전용면적만 넣어도 됩니다. 84㎡ = 흔히 말하는 34평.</p></div>
+
+<h2><span class="n">2</span>어디가 젖었나요</h2>
+<table class="rooms"><thead><tr><th>공간</th><th>넓이</th><th>젖은 곳</th></tr></thead><tbody id="rooms"></tbody></table>
+
+<h2><span class="n">3</span>얼마나 상했나요</h2>
+<div class="chips" id="lvl">
+  <button type="button" class="chip" data-v="1" aria-pressed="false">얼룩만</button>
+  <button type="button" class="chip" data-v="2" aria-pressed="true">젖음 · 처짐</button>
+  <button type="button" class="chip" data-v="3" aria-pressed="false">곰팡이 · 석고 부풂</button>
+</div>
+<div class="two">
+  <div><label class="f">벽지</label><div class="chips" id="wp"><button type="button" class="chip" data-v="silk" aria-pressed="true">실크</button><button type="button" class="chip" data-v="hap" aria-pressed="false">합지</button></div></div>
+  <div><label class="f">바닥</label><div class="chips" id="fl"><button type="button" class="chip" data-v="maru" aria-pressed="true">마루</button><button type="button" class="chip" data-v="vinyl" aria-pressed="false">장판</button></div></div>
+</div>
+<label class="f">물 새는 곳을 찾았나요</label>
+<div class="chips" id="cause">
+  <button type="button" class="chip" data-v="known" aria-pressed="true">찾았음 (윗집 배관·욕실 등)</button>
+  <button type="button" class="chip" data-v="unknown" aria-pressed="false">아직 모름 → 누수 탐지 포함</button>
+  <button type="button" class="chip" data-v="mybath" aria-pressed="false">우리 집 욕실 방수 → 같이 고침</button>
+</div>
+<div class="btns"><button type="button" class="btn" id="go">복구 금액 보기</button></div>
+</div>
+
+<section class="res" id="res" hidden>
+  <div class="docmeta"><b>집지니</b><span id="dm"></span></div>
+  <div class="total"><div><div class="sub">복구 예상 금액 · 부가세 10% 별도</div><div class="big" id="tot"></div></div><div class="sub" id="apt"></div></div>
+  <div class="facts" id="facts"></div>
+  <div id="bars"></div>
+  <table class="lines"><thead><tr><th>항목</th><th class="n">물량 · 단가</th><th class="n">금액</th></tr></thead><tbody id="lines"></tbody></table>
+  <p class="note" id="basis"></p>
+  <h2>보험 청구에 같이 내는 것</h2>
+  <ul class="flags">
+    <li class="good">젖은 곳 사진 — 가까이 한 장, 방 전체가 보이게 한 장(날짜 보이게)</li>
+    <li class="good">원인 세대 확인 — 윗집이 원인이면 윗집이 든 일상생활배상책임보험으로 청구합니다</li>
+    <li class="good">누수 탐지 소견서 또는 관리사무소 확인서</li>
+    <li class="good">이 견적서 — 공정별 물량·단가가 적혀 있어 손해사정 때 근거로 씁니다</li>
+  </ul>
+  <p class="note">손해액을 정하는 일은 보험사·손해사정사가 합니다. 이 견적서는 복구 공사의 물량과 금액 근거 자료입니다. 같은 면은 이음 자국과 색 차이 때문에 면 전체를 다시 바르는 기준으로 셈했습니다.</p>
+  <div class="docfoot">집지니 · 대표 박찬영 · 사업자등록번호 874-10-00088 · 010-9806-0422 · jipjini.com — 금액은 부가세 10% 별도, 현장 확인 후 물량대로 정산합니다.</div>
+  <div class="btns noprint"><button type="button" class="btn line" onclick="window.print()">견적서 인쇄 · PDF 저장</button></div>
+
+  <div class="ask" id="ask">
+    <h3>이 금액으로 복구를 맡기거나, 견적서를 다듬어 받기</h3>
+    <p class="note" style="margin-top:0">집지니가 사진을 보고 물량을 바로잡아 정식 견적서로 다시 보내 드립니다. 공사를 맡기시면 마진 없이 자재·인건비 그대로 진행합니다.</p>
+    <div class="two"><div><label class="f" for="nm">이름</label><input id="nm" type="text" autocomplete="name"></div><div><label class="f" for="ph">휴대폰</label><input id="ph" type="tel" inputmode="tel" autocomplete="tel" placeholder="010-0000-0000"></div></div>
+    <label class="f" for="ho">동·호 (선택)</label><input id="ho" type="text" placeholder="예: 201동 1203호">
+    <label class="f">원하시는 것</label>
+    <div class="chips" id="want"><button type="button" class="chip" data-v="복구 공사" aria-pressed="true">복구 공사 맡기기</button><button type="button" class="chip" data-v="정식 견적서" aria-pressed="false">정식 견적서만</button><button type="button" class="chip" data-v="누수 탐지" aria-pressed="false">누수 탐지부터</button></div>
+    <label class="agree"><input type="checkbox" id="ag"> 상담을 위해 이름·휴대폰·단지·위 계산 내용을 집지니에 보내는 데 동의합니다(<a href="/privacy.html">처리방침</a>, 1년 보관).</label>
+    <div class="btns"><button type="button" class="btn" id="sendBtn">상담 요청 보내기</button></div>
+    <div id="sendMsg"></div>
+  </div>
+</section>
+</main>
+<footer class="fix">집지니 · 대표 박찬영 · 사업자등록번호 874-10-00088 · 서울·경기·인천 · <a href="/privacy.html">개인정보 처리방침</a></footer>
+
+<script src="/assets/fix/fix.js?v=20261114"></script>
+<script>
+(function () {
+  var F = JJFix, $ = function (id) { return document.getElementById(id); };
+  var APT = null, PLAN = null, ROOMS = [], LAST = null, H = 2.3;
+  var SKIP = /피트|발코니|실외기/;
+
+  function typical(A) {   // 평면이 없을 때 전용면적으로 나눈 보통 아파트 방 크기
+    var r = [['거실', '거실', .24], ['주방', '주방', .13], ['안방', '방', .15], ['작은방 1', '방', .11]];
+    if (A >= 55) r.push(['작은방 2', '방', .10]);
+    r.push(['욕실 1', '욕실', .05]); if (A >= 59) r.push(['욕실 2', '욕실', .04]);
+    r.push(['현관', '현관', .03]);
+    return r.map(function (x) { return { name: x[0], kind: x[1], area: F.r1(A * x[2]) }; });
+  }
+  function drawRooms() {
+    $('rooms').innerHTML = ROOMS.map(function (r, i) {
+      var opts = r.kind === '욕실' ? [['ceil', '천장']] : r.kind === '현관' ? [['ceil', '천장'], ['wall', '벽']] : [['ceil', '천장'], ['wall', '벽'], ['floor', '바닥']];
+      return '<tr><td>' + F.esc(r.name) + '</td><td class="a">' + r.area.toFixed(1) + '㎡</td><td><div class="chips" data-r="' + i + '">' + opts.map(function (o) { return '<button type="button" class="chip" data-v="' + o[0] + '" aria-pressed="false">' + o[1] + '</button>'; }).join('') + '</div></td></tr>';
+    }).join('');
+    $('rooms').querySelectorAll('.chips').forEach(function (el) { F.chips(el, false); });
+  }
+  function setManual() { PLAN = null; ROOMS = typical(Math.max(20, Number($('area').value) || 84)); drawRooms(); }
+  $('area').addEventListener('change', function () { if (!PLAN) setManual(); });
+  ['lvl', 'cause'].forEach(function (id) { F.chips($(id), true); });
+  ['wp', 'fl'].forEach(function (id) { F.chips($(id), true); });
+  F.chips($('want'), false);
+
+  F.aptFinder($('q'), $('ql'), function (a) {
+    APT = a; $('picked').innerHTML = '<b>' + F.esc(a.name) + '</b> · ' + F.esc(a.gu + ' ' + a.dong) + (a.year ? ' · ' + a.year + '년 사용승인' : '') + (a.homes ? ' · ' + a.homes.toLocaleString('ko-KR') + '세대' : '');
+    if (!a.hasPlan) { $('typeRow').hidden = true; $('manual').hidden = false; setManual(); $('picked').innerHTML += '<br>이 단지는 아직 집지니 도면이 없어 전용면적으로 방 크기를 어림합니다.'; return; }
+    F.plan(a.code).then(function (d) {
+      PLAN = d; var ts = (d['평형'] || []).filter(function (t) { return t.plan && t.plan.rooms; });
+      if (!ts.length) { setManual(); return; }
+      $('type').innerHTML = ts.map(function (t, i) { return '<option value="' + i + '">' + F.esc(t['이름']) + ' · 전용 ' + t['전용'] + '㎡</option>'; }).join('');
+      $('typeRow').hidden = false; $('manual').hidden = true;
+      var pick = function () { var t = ts[+$('type').value]; ROOMS = t.plan.rooms.filter(function (r) { return r.area >= 1.5 && !SKIP.test(r.kind + r.name); }).map(function (r) { return { name: r.name, kind: r.kind, area: F.r1(r.area) }; }); $('area').value = t['전용']; drawRooms(); };
+      $('type').onchange = pick; pick();
+    }).catch(setManual);
+  });
+  setManual();
+
+  function calc(P) {
+    var I = P.items, lvl = +F.picked($('lvl'))[0] || 2, wp = F.picked($('wp'))[0], fl = F.picked($('fl'))[0], cause = F.picked($('cause'))[0];
+    var sec = {}, add = function (s, name, qty, unit, price, note) { if (!(qty > 0)) return; (sec[s] = sec[s] || []).push({ name: name, qty: qty, unit: unit, price: price, amt: Math.round(qty * price), note: note || '' }); };
+    var ceil = 0, wall = 0, floorA = 0, perimC = 0, perimF = 0, bathCeil = 0, rooms = 0, gyp = 0, used = [];
+    $('rooms').querySelectorAll('.chips').forEach(function (el) {
+      var r = ROOMS[+el.getAttribute('data-r')], p = F.picked(el); if (!p.length) return; rooms++; used.push(r.name + '(' + p.map(function (x) { return { ceil: '천장', wall: '벽', floor: '바닥' }[x]; }).join('·') + ')');
+      var per = 4.03 * Math.sqrt(r.area);
+      if (r.kind === '욕실') { if (p.indexOf('ceil') > -1) bathCeil++; return; }
+      if (p.indexOf('ceil') > -1) { ceil += r.area; perimC += per; gyp += lvl === 3 ? r.area : lvl === 2 ? Math.max(3, r.area * .4) : 0; }
+      if (p.indexOf('wall') > -1) wall += per * H * .85;
+      if (p.indexOf('floor') > -1) { floorA += r.area; perimF += per; }
+    });
+    if (!rooms) return null;
+    add('사전준비', I.protect.name, 1, '식', I.protect.price);
+    if (cause === 'unknown') add('사전준비', I.leak_find.name, 1, '회', I.leak_find.price, '원인 세대·배관 위치 확인, 소견서 발급');
+    var dryDays = lvl === 3 ? 5 : lvl === 2 ? 3 : 0;
+    if (dryDays) add('건조·곰팡이', I.dry_day.name, rooms * dryDays, '대·일', I.dry_day.price, '젖은 공간마다 1대 × ' + dryDays + '일 — 마르기 전에 바르면 다시 곰팡이');
+    if (lvl === 3) add('건조·곰팡이', I.mold_fix.name, rooms, '식', I.mold_fix.price, '곰팡이 제거·방지제 도포');
+    gyp = F.r1(gyp);
+    if (gyp) { var minG = I.carp_day.price;
+      if (gyp * I.gypsum_m2.price < minG) add('목공', I.gypsum_m2.name + ' ' + gyp + '㎡', 1, '식', minG, '좁은 면적이라 목수 하루 품이 최소 금액');
+      else add('목공', I.gypsum_m2.name, gyp, '㎡', I.gypsum_m2.price, '젖어 처진 천장 석고보드를 뜯고 새로 붙임'); }
+    if (gyp && lvl >= 2) add('목공', I.molding.name, Math.ceil(perimC), 'm', I.molding.price, '천장 석고를 뜯은 방 둘레');
+    var putty = lvl === 3 ? F.r1(wall * .3) : 0; if (putty) add('목공', I.putty_m2.name, putty, '㎡', I.putty_m2.price, '부푼 벽 면 정리');
+    var surf = ceil + wall;
+    if (surf) {
+      var rolls = Math.ceil(surf / 10.5), days = Math.max(1, F.half(rolls / 6));
+      var rollP = wp === 'hap' ? Math.round(I.wall_roll.price * .55 / 100) * 100 : I.wall_roll.price;
+      add('도배', (wp === 'hap' ? '합지' : '실크') + ' 벽지', rolls, '롤', rollP, '젖은 면 ' + F.r1(surf) + '㎡ — 같은 면 전체, 롤당 약 10.5㎡');
+      add('도배', '초배·풀·부자재', 1, '식', Math.max(50000, Math.round(rolls * rollP * .15 / 1000) * 1000));
+      add('도배', I.wallpaper_day.name, days, '품', I.wallpaper_day.price, '기존 벽지 뜯기 포함');
+    }
+    if (floorA) {
+      floorA = F.r1(floorA);
+      if (fl === 'maru') { add('바닥', I.maru_demo.name, floorA, '㎡', I.maru_demo.price, '젖어 들뜬 마루 — 방 하나 전체(색·결 맞춤)'); add('바닥', I.floor_maru.name, F.r1(floorA * 1.05), '㎡', I.floor_maru.price, '손실 5% 포함'); add('바닥', I.baseboard.name, Math.ceil(perimF), 'm', I.baseboard.price); }
+      else add('바닥', I.floor_vinyl.name, F.r1(floorA * 1.1), '㎡', I.floor_vinyl.price, '기존 장판 걷기 포함 · 손실 10%');
+    }
+    if (bathCeil) add('욕실', '욕실 천장재(SMC 돔) 교체', bathCeil, '개', 230000, '시공 포함');
+    var ton = F.half(gyp * .012 + floorA * .015 + (cause === 'mybath' ? .5 : 0));
+    if (ton) add('철거·폐기물', I.waste_ton.name, Math.max(.5, ton), '톤', I.waste_ton.price, '석고·마루 등 젖은 자재 반출');
+    if (cause === 'mybath') {
+      add('욕실 방수(원인)', I.demo_day.name, 1, '품', I.demo_day.price, '욕실 바닥 타일 철거');
+      add('욕실 방수(원인)', I.bath_wp.name, 1, '개소', I.bath_wp.price, '액체 방수 2회 + 모서리 보강, 48시간 물 채움 시험');
+      add('욕실 방수(원인)', '바닥 타일·부자재', 1, '식', 250000);
+      add('욕실 방수(원인)', I.tile_day.name, 1.5, '품', I.tile_day.price);
+      add('욕실 방수(원인)', I.helper_day.name, 1, '품', I.helper_day.price);
+    }
+    var order = ['사전준비', '건조·곰팡이', '철거·폐기물', '욕실 방수(원인)', '목공', '욕실', '도배', '바닥'], tot = 0, rows = [];
+    order.forEach(function (s) { if (!sec[s]) return; var v = sec[s].reduce(function (a, l) { return a + l.amt; }, 0); tot += v; rows.push({ k: s, v: v }); });
+    var days = dryDays + (gyp ? 1 : 0) + (surf ? 1 : 0) + (floorA ? 1 : 0) + (cause === 'mybath' ? 4 : 0) + (cause === 'unknown' ? 1 : 0);
+    return { sec: sec, order: order, rows: rows, tot: tot, days: Math.max(1, days), surf: F.r1(surf), floorA: floorA, used: used, lvl: lvl, cause: cause };
+  }
+
+  $('go').addEventListener('click', function () {
+    F.prices().then(function (P) {
+      var R = calc(P); if (!R) { alert('젖은 곳을 한 군데 이상 눌러 주세요.'); return; }
+      LAST = R; var no = F.docNo('JJL');
+      $('dm').textContent = '누수 복구 견적서 · ' + no + ' · ' + F.today();
+      $('tot').textContent = F.won(R.tot);
+      $('apt').textContent = (APT ? APT.name + ' · ' : '') + '전용 ' + $('area').value + '㎡';
+      $('facts').innerHTML = '<div><b>' + R.surf + '㎡</b><span>다시 바를 벽·천장</span></div><div><b>' + R.floorA + '㎡</b><span>바꿀 바닥</span></div><div><b>' + R.days + '일</b><span>예상 공사 기간(건조 포함)</span></div>';
+      $('bars').innerHTML = F.bars(R.rows);
+      var h = ''; R.order.forEach(function (s) { if (!R.sec[s]) return; h += '<tr class="sec"><td colspan="3">' + F.esc(s) + '</td></tr>'; R.sec[s].forEach(function (l) { h += '<tr><td>' + F.esc(l.name) + (l.note ? '<small>' + F.esc(l.note) + '</small>' : '') + '</td><td class="n">' + (Math.round(l.qty * 10) / 10) + ' ' + l.unit + '<small>' + F.won(l.price) + '</small></td><td class="n">' + F.won(l.amt) + '</td></tr>'; }); });
+      h += '<tr class="sec"><td colspan="2">합계 (부가세 10% 별도)</td><td class="n">' + F.won(R.tot) + '</td></tr>';
+      $('lines').innerHTML = h;
+      $('basis').textContent = '단가 근거: ' + P.source + ' 중위값(' + P.updated + ' 기준). 젖은 곳: ' + R.used.join(', ') + '.';
+      $('res').hidden = false; $('res').scrollIntoView({ behavior: 'smooth' });
+      try { gtag('event', 'fix_calc', { tool: 'leak', value: Math.round(R.tot / 10000) }); } catch (_g) {}
+    }).catch(function () { alert('단가 자료를 못 불러왔습니다. 잠시 뒤 다시 눌러 주세요.'); });
+  });
+
+  $('sendBtn').addEventListener('click', function () {
+    var nm = $('nm').value.trim(), ph = $('ph').value.trim(), m = $('sendMsg');
+    if (!nm || !F.phoneOk(ph)) { m.className = 'err-msg'; m.textContent = '이름과 휴대폰 번호를 확인해 주세요.'; return; }
+    if (!$('ag').checked) { m.className = 'err-msg'; m.textContent = '보내기 동의에 표시해 주세요.'; return; }
+    if (!LAST) return;
+    this.disabled = true; m.className = ''; m.textContent = '보내는 중…';
+    var lines = []; LAST.order.forEach(function (s) { (LAST.sec[s] || []).forEach(function (l) { lines.push([s, l.name, l.qty, l.unit, l.price, l.amt]); }); });
+    F.send({ kind: 'leak', act: 'ask', name: nm, phone: ph, ho: $('ho').value.trim(), want: F.picked($('want')), apt: APT ? { code: APT.code, name: APT.name, gu: APT.gu } : null, area: Number($('area').value) || 0, total: LAST.tot, used: LAST.used, lvl: LAST.lvl, cause: LAST.cause, lines: lines })
+      .then(function () { m.className = 'ok-msg'; m.textContent = '보냈습니다. 오늘 안에(밤에는 다음 날 아침) 010-9806-0422 에서 연락드립니다. 젖은 곳 사진을 카카오톡 @집지니 로 보내 주시면 더 빨라집니다.'; try { gtag('event', 'fix_ask', { tool: 'leak' }); } catch (_g) {} })
+      .catch(function () { m.className = 'err-msg'; m.textContent = '보내지 못했습니다. 010-9806-0422 로 문자 주세요.'; $('sendBtn').disabled = false; });
+  });
+})();
+</script>
+</body>
+</html>
