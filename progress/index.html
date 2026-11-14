@@ -248,7 +248,7 @@ table.plm td.r,table.plm th.r{padding-left:10px}
     workorder: ico('<path d="M3 3h18v18H3z"/><path d="M3 12h9v9M12 3v9"/>')
   };
   var CCLS = { '끝남': 'c-done', '지금': 'c-now', '다음': 'c-next', '앞으로': 'c-todo' };
-  function chainHtml(ch, SR) {
+  function chainHtml(ch, SR, QOK) {
     var h = ['<section class="card top"><h2>지금 어디까지 왔나요</h2><div class="hero"><div><small>지금 단계</small><b>' + esc(ch.지금 || '-') + '</b></div><div><small>다음 단계</small><b>' + esc(ch.다음 || '마무리') + '</b></div></div><ol class="chain">'];
     (ch.단계 || []).forEach(function (s, i) {
       var c = CCLS[s.상태] || 'c-todo';
@@ -256,7 +256,7 @@ table.plm td.r,table.plm th.r{padding-left:10px}
         (s.상태 === '지금' ? '<span class="tag now">지금</span>' : s.상태 === '다음' ? '<span class="tag nx">다음</span>' : '') +
         (s.날짜 ? '<span class="dt">' + esc(s.날짜).replace(/\d{4}-\d{2}-\d{2}/g, function (x) { return md(x); }) + '</span>' : '') +
         (s.상태 === '지금' || s.상태 === '다음' ? '<p>' + esc(s.설명) + '</p>' : '') +
-        (s.서명링크 && s.상태 !== '끝남' ? '<a class="btn pri" style="height:42px;font-size:14px;margin-top:8px" href="' + esc(safeUrl(s.서명링크)) + '" target="_blank" rel="noopener">계약서 확인·서명하기</a>' : '') + (s.이름 === '샘플실 상담' && s.상태 !== '끝남' && SR && safeUrl(SR.링크) ? '<a class="btn pri" style="height:42px;font-size:14px;margin-top:8px" href="' + esc(safeUrl(SR.링크)) + '" target="_blank" rel="noopener">' + ICO_CAL + '날짜 예약하기' + '</a>' : '') + (/하자/.test(s.이름) ? '<a class="btn" style="height:42px;font-size:14px;margin-top:8px;border:1px solid var(--g);color:var(--g)" href="#as" onclick="setTimeout(function(){var t=document.getElementById(\'asX\');if(t)t.focus()},400)">하자 접수하기</a>' : '') + '</div></li>');
+        (s.서명링크 && s.상태 !== '끝남' ? '<a class="btn pri" style="height:42px;font-size:14px;margin-top:8px" href="' + esc(safeUrl(s.서명링크)) + '" target="_blank" rel="noopener">계약서 확인·서명하기</a>' : '') + (s.이름 === '샘플실 상담' && s.상태 !== '끝남' && SR && safeUrl(SR.링크) ? '<a class="btn pri" style="height:42px;font-size:14px;margin-top:8px" href="' + esc(safeUrl(SR.링크)) + '" target="_blank" rel="noopener">' + ICO_CAL + '날짜 예약하기' + '</a>' : '') + (/견적/.test(s.이름) && s.상태 !== '다음' && QOK ? '<button type="button" class="btn pri" data-doc="quote" style="height:42px;font-size:14px;margin-top:8px;width:100%">' + (/가견적/.test(s.이름) ? '가견적' : '견적서') + ' 보기</button>' : '') + (/하자/.test(s.이름) ? '<a class="btn" style="height:42px;font-size:14px;margin-top:8px;border:1px solid var(--g);color:var(--g)" href="#as" onclick="setTimeout(function(){var t=document.getElementById(\'asX\');if(t)t.focus()},400)">하자 접수하기</a>' : '') + '</div></li>');
     });
     h.push('</ol></section>');
     return h.join('');
@@ -585,7 +585,7 @@ table.plm td.r,table.plm th.r{padding-left:10px}
     var doneN = phases.filter(function (p) { return p.상태 === '완료'; }).length;
 
     var P = d.포털 || null; LASTP = P;
-    if (P && P.체인) h.push(chainHtml(P.체인, P.계약요약 ? null : P.샘플실));
+    if (P && P.체인) h.push(chainHtml(P.체인, P.계약요약 ? null : P.샘플실, (P.서류 || []).some(function (d) { return d.키 === 'quote' && d.있음; })));
     if (P && P.가정통신문) h.push(noteHtml(P.가정통신문));   // 2026-11-13 견적 뒤 코디에게 답하기
     if (P && P.샘플실 && P.샘플실.링크 && !P.계약요약) h.push(showroomHtml(P.샘플실));
     if (P && P.도면) h.push(planHtml(P.도면));   // 2026-11-09 우리 집 도면·측정·입체 보기
