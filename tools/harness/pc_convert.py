@@ -353,7 +353,7 @@ def one(f, k, plan, known, teach=None):
     for rule, fn in pipeline.FIXERS:
         if not any(x[0] == rule for x in chk):
             continue
-        G2 = fn(copy.deepcopy(G), plan["mmpp"], img); chk2 = plan_check.rules(img, dict(plan, 그림=G2))
+        G2 = fn(copy.deepcopy(G), plan["mmpp"], img, plan) if fn.__code__.co_argcount >= 4 else fn(copy.deepcopy(G), plan["mmpp"], img); chk2 = plan_check.rules(img, dict(plan, 그림=G2))   # 2026-11-14 방 자료가 필요한 고침(R10)은 plan 도 넘김
         if pipeline.weight(chk2) < pipeline.weight(chk) and not any(sum(1 for x in chk2 if x[0] == s) > sum(1 for x in chk if x[0] == s) for s in pipeline.SAFETY):
             G, chk = G2, chk2; fixed.append(rule)
     G["점검"] = chk; q = dict(plan, 그림=G)

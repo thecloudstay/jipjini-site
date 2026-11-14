@@ -578,7 +578,7 @@
     //   파란 바닥이 있는 도면이면 「파란 칸 = 욕실」이 정답이다. 이름이 안 읽힌 칸을 선 밀도로 욕실이라 어림하던 것(드레스룸·현관·대피공간까지 욕실이 됨)을 이 도면에서는 쓰지 않는다.
     (function () { var blueN = {}, tot = 0, k; for (k = 0; k < N; k++) { var o = k * 4, r = d[o], g2 = d[o + 1], b = d[o + 2]; if (b - r >= 10 && g2 - r >= 3 && Math.min(r, g2, b) > 185) { tot++; var l = lab[k]; if (l >= 2) blueN[l] = (blueN[l] || 0) + 1; } }
       if (tot < N * 0.002) return; var any = 0;
-      found.forEach(function (f) { var bf = (blueN[f.l] || 0) / Math.max(1, cnt[f.l] || 1); f.blue = bf; if (bf >= 0.4 /* 2026-11-13 컴퓨터판 판정을 따름: 「이름 없는 욕실 넓히기」(e9a0260)는 대표 컴퓨터 받아 둔 원본 무작위 25짝에서 −0.6점이라 컴퓨터 도구에서 버린 고침 — 누리집도 같게 */ && (f.guess || !f.kind || f.kind === '욕실')) { if (f.guess) f.nm = undefined; f.kind = '욕실'; f.sure = true; any++; } });
+      found.forEach(function (f) { var bf = (blueN[f.l] || 0) / Math.max(1, cnt[f.l] || 1), bfFloor = (blueN[f.l] || 0) / Math.max(1, (cnt[f.l] || 1) - (whiteN[f.l] || 0)); f.blue = bf; if ((bf >= 0.4 || (bf >= 0.15 && bfFloor >= 0.55)) /* 2026-11-14 욕조·변기·세면대(흰색)가 칸의 절반을 덮는 욕실은 파란 바닥이 40% 아래로 나와 「기타」가 됐다(대량 변환 R16 보류 138장 중 다수) — 흰 기구를 뺀 바닥 기준으로도 본다 */ /* 2026-11-13 컴퓨터판 판정을 따름: 「이름 없는 욕실 넓히기」(e9a0260)는 대표 컴퓨터 받아 둔 원본 무작위 25짝에서 −0.6점이라 컴퓨터 도구에서 버린 고침 — 누리집도 같게 */ && (f.guess || !f.kind || f.kind === '욕실')) { if (f.guess) f.nm = undefined; f.kind = '욕실'; f.sure = true; any++; } });
       if (!any) return; found.blueStyle = true;
       found.forEach(function (f) { if (f.kind === '욕실' && f.guess && !f.sure) f.kind = '기타'; }); })();
     found = found.filter(function (f) { return f.kind === '피트' || (cnt[f.l] || 0) / (U * U) >= 0.6; });   // 0.6㎡ 안 되는 이름 붙은 조각(글자 둘레 자투리)은 공간이 아니다
