@@ -267,6 +267,33 @@ function koErr(m) { m = String(m || ''); var w = m.match(/after (\d+) seconds?/i
     return '<div class="row"><div><span class="tag ' + cls + '">' + esc(g || '할 일') + '</span></div><div class="m"><div class="t">' + (t.고객명 ? '<b>' + esc(t.고객명) + '</b> · ' : '') + esc(t.제목) + '</div><div class="s">' + esc(t.설명 || '') + (t.기한 ? ' · 기한 ' + esc(t.기한) : '') + (t.처리 ? ' · ' + esc(t.처리) + ' 처리' : '') + '</div></div><div class="d">' + dTxt(t.D) + '</div></div>';
   }
 
+  /* 2026-11-14 대표 「진행해」 — 매주 볼 숫자 다섯: 새 의뢰 · 견적 보낸 고객 · 계약 · 계약률 · 계약 한 건당 남는 돈(코디비+현장관리비) + 하자 미처리.
+     빠른 콘솔이 이미 받아 두는 의뢰·견적·고객 대장으로 화면에서 바로 센다(앱스 스크립트 배포가 필요 없음). 같은 고객의 견적 여러 판은 한 번만 센다. */
+  function weekBoard(d) {
+    var DAY = 864e5, now = new Date(), m0 = new Date(now.getFullYear(), now.getMonth(), now.getDate()); m0 = new Date(m0 - ((m0.getDay() + 6) % 7) * DAY);   // 이번 주 월요일
+    var wk = function (v) { var t = new Date(String(v || '').slice(0, 10) + 'T00:00:00'); if (isNaN(t)) return -1; return t >= m0 ? 0 : Math.ceil((m0 - t) / (7 * DAY)); };
+    var N = 8, req = [], sent = [], con = [], i; for (i = 0; i < N; i++) { req.push(0); sent.push({}); con.push(0); }
+    (Array.isArray(V.requests) ? V.requests : []).forEach(function (r) { var w = wk(r['접수일'] || r['접수일시'] || r['등록일']); if (w >= 0 && w < N) req[w]++; });
+    var Q = Array.isArray(V.quotes) ? V.quotes : [], qById = {};
+    Q.forEach(function (q) { qById[q['견적서ID']] = q; var w = wk(q['발송일']); if (w >= 0 && w < N) sent[w][q['의뢰ID'] || q['고객명'] || q['견적서ID']] = 1; });
+    var L = Array.isArray(V.ledger) ? V.ledger : [], earn = [];
+    L.forEach(function (c) { var w = wk(c['계약일']); if (w < 0 || w >= N) return; con[w]++;
+      if (w < 4) { var q = qById[c['최근 견적서ID']] || {}; var e = Number(q['코디비(원)'] || q['코디비'] || 0) + Number(q['PM비용'] || q['PM비'] || 0); if (e) earn.push(e); } });
+    var sentN = sent.map(function (o) { return Object.keys(o).length; });
+    var sum4 = function (a) { return a.slice(0, 4).reduce(function (x, y) { return x + y; }, 0); };
+    var rate = sum4(sentN) ? Math.round(sum4(con) / sum4(sentN) * 100) : null;
+    var avg = earn.length ? Math.round(earn.reduce(function (x, y) { return x + y; }, 0) / earn.length) : null;
+    var spark = function (a) { var b = a.slice().reverse(), mx = Math.max.apply(null, b.concat([1])); return '<svg viewBox="0 0 ' + (N * 9) + ' 22" width="' + (N * 9) + '" height="22" aria-hidden="true">' + b.map(function (v, j) { var hh = Math.max(1, Math.round(v / mx * 20)); return '<rect x="' + (j * 9) + '" y="' + (22 - hh) + '" width="6" height="' + hh + '" fill="' + (j === N - 1 ? 'var(--acc,#1F5E2E)' : '#c9cfc5') + '"/>'; }).join('') + '</svg>'; };
+    var cell = function (l, n, s, a) { return '<div class="kpi' + (n ? '' : ' zero') + '"><div class="n">' + n + '</div><div class="l">' + l + '</div><div class="s">' + s + '</div>' + (a ? '<div style="margin-top:6px">' + spark(a) + '</div>' : '') + '</div>'; };
+    return sec('이번 주 숫자', 'check', '월요일부터 · 막대는 지난 8주', '<div class="grid">' +
+      cell('새 의뢰', req[0], '지난주 ' + req[1], req) +
+      cell('견적 보낸 고객', sentN[0], '지난주 ' + sentN[1], sentN) +
+      cell('계약', con[0], '지난주 ' + con[1], con) +
+      cell('계약률', rate == null ? '-' : rate + '%', '최근 4주 계약 ÷ 견적 보낸 고객') +
+      cell('계약 한 건당 남는 돈', avg == null ? '-' : Math.round(avg / 10000).toLocaleString('ko-KR') + '만', '최근 4주 · 코디비+현장관리비') +
+      cell('하자 미처리', d.AS미처리 || 0, '접수~일정 확정') + '</div>');
+  }
+
   function renderHome() {
     var d = V.home || {}, r = d.오늘 || {}, h = '';
     if (d.파이프) h += sec('진행 단계', 'home', '', '<div class="grid">' + d.파이프.map(function (p) { return '<div class="kpi' + (p.n > 0 && /AS|알림|의뢰/.test(p.key) ? ' hot' : (p.n ? '' : ' zero')) + '"><div class="n">' + p.n + '</div><div class="l">' + esc(p.label) + '</div><div class="s">' + esc(p.sub) + '</div></div>'; }).join('') + '</div>');
@@ -283,6 +310,7 @@ function koErr(m) { m = String(m || ''); var w = m.match(/after (\d+) seconds?/i
       k('발주 임박', d.발주임박, '3일 안', true) +
       k('하자 미처리', d.AS미처리, '접수~일정 확정', true) + '</div>');
     if (d.이달) { var m = d.이달; h += '<div class="sec"><div class="strip"><span>이달</span><span>의뢰 <b>' + m.의뢰 + '</b></span><span>견적 <b>' + m.견적 + '</b></span><span>계약 <b>' + m.계약 + '</b></span><span>완공 <b>' + m.완공 + '</b></span><span>코디비 입금 <b>' + won(m.코디비입금) + '</b></span>' + (m.전환율 != null ? '<span>견적→계약 90일 <b>' + m.전환율 + '%</b></span>' : '') + '</div></div>'; }
+    try { h += weekBoard(d); } catch (_w) {}
     var td = d.할일 || { 목록: [], 요약: {} };
     h += sec('할 일 상위', 'check', '긴급 ' + (td.요약.긴급 || 0) + ' · 오늘 ' + (td.요약.오늘 || 0) + ' · 이번주 ' + (td.요약.이번주 || 0), (td.목록 || []).length ? td.목록.map(todoRow).join('') : '<div class="empty">지금 할 일 없음</div>');
     var sd = d.오늘발송 || { 목록: [] }, chip = function (on, l) { return '<span class="tag ' + (on ? '' : 'gray') + '" style="' + (on ? '' : 'text-decoration:line-through') + '">' + l + '</span> '; };
