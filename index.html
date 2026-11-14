@@ -22,8 +22,8 @@
 <meta name="twitter:image" content="https://jipjini.com/og-cover.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/home/home.css?v=20261113j">
-<link rel="stylesheet" href="assets/home/data.css?v=20261113a">
+<link rel="stylesheet" href="assets/home/home.css?v=20261114a">
+<link rel="stylesheet" href="assets/home/data.css?v=20261114a">
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-35EM7T3M9W"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
@@ -39,11 +39,11 @@
 <header class="top">
   <a href="./" class="brand"><span class="mark">집</span>집지니<small class="btag">인테리어 데이터 솔루션</small></a>
   <nav class="links">
-    <a href="#map">지도</a>
+    <a href="#data">데이터</a>
+    <a href="#map">단지 지도</a>
+    <a href="#suite">제품</a>
     <a href="#cp">고객 화면</a>
     <a href="#pos">시장의 자리</a>
-    <a href="#suite">제품</a>
-    <a href="#data">데이터</a>
     <a href="#room">샘플실</a>
     <a href="#ir">IR</a>
     <a href="#ask" class="go">무료 견적</a>
@@ -53,17 +53,17 @@
 <!-- 첫 화면: 문구 + 다시 그린 실제 도면 위의 치수선 -->
 <section class="hero">
   <div class="hc">
-    <p class="hk">인테리어 데이터 솔루션 기업 <b>집지니</b></p>
+    <p class="hk">아파트 인테리어 데이터 기업 <b>집지니</b></p>
     <h1>인테리어 비용,<br>지금 바로 30% 낮춰 드립니다.</h1>
-    <p class="hs">평수로 어림잡은 견적 대신, 우리 집 도면에서 센 견적. 같은 자재와 같은 기술자로 업체가 얹던 몫만 뺍니다.</p>
+    <p class="hs">수도권 아파트의 도면·물량·단가 데이터를 직접 만들고, 그 데이터로 견적을 냅니다. 평수로 어림잡은 견적 대신 우리 집 도면에서 센 견적. 같은 자재와 같은 기술자로 업체가 얹던 몫만 뺍니다.</p>
     <div class="hb">
       <a class="btn" href="#map">우리 집 비용 확인</a>
       <a class="btn ghost" href="#who">나에게 맞는 방법</a>
     </div>
     <dl class="hn">
       <div><dt>지도에 올린 수도권 단지</dt><dd id="nAll" data-live="all">10,242</dd></div>
-      <div><dt>견적서 받기까지</dt><dd>24<small>시간</small></dd></div>
-      <div><dt>단가 공개</dt><dd>100<small>%</small></dd></div>
+      <div><dt>모은 평면도</dt><dd>8,311<small>장</small></dd></div>
+      <div><dt>CAD로 다시 그린 평형</dt><dd data-live="types">253</dd></div>
     </dl>
     <a class="hstk" href="#suite"><span class="hstk-l">집지니가 직접 만들어 쓰는 제품</span><span class="hstk-v"><b>DB</b><b>CAD</b><b>자동적산기</b><b>ERP</b><b>CRM</b></span></a>
   </div>
@@ -72,6 +72,47 @@
     <ol class="fst" id="heroSteps" role="tablist" aria-label="평면도가 발주까지 바뀌는 여섯 단계"><li><button type="button" role="tab" data-s="1"><b>평면도</b><span>사진·캡처 그대로</span><i></i></button></li><li><button type="button" role="tab" data-s="2"><b>벡터 변환</b><span>선과 꼭짓점</span><i></i></button></li><li><button type="button" role="tab" data-s="3"><b>CAD 도면</b><span>벽·창·문·치수</span><i></i></button></li><li><button type="button" role="tab" data-s="4"><b>물량 산출</b><span>방마다 ㎡</span><i></i></button></li><li><button type="button" role="tab" data-s="5"><b>적산</b><span>공종별 상세 물량</span><i></i></button></li><li><button type="button" role="tab" data-s="6"><b>발주</b><span>자재상별로 바로</span><i></i></button></li></ol>
     <figcaption>예시: 송도파크자이 131A. 원본 대신 집지니가 다시 그린 도면으로 보여 드립니다. 금액은 어림, 부가세 별도.</figcaption>
   </figure>
+</section>
+
+<!-- 데이터 (2026-11-14 첫 화면 바로 아래로) -->
+<section class="dhome" id="data">
+  <header class="pn"><h3>집지니 데이터</h3><p>아파트 한 채를 도면과 숫자로. 공사로 검증한 데이터를 단지·평형 단위로 공급합니다</p></header>
+  <div class="dt">
+    <div class="row"><span class="no">01</span><h3>단지·평형 표준 물량표<small>엑셀 · CSV</small></h3>
+      <p class="what">방별 바닥·벽 면적, 걸레받이, 문·창, 욕실 타일. 집마다 재지 않고 바로 셉니다.</p>
+      <p class="spec"><b id="dh1" data-live="types">79</b><span>개 평형 · 매일 늘어남</span></p></div>
+    <div class="row"><span class="no">02</span><h3>평형별 캐드 도면<small>DWG · DXF · PDF</small></h3>
+      <p class="what">벽·문·창·방·치수를 층으로 나눈 집지니 재작도 도면. 원본 평면도 그림은 팔지 않습니다.</p>
+      <p class="spec"><b id="dh2" data-live="types">79</b><span>개 평형</span></p></div>
+    <div class="row"><span class="no">03</span><h3>수도권 단지 기본자료 결합본<small>CSV · 연동창구</small></h3>
+      <p class="what">세대수·준공·난방·관리 방식에 건축물대장(구조·층수·연면적)을 붙인 단지 대장.</p>
+      <p class="spec"><b>10,244</b><span>개 단지</span></p></div>
+    <div class="row"><span class="no">04</span><h3>사진 도면 → 캐드 변환<small>사진 · 스캔 → DWG · DXF</small></h3>
+      <p class="what">휴대폰으로 찍은 평면도·옛 종이 도면을 보내면 캐드 도면과 방별 물량표로 다시 그려 돌려 드립니다.</p>
+      <p class="spec"><b>장당</b><span>정액 · 접수 중</span></p></div>
+    <div class="row"><span class="no">05</span><h3>연동창구(API)<small>JSON · 월 구독</small></h3>
+      <p class="what">단지 코드·주소로 평형, 도면, 방별 물량을 바로 불러옵니다. 우리 화면과 같은 자료라 매일 갱신.</p>
+      <p class="spec"><b>시험판</b><span>견본 응답 공개</span></p></div>
+  </div>
+
+  <!-- 2026-11-14 대표 「데이터 기업 위주로」: 표준 물량 실제 견본 -->
+  <div class="dsm">
+    <h3>견본 — 같은 84㎡, 다른 물량</h3>
+    <p>공개 도면에서 84㎡대 평형을 뽑아 셌습니다. 평수가 같아도 벽 면적이 192~235㎡로 22% 차이 납니다. 평수 × 단가로 낸 견적이 틀리는 이유입니다.</p>
+    <div class="dsm-w"><table>
+      <thead><tr><th>단지 · 평형</th><th class="r">전용</th><th class="r">방·욕실</th><th class="r">바닥</th><th class="r">벽</th><th class="r">걸레받이</th></tr></thead>
+      <tbody>
+        <tr><td>연수1차대림 105</td><td class="r">84.79㎡</td><td class="r">3·2</td><td class="r">74.1㎡</td><td class="r">203㎡</td><td class="r">84.6m</td></tr>
+        <tr><td>송도더샵하버뷰13단지 115</td><td class="r">84.92㎡</td><td class="r">3·2</td><td class="r">68.3㎡</td><td class="r">205㎡</td><td class="r">85.4m</td></tr>
+        <tr><td>선학대진 107</td><td class="r">84.69㎡</td><td class="r">3·1</td><td class="r">70.4㎡</td><td class="r">193㎡</td><td class="r">80.6m</td></tr>
+        <tr><td>송도웰카운티4단지 110A</td><td class="r">84.87㎡</td><td class="r">3·2</td><td class="r">75.4㎡</td><td class="r">235㎡</td><td class="r">97.9m</td></tr>
+        <tr><td>선학아주 100A</td><td class="r">84.4㎡</td><td class="r">3·2</td><td class="r">71.5㎡</td><td class="r">192㎡</td><td class="r">79.8m</td></tr>
+      </tbody>
+      <tfoot><tr><td colspan="6">전용 1㎡당 중앙값 · 바닥 0.85㎡ · 벽 2.39㎡ · 걸레받이 1.0m (84㎡대 7개 평형, 2026년 11월)</td></tr></tfoot>
+    </table></div>
+  </div>
+  <p class="note" style="margin-top:22px"><b style="color:var(--ink);font-weight:600">앞으로 낼 자료</b> · 보험 누수·하자 복구비 산정 · 하자 범위·보수비 근거 · 장기수선계획·충당금 산정 · 경매·매매 수리비 어림 · 노후 단지 리모델링 통계</p>
+  <div class="dact"><a class="btn" href="data.html#buy" data-ev="home_data_buy">견본·견적 받기</a><a class="btn ghost" href="data.html">자료 목록 전체 보기</a></div>
 </section>
 
 <!-- 나는 누구 -->
@@ -424,28 +465,7 @@
 </section>
 
 <!-- 데이터 구입 (2026-11-13): 데이터 기업을 내세우면서 파는 자료가 안 보였다 → 살 수 있는 자료·앞으로 낼 자료·연동창구를 첫 화면에 -->
-<section class="dhome" id="data">
-  <header class="pn"><h3>집지니 데이터</h3><p>아파트 한 채를 도면과 숫자로, 단지·평형 단위로 팝니다</p></header>
-  <div class="dt">
-    <div class="row"><span class="no">01</span><h3>단지·평형 표준 물량표<small>엑셀 · CSV</small></h3>
-      <p class="what">방별 바닥·벽 면적, 걸레받이, 문·창, 욕실 타일. 집마다 재지 않고 바로 셉니다.</p>
-      <p class="spec"><b id="dh1" data-live="types">79</b><span>개 평형 · 매일 늘어남</span></p></div>
-    <div class="row"><span class="no">02</span><h3>평형별 캐드 도면<small>DWG · DXF · PDF</small></h3>
-      <p class="what">벽·문·창·방·치수를 층으로 나눈 집지니 재작도 도면. 원본 평면도 그림은 팔지 않습니다.</p>
-      <p class="spec"><b id="dh2" data-live="types">79</b><span>개 평형</span></p></div>
-    <div class="row"><span class="no">03</span><h3>수도권 단지 기본자료 결합본<small>CSV · 연동창구</small></h3>
-      <p class="what">세대수·준공·난방·관리 방식에 건축물대장(구조·층수·연면적)을 붙인 단지 대장.</p>
-      <p class="spec"><b>10,244</b><span>개 단지</span></p></div>
-    <div class="row"><span class="no">04</span><h3>사진 도면 → 캐드 변환<small>사진 · 스캔 → DWG · DXF</small></h3>
-      <p class="what">휴대폰으로 찍은 평면도·옛 종이 도면을 보내면 캐드 도면과 방별 물량표로 다시 그려 돌려 드립니다.</p>
-      <p class="spec"><b>장당</b><span>정액 · 접수 중</span></p></div>
-    <div class="row"><span class="no">05</span><h3>연동창구(API)<small>JSON · 월 구독</small></h3>
-      <p class="what">단지 코드·주소로 평형, 도면, 방별 물량을 바로 불러옵니다. 우리 화면과 같은 자료라 매일 갱신.</p>
-      <p class="spec"><b>시험판</b><span>견본 응답 공개</span></p></div>
-  </div>
-  <p class="note" style="margin-top:22px"><b style="color:var(--ink);font-weight:600">앞으로 낼 자료</b> · 보험 누수·하자 복구비 산정 · 하자 범위·보수비 근거 · 장기수선계획·충당금 산정 · 경매·매매 수리비 어림 · 노후 단지 리모델링 통계</p>
-  <div class="dact"><a class="btn" href="data.html#buy" data-ev="home_data_buy">견본·견적 받기</a><a class="btn ghost" href="data.html">자료 목록 전체 보기</a></div>
-</section>
+
 
 <!-- 약속 -->
 <section class="safe" id="safe">
