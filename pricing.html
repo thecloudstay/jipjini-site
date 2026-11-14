@@ -35,6 +35,7 @@
 <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"Service","serviceType":"인테리어 다이렉트 코디네이팅","provider":{"@id":"https://jipjini.com/#business"},"areaServed":"KR","description":"직영(셀프) 인테리어를 코디가 옆에서 돕는 방식. 자재상·기술자 매칭, 단가 검증, 공정 조율. 자재비·인건비는 건축주가 직접 결제해 중간 마진 0원.","offers":{"@type":"Offer","price":"0","priceCurrency":"KRW","description":"의뢰서 작성 → 상세 코디 견적서(무료) → 계약 시 코디비 결제"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"집지니","item":"https://jipjini.com/"},{"@type":"ListItem","position":2,"name":"가격","item":"https://jipjini.com/pricing.html"}]}]}</script>
 <style>body,p,li,td,th,h1,h2,h3,h4,dd,dt,blockquote,figcaption{word-break:keep-all;overflow-wrap:break-word}</style>
 <link rel="stylesheet" href="css/new.css?v=20261113b">
+<link rel="stylesheet" href="css/scope.css?v=20261114a">
 </head>
 <body>
 <nav class="nav">
@@ -110,16 +111,57 @@
   <div class="pricing-matrix pm-3col">
     <div class="pmatrix-row header"><div class="pmatrix-cell">시공총액</div><div class="pmatrix-cell">PM 비용</div><div class="pmatrix-cell">대상</div></div>
     <div class="pmatrix-row"><div class="pmatrix-cell">1,000만 이하</div><div class="pmatrix-cell"><span class="price">80만</span></div><div class="pmatrix-cell">부분·단일 공간</div></div>
-    <div class="pmatrix-row"><div class="pmatrix-cell">1,000-2,000만</div><div class="pmatrix-cell"><span class="price">140만</span></div><div class="pmatrix-cell">단일 공간 풀</div></div>
-    <div class="pmatrix-row"><div class="pmatrix-cell">2,000-3,000만</div><div class="pmatrix-cell"><span class="price">230만</span></div><div class="pmatrix-cell">복합 공간</div></div>
-    <div class="pmatrix-row" style="background: var(--jp-oatmeal-soft);"><div class="pmatrix-cell">3,000-5,000만</div><div class="pmatrix-cell"><span class="price" style="color: var(--jp-charcoal); font-weight: 700;">350만</span></div><div class="pmatrix-cell">표준 (32평 전체)</div></div>
-    <div class="pmatrix-row"><div class="pmatrix-cell">5,000-7,000만</div><div class="pmatrix-cell"><span class="price">500만</span></div><div class="pmatrix-cell">올수리 중형</div></div>
-    <div class="pmatrix-row"><div class="pmatrix-cell">7,000만-1억</div><div class="pmatrix-cell"><span class="price">700만</span></div><div class="pmatrix-cell">대형 (집 전체)</div></div>
-    <div class="pmatrix-row"><div class="pmatrix-cell">1억 이상</div><div class="pmatrix-cell"><span class="price">시공총액 6%</span></div><div class="pmatrix-cell">대형 (집 전체)</div></div>
+    <div class="pmatrix-row"><div class="pmatrix-cell">1,000-2,000만</div><div class="pmatrix-cell"><span class="price">80만 + 넘은 금액의 6%</span></div><div class="pmatrix-cell">단일 공간 풀 (2,000만이면 140만)</div></div>
+    <div class="pmatrix-row"><div class="pmatrix-cell">2,000-3,000만</div><div class="pmatrix-cell"><span class="price">140만 + 넘은 금액의 9%</span></div><div class="pmatrix-cell">복합 공간 (3,000만이면 230만)</div></div>
+    <div class="pmatrix-row" style="background: var(--jp-oatmeal-soft);"><div class="pmatrix-cell">3,000-5,000만</div><div class="pmatrix-cell"><span class="price">230만 + 넘은 금액의 6%</span></div><div class="pmatrix-cell">표준 32평 (5,000만이면 350만)</div></div>
+    <div class="pmatrix-row"><div class="pmatrix-cell">5,000-7,000만</div><div class="pmatrix-cell"><span class="price">350만 + 넘은 금액의 7.5%</span></div><div class="pmatrix-cell">올수리 중형 (7,000만이면 500만)</div></div>
+    <div class="pmatrix-row"><div class="pmatrix-cell">7,000만-1억</div><div class="pmatrix-cell"><span class="price">500만 + 넘은 금액의 6.67%</span></div><div class="pmatrix-cell">대형 (1억이면 700만)</div></div>
+    <div class="pmatrix-row"><div class="pmatrix-cell">1억 이상</div><div class="pmatrix-cell"><span class="price">700만 + 넘은 금액의 6%</span></div><div class="pmatrix-cell">대형 (집 전체)</div></div>
+  </div>
+  <p style="max-width:760px;margin:10px auto 0;font-size:13.5px;line-height:1.8;color:var(--jp-gray);padding:0 4px;">구간 끝에서 금액이 뛰지 않게 <strong style="color:var(--jp-charcoal)">이어지는 방식</strong>으로 계산합니다. 예) 시공 5,065만 원 → 350만 + 65만 × 7.5% = 약 355만 원. PM을 고르시면 현장 실측(3만 원)은 무료입니다.</p>
   </div>
   <div class="pricing-method-box"><i class="ti ti-info-circle"></i>PM 방식은 <strong>관리대리인 선임계약</strong>입니다 — 집지니 PM은 건축주를 대리해 현장을 관리(공정 조율·진행 보고·이슈 발견)하고 <strong>자재비·인건비 지급도 대신</strong> 하는 관리대리인이며, 시공자가 아닙니다. 대금은 집지니 대금 지급 계좌에 맡기시면 PM이 공정·자재 입고를 확인한 뒤 자재상·기술자에게 보내고 지급 내역을 공정마다 공개합니다(마진 0, 영수증은 건축주 명의). 자재·시공 하자의 책임은 자재상·기술자에게 있고, 그 해결 조율은 코디가 끝까지 무상 지원합니다 (하자 조율 약속).</div>
   <div class="pricing-pm-only">* 관리대리인(PM) 선임만 원하시는 분은 별도 연락 부탁드립니다.</div>
   <div class="pricing-calc-cta"><h3>내 견적 즉시 알아보기</h3><p>공간별 가로·세로·높이 + 16공종 시공 의향을 5분 안에 입력하시면 <strong>자동 견적서를 무료로 받아보실 수 있습니다.</strong></p><a class="btn btn-primary btn-lg" href="request.html" target="_blank" rel="noopener"><i class="ti ti-pencil-plus"></i>정밀 의뢰서 작성 (5분)</a></div>
+</section>
+<!-- 2026-11-14 대표 「코디네이터 서비스와 PM 서비스를 명확히 구분 — 착공 전/후, 조달·인부 소통 디테일까지, 홈페이지 시각화」 -->
+<section class="scope" id="scope">
+  <div class="sec-head"><p class="eyebrow">서비스 범위</p><h2>코디와 현장관리(PM), 어디까지 해 드리나요</h2><p>착공 전까지는 코디 하나로 모두 끝납니다. <span class="emph">착공 뒤 현장을 누가 챙기느냐</span>에서 두 서비스가 갈립니다.</p></div>
+  <div class="scope-line"><span class="pin"></span><span>착공일</span>
+    <div><b>착공 전 — 코디</b>도면·견적·자재 선택·기술자 매칭·공정표까지. 코디비에 모두 포함됩니다.</div>
+    <div><b>착공 후 — 고객님 직접 또는 PM</b>현장 확인·자재 받기·기술자 연락·대금 지급을 직접 하실지, 집지니 PM에게 맡기실지 고르십니다.</div>
+  </div>
+  <table class="scope-t">
+    <thead><tr><th>항목</th><th>코디만</th><th class="pm">코디 + 현장관리(PM)</th></tr></thead>
+    <tbody>
+      <tr class="grp"><td colspan="3">착공 전<span>두 서비스 모두 같음 · 코디비에 포함</span></td></tr>
+      <tr><td>도면</td><td class="same" colspan="2" data-th="둘 다">집지니 CAD 도면 · 공사 범위도 · 공종별 작업지시서</td></tr>
+      <tr><td>견적</td><td class="same" colspan="2" data-th="둘 다">자재 모델·단가를 모두 공개한 정밀 견적, 시중가 비교. 고객님이 직접 구하실 공정·자재는 따로 나눠 드립니다</td></tr>
+      <tr><td>자재 선택</td><td class="same" colspan="2" data-th="둘 다">가양동 샘플실·자재 고르기로 모델·색상 확정 (착공 7일 전 마감)</td></tr>
+      <tr><td>기술자·일정</td><td class="same" colspan="2" data-th="둘 다">공종별 기술자 섭외·일정 확정, 공정표 확정. 고객님이 구하신 기술자도 공정표에 넣어 일정을 맞춥니다</td></tr>
+      <tr><td>관리사무소</td><td class="same" colspan="2" data-th="둘 다">세대 동의서 양식·공사 신고 서류 준비</td></tr>
+      <tr><td>현장 실측</td><td data-th="코디만">유료 3만 원 (방문 상담 포함)</td><td class="pm" data-th="코디 + PM"><b>무료</b></td></tr>
+      <tr class="grp"><td colspan="3">착공 후<span>여기서 갈립니다</span></td></tr>
+      <tr><td>자재 발주</td><td data-th="코디만">자재상 연결과 주문서(수량·모델)까지. <b>발주·결제는 고객님</b></td><td class="pm" data-th="코디 + PM"><b>PM이 발주</b>하고 배송일을 공정에 맞춥니다</td></tr>
+      <tr><td>자재 받기·검수</td><td data-th="코디만">고객님이 받고 확인</td><td class="pm" data-th="코디 + PM">PM이 입고 수량·파손을 검수하고 사진으로 남깁니다. 반품·추가 주문도 PM</td></tr>
+      <tr><td>고객님이 사 오신 자재</td><td data-th="코디만">정확한 수량표를 드립니다. 받기·운반은 고객님</td><td class="pm" data-th="코디 + PM">수량표 + <b>하차·양중·검수까지 PM</b></td></tr>
+      <tr><td>기술자 연락</td><td data-th="코디만">착공 전 정한 일정을 한 번 전달. 이후에는 <b>고객님과 기술자가 직접</b> 연락</td><td class="pm" data-th="코디 + PM"><b>PM이 모든 기술자의 단일 창구.</b> 전날 출근 확인, 일정이 바뀌면 PM이 알립니다</td></tr>
+      <tr><td>작업 지시·현장 질문</td><td data-th="코디만">작업지시서 전달. 현장 질문은 고객님이 답하시거나 코디에게 전화·카톡(평일 9~18시). 현장 방문은 하지 않으며, 필요하면 출장 3만 원</td><td class="pm" data-th="코디 + PM">PM이 현장에서 지시·답변하고 다음 공정과 겹치는 부분을 조율합니다</td></tr>
+      <tr><td>현장 출입·관리사무소</td><td data-th="코디만">고객님이 문 열기·출입 관리</td><td class="pm" data-th="코디 + PM">PM이 출입·열쇠 관리, 관리사무소·이웃 민원 응대</td></tr>
+      <tr><td>공정 확인</td><td data-th="코디만">고객님이 직접 확인</td><td class="pm" data-th="코디 + PM"><b>공사하는 날은 매일 현장 방문.</b> 그날 공정 확인·사진을 고객 전용 페이지에 보고합니다</td></tr>
+      <tr><td>변경·추가 공사</td><td data-th="코디만">고객님과 기술자가 협의, 코디가 단가가 맞는지 봐 드립니다</td><td class="pm" data-th="코디 + PM">PM이 발견하면 <b>사진과 금액으로 먼저 승인</b>받은 뒤 진행</td></tr>
+      <tr><td>대금 지급</td><td data-th="코디만"><b>고객님이 자재상·기술자에게 직접</b></td><td class="pm" data-th="코디 + PM">집지니 대금 계좌에 맡기시면 PM이 공정을 확인한 뒤 대신 지급. 영수증은 고객님 명의</td></tr>
+      <tr><td>고객님이 구하신 기술자</td><td data-th="코디만" class="no">관여하지 않습니다</td><td class="pm" data-th="코디 + PM">그 공정도 일정·품질·현장을 함께 관리합니다. 이때 그 공정 계약 금액도 현장관리비 기준에 포함됩니다</td></tr>
+      <tr><td>준공</td><td data-th="코디만" class="no">—</td><td class="pm" data-th="코디 + PM">준공 점검표·하자 목록 작성, 입주 청소 확인</td></tr>
+      <tr><td>하자 (12개월)</td><td data-th="코디만">시공한 기술자를 연결해 드립니다</td><td class="pm" data-th="코디 + PM">기술자 호출·원인 판단·책임 협상까지. 고객님이 구하신 기술자 공정은 원인 판단과 기록까지</td></tr>
+    </tbody>
+  </table>
+  <div class="scope-not">
+    <p><b>시공은 하지 않습니다</b>집지니는 시공자가 아니라 고객님 편에서 맞춰 드리는 코디·관리대리인입니다.</p>
+    <p><b>시공 하자 보증은 기술자 몫</b>하자는 시공한 기술자가 책임지고, 집지니는 끝까지 조율합니다.</p>
+    <p><b>PM은 공사일마다 매일 방문</b>하루 종일 붙어 있는 상주는 아니고, 매일 공정을 확인하고 문제가 생기면 바로 갑니다.</p>
+  </div>
+  <p class="scope-note">일부 공정만 직접 구하신 기술자·자재로 하셔도 됩니다. 그 공정은 견적에서 빠지고 코디비도 집지니가 맡는 공정 금액에만 붙습니다. 금액은 모두 공급가액이며 부가세 10% 별도입니다.</p>
 </section>
 <section class="sample-quote" id="sample">
   <div class="sec-head"><p class="eyebrow">코디 견적서 샘플</p><h2>코디 견적서는 이렇게 받으십니다</h2><p>공종별 단가·자재 모델명까지 <span class="emph">한 장에 투명하게</span>. 실제 발송되는 견적서 양식입니다.</p></div>

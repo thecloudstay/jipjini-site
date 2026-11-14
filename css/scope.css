@@ -1,0 +1,39 @@
+/* 코디 · 현장관리(PM) 서비스 범위 (2026-11-14) — 착공 전/후로 나눈 비교표. 상자·알약 없이 선과 표로. */
+.scope{max-width:1040px;margin:0 auto;padding:72px 20px 40px;color:#232622}
+.scope .sec-head{margin-bottom:28px}
+.scope-line{position:relative;display:grid;grid-template-columns:1fr 1fr;margin:46px 0 30px;border-top:3px solid #232622}
+.scope-line div{padding:12px 4px 0;font-size:15px;line-height:1.7;color:#4a4f49}
+.scope-line b{display:block;font-size:17px;color:#232622;margin-bottom:2px}
+.scope-line div+div{border-left:1px solid #cfc8b8;padding-left:18px}
+.scope-line .pin{position:absolute;left:50%;top:-9px;width:15px;height:15px;margin-left:-8px;border-radius:50%;background:#1e4d3a;border:3px solid #faf8f3}
+.scope-line .pin+span{position:absolute;left:50%;top:-32px;transform:translateX(-50%);font-size:13px;font-weight:700;color:#1e4d3a;white-space:nowrap}
+.scope-t{width:100%;border-collapse:collapse;font-size:15px;line-height:1.65;background:#fff}
+.scope-t th,.scope-t td{border-bottom:1px solid #e3ddcf;padding:14px 14px;vertical-align:top;text-align:left}
+.scope-t thead th{border-bottom:2px solid #232622;font-size:14px;color:#4a4f49;font-weight:700;background:#faf8f3}
+.scope-t thead th.pm{color:#1e4d3a}
+.scope-t td:first-child{font-weight:700;width:19%;color:#232622}
+.scope-t td.pm{background:#f3f7f4}
+.scope-t td.same{text-align:center;color:#4a4f49;background:#faf8f3}
+.scope-t td b{color:#1e4d3a}
+.scope-t tr.grp td{background:#232622;color:#fff;font-weight:700;font-size:14px;padding:10px 14px;letter-spacing:.02em}
+.scope-t tr.grp td span{font-weight:400;color:#cfd6cf;margin-left:8px}
+.scope-t .no{color:#9a958a}
+.scope-not{display:grid;grid-template-columns:repeat(3,1fr);gap:0;margin:26px 0 0;border-top:1px solid #cfc8b8}
+.scope-not p{margin:0;padding:14px 16px 0 0;font-size:14.5px;line-height:1.7;color:#4a4f49}
+.scope-not p b{display:block;color:#232622;font-size:15px}
+.scope-note{margin:22px 0 0;font-size:14px;line-height:1.8;color:#6b6a63}
+@media (max-width:720px){
+  .scope{padding:56px 16px 30px}
+  .scope-line{grid-template-columns:1fr}
+  .scope-line div+div{border-left:0;border-top:1px solid #cfc8b8;padding-left:4px;margin-top:10px}
+  .scope-line .pin,.scope-line .pin+span{display:none}
+  .scope-t thead{display:none}
+  .scope-t,.scope-t tbody,.scope-t tr,.scope-t td{display:block;width:100%}
+  .scope-t tr{border-bottom:1px solid #e3ddcf;padding:6px 0 10px}
+  .scope-t td{border:0;padding:6px 4px}
+  .scope-t td:first-child{width:100%;font-size:16px;padding-top:12px}
+  .scope-t td[data-th]::before{content:attr(data-th);display:block;font-size:12.5px;font-weight:700;color:#8a857a;margin-bottom:2px}
+  .scope-t td.pm::before{color:#1e4d3a}
+  .scope-t tr.grp{padding:0}
+  .scope-not{grid-template-columns:1fr}
+}
