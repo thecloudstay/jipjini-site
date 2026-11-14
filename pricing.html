@@ -35,7 +35,7 @@
 <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"Service","serviceType":"인테리어 다이렉트 코디네이팅","provider":{"@id":"https://jipjini.com/#business"},"areaServed":"KR","description":"직영(셀프) 인테리어를 코디가 옆에서 돕는 방식. 자재상·기술자 매칭, 단가 검증, 공정 조율. 자재비·인건비는 건축주가 직접 결제해 중간 마진 0원.","offers":{"@type":"Offer","price":"0","priceCurrency":"KRW","description":"의뢰서 작성 → 상세 코디 견적서(무료) → 계약 시 코디비 결제"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"집지니","item":"https://jipjini.com/"},{"@type":"ListItem","position":2,"name":"가격","item":"https://jipjini.com/pricing.html"}]}]}</script>
 <style>body,p,li,td,th,h1,h2,h3,h4,dd,dt,blockquote,figcaption{word-break:keep-all;overflow-wrap:break-word}</style>
 <link rel="stylesheet" href="css/new.css?v=20261113b">
-<link rel="stylesheet" href="css/scope.css?v=20261114a">
+<link rel="stylesheet" href="css/scope.css?v=20261114b">
 </head>
 <body>
 <nav class="nav">
@@ -161,6 +161,58 @@
     <p><b>시공 하자 보증은 기술자 몫</b>하자는 시공한 기술자가 책임지고, 집지니는 끝까지 조율합니다.</p>
     <p><b>PM은 공사일마다 매일 방문</b>하루 종일 붙어 있는 상주는 아니고, 매일 공정을 확인하고 문제가 생기면 바로 갑니다.</p>
   </div>
+  <!-- 2026-11-14 대표 「코디와 PM 요율표도 같이, 금액 산출 기능도」 — 요율은 pricing.gs getCodiRate·getPmFee 와 같게 -->
+  <div class="scope-fee" id="calc">
+    <h3>요율과 금액 계산</h3>
+    <p class="scope-fee-lead">코디비와 현장관리비(PM)는 따로 계산해 더합니다. 둘 다 시공총액(자재비 + 인건비) 기준입니다.</p>
+    <div class="scope-fee-grid">
+      <table class="scope-fee-t">
+        <caption>코디비 (필수)</caption>
+        <thead><tr><th>시공총액</th><th>요율</th></tr></thead>
+        <tbody>
+          <tr><td>500만 이하</td><td>15%</td></tr><tr><td>500만~1,000만</td><td>11%</td></tr><tr><td>1,000만~2,000만</td><td>8.5%</td></tr>
+          <tr><td>2,000만~3,000만</td><td>7%</td></tr><tr><td>3,000만~4,000만</td><td>6%</td></tr><tr><td>4,000만~5,000만</td><td>5%</td></tr>
+          <tr><td>5,000만~7,000만</td><td>4.5%</td></tr><tr><td>7,000만~1억</td><td>4%</td></tr><tr><td>1억 초과</td><td>3.5%</td></tr>
+        </tbody>
+      </table>
+      <table class="scope-fee-t">
+        <caption>현장관리비 PM (선택)</caption>
+        <thead><tr><th>시공총액</th><th>금액</th></tr></thead>
+        <tbody>
+          <tr><td>1,000만 이하</td><td>80만</td></tr><tr><td>1,000만~2,000만</td><td>80만 + 넘은 금액의 6%</td></tr><tr><td>2,000만~3,000만</td><td>140만 + 넘은 금액의 9%</td></tr>
+          <tr><td>3,000만~5,000만</td><td>230만 + 넘은 금액의 6%</td></tr><tr><td>5,000만~7,000만</td><td>350만 + 넘은 금액의 7.5%</td></tr><tr><td>7,000만~1억</td><td>500만 + 넘은 금액의 6.67%</td></tr>
+          <tr><td>1억 초과</td><td>700만 + 넘은 금액의 6%</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="scope-calc">
+      <label for="scTotal">시공총액</label>
+      <div class="scope-calc-in"><input id="scTotal" type="text" inputmode="numeric" value="5,000" autocomplete="off"><span>만 원</span></div>
+      <label class="scope-calc-pm"><input id="scPm" type="checkbox" checked> 현장관리(PM)도 맡기기</label>
+      <table class="scope-calc-out" aria-live="polite">
+        <tr><td>코디비</td><td id="scCodi">-</td></tr>
+        <tr id="scPmRow"><td>현장관리비(PM)</td><td id="scPmFee">-</td></tr>
+        <tr class="sum"><td>합계 (공급가액)</td><td id="scSum">-</td></tr>
+        <tr><td>부가세 10% 포함</td><td id="scVat">-</td></tr>
+        <tr class="ratio"><td>시공총액 대비</td><td id="scRatio">-</td></tr>
+      </table>
+      <p class="scope-calc-note">어림 계산입니다. 실제 금액은 정밀 견적서의 시공총액으로 정해지고, 고객님이 직접 구하신 공정은 코디비 기준에서 빠집니다(PM을 맡기시면 현장관리비 기준에는 들어갑니다).</p>
+    </div>
+  </div>
+  <script>(function(){
+    function codi(t){var r=t<=5e6?.15:t<=1e7?.11:t<=2e7?.085:t<=3e7?.07:t<=4e7?.06:t<=5e7?.05:t<=7e7?.045:t<=1e8?.04:.035;return Math.round(t*r);}
+    function pm(t){var B=[[0,8e5,0],[1e7,8e5,.06],[2e7,14e5,.09],[3e7,23e5,.06],[5e7,35e5,.075],[7e7,5e6,.2/3],[1e8,7e6,.06]],b=B[0];for(var i=0;i<B.length;i++)if(t>B[i][0])b=B[i];return Math.round((b[1]+(t-b[0])*b[2])/1e4)*1e4;}
+    function won(n){return Math.round(n).toLocaleString('ko-KR')+' 원';}
+    var inp=document.getElementById('scTotal'),chk=document.getElementById('scPm');if(!inp)return;
+    function run(){var v=parseFloat(String(inp.value).replace(/[^0-9.]/g,''))||0,t=v*1e4;var c=t>0?codi(t):0,p=(t>0&&chk.checked)?pm(t):0;
+      document.getElementById('scCodi').textContent=t?won(c):'-';document.getElementById('scPmFee').textContent=t?won(p):'-';
+      document.getElementById('scPmRow').style.display=chk.checked?'':'none';
+      document.getElementById('scSum').textContent=t?won(c+p):'-';document.getElementById('scVat').textContent=t?won((c+p)*1.1):'-';
+      document.getElementById('scRatio').textContent=t?((c+p)/t*100).toFixed(1)+'%':'-';}
+    inp.addEventListener('input',run);chk.addEventListener('change',run);
+    inp.addEventListener('blur',function(){var v=parseFloat(String(inp.value).replace(/[^0-9.]/g,''));if(v)inp.value=v.toLocaleString('ko-KR');});
+    try{var q=new URLSearchParams(location.search).get('t');if(q){inp.value=Number(q).toLocaleString('ko-KR');}}catch(e){}
+    run();})();</script>
   <p class="scope-note">일부 공정만 직접 구하신 기술자·자재로 하셔도 됩니다. 그 공정은 견적에서 빠지고 코디비도 집지니가 맡는 공정 금액에만 붙습니다. 금액은 모두 공급가액이며 부가세 10% 별도입니다.</p>
 </section>
 <section class="sample-quote" id="sample">
