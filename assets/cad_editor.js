@@ -10,6 +10,9 @@
   'use strict';
   var doc = document, $ = function (id) { return doc.getElementById(id); };
   var FONT = "'IBM Plex Sans KR',Pretendard,'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif";
+  // 2026-11-14 싱크대 설계(assets/kitchen_plan.js)는 처음 쓸 때 불러온다
+  var KBASE = ((doc.currentScript && doc.currentScript.src) || '').replace(/cad_editor\.js.*$/, '') || 'assets/';
+  function kitLoad(cb) { if (root.JJKitchen) return cb && cb(); var sc = doc.createElement('script'); sc.src = KBASE + 'kitchen_plan.js?v=20261114'; sc.onload = function () { if (cb) cb(); }; doc.head.appendChild(sc); }
   // ── 콘솔과 같은 정의
   var TRADES = [['철거', '#b4232a'], ['창호', '#1f6f8b'], ['설비', '#0e7490'], ['전기', '#b45309'], ['목공', '#7c4a1e'], ['타일', '#4d7c0f'], ['도장', '#6d28d9'], ['도배', '#9d3f7a'], ['바닥', '#8a6a12'], ['가구', '#334155']];   // 공사 순서대로
   // 기호: [공종, 이름, 모양(p 점 · l 선 · a 구역), 줄임 글자]
@@ -222,6 +225,7 @@
     if (k === 'paper') { if (g('old') === 'strip') o.push(['기존 벽지 제거', c.qty, '㎡']); if (g('prep') === 'all') o.push(['올퍼티', c.qty, '㎡']); if (g('bead') === 'yes') { n = cornersOut(q.pts); if (n) o.push(['코너비드(각대) · 볼록 모서리', n * c.Hm, 'm']); } v = g('lining'); if (v !== 'none' && c.wall > 0) o.push([(v === 'float' ? '부직포' : v === 'tri' ? '삼중지' : '네바리') + ' 초배 · 벽', c.wall, '㎡']); }
     else if (k === 'paint') { if (g('prep') === 'all') o.push(['올퍼티', c.qty, '㎡']); }
     else if (k === 'tileW' || k === 'tileF') { if (g('old') === 'strip') o.push(['기존 타일 철거', c.qty, '㎡']); if (g('set') === 'sand') o.push(['사모래 물매 바탕', c.qty, '㎡']); }
+    else if (k === 'sink' && root.JJKitchen) { var kr = kitLayout(q); if (kr) { var kb = kr.L.bom; o.push(['상판 (깊이 ' + kr.L.o.depth + ')', kb.상판_m, 'm'], ['하부장', kb.하부장_m, 'm'], ['상부장', kb.상부장_m, 'm'], ['문짝', kb.문짝, '짝'], ['서랍', kb.서랍, '개'], ['경첩', kb.경첩, '개']); } }   // 2026-11-14 싱크대 설계 모듈 수량
     else if (k === 'zen') { var w = (q.wm || 150) / 1000, B1 = (q.wm || 150) >= 180; o.push(['조적 ' + (B1 ? '한 장 쌓기' : '반 장 쌓기'), c.L * c.h, '㎡'], ['시멘트 벽돌', Math.ceil(c.L * c.h * (B1 ? 149 : 75)), '장']); if (g('top') === 'tile') o.push(['타일 붙임 · 앞면과 윗면', c.L * c.h + c.L * w, '㎡']); else o.push(['타일 붙임 · 앞면', c.L * c.h, '㎡'], ['상판', c.L, 'm']); }
     else if (k === 'wp') { o.push(['바닥 방수', c.A, '㎡'], ['벽 방수', c.per * c.h, '㎡']); if (g('corner') === 'yes') o.push(['모서리 보강', c.per + q.pts.length * c.h, 'm']); }
     else if (k === 'wallN') { o.push(['석고보드 900×1800 · 손실 전', c.L * c.h * Number(g('side')) * Number(g('ply')) / 1.62, '장']); if (g('fill') === 'yes') o.push(['흡음재', c.L * c.h, '㎡']); if (g('back') === 'yes') o.push(['합판 보강 · 벽 전체일 때', c.L * c.h, '㎡']); }
@@ -697,7 +701,7 @@
     doc.head.appendChild(st);
   }
   function mount(el, opt) {
-    EL = el; OPT = opt || {}; css();
+    EL = el; OPT = opt || {}; css(); kitLoad();
     el.innerHTML = '<div class="jje" id="jjeRoot"><div class="jje-top"><h3>집지니 CAD</h3><span class="nm" id="jjeNm"></span>' +
       '<button type="button" class="jje-b" data-a="undo" title="되돌리기">되돌리기</button><button type="button" class="jje-b" data-a="redo" title="다시 하기">다시</button><button type="button" class="jje-b dark" data-a="sheet">작업지시서</button><span class="jje-sv"><button type="button" class="jje-b" data-a="saveMenu" aria-haspopup="true" aria-expanded="false">저장</button><span class="jje-svm" id="jjeSaveMenu" hidden><button type="button" data-a="imgfile" data-v="pdf"><b>피디에프</b><small>인쇄·업체에 보내기 (A3 한 장)</small></button><button type="button" data-a="imgfile" data-v="jpg"><b>사진 파일</b><small>문자·메신저로 보내기</small></button><button type="button" data-a="cadfile" data-v="dwg"><b>오토캐드 파일 (.dwg)</b><small>설계사무소·시공사용, 벽·문·창·공사 표시가 층으로 나뉨</small></button><button type="button" data-a="cadfile" data-v="dxf"><b>캐드 교환 파일 (.dxf)</b><small>다른 캐드 프로그램용</small></button></span></span><button type="button" class="jje-b" data-a="cadBg" title="도면 바탕을 짙은 색(캐드 화면) ↔ 흰색(출력)으로 바꿉니다"><span class="jje-lg">배경 </span>반전</button><button type="button" class="jje-b" data-a="full" id="jjeFull">넓게</button></div>' +
       '<div class="jje-say"><span id="jjeSay"></span><a href="cad-guide.html" target="_blank" rel="noopener">사용법</a></div>' +
@@ -1119,6 +1123,24 @@
     if (S[2] === 'p') { g._dash = st === 'move' ? [s * 0.06, s * 0.05] : null; symDraw(g, k, s / 2, s / 2 + (k === 'sw' ? s * 0.08 : k === 'wt' ? s * 0.08 : 0), s * 0.25, 0, 'rgba(255,255,255,0)'); g._dash = null; if (st === 'remove' && k !== 'dmP') { g.lineWidth = s / 18; g.beginPath(); g.moveTo(s * 0.2, s * 0.2); g.lineTo(s * 0.8, s * 0.8); g.moveTo(s * 0.8, s * 0.2); g.lineTo(s * 0.2, s * 0.8); g.stroke(); } }
     else { var u = s / 2.6, q = S[2] === 'l' ? { t: 'wk', k: k, st: st === 'remove' ? 'remove' : 'new', f: 'l', pts: [[s * 0.12, s * 0.5], [s * 0.88, s * 0.5]] } : { t: 'wk', k: k, st: st === 'remove' ? 'remove' : 'new', f: 'a', pts: [[s * 0.16, s * 0.2], [s * 0.84, s * 0.2], [s * 0.84, s * 0.8], [s * 0.16, s * 0.8]] }, keep = [OBS]; OBS = []; iconMode = true; try { drawWk(g, q, u, 0, 0); } finally { iconMode = false; } OBS = keep[0]; } }
   var iconMode = false, label0 = label; label = function () { if (iconMode || mute) return [0, 0]; return label0.apply(null, arguments); };
+  // ── 싱크대 설계: 그린 싱크대 줄(꺾인 곳마다 한 벽)을 mm 로 바꿔 kitchen_plan.js 에 넘긴다. 깊이 방향은 그 공간 안쪽
+  function kitGeo(s) { var mm = mmpp(); if (!mm || !s.pts || s.pts.length < 2) return null; var rm = shapeRoom(s), C = rm ? centroid(rm.pts) : centroid(s.pts), out = [];
+    for (var i = 0; i + 1 < s.pts.length; i++) { var a = s.pts[i], b = s.pts[i + 1], L = Math.hypot(b[0] - a[0], b[1] - a[1]); if (L * mm < 300) continue; var ux = (b[0] - a[0]) / L, uy = (b[1] - a[1]) / L, nx = -uy, ny = ux, mx = (a[0] + b[0]) / 2, my = (a[1] + b[1]) / 2;
+      if ((C[0] - mx) * nx + (C[1] - my) * ny < 0) { nx = -nx; ny = -ny; } out.push({ x: a[0] * mm, y: a[1] * mm, ux: ux, uy: uy, nx: nx, ny: ny, len: Math.round(L * mm / 10) * 10 }); }
+    return out.length ? out : null; }
+  function kitLayout(s) { var g = kitGeo(s); if (!g || !root.JJKitchen) return null; var o = {}; Object.keys(s.kp || {}).forEach(function (k) { o[k] = s.kp[k]; }); o.ceil = ceilH; return { L: root.JJKitchen.layout(g, o), g: g }; }
+  function kitPane(s) { if (!root.JJKitchen) { kitLoad(function () { if (shapes[sel] === s) propDraw(); }); return '<p class="jje-p">싱크대 설계 불러오는 중…</p>'; }
+    var g = kitGeo(s); if (!g) return '<div class="jje-h" style="margin-top:12px">싱크대 설계</div><p class="jje-p">' + (mmpp() ? '벽을 따라 30cm 넘게 그려 주세요.' : '척도가 없어 길이를 잴 수 없습니다. 「측정」에서 척도를 잡아 주세요.') + '</p>';
+    var kp = s.kp || {}, D = root.JJKitchen.DEF, v = function (k) { return kp[k] != null && kp[k] !== '' ? kp[k] : D[k]; }, sel2 = function (k, lb, opts) { return '<div class="jje-row jje-mrow"><label>' + lb + '</label><select data-kp="' + k + '">' + opts.map(function (x) { return '<option value="' + x[0] + '"' + (String(v(k)) === String(x[0]) ? ' selected' : '') + '>' + x[1] + '</option>'; }).join('') + '</select></div>'; },
+      walls = [[-1, '자동(가장 긴 벽)']].concat(g.map(function (r, i) { return [i, (i + 1) + '번 벽 ' + r.len.toLocaleString('ko-KR')]; })), at = [[15, '왼쪽 끝 쪽'], [35, '왼쪽'], [50, '가운데'], [65, '오른쪽'], [85, '오른쪽 끝 쪽']];
+    var r = kitLayout(s), L = r && r.L, b = L && L.bom;
+    return '<div class="jje-h" style="margin-top:12px">싱크대 설계 · ' + (g.length === 1 ? '일자' : g.length === 2 ? 'ㄱ자' : 'ㄷ자') + ' ' + g.map(function (x) { return x.len.toLocaleString('ko-KR'); }).join(' + ') + 'mm</div>' +
+      sel2('sinkR', '개수대 벽', walls) + sel2('sinkAt', '개수대 자리', at) + sel2('cookR', '쿡탑 벽', [[-1, '자동']].concat(walls.slice(1))) + sel2('cookAt', '쿡탑 자리', at) +
+      sel2('fr', '냉장고', [['auto', '자동'], ['start', '1번 벽 앞'], ['end', g.length + '번 벽 끝'], ['none', '따로 둠']]) + sel2('frW', '냉장고 폭', [[700, '700 (일반)'], [900, '900 (양문)'], [1200, '1200 (김치냉장고와 같이)']]) + sel2('tall', '키큰장', [[0, '없음'], [1, '1개'], [2, '2개']]) +
+      sel2('dw', '식기세척기', [[1, '넣음'], [0, '안 넣음']]) + sel2('up', '상부장', [[1, '넣음'], [0, '안 넣음']]) + sel2('upSink', '개수대 위', [[1, '상부장'], [0, '비움(창)']]) +
+      (L ? L.warn.map(function (t) { return '<p class="jje-p" style="color:#8a4b0f;margin-top:6px">확인: ' + esc(t) + '</p>'; }).join('') + '<p class="jje-p" style="margin-top:8px">하부 ' + L.base.filter(function (m) { return m.t !== 'filler'; }).length + '칸 · 상부 ' + L.upper.length + '칸 · 상판 ' + b.상판_m + 'm · 문짝 ' + b.문짝 + ' · 서랍 ' + b.서랍 + '</p>' : '') +
+      '<div class="jje-chips" style="margin-top:8px"><button type="button" class="jje-chip on" data-a="kitSheet">설계도·발주 수량 보기</button></div>'; }
+  function kitSheet() { var s = shapes[sel]; if (!s) return; kitLoad(function () { var r = kitLayout(s); if (!r) { toast('척도와 싱크대 줄이 있어야 합니다.'); return; } var w = root.open('', '_blank'); if (!w) { toast('새 창이 막혔습니다. 팝업을 허용해 주세요.'); return; } w.document.open(); w.document.write(root.JJKitchen.sheet(r.L, r.g, { name: planName, date: new Date().toISOString().slice(0, 10) })); w.document.close(); }); }
   function propDraw(focusName) {
     var el = $('jjeProp'); if (!el) return; var s = shapes[sel]; if (!s) { el.innerHTML = ''; return; }
     var row = function (lb, html) { return '<div class="jje-row"><label>' + lb + '</label>' + html + '</div>'; }, inp = function (key, v, ph, type) { return '<input ' + (type ? 'type="' + type + '" ' : 'type="text" ') + 'data-p="' + key + '" value="' + esc(v == null ? '' : v) + '" placeholder="' + (ph || '') + '">'; }, title = '', body = '';
@@ -1135,6 +1157,7 @@
         else if (s.k === 'ins') o += row2('두께 T', inp('tk', s.tk || '', '비우면 이보드 23 · 압출 50', 'number'));
         mWarn(s).forEach(function (t) { o += '<p class="jje-p" style="color:#b4232a;margin-top:8px">확인: ' + esc(t) + '</p>'; });
         return o; })() +
+      (s.k === 'sink' && s.f === 'l' ? kitPane(s) : '') +
       (s.k === 'core' ? row('지름', inp('dia', s.dia || 100, '50~200', 'number')) + '<div class="jje-chips" style="margin-top:8px">' + [50, 75, 100, 125, 150, 200].map(function (d) { return chipB('pdia', d, (s.dia || 100) === d, 'Ø' + d); }).join('') + '</div><div class="jje-chips" style="margin-top:8px">' + ['천장', '벽', '바닥'].map(function (t) { return chipB('pat', t, (s.at || '벽') === t, t); }).join('') + '</div>' : ''); }
     else if (s.t === 'guide') { var gv = s.o === 'v', sg = spanAt(s.x, s.y), gm = mmpp(), gA = sg ? (gv ? sg.L : sg.T) : null, gB = sg ? (gv ? sg.R : sg.B) : null, pv = gv ? s.x : s.y, grow = function (lb, key, px) { return '<div class="jje-row"><label style="width:104px">' + lb + '</label>' + inp(key, Math.round(px * gm / 10) * 10, 'mm', 'number') + '</div>'; }; title = '기준선 · ' + (gv ? '세로' : '가로');
       body = '<div class="jje-chips" style="margin-top:8px">' + gColChips('pgC', s.c || '#d11a2a') + '</div>' + (gm && gA != null && gB != null ? grow(gv ? '왼쪽 벽에서' : '위쪽 벽에서', 'gA', pv - gA) + grow(gv ? '오른쪽 벽에서' : '아래쪽 벽에서', 'gB', gB - pv) + '<p class="jje-p">숫자(mm)를 고치면 줄이 그 자리로 옮겨집니다.</p>' : '<p class="jje-p">' + (gm ? '방 안에 놓인 기준선만 벽에서 띄운 거리를 맞출 수 있습니다.' : '척도가 없어 거리를 맞출 수 없습니다. 「측정」에서 척도를 잡아 주세요.') + '</p>'); }
@@ -1372,6 +1395,7 @@
     else if (a === 'rname' && s) { snap(); propSet('name', v); propDraw(); }
     else if (a === 'pst' && s) { snap(); s.st = v; touch(); propDraw(); }
     else if (a === 'popt' && s) { snap(); s.opt = !s.opt; touch(); propDraw(); }
+    else if (a === 'kitSheet') kitSheet();
     else if (a === 'rot' && s) { snap(); s.rot = (((s.rot || 0) + (parseInt(v, 10) || 90)) % 360 + 360) % 360; touch(); }
     else if (a === 'flip' && s) { snap(); s.flip = !s.flip; touch(); }
     else if (a === 'swap' && s) { snap(); var t = [s.x1, s.y1]; s.x1 = s.x2; s.y1 = s.y2; s.x2 = t[0]; s.y2 = t[1]; s.flip = !s.flip; touch(); }
@@ -1382,11 +1406,12 @@
     else if (a === 'restart') { if (OPT.onRestart) OPT.onRestart(); }
   }
   function onInput(ev) { if (ev.target.id === 'jjeFocus') { focusOn = ev.target.checked; redraw(); return; } var t = ev.target, ma = t.getAttribute && t.getAttribute('data-m'), mp = t.getAttribute && t.getAttribute('data-pm'), ms = shapes[sel];
+    var kq = t.getAttribute && t.getAttribute('data-kp'); if (kq) { if (ms) { var kv = /^(fr)$/.test(kq) ? t.value : Number(t.value); if (!ms.kp || ms.kp[kq] !== kv) { snap(); ms.kp = ms.kp || {}; ms.kp[kq] = kv; touch(); } if (ev.type === 'change') propDraw(); } return; }
     if (ma) { if (mdef[ma] !== t.value) { mdef[ma] = t.value; redraw(); qtyDraw(); saveSoon(); } return; }
     if (mp) { if (ms) { if (!(ms.m && ms.m[mp] === t.value)) { snap(); ms.m = ms.m || {}; ms.m[mp] = t.value; touch(); } if (ev.type === 'change') propDraw(); } return; }
     if (t.id === 'jjeCeil') { var cv = Math.round(Number(t.value)); if (cv >= 2000 && cv <= 3500) { ceilH = cv; if (ev.type === 'change') takeDraw(); saveSoon(); } return; } if (t.getAttribute && t.getAttribute('data-chk')) { var ck = t.getAttribute('data-chk'); if (t.checked) chk[ck] = true; else delete chk[ck]; takeDraw(); costDraw(); saveSoon(); return; } if (t.id === 'jjeGNv') gd.nv = gN(t.value); else if (t.id === 'jjeGNh') gd.nh = gN(t.value); else if (t.id === 'jjeGOff') gd.off = t.value; else if (t.id === 'jjeDia') { var dv = Math.round(Number(t.value)); if (dv >= 50 && dv <= 200) wk.dia = dv; } else if (t.id === 'jjeRow') { wk.row = Math.max(1, Math.min(40, Number(t.value) || 1)); if (tool === 'wk') wkHint(); } else if (t.id === 'jjeName') { planName = t.value.trim().slice(0, 30) || '우리 집'; $('jjeNm').textContent = planName; saveSoon(); } else if (t.getAttribute && t.getAttribute('data-p')) propSet(t.getAttribute('data-p'), t.value); }
   function leave() { if (full) { full = false; applyFull(); } var s = $('jjeSheet'); if (s) s.remove(); }
 
   root.JJCadEditor = { mount: mount, open: open, fromQuote: function (lines) { var L = Array.isArray(lines) ? lines.map(function (x) { return { n: String(x.품목 || ''), t: [x.공종, x.품목, x.규격].filter(Boolean).join(' '), q: Number(x.수량) || 0, u: String(x.단위 || '') }; }) : qtParse(lines); var r = qtPlace(L); return { placed: r, compare: qtCompare(L) }; }, fromPlan: fromPlan, fromV1: fromV1, getState: getState, quote: quotePack, leave: leave, SYMS: SYMS, TRADES: TRADES, CATS: CATS,
-    _test: { shapes: function () { return shapes; }, warn: warnAll, take: takeRows, takeText: takeText, rows: workRows, sum: function () { return workSum(workRows()); }, toClient: function (x, y) { var r = $('jjeCv').getBoundingClientRect(); return [r.left + (x - SX) * r.width / SW, r.top + (y - SY) * r.height / SH]; }, mmpp: mmpp, view: function () { return V; } } };
+    _test: { shapes: function () { return shapes; }, select: function (i) { sel = i; propDraw(); }, kitSheet: function () { kitSheet(); }, warn: warnAll, take: takeRows, takeText: takeText, rows: workRows, sum: function () { return workSum(workRows()); }, toClient: function (x, y) { var r = $('jjeCv').getBoundingClientRect(); return [r.left + (x - SX) * r.width / SW, r.top + (y - SY) * r.height / SH]; }, mmpp: mmpp, view: function () { return V; } } };
 })(window);
