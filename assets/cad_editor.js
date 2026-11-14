@@ -189,7 +189,7 @@
     sash: [['how', '방식', [['full', '틀째 교체', ''], ['glass', '유리만 교체', '유리만']]], ['seal', '틀 둘레', [['foam', '폼 채움 + 실리콘', ''], ['mortar', '폼 + 몰탈 사춤 + 실리콘', '']]]],
     pipe: [['how', '배관', [['chase', '홈파기 매립', '매립'], ['open', '노출', '노출']]]],
     wire: [['how', '배선', [['ceil', '천장 속', '천장 속'], ['chase', '벽 홈파기 매립', '매립'], ['mold', '노출 몰드', '몰드']]]],
-    dl: [['size', '크기', [['3', '3인치 (타공 75mm)', ''], ['4', '4인치 (타공 100mm)', ''], ['5', '5인치 (타공 125mm)', ''], ['6', '6인치 (타공 150mm)', '']], null, function () { return '4'; }], ['kind', '종류', [['fix', '고정형', ''], ['tilt', '각도 조절형', ''], ['wet', '방습형(욕실·발코니)', ''], ['sensor', '센서형(현관)', '']]], ['ct', '빛 색', [['4000', '주백색 4000K', ''], ['3000', '전구색 3000K', ''], ['6500', '주광색 6500K', '']]]],
+    dl: [['size', '크기', [['2', '2인치 (타공 50mm)', ''], ['3', '3인치 (타공 75mm)', ''], ['4', '4인치 (타공 100mm)', ''], ['5', '5인치 (타공 125mm)', ''], ['6', '6인치 (타공 150mm)', '']], null, function () { return '4'; }], ['kind', '종류', [['fix', '고정형', ''], ['tilt', '각도 조절형', ''], ['wet', '방습형(욕실·발코니)', ''], ['sensor', '센서형(현관)', '']]], ['ct', '빛 색', [['4000', '주백색 4000K', ''], ['3000', '전구색 3000K', ''], ['6500', '주광색 6500K', '']]]],
     cl: [['kind', '종류', [['room', '방등·거실등', ''], ['sensor', '센서등', ''], ['wet', '방습등(욕실·발코니)', '']]], ['shape', '모양', [['round', '원형', ''], ['square', '사각', '']]], ['size', '크기', [['s', '소형 (지름·한 변 200mm 안팎)', ''], ['m', '중형 (400~500mm)', ''], ['l', '대형 (600mm 이상)', '']]], ['ct', '빛 색', [['4000', '주백색 4000K', ''], ['3000', '전구색 3000K', ''], ['6500', '주광색 6500K', '']]]],
     pd: [['at', '자리', [['table', '식탁 위', ''], ['island', '아일랜드 위', ''], ['etc', '그 밖(메모에 적기)', '']]], ['ct', '빛 색', [['4000', '주백색 4000K', ''], ['3000', '전구색 3000K', ''], ['6500', '주광색 6500K', '']]]],
     ll: [['kind', '방식', [['t5', 'T5 간접등', 'T5'], ['strip', 'LED 줄조명', '줄조명'], ['line', '라인 조명(매입 틀)', '라인']]], ['at', '자리', [['cove', '천장 간접 박스', ''], ['sink', '싱크대 상부장 밑', '상부장 밑'], ['shelf', '선반·가구 안', '가구 안'], ['wall', '벽 간접', '벽']]], ['ct', '빛 색', [['4000', '주백색 4000K', ''], ['3000', '전구색 3000K', ''], ['6500', '주광색 6500K', '']]]],
@@ -1066,6 +1066,10 @@
     el.innerHTML = h + '</table>' + (mmpp() ? '' : '<p class="jje-p" style="color:#b4232a">척도가 없어 길이·면적은 비어 있습니다. 「측정」에서 척도를 잡아 주세요.</p>');
   }
   function today() { var d = new Date(); return d.getFullYear() + '. ' + (d.getMonth() + 1) + '. ' + d.getDate() + '.'; }
+  // 2026-11-14 대표 「같은 내용 반복은 통합해서 — 10~58 매입등 이런 식으로」: 지시 목록에서 같은 방·같은 항목·같은 구분·같은 지시가 번호로 이어지면 한 줄로 묶는다(개수 기호만). 도면 번호는 그대로.
+  function mergeRows(L) { var out = []; L.forEach(function (r) { var p = out[out.length - 1];
+      if (p && r.unit === '개' && p.unit === '개' && p.room === r.room && p.label === r.label && p.st === r.st && p.note === r.note && Number(r.no) === Number(p.noEnd || p.no) + 1) { p.noEnd = r.no; p.n += r.n; }
+      else out.push(Object.assign({}, r)); }); return out; }
   function rowQty(r) { return r.unit === '개' ? r.n + '개' : (r.qty ? r.qty + r.unit : ''); }
   // 지시서에 넣을 공종: null = 전체 · 숫자 = 한 공종 · 배열 = 고른 공종들 (2026-11-11 켜고 끄는 단추)
   function ciHas(ci, c) { return ci == null || (Array.isArray(ci) ? ci.indexOf(c) >= 0 : ci === c); }
@@ -1112,7 +1116,7 @@
       h += '</table>' + (mm ? '' : '<div class="ft">척도가 없어 길이·면적 수량은 비어 있습니다.</div>');
       h += '<h3>공종별 지시 목록</h3>';
       CATS.forEach(function (c, i) { var L = rows.filter(function (r) { return r.cat === i; }); if (!L.length) return;
-        h += '<div class="grp"><h4>' + c[0] + ' ' + c[1] + '</h4><div class="wide"><table><tr><th class="c" style="width:44px">번호</th><th style="width:96px">위치</th><th>항목</th><th class="c" style="width:52px">구분</th><th class="r" style="width:78px">수량</th><th>공법 · 지시 내용</th><th class="c" style="width:44px">확인</th></tr>' + L.map(function (r) { return '<tr><td class="c"><span class="no" style="background:' + tradeColor(r.trade) + '">' + r.no + '</span></td><td>' + esc(r.room) + '</td><td>' + esc(r.label) + '</td><td class="c">' + r.stLabel + '</td><td class="r">' + rowQty(r) + '</td><td>' + esc(r.note) + '</td><td></td></tr>'; }).join('') + '</table></div></div>'; });
+        h += '<div class="grp"><h4>' + c[0] + ' ' + c[1] + '</h4><div class="wide"><table><tr><th class="c" style="width:62px">번호</th><th style="width:96px">위치</th><th>항목</th><th class="c" style="width:52px">구분</th><th class="r" style="width:78px">수량</th><th>공법 · 지시 내용</th><th class="c" style="width:44px">확인</th></tr>' + mergeRows(L).map(function (r) { return '<tr><td class="c"><span class="no" style="background:' + tradeColor(r.trade) + (r.noEnd ? ';border-radius:9px;padding:0 6px;width:auto;min-width:0' : '') + '">' + r.no + (r.noEnd ? '~' + r.noEnd : '') + '</span></td><td>' + esc(r.room) + '</td><td>' + esc(r.label) + '</td><td class="c">' + r.stLabel + '</td><td class="r">' + rowQty(r) + '</td><td>' + esc(r.note) + '</td><td></td></tr>'; }).join('') + '</table></div></div>'; });
       if (ci == null && notes.length) h += '<h4>12 기타 — 도면에 적은 글</h4><table>' + notes.map(function (q) { var rm = roomAt(q.x, q.y); return '<tr><td style="width:96px">' + esc(rm ? rm.name : '') + '</td><td>' + esc(q.s) + '</td></tr>'; }).join('') + '</table>';
       h += '<div class="memo"><b>특이사항</b><div contenteditable="true" id="jjeSheetNote"></div></div>';
       h += '<div class="ft">번호는 도면의 번호와 같습니다. 원본 평면도를 집지니가 읽어 다시 그린 참고용 도면이며, 수량은 도면 기준 어림입니다. 치수·위치가 현장과 다르면 현장 기준으로 하되 바꾸기 전에 먼저 알려 주세요. 자재 주문 전에는 실측으로 확정합니다. · 집지니 CAD jipjini.com/cad.html</div>';
