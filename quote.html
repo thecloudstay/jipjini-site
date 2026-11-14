@@ -92,7 +92,10 @@ summary::after{content:'＋';color:var(--gray)}details[open] summary::after{cont
   if(!id){fail();return}
   // 실시간 데이터: 코디 콘솔 시트에서 바로 읽는 조회 웹앱 (「집지니 카톡봇」 프로젝트 quote_api.gs). 비어 있으면 사이트 JSON만 사용.
   var QUOTE_API='https://script.google.com/macros/s/AKfycbyTMw196qwKBmpz_TA3erW4OcBsmRFWTYioecO5evjq4poPOEXpyqkSKZZ91eTHWUI-/exec'; // 집지니 카톡봇 웹앱 ?q=토큰 (2026-10-01)
-  function getStatic(){return fetch('/q/'+id+'.json',{cache:'no-store'}).then(function(r){if(!r.ok)throw 0;return r.json()})}
+  // 2026-11-14 대표 「견적서 로딩이 너무 느려」: 콘솔이 보낸 견적을 슈퍼베이스에 미리 올려 둠 → 그걸 먼저 그리고(0.2초 안팎), 웹앱 최신 자료로 뒤따라 고침
+  var SB_Q='https://pnqyysuyrovgnmrchrrg.supabase.co/storage/v1/object/public/marketing/quotes/';
+  function getJ(u){return fetch(u,{cache:'no-store'}).then(function(r){if(!r.ok)throw 0;return r.json()})}
+  function getStatic(){return getJ(SB_Q+encodeURIComponent(id)+'.json').then(function(j){if(!j||!j.ok||!j.sections)throw 0;return j}).catch(function(){return getJ('/q/'+id+'.json')})}
   function getLive(){if(!QUOTE_API)return Promise.resolve(null);return fetch(QUOTE_API+'?q='+encodeURIComponent(id)+'&v=1',{redirect:'follow'}).then(function(r){return r.json()}).then(function(j){return j&&j.ok?j:null}).catch(function(){return null})}
   // 2026-10-01: 사이트 JSON을 먼저 그리고(0.3초), 콘솔 실시간 데이터가 오면 다시 그림 — 조회 웹앱이 느려도(첫 호출 수 초) 빈 화면이 없다
   function merge(s,l){
