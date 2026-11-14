@@ -58,7 +58,33 @@ def fix_R3(G, mm, img):
     G['샷시'] = out; return G
 def fix_R4(G, mm, img):
     G['벽선'] = plan_trace.snap_corners(G['벽선'], mm); return G
-FIXERS = [('R9', fix_R9), ('R2', fix_R2), ('R3', fix_R3), ('R4', fix_R4)]
+def fix_R10(G, mm, img, plan=None):
+    """2026-11-14 보류 분석: 「현관 창」 R10 54곳 — 집 밖으로 여는 현관문 자리(문짝 호가 외곽선 밖에 그려짐)를 창으로 읽었다.
+    현관 바깥 경계에 걸린 창을 현관문으로 바꾼다(문짝은 현관에서 먼 쪽 = 집 밖으로 연다). 검사(R10 현관 창)가 가리킨 창만 바꾼다."""
+    if not plan:
+        return G
+    import plan_check
+    chk = plan_check.rules(img, dict(plan, 그림=G))
+    spots = [(x[2], x[3]) for x in chk if x[0] == 'R10' and x[1] == '현관 창']
+    if not spots:
+        return G
+    hall = [r for r in plan.get('rooms', []) if r.get('kind') == '현관' and len(r.get('pts') or []) >= 3]
+    keep = []
+    for q in G['샷시']:
+        ax, x0, y0, x1, y1 = q; mx, my = (x0+x1)/2, (y0+y1)/2
+        if not any(abs(mx-sx) <= 2 and abs(my-sy) <= 2 for sx, sy in spots):
+            keep.append(q); continue
+        L = (x1-x0) if ax == 'h' else (y1-y0)
+        if L * mm > 1300:   # 현관문 폭(900~1100)보다 긴 창은 그대로 둔다
+            keep.append(q); continue
+        hc = min(hall, key=lambda r: abs(sum(p[0] for p in r['pts'])/len(r['pts'])-mx) + abs(sum(p[1] for p in r['pts'])/len(r['pts'])-my), default=None)
+        hx = sum(p[0] for p in hc['pts'])/len(hc['pts']) if hc else mx; hy = sum(p[1] for p in hc['pts'])/len(hc['pts']) if hc else my
+        if ax == 'h':
+            sg = -1 if hy > my else 1; G['문'].append({'x1': int(x0), 'y1': int(my), 'x2': int(x1), 'y2': int(my), 'cx': int(x0), 'cy': int(my + sg*L)})
+        else:
+            sg = -1 if hx > mx else 1; G['문'].append({'x1': int(mx), 'y1': int(y0), 'x2': int(mx), 'y2': int(y1), 'cx': int(mx + sg*L), 'cy': int(y0)})
+    G['샷시'] = keep; return G
+FIXERS = [('R9', fix_R9), ('R2', fix_R2), ('R3', fix_R3), ('R4', fix_R4), ('R10', fix_R10)]
 
 def weight(chk):
     W = {'R5': 10, 'R10': 10, 'R9': 5, 'R1': 5, 'R12': 2, 'R6': 3, 'R2': 2, 'R3': 2, 'R4': 2, 'R15': 2, 'R16': 5, 'R17': 3}
@@ -125,7 +151,7 @@ def run(imgdir, roomsf, outdir, csvf=None):
             chk0 = plan_check.rules(img, q); fixed = []
             for rule, fn in FIXERS:
                 if not any(x[0] == rule for x in chk0): continue
-                G2 = fn(copy.deepcopy(G), p['mmpp'], img); chk2 = plan_check.rules(img, dict(p, 그림=G2))
+                G2 = fn(copy.deepcopy(G), p['mmpp'], img, p) if fn.__code__.co_argcount >= 4 else fn(copy.deepcopy(G), p['mmpp'], img); chk2 = plan_check.rules(img, dict(p, 그림=G2))
                 if weight(chk2) < weight(chk0) and not any(sum(1 for x in chk2 if x[0] == s) > sum(1 for x in chk0 if x[0] == s) for s in SAFETY):
                     G, chk0 = G2, chk2; fixed.append(rule)
             G['점검'] = chk0; q = dict(p, 그림=G)
