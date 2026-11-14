@@ -57,7 +57,7 @@
       // 「1 식 3,500,000」처럼 작은 수 다음 금액 하나
       var prev = nums[nums.length - 2]; if (prev && prev.v < 1000 && prev.v > 0) { qty = prev.v; price = amount / qty; at = nums.length - 2; }
     }
-    var cut = nums[at].i, item = s.slice(0, cut).replace(/^[\s\d.\-)(가-하]\s*[.)]\s*/, '').replace(/^\d+[.)]\s*/, '').replace(/[\t|]+/g, ' ').replace(/\s{2,}/g, ' ').trim();
+    var cut = nums[at].i, item = s.slice(0, cut).replace(/^[\s\d.\-)(가-하]\s*[.)]\s*/, '').replace(/^\d{1,3}(?:[.)]\s*|\s+)/, '').replace(/[\t|]+/g, ' ').replace(/\s{2,}/g, ' ').trim();
     var tail = s.slice(cut), um = tail.match(new RegExp('(^|[\\s\\d,.])' + UNIT + '(?=$|[\\s\\d,.])'));
     var unit = um ? um[2] : '';
     if (!item) item = s.replace(NUM, '').replace(/\s{2,}/g, ' ').trim().slice(0, 40) || '(이름 없음)';
