@@ -23,7 +23,7 @@
 
 <div class="form">
 <h1>경매 낙찰 전 수리비</h1>
-<p class="lead">입찰 전에 고칠 돈부터 셉니다. 단지·평형·상태를 고르면 공종별 수리비 범위가 나오고, 시세를 넣으면 얼마까지 써도 되는지 나옵니다.</p>
+<p class="lead">입찰 전에 고칠 돈부터 셉니다. 단지·평형·상태를 고르면 공종별 수리비 범위가 나오고, 낙찰 예정가를 넣으면 총 취득원가가, 시세를 넣으면 얼마까지 써도 되는지 나옵니다.</p>
 
 <h2>감정평가서로 바로 채우기 <span class="hint" style="font-weight:400">(선택)</span></h2>
 <p class="hint" style="margin-top:0">법원 경매 물건 화면에서 받은 감정평가서 PDF를 올리면 단지·면적·연식·상태를 읽고, 내부 구조도를 집지니 도면으로 다시 그립니다. 파일은 이 화면 안에서만 읽고 어디에도 보내지 않습니다.</p>
@@ -47,12 +47,14 @@
 <label class="f">낙찰 뒤 할 일</label>
 <div class="chips" id="goal"><button type="button" class="chip" data-v="rent" aria-pressed="false">임대 놓기 (최소 수리)</button><button type="button" class="chip" data-v="basic" aria-pressed="true">실거주 · 매도 (기본 수리)</button><button type="button" class="chip" data-v="full" aria-pressed="false">올수리</button></div>
 
-<h2><span class="n">3</span>입찰 상한 (선택)</h2>
+<h2><span class="n">3</span>입찰가와 시세 (선택)</h2>
+<label class="f" for="bidp">낙찰 예정가(만 원)</label><input id="bidp" type="number" inputmode="numeric" placeholder="예: 41000">
+<p class="hint">넣으면 낙찰가에 수리비를 더한 총 취득원가가 나옵니다.</p>
 <div class="two">
   <div><label class="f" for="mkt">수리 뒤 시세(만 원)</label><input id="mkt" type="number" inputmode="numeric" placeholder="예: 52000"></div>
   <div><label class="f" for="gain">남길 금액(만 원)</label><input id="gain" type="number" inputmode="numeric" placeholder="예: 3000"></div>
 </div>
-<label class="f" for="etc">그 밖의 비용(시세의 %)</label><input id="etc" type="number" inputmode="decimal" value="4" step="0.5">
+<label class="f" for="etc">그 밖의 비용(시세의 %, 시세가 없으면 낙찰가의 %)</label><input id="etc" type="number" inputmode="decimal" value="4" step="0.5">
 <p class="hint">취득세·등기·명도·이사비·중개 수수료·대출 이자를 어림한 값입니다. 물건마다 다르니 직접 고치세요.</p>
 <div class="btns"><button type="button" class="btn" id="go">수리비 보기</button></div>
 </div>
@@ -63,6 +65,8 @@
   <div class="facts" id="facts"></div>
   <div id="bars"></div>
   <p class="note">막대는 가운데 값, 옅은 띠는 낮은 값~높은 값입니다.</p>
+  <div id="own"></div>
+  <div id="tiers"></div>
   <div id="bid"></div>
   <h2>입찰 전에 볼 것</h2>
   <ul class="flags" id="checks"></ul>
@@ -166,9 +170,9 @@
     basic: [['철거·준비', 1], ['도배', 1], ['바닥', 1], ['욕실·타일', 1], ['주방', 1], ['전기·조명', 1], ['필름', 1], ['도장', 1]],
     full: [['철거·준비', 1], ['샷시', 1], ['설비', 1], ['전기·조명', 1], ['목공', 1], ['욕실·타일', 1], ['도장', 1], ['도배', 1], ['바닥', 1], ['주방', 1], ['문·현관', 1], ['필름', 1], ['베란다', 1]]
   };
-  function calc(P) {
+  function calc(P, G) {
     var A = Math.max(20, Number($('area').value) || 84), py = Math.round(A / 2.5 * 10) / 10, yr = Number($('year').value) || 2000, age = Math.max(0, NOW - yr);
-    var cond = +F.picked($('cond'))[0] || 2, goal = F.picked($('goal'))[0] || 'basic', T = P.trades;
+    var cond = +F.picked($('cond'))[0] || 2, goal = G || F.picked($('goal'))[0] || 'basic', T = P.trades;
     var set = SETS[goal].slice(), extra = [];
     if (goal === 'basic' && age >= 25) { set.push(['설비', 1]); extra.push('샷시'); }
     if (goal === 'rent' && age >= 20) set.push(['욕실·타일', .25]);
@@ -210,6 +214,23 @@
           '<tr class="sec"><td>이 금액 아래로 쓰세요</td><td class="n">' + (cap > 0 ? F.man(cap) : '맞지 않음') + '</td></tr></tbody></table>';
       }
       $('bid').innerHTML = b;
+      // 세 단계 한눈에 — 안을 못 보는 경매 물건은 한 값이 아니라 범위 셋으로 본다
+      var TG = ['rent', 'basic', 'full'].map(function (g) { return calc(P, g); });
+      $('tiers').innerHTML = '<h2>수리 단계별 범위</h2><table class="lines"><tbody>' + TG.map(function (t) {
+        return '<tr' + (t.goal === R.goal ? ' class="sec"' : '') + '><td>' + GOALN[t.goal] + ' · ' + t.days + '</td><td class="n">' + F.man(t.lo) + ' ~ ' + F.man(t.hi) + '</td></tr>'; }).join('') + '</tbody></table><p class="note">같은 단지·면적·상태에서 수리 범위만 바꾼 값입니다. 부가세 10% 별도.</p>';
+      var bp = Number($('bidp').value) * 10000, o = '';
+      if (bp > 0) {
+        var oc = (mkt > 0 ? mkt : bp) * etc / 100, sum = bp + R.mid + oc;
+        o = '<h2>총 취득원가</h2><table class="lines"><tbody>' +
+          '<tr><td>낙찰 예정가</td><td class="n">' + F.man(bp) + '</td></tr>' +
+          '<tr><td>+ 수리비 (' + GOALN[R.goal] + ', 가운데 값)</td><td class="n">' + F.man(R.mid) + '</td></tr>' +
+          '<tr><td>+ 그 밖의 비용 (' + etc + '%)</td><td class="n">' + F.man(oc) + '</td></tr>' +
+          '<tr class="sec"><td>이 집에 들어가는 돈</td><td class="n">' + F.man(sum) + '</td></tr>' +
+          '<tr><td>수리비를 낮게~높게 잡으면</td><td class="n">' + F.man(bp + R.lo + oc) + ' ~ ' + F.man(bp + R.hi + oc) + '</td></tr>' +
+          (mkt > 0 ? '<tr><td>수리 뒤 시세와의 차이</td><td class="n">' + (mkt - sum >= 0 ? F.man(mkt - sum) + ' 남음' : F.man(sum - mkt) + ' 모자람') + '</td></tr>' : '') +
+          '</tbody></table>';
+      }
+      $('own').innerHTML = o;
       var ck = [];
       if (R.sash) ck.push('<li>' + R.age + '년 차 단지입니다. 샷시를 바꾸면 ' + F.man(R.sash.lo) + '~' + F.man(R.sash.hi) + '이 더 듭니다(위 합계에는 안 넣음, 입찰 상한에는 넣음).</li>');
       if (R.age >= 25) ck.push('<li>오래된 단지는 욕실 바닥 아래 배관이 낡아 철거 뒤 누수가 드러나는 일이 많습니다. 관리사무소에 아랫집 누수 민원 이력을 물어보세요.</li>');
@@ -229,7 +250,7 @@
     if (!$('ag').checked) { m.className = 'err-msg'; m.textContent = '보내기 동의에 표시해 주세요.'; return; }
     if (!LAST) return;
     this.disabled = true; m.className = ''; m.textContent = '보내는 중…';
-    F.send({ kind: 'auction', act: 'ask', name: nm, phone: ph, caseNo: $('case').value.trim(), bidDay: $('bidDay').value.trim(), apt: APT ? { code: APT.code, name: APT.name, gu: APT.gu } : null, area: LAST.A, year: LAST.yr, cond: CONDN[LAST.cond], goal: GOALN[LAST.goal], total: Math.round(LAST.mid), lo: Math.round(LAST.lo), hi: Math.round(LAST.hi), market: Number($('mkt').value) || 0, lines: LAST.rows.map(function (r) { return [r.k, Math.round(r.v)]; }) })
+    F.send({ kind: 'auction', act: 'ask', name: nm, phone: ph, caseNo: $('case').value.trim(), bidDay: $('bidDay').value.trim(), apt: APT ? { code: APT.code, name: APT.name, gu: APT.gu } : null, area: LAST.A, year: LAST.yr, cond: CONDN[LAST.cond], goal: GOALN[LAST.goal], total: Math.round(LAST.mid), lo: Math.round(LAST.lo), hi: Math.round(LAST.hi), market: Number($('mkt').value) || 0, bid: Number($('bidp').value) || 0, lines: LAST.rows.map(function (r) { return [r.k, Math.round(r.v)]; }) })
       .then(function () { m.className = 'ok-msg'; m.textContent = '보냈습니다. 오늘 안에(밤에는 다음 날 아침) 010-9806-0422 에서 연락드립니다. 감정서 사진은 카카오톡 @집지니 로 보내 주세요.'; try { gtag('event', 'fix_ask', { tool: 'auction' }); } catch (_g) {} })
       .catch(function () { m.className = 'err-msg'; m.textContent = '보내지 못했습니다. 010-9806-0422 로 문자 주세요.'; $('sendBtn').disabled = false; });
   });
