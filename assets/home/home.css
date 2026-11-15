@@ -742,3 +742,26 @@ details.fd .fd-body>h2:first-child{display:none}
 }
 @media (prefers-reduced-motion:reduce){details.fd>summary i{transition:none}}
 section.fd-sec,.fd-head{scroll-margin-top:72px}
+
+/* 사고 접수 · 경매 분석 (2026-11-16) — 두 칸을 가는 세로선 하나로만 나눈다. 상자·그림자 없음 */
+.ca h2{max-width:22em}
+.ca2{display:grid;grid-template-columns:1fr 1fr;margin-top:44px;border-top:1.5px solid var(--ink)}
+.cac{padding:34px 40px 8px 0}
+.cac+.cac{padding:34px 0 8px 40px;border-left:1px solid var(--rule)}
+.cac h3{font-size:clamp(22px,2.2vw,28px);font-weight:600;letter-spacing:-.5px;line-height:1.35;color:var(--g)}
+.cas{margin-top:10px;color:var(--pencil);font-size:16px;line-height:1.75;min-height:3.5em}
+.caf{display:block;margin-top:22px;border:1px solid var(--rule);border-radius:4px;overflow:hidden}
+.caf img{width:100%;height:auto}
+.cal{list-style:none;margin-top:22px;border-top:1px solid var(--rule)}
+.cal a{display:flex;justify-content:space-between;align-items:baseline;gap:16px;padding:17px 2px;border-bottom:1px solid var(--rule);min-height:56px}
+.cal b{font-weight:600;font-size:17.5px}
+.cal span{color:var(--pencil);font-size:14.5px;white-space:nowrap}
+.cal a:hover b{color:var(--g);text-decoration:underline;text-underline-offset:4px}
+.cab{margin-top:30px;font-size:15px;color:var(--pencil)}
+.cab a{color:var(--g);font-weight:600;text-decoration:underline;text-underline-offset:4px}
+@media(max-width:900px){
+  .ca2{grid-template-columns:1fr}
+  .cac{padding:28px 0 4px}
+  .cac+.cac{padding:28px 0 4px;border-left:0;border-top:1.5px solid var(--ink);margin-top:28px}
+  .cas{min-height:0}
+}
