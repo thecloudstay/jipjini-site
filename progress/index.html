@@ -711,7 +711,7 @@ table.plm td.r,table.plm th.r{padding-left:10px}
   app.addEventListener('click', function (e) {
     var b = e.target.closest('[data-doc]'); if (!b || b.disabled) return;
     if (b.getAttribute('data-pv')) { pvOpen(b.getAttribute('data-pv')); return; }
-    var w = window.open('about:blank', '_blank'), go = b.querySelector('.go'), was = go.textContent; go.textContent = '집지니가 열고 있습니다…';
+    var w = window.open('about:blank', '_blank'), go = b.querySelector('.go') || b, was = go.textContent; go.textContent = '집지니가 열고 있습니다…';   // 2026-11-15 진행 단계의 「견적서 보기」 버튼은 .go 칸이 없어 여기서 멈추고 아무 일도 없었다(대표 「견적서 보기 미작동」)
     fetch(EXEC + '?type=portal_doc&k=' + encodeURIComponent(k) + '&d=' + encodeURIComponent(b.getAttribute('data-doc')) + ((PV || STAFF) ? '&pv=1' : ''), { redirect: 'follow', cache: 'no-store' }).then(function (r) { return r.json(); }).then(function (j) {
       go.textContent = was; var u = j && j.ok ? safeUrl(j.주소) : '';
       if (u) { if (w) w.location.href = u; else location.href = u; } else { if (w) w.close(); alertBox((j && j.err) || '지금 열 수 없습니다. 코디에게 문의해 주세요.'); }
