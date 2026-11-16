@@ -3,7 +3,7 @@ name: 아파트별 공사비 쪽
 on:
   push:
     branches: [main]
-    paths: ["data/plans/open.json", "data/repair-prices.json", "tools/apt_pages.py"]
+    paths: ["data/plans/open.json", "data/repair-prices.json", "data/real-quotes.json", "tools/apt_pages.py"]
   workflow_dispatch:
 permissions:
   contents: write
@@ -21,6 +21,6 @@ jobs:
       - run: python3 tools/indexnow.py || echo "IndexNow 실패 — 다음 날 다시"
       - run: |
           git config user.name "jipjini-bot"; git config user.email "thecloudstay@gmail.com"
-          git add -A apt sitemap.xml tools/indexnow_state.json
+          git add -A apt data/apt-costs.json data/apt-costs.csv sitemap.xml tools/indexnow_state.json
           git commit -m "아파트별 공사비 쪽 다시 만듦" || echo "바뀐 것 없음"
           git pull --rebase -q && git push
