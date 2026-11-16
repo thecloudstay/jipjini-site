@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>싱크대 간편 설계 — 벽 길이만 넣으면 배치 그림과 금액 · 집지니</title>
+<meta name="description" content="주방 모양과 벽 길이만 넣으면 싱크대 배치 그림, 모듈 목록, 어림 금액이 바로 나옵니다. 설계도로 인쇄해 가구 업체에 그대로 보여 줄 수 있습니다.">
+<link rel="canonical" href="https://jipjini.com/kitchen/">
+<meta property="og:title" content="싱크대 간편 설계 · 집지니">
+<meta property="og:description" content="벽 길이만 넣으면 싱크대 배치 그림과 어림 금액이 바로 나옵니다.">
+<meta property="og:image" content="https://jipjini.com/og-cover.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/fix/fix.css?v=20261114">
+<style>
+.shape{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.shape button{font:inherit;color:var(--ink,#1C1F1B);background:#fff;border:1px solid #DCDFD8;border-radius:4px;padding:14px 8px 10px;cursor:pointer;text-align:center}
+.shape button svg{display:block;margin:0 auto 8px;width:64px;height:48px}
+.shape button[aria-pressed=true]{border-color:#1F5E2E;box-shadow:inset 0 0 0 1px #1F5E2E;font-weight:600}
+.shape button:focus-visible{outline:2px solid #1F5E2E;outline-offset:2px}
+.walls{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.walls .cm{position:relative}.walls .cm input{padding-right:38px}.walls .cm span{position:absolute;right:12px;top:50%;transform:translateY(-50%);color:#6B7067;font-size:14px}
+.opt{display:grid;grid-template-columns:120px 1fr;gap:6px 14px;align-items:center;margin-top:14px}
+.opt>span{color:#6B7067;font-size:14.5px}
+.fig{border:1px solid #DCDFD8;border-radius:4px;padding:10px;margin-top:8px;background:#fff}
+.cap{color:#6B7067;font-size:13px;margin-top:6px}
+.tiers{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid #DCDFD8;border-bottom:1px solid #DCDFD8;margin-top:14px}
+.tiers div{padding:12px 4px}.tiers div+div{border-left:1px solid #DCDFD8;padding-left:14px}
+.tiers b{display:block;font-size:17px;font-weight:600}.tiers span{font-size:13px;color:#6B7067}.tiers .on b{color:#1F5E2E}
+details.more{margin-top:18px;border-top:1px solid #DCDFD8;padding-top:12px}details.more summary{cursor:pointer;font-weight:600}
+@media(max-width:560px){.walls{grid-template-columns:1fr 1fr}.opt{grid-template-columns:1fr}.opt>span{margin-top:8px}.shape button svg{width:52px;height:40px}}
+</style>
+<meta name="twitter:card" content="summary_large_image">
+</head>
+<body>
+<main>
+<div class="top"><a class="logo" href="/">집지니</a><nav><a href="/cad.html">집지니 CAD</a><a href="/kitchen/" aria-current="page">싱크대 설계</a><a href="/calc/">간편 적산기</a></nav></div>
+
+<h1>싱크대 간편 설계</h1>
+<p class="lead">주방 모양과 벽 길이만 넣으세요. 배치 그림과 어림 금액이 바로 나옵니다.</p>
+
+<h2><span class="n">1</span>주방 모양</h2>
+<div class="shape" id="shape">
+  <button type="button" data-v="1" aria-pressed="true"><svg viewBox="0 0 64 48" fill="none" stroke="#1C1F1B" stroke-width="5" stroke-linecap="square"><path d="M8 14H56"/></svg>일자</button>
+  <button type="button" data-v="2" aria-pressed="false"><svg viewBox="0 0 64 48" fill="none" stroke="#1C1F1B" stroke-width="5" stroke-linecap="square"><path d="M8 10H54V42"/></svg>ㄱ자</button>
+  <button type="button" data-v="3" aria-pressed="false"><svg viewBox="0 0 64 48" fill="none" stroke="#1C1F1B" stroke-width="5" stroke-linecap="square"><path d="M10 42V10H54V42"/></svg>ㄷ자</button>
+</div>
+
+<h2><span class="n">2</span>벽 길이</h2>
+<div class="walls" id="walls"></div>
+<p class="hint">줄자로 벽 끝에서 끝까지, 냉장고 자리까지 넣어서 재세요. 아래 그림에 벽 번호가 나옵니다.</p>
+
+<h2><span class="n">3</span>넣을 것</h2>
+<div class="opt">
+  <span>냉장고</span><div class="chips" data-k="frW"><button type="button" class="chip" data-v="0">따로 둠</button><button type="button" class="chip" data-v="700">보통</button><button type="button" class="chip" data-v="900">양문</button><button type="button" class="chip" data-v="1200">김치냉장고와 같이</button></div>
+  <span>식기세척기</span><div class="chips" data-k="dw"><button type="button" class="chip" data-v="1">넣음</button><button type="button" class="chip" data-v="0">안 넣음</button></div>
+  <span>개수대 위</span><div class="chips" data-k="upSink"><button type="button" class="chip" data-v="1">상부장</button><button type="button" class="chip" data-v="0">창문이 있음</button></div>
+  <span>키큰장</span><div class="chips" data-k="tall"><button type="button" class="chip" data-v="0">없음</button><button type="button" class="chip" data-v="1">1개</button><button type="button" class="chip" data-v="2">2개</button></div>
+</div>
+
+<h2><span class="n">4</span>자재</h2>
+<div class="opt">
+  <span>등급</span><div class="chips" data-k="grade"><button type="button" class="chip" data-v="a">실속</button><button type="button" class="chip" data-v="b">중간</button><button type="button" class="chip" data-v="c">고급</button></div>
+  <span>상판</span><div class="chips" data-k="top"><button type="button" class="chip" data-v="solid">인조대리석</button><button type="button" class="chip" data-v="quartz">엔지니어드스톤</button><button type="button" class="chip" data-v="ceramic">세라믹</button></div>
+  <span>지금 싱크대</span><div class="chips" data-k="demo"><button type="button" class="chip" data-v="1">철거해야 함</button><button type="button" class="chip" data-v="0">없음(빈 벽)</button></div>
+</div>
+<p class="hint">잘 모르겠으면 그대로 두세요. 가장 많이 하는 구성으로 맞춰져 있습니다.</p>
+
+<section class="res" id="res">
+  <div class="total"><div><div class="sub">어림 금액 · 부가세 10% 별도</div><div class="big" id="tot"></div></div><div class="sub" id="sum"></div></div>
+  <div class="tiers" id="tiers"></div>
+  <ul class="flags" id="notes"></ul>
+
+  <h2>위에서 본 그림</h2>
+  <div class="fig" id="plan"></div>
+  <p class="cap">칸 안 숫자는 모듈 번호입니다. 초록 테두리가 개수대, 동그라미 넷이 쿡탑, 점선 칸은 냉장고와 식기세척기 자리입니다.</p>
+
+  <div id="elevs"></div>
+
+  <h2>금액 내역</h2>
+  <table class="lines"><tbody id="rows"></tbody></table>
+  <p class="note" id="basis"></p>
+
+  <details class="more"><summary>모듈 목록과 발주 수량</summary>
+    <table class="lines" style="margin-top:10px"><thead><tr><th>번호</th><th>모듈</th><th class="n">폭(mm)</th></tr></thead><tbody id="mods"></tbody></table>
+    <table class="lines" style="margin-top:14px"><tbody id="bom"></tbody></table>
+  </details>
+
+  <div class="btns noprint"><button type="button" class="btn" id="sheetBtn">설계도 인쇄 · PDF 저장</button><a class="btn line" href="/request.html">이 설계로 견적 상담</a></div>
+  <p class="note">벽 길이가 1cm만 달라도 모듈이 바뀝니다. 주문 전에 가구 업체가 다시 잽니다. 가스관·급배수 자리에 따라 개수대와 쿡탑 자리가 달라질 수 있습니다. 우리 집 평면도 위에 올려 보려면 <a href="/cad.html">집지니 CAD</a>에서 싱크대 줄을 그리면 됩니다.</p>
+</section>
+</main>
+<footer class="fix">집지니 · 대표 박찬영 · 사업자등록번호 874-10-00088 · 서울·경기·인천 · <a href="/privacy.html">개인정보 처리방침</a></footer>
+<script src="/assets/kitchen_plan.js?v=20261116"></script>
+<script>
+(function () {
+  var K = window.JJKitchen, $ = function (id) { return document.getElementById(id); };
+  var S = { shape: 1, w: [300, 210, 240], frW: 900, dw: 1, upSink: 1, tall: 0, grade: 'a', top: 'solid', demo: 1 };
+  try { var sv = JSON.parse(localStorage.getItem('jj_kitchen') || 'null'); if (sv && sv.w && sv.w.length === 3) Object.keys(S).forEach(function (k) { if (sv[k] != null) S[k] = sv[k]; }); } catch (e) {}
+  var NAMES = { 1: ['벽'], 2: ['1번 벽', '2번 벽'], 3: ['1번 벽', '2번 벽', '3번 벽'] };
+  function man(v) { return Math.round(v / 10000).toLocaleString('ko-KR') + '만 원'; }
+  function geo() { var w = S.w.map(function (c) { return Math.round(Math.max(60, Math.min(800, Number(c) || 0)) * 10); });
+    if (S.shape === 1) return [{ x: 0, y: 0, ux: 1, uy: 0, nx: 0, ny: 1, len: w[0] }];
+    if (S.shape === 2) return [{ x: 0, y: 0, ux: 1, uy: 0, nx: 0, ny: 1, len: w[0] }, { x: w[0], y: 0, ux: 0, uy: 1, nx: -1, ny: 0, len: w[1] }];
+    return [{ x: 0, y: w[0], ux: 0, uy: -1, nx: 1, ny: 0, len: w[0] }, { x: 0, y: 0, ux: 1, uy: 0, nx: 0, ny: 1, len: w[1] }, { x: w[1], y: 0, ux: 0, uy: 1, nx: -1, ny: 0, len: w[2] }]; }
+  function opts() { return { fr: S.frW ? 'auto' : 'none', frW: S.frW || 900, dw: S.dw, upSink: S.upSink, tall: S.frW ? S.tall : 0, grade: S.grade, top: S.top, demo: S.demo, ceil: 2300 }; }
+  function drawWalls() {
+    $('walls').innerHTML = NAMES[S.shape].map(function (n, i) { return '<div><label class="f" for="w' + i + '">' + n + '</label><div class="cm"><input id="w' + i + '" type="number" inputmode="numeric" min="60" max="800" step="1" value="' + S.w[i] + '"><span>cm</span></div></div>'; }).join('');
+    NAMES[S.shape].forEach(function (_, i) { $('w' + i).addEventListener('input', function () { S.w[i] = Number(this.value) || 0; render(); }); });
+  }
+  function press() {
+    [].forEach.call(document.querySelectorAll('#shape button'), function (b) { b.setAttribute('aria-pressed', String(Number(b.getAttribute('data-v')) === S.shape)); });
+    [].forEach.call(document.querySelectorAll('.chips[data-k]'), function (c) { var k = c.getAttribute('data-k'); [].forEach.call(c.children, function (b) { b.setAttribute('aria-pressed', String(String(S[k]) === b.getAttribute('data-v'))); }); });
+  }
+  var LAST = null;
+  function render() {
+    press(); try { localStorage.setItem('jj_kitchen', JSON.stringify(S)); } catch (e) {}
+    var g = geo(), short = g.filter(function (r) { return r.len < 1200; });
+    if (short.length) { $('tot').textContent = '벽 길이를 넣어 주세요'; $('sum').textContent = '한 벽이 120cm는 넘어야 싱크대가 들어갑니다.'; ['tiers', 'notes', 'plan', 'elevs', 'rows', 'mods', 'bom', 'basis'].forEach(function (id) { $(id).innerHTML = ''; }); LAST = null; return; }
+    var L = K.layout(g, opts()), c = K.cost(L), b = L.bom; LAST = { L: L, g: g };
+    $('tot').textContent = '약 ' + man(c.total);
+    $('sum').textContent = (S.shape === 1 ? '일자' : S.shape === 2 ? 'ㄱ자' : 'ㄷ자') + ' · 하부장 ' + b.하부장_m + 'm · 상판 ' + c.상판이름;
+    $('tiers').innerHTML = c.tiers.map(function (t) { return '<div' + (t.k === c.grade ? ' class="on"' : '') + '><span>' + t.이름 + '</span><b>' + man(t.total) + '</b><span>' + t.설명 + '</span></div>'; }).join('');
+    $('notes').innerHTML = L.warn.map(function (w) { return '<li>' + w + '</li>'; }).join('') + (L.info || []).map(function (w) { return '<li class="good">' + w + '</li>'; }).join('');
+    $('plan').innerHTML = K.planSvg(L, g);
+    $('elevs').innerHTML = L.runs.map(function (r, i) { return '<h2>' + (L.runs.length > 1 ? (i + 1) + '번 벽을 ' : '') + '앞에서 본 그림</h2><div class="fig">' + K.elevSvg(L, i) + '</div>'; }).join('') + '<p class="cap">아래 숫자는 모듈 번호와 폭(mm)입니다. 상판 높이 850, 상부장은 바닥에서 1,450부터.</p>';
+    $('rows').innerHTML = c.rows.map(function (x) { return '<tr><td>' + x[0] + '</td><td class="n">' + x[1] + '</td><td class="n">' + man(x[2]) + '</td></tr>'; }).join('') + '<tr class="sec"><td>합계</td><td></td><td class="n"><b>약 ' + man(c.total) + '</b></td></tr>';
+    $('basis').textContent = c.근거;
+    $('mods').innerHTML = L.base.concat(L.upper).filter(function (m) { return m.no !== ''; }).map(function (m) { return '<tr><td>' + m.no + '</td><td>' + K.NAME[m.t] + (L.runs.length > 1 ? ' <small>' + (m.run + 1) + '번 벽</small>' : '') + '</td><td class="n">' + m.w + '</td></tr>'; }).join('');
+    $('bom').innerHTML = [['상판', b.상판_m + ' m · 이음 ' + b.상판_이음 + '곳'], ['문짝', b.문짝 + '짝'], ['서랍', b.서랍 + '개'], ['경첩', b.경첩 + '개'], ['손잡이', b.손잡이 + '개'], ['걸레받이', b.걸레받이_m + ' m']].map(function (x) { return '<tr><td>' + x[0] + '</td><td class="n">' + x[1] + '</td></tr>'; }).join('');
+  }
+  $('shape').addEventListener('click', function (e) { var b = e.target.closest('button'); if (!b) return; S.shape = Number(b.getAttribute('data-v')); drawWalls(); render(); });
+  [].forEach.call(document.querySelectorAll('.chips[data-k]'), function (c) { c.addEventListener('click', function (e) { var b = e.target.closest('.chip'); if (!b) return; var k = c.getAttribute('data-k'), v = b.getAttribute('data-v'); S[k] = /^(grade|top)$/.test(k) ? v : Number(v); render(); }); });
+  $('sheetBtn').addEventListener('click', function () { if (!LAST) return; var w = window.open('', '_blank'); if (!w) { alert('새 창이 막혀 있습니다. 팝업을 허용해 주세요.'); return; } w.document.open(); w.document.write(K.sheet(LAST.L, LAST.g, { name: '우리 집', date: new Date().toISOString().slice(0, 10) })); w.document.close(); });
+  drawWalls(); render();
+})();
+</script>
+<!--SITENAV--><style>.jj-map{max-width:900px;margin:32px auto 0;padding:22px 16px 26px;border-top:2px solid #d9d2c0;font-family:Pretendard,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;color:#2a2a2a;word-break:keep-all}.jj-map .ttl{font-size:14px;font-weight:800;letter-spacing:1px;color:#1e4d3a;margin-bottom:10px;text-align:center}.jj-map .grp{display:flex;flex-wrap:wrap;gap:6px 8px;align-items:center;margin:6px 0;font-size:14px}.jj-map .grp b{min-width:70px;color:#555;font-weight:700;font-size:13px}.jj-map .grp a{display:inline-block;padding:6px 12px;border:1px solid #cfc8b8;border-radius:16px;background:#fff;color:#2a2a2a;text-decoration:none;font-size:14px;font-weight:500}.jj-map .grp a:hover{border-color:#1e4d3a;color:#1e4d3a}.jj-map .grp a[aria-current=page]{background:#1e4d3a;color:#fff;border-color:#1e4d3a;font-weight:800}.jj-map .grp a[aria-current=page]::before{content:"▶ ";font-size:11px}.jj-map .ft{font-size:13px;color:#555;margin-top:12px;text-align:center;line-height:1.8}.jj-where{max-width:1200px;margin:0 auto;padding:8px 16px;font-size:14px;color:#2a2a2a;background:#efe9db;border-bottom:1px solid #d9d2c0;display:flex;gap:6px;align-items:center;flex-wrap:wrap;word-break:keep-all}.jj-where a{color:#1e4d3a;text-decoration:none;font-weight:600}.jj-where .now{background:#1e4d3a;color:#fff;padding:2px 10px;border-radius:12px;font-weight:700;font-size:13px}.nav-item.is-current>.nav-top{color:#1e4d3a!important;font-weight:800!important;box-shadow:inset 0 -3px 0 #1e4d3a}.nav-dropdown a.is-current{background:#e6efe9!important;color:#1e4d3a!important;font-weight:700!important}@media(max-width:640px){.jj-map .grp b{min-width:100%}}</style><div class="jj-map"><div class="ttl">집지니 사이트 지도 — 지금 보는 쪽은 ▶ 짙은 녹색</div><div class="grp"><b>시작하기 ·</b><a href="../index.html">홈</a><a href="../self-interior-agency.html">셀인대행이란</a><a href="../request.html">무료 견적 신청</a><a href="../prepare.html">사전 준비</a></div><div class="grp"><b>집지니 CAD ·</b><a href="../cad.html">집지니 CAD — 무료 공사 계획 도면</a></div><div class="grp"><b>샘플실 ·</b><a href="../showroom.html">가양동 샘플실 · 상담 예약</a></div><div class="grp"><b>진행 방식 ·</b><a href="../workflow.html">진행 방식 8단계</a><a href="../interior-coordinator.html">코디네이터란</a></div><div class="grp"><b>가격·견적 ·</b><a href="../pricing.html">가격·코디비</a><a href="../interior-price-table.html">실견적 시세표</a><a href="../cases/">견적 사례</a><a href="../py/">평형별 비용</a><a href="../trade/">공종별 비용</a></div><div class="grp"><b>가이드 ·</b><a href="../banself-interior.html">반셀프 코디</a><a href="../jikyoung-interior.html">직영 인테리어</a><a href="../interior-margin-30.html">마진 30%</a><a href="../interior-estimate-compare.html">견적서 비교</a><a href="../apt-olsuri-cost.html">32평 올수리</a><a href="../bathroom-remodel-cost.html">욕실 리모델링</a><a href="../interior-scam-types.html">사기 유형</a></div><div class="grp"><b>회사 ·</b><a href="../about.html">회사소개</a><a href="../faq.html">자주 묻는 질문</a><a href="../ai-answers.html">AI에게 물어볼 때</a><a href="../sitemap.html">사이트 지도</a></div><div class="ft">서울·경기·인천 수도권 전역 · 자재상·기술자 직거래 · 정찰제 코디비 · 부가세 10% 별도<br>샘플실: <a href="../showroom.html" style="color:#1e4d3a;font-weight:600">서울 강서구 공항대로41길 66 세신종합상가 지하 1층 B156호 (가양동)</a> · 상담 예약 010-9806-0422</div></div><script>(function(){try{
+var here=location.pathname.replace(/\/index\.html$/,"/");
+var norm=function(h){var a=document.createElement("a");a.href=h;return a.pathname.replace(/\/index\.html$/,"/");};
+var isCur=function(h){var p=norm(h);return p===here||(p!=="/"&&p.slice(-1)==="/"&&here.indexOf(p)===0);};
+var map=document.querySelector(".jj-map"),curName="",grpName="";
+if(map){map.querySelectorAll(".grp").forEach(function(g){g.querySelectorAll("a").forEach(function(a){if(isCur(a.getAttribute("href"))){a.setAttribute("aria-current","page");if(!curName){curName=a.textContent;var b=g.querySelector("b");grpName=b?b.textContent.replace(/\s*[·:]\s*$/,""):"";}}});});}
+document.querySelectorAll(".nav-item").forEach(function(it){var top=it.querySelector(".nav-top"),hit=false;it.querySelectorAll("a").forEach(function(a){var h=a.getAttribute("href")||"";if(h.indexOf("http")===0)return;if(norm(h)===here){hit=true;if(a!==top)a.classList.add("is-current");}});it.classList.remove("active");if(hit)it.classList.add("is-current");});
+if(here!=="/"&&!document.querySelector(".jj-where")){var ttl=curName||(document.title.split(/[|—–]/)[0]||"").trim();var up=location.pathname.split("/").length>2?"../":"";
+var bar=document.createElement("div");bar.className="jj-where";bar.innerHTML='<a href="'+up+'index.html">홈</a><span>›</span>'+(grpName?'<span>'+grpName+'</span><span>›</span>':'')+'<span class="now">지금 보는 쪽 · '+ttl+'</span>';
+var hdr=document.querySelector("header, .site-header, nav.site-nav, .navbar, .nav");if(hdr)hdr.insertAdjacentElement("afterend",bar);else document.body.insertBefore(bar,document.body.firstChild);}
+}catch(e){}})();</script><!--/SITENAV-->
+<script src="../assets/chatbot.js" defer></script>
+</body>
+</html>
