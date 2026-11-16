@@ -23,6 +23,8 @@
 .unit{display:inline-flex;border:1px solid #DCDFD8;border-radius:4px;overflow:hidden;margin-left:10px;vertical-align:middle}
 .unit button{font:inherit;font-size:13.5px;border:0;background:#fff;color:#6B7067;padding:4px 12px;cursor:pointer}.unit button[aria-pressed=true]{background:#1C1F1B;color:#fff}
 details.dim{margin-top:10px}details.dim summary{cursor:pointer;color:#1F5E2E;font-size:14.5px}
+.prm{display:grid;grid-template-columns:repeat(2,1fr);gap:2px 14px;margin-top:10px}.prm label{display:flex;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid #DCDFD8;font-size:15px;cursor:pointer}.prm input{width:18px;height:18px;accent-color:#1F5E2E;flex:none}.prm small{margin-left:auto;color:#6B7067}
+.psum{margin-top:12px;font-size:15px}.psum b{color:#1F5E2E}
 .out{margin-top:30px;border-top:2px solid #1C1F1B;padding-top:18px}
 .out .big{font-size:34px;font-weight:600;color:#1F5E2E;line-height:1.25}.out .sub{color:#6B7067;font-size:14.5px;margin-top:4px}
 @media(max-width:560px){.row.three{grid-template-columns:1fr 1fr}.out .big{font-size:29px}.trade button{font-size:14.5px;padding:11px 2px}}
@@ -33,9 +35,18 @@ details.dim{margin-top:10px}details.dim summary{cursor:pointer;color:#1F5E2E;fon
 <div class="top"><a class="logo" href="/">집지니</a><nav><a href="/calc/" aria-current="page">간편 적산기</a><a href="/kitchen/">싱크대 설계</a><a href="/cad.html">집지니 CAD</a></nav></div>
 
 <h1>공정별 간편 적산기</h1>
-<p class="lead">면적과 자재 크기만 넣으세요. 주문할 수량이 바로 나옵니다.</p>
+<p class="lead">면적과 자재 크기만 넣으세요. 주문할 수량이 바로 나옵니다. 아파트는 단지 도면에서 면적을 바로 가져올 수 있습니다.</p>
 
 <div class="trade" id="trade"></div>
+
+<details class="dim" id="planBox" style="margin-top:18px;border-top:1px solid #DCDFD8;border-bottom:1px solid #DCDFD8;padding:12px 0">
+  <summary style="font-size:16px;font-weight:600">아파트 도면에서 면적 가져오기</summary>
+  <label class="f" for="q">단지 이름</label>
+  <div class="find"><input id="q" type="text" autocomplete="off" placeholder="예: 래미안위브, 검단 에코비스타"><ul id="ql"></ul></div>
+  <div class="picked" id="picked"></div>
+  <div id="typeRow" hidden><label class="f" for="ptype">평형</label><select id="ptype"></select></div>
+  <div id="proom"></div>
+</details>
 
 <div id="form"></div>
 
@@ -44,9 +55,10 @@ details.dim{margin-top:10px}details.dim summary{cursor:pointer;color:#1F5E2E;fon
 <div id="copied" class="ok-msg" hidden>복사했습니다. 문자나 카카오톡에 붙여 넣으세요.</div>
 
 <p class="note" id="basis"></p>
-<p class="note">자재 규격은 제품마다 조금씩 다릅니다. 포장에 적힌 값과 다르면 숫자를 고쳐 넣으세요. 넣은 값은 이 기기에만 남습니다.</p>
+<p class="note">자재 규격은 제품마다 조금씩 다릅니다. 포장에 적힌 값과 다르면 숫자를 고쳐 넣으세요. 넣은 값은 이 기기에만 남습니다. 직접 가진 도면 그림으로 재려면 <a href="/cad.html">집지니 CAD</a>에 올려 방을 나눈 뒤 수량표를 보세요.</p>
 </main>
 <footer class="fix">집지니 · 대표 박찬영 · 사업자등록번호 874-10-00088 · 서울·경기·인천 · <a href="/privacy.html">개인정보 처리방침</a></footer>
+<script src="/assets/fix/fix.js?v=20261114"></script>
 <script>
 (function () {
   var $ = function (id) { return document.getElementById(id); }, PY = 3.3058;
@@ -70,6 +82,8 @@ details.dim{margin-top:10px}details.dim summary{cursor:pointer;color:#1F5E2E;fon
       presets: [['폭 183cm', { w: 183 }], ['폭 200cm', { w: 200 }], ['폭 220cm', { w: 220 }]],
       fields: [['a', '방 가로', 'm', 3.6], ['b', '방 세로', 'm', 4.2], ['w', '장판 폭', 'cm', 183], ['lap', '이음 겹침', 'cm', 3]], loss: null,
       calc: function (v) { function plan(L, W) { var eff = (v.w - v.lap) / 100, k = Math.max(1, up((W - v.lap / 100) / eff)), len = L + 0.1; return { k: k, len: len, total: Math.ceil(k * len * 10 - 1e-9) / 10 }; }
+        if (v.rooms && v.rooms.length) { var tot = 0, rr = v.rooms.map(function (m) { var lg = Math.max(m.w, m.d), sh = Math.min(m.w, m.d), q1 = plan(lg, sh), q2 = plan(sh, lg), bb = q1.total <= q2.total ? q1 : q2; tot += bb.total; return [m.name + ' ' + m.w + ' × ' + m.d + 'm', bb.k + '폭 × ' + r2(bb.len) + 'm = ' + bb.total + 'm']; }); tot = Math.round(tot * 10) / 10;
+          return { big: '장판 ' + tot + 'm', sub: '도면의 방 ' + v.rooms.length + '곳 · 방마다 덜 드는 방향', rows: rr.concat([['주문', tot + 'm']]) }; }
         var long = Math.max(v.a, v.b), short = Math.min(v.a, v.b), p1 = plan(long, short), p2 = plan(short, long), best = p1.total <= p2.total ? p1 : p2, way = best === p1 ? '긴 쪽' : '짧은 쪽';
         return { big: '장판 ' + best.total + 'm', sub: way + ' 방향으로 ' + best.k + '폭 · 한 폭 ' + r2(best.len) + 'm', rows: [['방 넓이', r1(v.a * v.b) + '㎡ · ' + r1(v.a * v.b / PY) + '평'], ['긴 쪽 방향으로 깔면', p1.k + '폭 × ' + r2(p1.len) + 'm = ' + p1.total + 'm'], ['짧은 쪽 방향으로 깔면', p2.k + '폭 × ' + r2(p2.len) + 'm = ' + p2.total + 'm'], ['주문', best.total + 'm (' + way + ' 방향)']] }; },
       basis: '한 폭 길이는 방 길이에 양끝 재단 여유 10cm를 더했습니다. 무늬를 맞춰야 하는 장판은 폭마다 무늬 간격만큼 더 주문하세요.' },
@@ -128,7 +142,7 @@ details.dim{margin-top:10px}details.dim summary{cursor:pointer;color:#1F5E2E;fon
   function bind() {
     var t = T[S.cur], v = st(S.cur);
     if ($('f_area')) $('f_area').addEventListener('input', function () { v.area = S.unit === 'py' ? r2(num('f_area') * PY) : num('f_area'); calc(); });
-    t.fields.forEach(function (f) { $('f_' + f[0]).addEventListener('input', function () { v[f[0]] = this.value === '' ? '' : Number(this.value); calc(); }); });
+    t.fields.forEach(function (f) { $('f_' + f[0]).addEventListener('input', function () { v[f[0]] = this.value === '' ? '' : Number(this.value); if (f[0] === 'a' || f[0] === 'b') v.rooms = null; calc(); }); });
     ['r_a', 'r_b', 'r_h'].forEach(function (id) { if ($(id)) $(id).addEventListener('input', room); });
     if ($('r_c')) $('r_c').addEventListener('click', function (e) { var b = e.target.closest('.chip'); if (!b) return; v.rc = Number(b.getAttribute('data-v')); [].forEach.call(this.children, function (c) { c.setAttribute('aria-pressed', String(c === b)); }); room(); });
     if ($('unit')) $('unit').addEventListener('click', function (e) { var b = e.target.closest('button'); if (!b) return; S.unit = b.getAttribute('data-u'); draw(); });
@@ -147,7 +161,48 @@ details.dim{margin-top:10px}details.dim summary{cursor:pointer;color:#1F5E2E;fon
     $('out').innerHTML = '<div class="big">' + r.big + '</div><div class="sub">' + r.sub + '</div><table class="lines" style="margin-top:14px"><tbody>' + r.rows.map(function (x) { return '<tr><td>' + x[0] + '</td><td class="n">' + (x[0] === '주문' ? '<b>' + x[1] + '</b>' : x[1]) + '</td></tr>'; }).join('') + '</tbody></table>';
     TEXT = '[' + t.name + ' 물량] ' + r.big + '\n' + r.rows.map(function (x) { return '· ' + x[0] + ': ' + x[1]; }).join('\n') + '\n집지니 간편 적산기 jipjini.com/calc/';
   }
-  $('trade').addEventListener('click', function (e) { var b = e.target.closest('button'); if (!b) return; S.cur = b.getAttribute('data-k'); draw(); });
+  $('trade').addEventListener('click', function (e) { var b = e.target.closest('button'); if (!b) return; S.cur = b.getAttribute('data-k'); draw(); if (P.rooms) { planDraw(); planApply(); } });
+
+  // ── 아파트 도면에서 면적 가져오기 (2026-11-16 대표 「도면 넣어서 바로 계산」) ──
+  // 집지니 단지 도면(data/plans)의 방 다각형으로 바닥 넓이·둘레를 재고, 벽은 둘레 × 천장 높이. 문·창은 빼지 않는다(위 여유와 상쇄).
+  var P = { rooms: null, sel: {}, surf: {}, h: 2.3 }, F = window.JJFix;
+  var SURF = { dobae: ['wall', 'ceil'], paint: ['wall', 'ceil'], tile: ['floor', 'wall'], board: ['ceil'], film: ['wall'] }, WET = /욕실|화장실|현관/, DRY = /거실|방|주방|침실|드레스/;
+  function defSel(k) { return P.rooms.map(function (r) { return k === 'tile' ? WET.test(r.kind + r.name) : DRY.test(r.kind + r.name) && !WET.test(r.kind + r.name); }); }
+  function planDraw() {
+    var k = S.cur; if (!P.sel[k]) P.sel[k] = defSel(k); if (SURF[k] && !P.surf[k]) P.surf[k] = SURF[k].slice();
+    var h = '<div class="prm">' + P.rooms.map(function (r, i) { return '<label><input type="checkbox" data-i="' + i + '"' + (P.sel[k][i] ? ' checked' : '') + '>' + F.esc(r.name) + '<small>' + r.area + '㎡</small></label>'; }).join('') + '</div>';
+    if (SURF[k]) h += '<label class="f">어느 면</label><div class="chips" id="psurf">' + [['floor', '바닥'], ['wall', '벽'], ['ceil', '천장']].map(function (x) { return '<button type="button" class="chip" data-v="' + x[0] + '" aria-pressed="' + (P.surf[k].indexOf(x[0]) > -1) + '">' + x[1] + '</button>'; }).join('') + '</div>';
+    if (SURF[k]) h += '<label class="f" for="ph">천장 높이</label><div class="u" style="max-width:180px"><input id="ph" type="number" inputmode="decimal" step="0.05" value="' + P.h + '"><span>m</span></div>';
+    h += '<div class="psum" id="psum"></div>';
+    $('proom').innerHTML = h;
+    $('proom').querySelector('.prm').addEventListener('change', function (e) { var i = e.target.getAttribute('data-i'); if (i == null) return; P.sel[k][+i] = e.target.checked; planApply(); });
+    if ($('psurf')) $('psurf').addEventListener('click', function (e) { var b = e.target.closest('.chip'); if (!b) return; var v = b.getAttribute('data-v'), a = P.surf[k], j = a.indexOf(v); if (j > -1) a.splice(j, 1); else a.push(v); b.setAttribute('aria-pressed', String(j < 0)); planApply(); });
+    if ($('ph')) $('ph').addEventListener('input', function () { P.h = Number(this.value) || 0; planApply(); });
+  }
+  function planApply() {
+    var k = S.cur, t = T[k], v = st(k), fl = 0, pe = 0, pick = [];
+    P.rooms.forEach(function (r, i) { if (!P.sel[k][i]) return; fl += r.area; pe += r.peri; pick.push(r); });
+    var wall = pe * P.h, sf = P.surf[k] || [], area = (sf.indexOf('floor') > -1 ? fl : 0) + (sf.indexOf('wall') > -1 ? wall : 0) + (sf.indexOf('ceil') > -1 ? fl : 0);
+    if (k === 'maru') { v.area = r1(fl); v.peri = r1(pe); } else if (k === 'molding') v.len = r1(pe); else if (k === 'jangpan') v.rooms = pick.map(function (r) { return { name: r.name, w: r.w, d: r.d }; }); else v.area = r1(area);
+    v.ra = ''; v.rb = ''; draw();
+    $('psum').innerHTML = pick.length ? '고른 방 ' + pick.length + '곳 — 바닥 <b>' + r1(fl) + '㎡</b> · 둘레 <b>' + r1(pe) + 'm</b>' + (SURF[k] ? ' · 벽 <b>' + r1(wall) + '㎡</b>' : '') + ' → 아래 칸에 넣었습니다.' : '방을 골라 주세요.';
+  }
+  if (F && F.aptFinder) F.aptFinder($('q'), $('ql'), function (a) {
+    P.rooms = null; P.sel = {}; $('proom').innerHTML = ''; $('typeRow').hidden = true;
+    $('picked').innerHTML = '<b>' + F.esc(a.name) + '</b> · ' + F.esc(a.gu + ' ' + a.dong) + (a.year ? ' · ' + a.year + '년' : '');
+    var none = function () { $('picked').innerHTML += '<br>이 단지는 아직 집지니 도면이 없습니다. 면적을 직접 넣어 주세요.'; };
+    if (!a.hasPlan) return none();
+    F.plan(a.code).then(function (d) {
+      var ts = (d['평형'] || []).filter(function (x) { return x.plan && x.plan.rooms && x.plan.mmpp; }); if (!ts.length) return none();
+      $('ptype').innerHTML = ts.map(function (x, i) { return '<option value="' + i + '">' + F.esc(x['이름']) + ' · 전용 ' + x['전용'] + '㎡</option>'; }).join(''); $('typeRow').hidden = false;
+      var pickT = function () { var x = ts[+$('ptype').value], mm = x.plan.mmpp, lim = Number(x['전용']) || 999;
+        P.rooms = x.plan.rooms.filter(function (r) { return r.area >= 1 && r.area <= lim && r.pts && r.pts.length > 2 && !/피트|실외기/.test(r.kind + r.name); }).map(function (r) { var pe = 0; r.pts.forEach(function (p, i) { var q = r.pts[(i + 1) % r.pts.length]; pe += Math.hypot(q[0] - p[0], q[1] - p[1]); });
+          var xs = r.pts.map(function (p) { return p[0]; }), ys = r.pts.map(function (p) { return p[1]; }), bw = (Math.max.apply(null, xs) - Math.min.apply(null, xs)) * mm / 1000, bd = (Math.max.apply(null, ys) - Math.min.apply(null, ys)) * mm / 1000;
+          return { name: r.name, kind: r.kind || '', area: r1(r.area), peri: r1(pe * mm / 1000), w: r1(Math.max(bw, bd)), d: r1(Math.min(bw, bd)) }; });
+        P.sel = {}; planDraw(); planApply(); };
+      $('ptype').onchange = pickT; pickT();
+    }).catch(none);
+  });
   $('copy').addEventListener('click', function () { if (!TEXT) return; var done = function () { $('copied').hidden = false; setTimeout(function () { $('copied').hidden = true; }, 2500); };
     if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(TEXT).then(done, function () { fallback(); }); else fallback();
     function fallback() { var ta = document.createElement('textarea'); ta.value = TEXT; document.body.appendChild(ta); ta.select(); try { document.execCommand('copy'); done(); } catch (e) {} document.body.removeChild(ta); } });
