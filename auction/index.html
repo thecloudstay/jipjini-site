@@ -119,6 +119,15 @@
     }).catch(function () { return false; });
   }
   F.aptFinder($('q'), $('ql'), function (a) { pickApt(a, 0); });
+  // 2026-11-17 아파트별 쪽에서 ?apt=단지번호&t=평형 으로 들어오면 단지·평형을 미리 골라 둠
+  (function () {
+    var q = new URLSearchParams(location.search), code = q.get('apt'); if (!code) return;
+    F.getJSON('/data/apt/find.json').then(function (rows) { var r = rows.filter(function (x) { return x[0] === code; })[0]; if (!r) return;
+      $('q').value = r[1]; var a = { code: r[0], name: r[1], gu: r[2], dong: r[3], year: Number(r[4]) || 0, homes: r[5], hasPlan: !!r[6] }, tn = q.get('t');
+      if (!tn || !a.hasPlan) return pickApt(a, 0);
+      F.plan(code).then(function (d) { var t = (d['평형'] || []).filter(function (x) { return String(x['이름']) === tn; })[0]; pickApt(a, t ? Number(t['전용']) : 0); }).catch(function () { pickApt(a, 0); });
+    }).catch(function () {});
+  })();
 
   // 감정평가서 → 단지 찾기·면적·연식·상태 채우기 → 도면(집지니 도면 우선, 없으면 구조도를 다시 그림)
   function findApt(f) {
