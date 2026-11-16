@@ -1,0 +1,19 @@
+/* 집지니 디자인 기준 — 홈페이지·콘솔·고객 화면이 모두 이 파일 하나를 읽는다 (2026-11-16 대표 「한 번 고치면 셋 다 바뀌게」)
+   흰 종이 · 먹색 글씨 · 연필색 보조 글씨 · 가는 선 · 초록은 집지니 것(로고·합계·핵심 단추)에만 · 모서리 4px · 글꼴 IBM Plex Sans KR 하나 */
+@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@300;400;500;600;700&display=swap");
+:root{
+  --jj-paper:#FFFFFF;   /* 종이 */
+  --jj-ink:#1C1F1B;     /* 먹 — 본문 */
+  --jj-ink-2:#2E322C;
+  --jj-pencil:#6B7067;  /* 연필 — 보조 글씨 */
+  --jj-pencil-2:#8E9389;
+  --jj-rule:#DCDFD8;    /* 가는 선 */
+  --jj-grid:#EEF0EB;    /* 모눈·옅은 바탕 */
+  --jj-wash:#F6F7F4;    /* 콘솔 바탕 */
+  --jj-g:#1F5E2E;       /* 집지니 초록 */
+  --jj-gl:#EAF2E6;
+  --jj-gd:#164421;
+  --jj-red:#B42318; --jj-amber:#9A5B00; --jj-blue:#2B5A8C;
+  --jj-radius:4px;
+  --jjf:"IBM Plex Sans KR",-apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+}

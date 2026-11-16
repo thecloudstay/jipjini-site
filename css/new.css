@@ -1,12 +1,11 @@
 /* 옛 쪽을 첫 화면(assets/home/home.css)의 「공사 도면 한 장」 양식에 맞추는 덮개 — 2026-11-13
    흰 종이 · 먹색 글씨 · 초록은 집지니 것에만 · 글꼴은 IBM Plex Sans KR 하나 · 모서리 4px.
    각 쪽 </head> 바로 앞에서 마지막으로 읽힌다. */
-@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@300;400;500;600;700&display=swap");
+@import url("/assets/jj-tokens.css");
 
 :root{
   --jjf:"IBM Plex Sans KR",-apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
-  --jj-paper:#FFFFFF; --jj-ink:#1C1F1B; --jj-pencil:#6B7067; --jj-rule:#DCDFD8; --jj-grid:#EEF0EB;
-  --jj-g:#1F5E2E; --jj-gl:#EAF2E6; --jj-gd:#164421;
+  /* 색 값은 assets/jj-tokens.css 한 곳에서 */
   /* css/style.css 이름표 */
   --jp-charcoal:#1C1F1B; --jp-charcoal-soft:#2E322C; --jp-gray:#5E635A; --jp-gray-soft:#7D8278; --jp-gray-line:#DCDFD8;
   --jp-oatmeal:#FFFFFF; --jp-oatmeal-soft:#FFFFFF; --jp-oatmeal-deep:#F3F5F0; --jp-darker:#1C1F1B; --jp-border-soft:rgba(28,31,27,.10);
