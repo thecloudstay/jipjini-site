@@ -173,8 +173,22 @@ def low_priority():
         pass
 
 
+def idle_priority():
+    """2026-11-16 대표 「동시에 돌려」: 받기가 도는 동안 조각을 통째로 쉬게 하던 것(받기는 하루 대부분 돌아 사실상 1줄) →
+    조각은 「유휴」 우선순위로 띄워 계속 돌린다. 조각이 띄우는 크로미움도 같은 우선순위를 물려받으므로, 받기(보통)와 사람이 쓰는 창이 늘 먼저 돈다."""
+    if os.name != "nt":
+        return
+    try:
+        import ctypes
+        ctypes.windll.kernel32.SetPriorityClass(ctypes.windll.kernel32.GetCurrentProcess(), 0x00000040)   # 유휴
+    except Exception:
+        pass
+
+
 def main(n=400):
     low_priority()
+    if "--조각" in sys.argv:
+        idle_priority()
     os.makedirs(os.path.join(OUT, "도면"), exist_ok=True); os.makedirs(READ, exist_ok=True)
     shard = None
     if "--조각" in sys.argv:   # 여러 줄 가운데 한 줄(자식): 관문·재선별·잠금·보고·합성은 어미가 한다
@@ -217,9 +231,12 @@ def run_items(n, shard, busy):
     def _pub(r):
         v = st.get("%s_%s" % (r["단지코드"], r["평형"])) or {}
         return "%s_%s" % (r["단지코드"], r["평형"]) in pubk or (isinstance(v.get("점수"), (int, float)) and v["점수"] >= 85 and v.get("판정") in ("통과", "예외"))
-    pub = [r for r in todo if r not in never and _pub(r)]
-    fail = [r for r in todo if r not in never and r not in pub and (st.get("%s_%s" % (r["단지코드"], r["평형"])) or {}).get("판정") != "통과"]
-    passed = [r for r in todo if r not in never and r not in pub and r not in fail]
+    # 2026-11-16 오류 장 1만여 장이 다시 들어오며 목록 안 찾기가 수억 번 비교로 느려지지 않게 열쇠 집합으로 가린다
+    _k = lambda r: "%s_%s" % (r["단지코드"], r["평형"])
+    nk = set(map(_k, never))
+    pub = [r for r in todo if _k(r) not in nk and _pub(r)]; pk = set(map(_k, pub))
+    fail = [r for r in todo if _k(r) not in nk and _k(r) not in pk and (st.get(_k(r)) or {}).get("판정") != "통과"]; fk = set(map(_k, fail))
+    passed = [r for r in todo if _k(r) not in nk and _k(r) not in pk and _k(r) not in fk]
     todo = pub + never + fail + passed
     if n > 0: todo = todo[:n]
     kids = []; mine = {}
@@ -294,8 +311,7 @@ def run_items(n, shard, busy):
             game_pause(busy if shard is None else None)
             # 2026-11-15 대표 「평면도 불러오기가 현저히 느려짐」: 평면도 받기(네이버 쪽 열기)가 도는 동안 변환 3줄이 처리기를 다 써서
             #   받기가 단지 하나에 1분 40초 걸리고 쪽 열기 30초 넘김 오류까지 났다 → 받기가 도는 동안은 1줄(어미)만 돌고 조각은 쉰다.
-            while shard is not None and 창숨김 and 창숨김.받기중(CROLL):
-                time.sleep(60)
+            # 2026-11-16: 조각은 유휴 우선순위라 받기를 밀어내지 않으므로 받기 중에도 쉬지 않는다(위 idle_priority).
             rec = {"판": ver, "때": time.strftime("%Y-%m-%d %H:%M")}
             _t0 = time.time(); _t1 = None   # 2026-11-13 어디서 시간이 드는지 재기(읽기 = 브라우저 방 읽기, 변환 = 파이썬 변환·검수·채점)
             try:
