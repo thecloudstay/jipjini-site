@@ -474,13 +474,18 @@ def apt_page(code, row, d, pr, nq):
 <section>
   <h2>누수 · 경매</h2>
   <table class="tb way"><tbody>
-    <tr><th><a href="leak.html">누수 복구 비용</a></th><td>{esc(name)} 평형마다 윗집 누수, 원인 모를 누수, 마루까지 젖은 경우, 우리 욕실 방수 불량일 때의 복구 비용.</td></tr>
+    {('<tr><th><a href="leak.html">누수 복구 비용</a></th><td>' + esc(name) + ' 평형마다 윗집 누수, 원인 모를 누수, 마루까지 젖은 경우, 우리 욕실 방수 불량일 때의 복구 비용.</td></tr>') if has_leak(d, pr) else ""}
     <tr><th><a href="auction.html">경매 수리비</a></th><td>{esc(name)}을 경매로 낙찰받을 때 임대 놓기·기본 수리·올수리 단계별 수리비 범위.</td></tr>
   </tbody></table>
 </section>
 </main>
 """
-    return url, head(url, title, desc, ld, 1, kw) + body + foot(1)
+    return url, head(url, title, desc, ld, 2, kw) + body + foot(2)
+
+
+def has_leak(d, pr):
+    """이 단지에 누수 쪽(leak.html)이 만들어지는가 — 없으면 링크도 걸지 않는다."""
+    return any(leak_cases(t, pr['items']) for t in d['평형'])
 
 
 def leak_apt_page(code, row, d, pr):
@@ -520,7 +525,7 @@ def leak_apt_page(code, row, d, pr):
 <p class="note">집지니 실견적 단가(도배 기술자 {I['wallpaper_day']['price']:,}원/품, 강마루 {I['floor_maru']['price']:,}원/㎡, 건조기 {I['dry_day']['price']:,}원/일 등)로 이 단지 평형 도면의 방 크기를 넣어 계산했습니다. 현장 상태에 따라 달라지며 부가세 10% 별도. {TODAY} 기준.</p>
 </main>
 """
-    return url, head(url, title, desc, ld, 1, kw) + body + foot(1)
+    return url, head(url, title, desc, ld, 2, kw) + body + foot(2)
 
 
 def auction_apt_page(code, row, d, pr):
@@ -555,11 +560,11 @@ def auction_apt_page(code, row, d, pr):
   <ul class="pts">{"".join(f"<li>{esc(x)}</li>" for x in age_notes(year, hh))}<li>밀린 관리비 가운데 공용 부분은 낙찰자가 떠안을 수 있습니다. 입찰 전 관리사무소에 체납액을 확인하세요.</li></ul>
 </section>
 <section class="qa"><h2>자주 묻는 질문</h2>{"".join(f"<h3>{esc(q)}</h3><p>{esc(a)}</p>" for q, a in qa)}</section>
-<div class="cta"><a class="go" href="../../auction/?apt={code}">입찰 상한·총 취득원가 계산<small>감정평가서 올리면 자동 · 무료</small></a><a href="leak.html">{esc(name)} 누수 복구 비용</a></div>
+<div class="cta"><a class="go" href="../../auction/?apt={code}">입찰 상한·총 취득원가 계산<small>감정평가서 올리면 자동 · 무료</small></a>{('<a href="leak.html">' + esc(name) + ' 누수 복구 비용</a>') if has_leak(d, pr) else ""}</div>
 <p class="note">집지니 실견적 공종별 평당 금액(낮은 4분의 1·가운데·높은 4분의 1)에 공급 평수(전용 ÷ 2.5)를 곱한 값입니다. {TODAY} 기준.</p>
 </main>
 """
-    return url, head(url, title, desc, ld, 1, kw) + body + foot(1)
+    return url, head(url, title, desc, ld, 2, kw) + body + foot(2)
 
 
 def index_page(groups, n_apt, n_type):
