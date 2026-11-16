@@ -20,6 +20,10 @@ HERE = os.path.dirname(os.path.abspath(__file__))              # D:\croll\코드
 TOOLS = os.path.dirname(HERE)                                   # D:\croll\코드\변환\tools
 CODE = os.path.dirname(os.path.dirname(TOOLS))                  # D:\croll\코드
 CROLL = os.path.dirname(CODE)                                   # D:\croll
+try:   # 2026-11-15 하위 프로그램(게임 확인 tasklist·관문·조각·git)이 명령창을 띄웠다 사라지던 것 — 모두 창 없이
+    sys.path.insert(0, os.path.join(CROLL, "코드")); import 창숨김
+except Exception:
+    창숨김 = None
 DATA = os.path.join(CROLL, "자료")
 LIST = os.path.join(DATA, "원본_목록.csv")
 OUT = os.path.join(DATA, "변환")
@@ -119,27 +123,32 @@ def workers():
         m = M(); m.l = ctypes.sizeof(M); ctypes.windll.kernel32.GlobalMemoryStatusEx(ctypes.byref(m)); free = m.free / 2**30
     except Exception:
         pass
-    return max(2, min(c, int(free // 2.5), 6))
+    return max(2, min(c, int(free // 2.5), 3))   # 2026-11-14 23:28 대표 「다 변경」: 램 96%로 크롬·편집기까지 멈춰 위 끝을 3줄로
 
 
 GAMES = ("League of Legends.exe",)   # 2026-11-14 실제 대전 화면만 — 대기실(LeagueClient)은 켜 둔 채 잊기 쉬워 밤새 변환이 9시간 멈췄다
 
 
 def game_pause(busy=None):
-    """리그 오브 레전드가 켜져 있으면 변환을 쉬었다가 끄면 잇는다(2026-11-14 램 교체 때 대표 「롤 할 때도 좋아질까」)."""
+    """리그 오브 레전드가 켜지면 변환을 「끝낸다」(2026-11-14 23:46 대표 「게임 계속 꺼져」).
+    원인: 예전에는 쉬기만 해서 조각마다 띄운 화면 밖 브라우저가 램을 그대로 붙잡고 있었고(램 96%), 3시간 지나면 게임 중에도 다시 돌았다.
+    → 게임을 보면 상태를 저장하고 이 프로그램을 통째로 끝내 램을 돌려준다. 게임을 끄면 다음 정시 통합 실행이 이어서 다시 띄운다."""
     if os.name != "nt": return
     import subprocess
-    said = False; t0 = time.time()
-    while True:
-        try:
-            out = subprocess.run(["tasklist", "/FO", "CSV", "/NH"], capture_output=True, text=True, errors="replace").stdout
-        except Exception:
-            return
-        if not any(('"' + g.lower() + '"') in out.lower() for g in GAMES): return
-        if time.time() - t0 > 3 * 3600: print("게임이 3시간 넘게 켜져 있어 변환을 다시 이어 갑니다.", flush=True); return
-        if not said: print("게임이 켜져 있어 변환을 잠깐 쉽니다(끄면 바로 이어 갑니다).", flush=True); said = True
-        if busy: open(busy, "w", encoding="utf-8").write(time.strftime("%Y-%m-%d %H:%M:%S"))
-        time.sleep(30)
+    try:
+        out = subprocess.run(["tasklist", "/FO", "CSV", "/NH"], capture_output=True, text=True, errors="replace").stdout
+    except Exception:
+        return
+    if not any(('"' + g.lower() + '"') in out.lower() for g in GAMES): return
+    print("게임이 켜져 있어 변환을 끝냅니다(램을 돌려줌). 게임을 끄면 다음 정시에 이어 갑니다.", flush=True)
+    try:
+        with open(r"D:\croll\기록\게임_멈춤.txt", "a", encoding="utf-8") as f: f.write(time.strftime("%Y-%m-%d %H:%M:%S ") + "변환 끝냄\n")
+    except Exception:
+        pass
+    if busy:
+        try: os.remove(busy)
+        except Exception: pass
+    os._exit(0)
 
 
 def shard_file(i):
@@ -194,7 +203,9 @@ def run_items(n, shard, busy):
             print("옛 정답지 재선별을 못 했습니다:", str(e)[:100], flush=True)
     ver = version(); tver = tool_version(); st = merge_shards(rj(os.path.join(OUT, "상태.json"), {}))
     rows = [r for r in csv.DictReader(open(LIST, encoding="utf-8-sig")) if str(r.get("순서")) == "1" and os.path.exists(r.get("파일") or "")]
-    todo = [r for r in rows if (st.get("%s_%s" % (r["단지코드"], r["평형"])) or {}).get("판") != ver]
+    # 2026-11-16 오류 장 다시: 11-15 하루에 10,724장이 「오류」(브라우저 기동 실패)로 남았는데 판이 같아 다시 돌지 않았다 → 오류는 판과 상관없이 3번까지 다시
+    def _again(v): return (v or {}).get("판") != ver or ((v or {}).get("판정") == "오류" and (v or {}).get("오류횟수", 1) < 3)
+    todo = [r for r in rows if _again(st.get("%s_%s" % (r["단지코드"], r["평형"])))]
     random.seed(int(time.time())); random.shuffle(todo)
     never = [r for r in todo if "%s_%s" % (r["단지코드"], r["평형"]) not in st]
     # 2026-11-13 대표 제안 「우선 벌크로 싹 다 변환한 다음 클로드가 직접 찾는 방식」:
@@ -230,6 +241,11 @@ def run_items(n, shard, busy):
             pass
         return 0
     from playwright.sync_api import sync_playwright
+    # 2026-11-16 「Playwright Sync API inside the asyncio loop」 10,724장 원인 고침: 변환·글자 인식 쪽이 이 줄에 이벤트 고리를 띄워 두면
+    #  이후 브라우저 기동이 장마다 실패했다. 브라우저 일은 전용 일꾼 줄 하나에서만 한다(같은 줄에서 만들고 같은 줄에서 씀).
+    import concurrent.futures
+    PWX = concurrent.futures.ThreadPoolExecutor(max_workers=1)
+    def pwrun(fn, *a): return PWX.submit(fn, *a).result()
     known = rj(os.path.join(HERE, "알려진모양.json"), {})
     t0 = time.time(); done = 0
     pw = {"p": None, "b": None, "page": None}
@@ -251,14 +267,23 @@ def run_items(n, shard, busy):
             else:
                 page.add_script_tag(url="https://jipjini.com/assets/" + name)
         page.wait_for_function("() => window.JJPlanTools", timeout=60000)
-        pw["teach"] = False
-        if os.path.exists(TEACHER):   # 2026-11-13 세 의견 합의: 선생 모델이 본 벽·문·창을 읽기마다 같이 남긴다(정답지 합의 심판)
-            try:
-                page.wait_for_function("() => window.JJVendor && window.JJVendor.ort", timeout=60000)
-                pw["teach"] = page.evaluate(TEACH_INIT_JS, base64.b64encode(open(TEACHER, "rb").read()).decode()) == "ok"
-            except Exception as e:
-                print("선생 모델을 못 올렸습니다:", str(e)[:100], flush=True)
+        # 2026-11-15 원인: 추론 실행기(JJVendor)는 첫 방 읽기 때에야 내려받는데, 읽기 전에 60초를 기다려 매 회차 「선생 모델을 못 올렸습니다」.
+        #   → 첫 읽기가 끝난 뒤 teach_init() 에서 올린다(None = 아직 시도 전)
+        pw["teach"] = None if os.path.exists(TEACHER) else False
         pw["page"] = page; return page
+
+    def teach_init():   # 2026-11-13 세 의견 합의: 선생 모델이 본 벽·문·창을 읽기마다 같이 남긴다(정답지 합의 심판)
+        if pw.get("teach") is not None:
+            return pw["teach"]
+        pw["teach"] = False
+        try:
+            pw["page"].wait_for_function("() => window.JJVendor && window.JJVendor.ort", timeout=20000)
+            pw["teach"] = pw["page"].evaluate(TEACH_INIT_JS, base64.b64encode(open(TEACHER, "rb").read()).decode()) == "ok"
+            print("선생 모델 올림" if pw["teach"] else "선생 모델을 못 올렸습니다", flush=True)
+        except Exception as e:
+            print("선생 모델을 못 올렸습니다:", str(e)[:100], flush=True)
+        return pw["teach"]
+    errrun = 0
     if True:
         for i, r in enumerate(todo):
             k = "%s_%s" % (r["단지코드"], r["평형"]); f = r["파일"]
@@ -267,6 +292,10 @@ def run_items(n, shard, busy):
             except ValueError:
                 area = 0
             game_pause(busy if shard is None else None)
+            # 2026-11-15 대표 「평면도 불러오기가 현저히 느려짐」: 평면도 받기(네이버 쪽 열기)가 도는 동안 변환 3줄이 처리기를 다 써서
+            #   받기가 단지 하나에 1분 40초 걸리고 쪽 열기 30초 넘김 오류까지 났다 → 받기가 도는 동안은 1줄(어미)만 돌고 조각은 쉰다.
+            while shard is not None and 창숨김 and 창숨김.받기중(CROLL):
+                time.sleep(60)
             rec = {"판": ver, "때": time.strftime("%Y-%m-%d %H:%M")}
             _t0 = time.time(); _t1 = None   # 2026-11-13 어디서 시간이 드는지 재기(읽기 = 브라우저 방 읽기, 변환 = 파이썬 변환·검수·채점)
             try:
@@ -275,11 +304,11 @@ def run_items(n, shard, busy):
                     a = c["읽기"]; rec["읽기"] = "저장분"; teach = c.get("선생")
                 else:
                     raw = open(f, "rb").read(); mime = "image/png" if f.lower().endswith(".png") else "image/jpeg"
-                    a = page_get().evaluate(READ_JS, {"dataUrl": "data:%s;base64,%s" % (mime, base64.b64encode(raw).decode()), "area": area})
+                    a = pwrun(lambda: page_get().evaluate(READ_JS, {"dataUrl": "data:%s;base64,%s" % (mime, base64.b64encode(raw).decode()), "area": area}))
                     teach = None
-                    if pw.get("teach"):
+                    if pwrun(teach_init):
                         try:
-                            teach = page_get().evaluate(TEACH_JS, "data:%s;base64,%s" % (mime, base64.b64encode(raw).decode()))
+                            teach = pwrun(lambda: page_get().evaluate(TEACH_JS, "data:%s;base64,%s" % (mime, base64.b64encode(raw).decode())))
                         except Exception:
                             teach = None
                     json.dump({"도구판": tver, "때": time.strftime("%Y-%m-%d %H:%M"), "읽기": a, "선생": teach}, open(cf, "w", encoding="utf-8"), ensure_ascii=False)
@@ -307,7 +336,17 @@ def run_items(n, shard, busy):
                             res.pop("_G", None); rec["정답지아님"] = why_[:3]
                         rec.pop("_G", None)
             except Exception as e:
-                rec.update(판정="오류", 남은규칙=str(e)[:80])
+                rec.update(판정="오류", 남은규칙=str(e)[:80], 오류횟수=((st.get(k) or {}).get("오류횟수", 0) if (st.get(k) or {}).get("판정") == "오류" else 0) + 1)
+                # 같은 오류가 잇달아 나면 브라우저를 새로 띄우고, 그래도 30장 잇달아 오류면 이번 회차를 멈춘다(오류를 수천 장 찍지 않게)
+                errrun += 1
+                if errrun % 5 == 0:
+                    try: pwrun(lambda: (pw["b"] and pw["b"].close(), pw["p"] and pw["p"].stop()))
+                    except Exception: pass
+                    pw.update(p=None, b=None, page=None, teach=None)
+                if errrun >= 30:
+                    print("오류가 30장 잇달아 나서 이번 회차를 멈춥니다:", str(e)[:80], flush=True); st[k] = rec; break
+            else:
+                errrun = 0
             try: rec["초"] = [round((_t1 or time.time()) - _t0, 1), round(time.time() - (_t1 or time.time()), 1)]
             except Exception: pass
             st[k] = rec; done += 1; mine[k] = rec
@@ -322,7 +361,9 @@ def run_items(n, shard, busy):
                 try: report(st, ver, time.time() - t0, done)
                 except Exception: pass
     if pw["b"]:
-        pw["b"].close(); pw["p"].stop()
+        try: pwrun(lambda: (pw["b"].close(), pw["p"].stop()))
+        except Exception: pass
+    PWX.shutdown(wait=False)
     if shard is not None:
         json.dump(mine, open(shard_file(shard[0]), "w", encoding="utf-8"), ensure_ascii=False); return 0
     for kp in kids:   # 나머지 줄이 끝나길 기다리는 동안에도 잠금은 살려 둔다
