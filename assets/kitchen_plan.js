@@ -6,7 +6,7 @@
 (function (root) {
   'use strict';
   var STD = [900, 800, 600, 450, 400, 300];
-  var DEF = { fr: 'auto', frW: 900, tall: 0, sinkR: -1, sinkAt: 50, cookR: -1, cookAt: 75, dw: 1, up: 1, upSink: 1, depth: 600, baseH: 850, upH: 700, ceil: 2300 };
+  var DEF = { fr: 'auto', frW: 900, tall: 0, sinkR: -1, sinkAt: 50, cookR: -1, cookAt: 75, dw: 1, up: 1, upSink: 1, grade: 'a', top: 'solid', demo: 1, depth: 600, baseH: 850, upH: 700, ceil: 2300 };
   function opt(o) { var r = {}; Object.keys(DEF).forEach(function (k) { var v = o && o[k] != null && o[k] !== '' ? o[k] : DEF[k]; r[k] = typeof DEF[k] === 'number' ? Number(v) : v; }); return r; }
 
   // 남은 길이 g를 표준 폭으로 채운다: 남는 것(필러)을 가장 적게, 같으면 모듈 수를 적게
@@ -20,7 +20,7 @@
   }
 
   // runs: [{len}] 순서대로 이어진 벽 구간(ㄱ자면 2개, ㄷ자면 3개)
-  function layout(runs, o) {
+  function layout1(runs, o) {
     o = opt(o); var R = runs.map(function (r, i) { return { i: i, len: Math.round(r.len), s: i > 0 ? o.depth : 0, e: Math.round(r.len), fixed: [] }; }), last = R.length - 1, warn = [];
     if (!R.length) return null;
     // 코너: 앞 구간의 끝 1000이 코너장(블라인드). 다음 구간은 깊이 600 만큼 안에서 시작
@@ -53,7 +53,7 @@
     if (cx == null) warn.push('쿡탑(600) 자리가 모자랍니다.'); else cr.fixed.push({ t: 'cook', a: cx, w: 600 });
     if (o.dw && sx != null && bx == null) { var gs = gaps(sr), right = gs.filter(function (g) { return g.s === sx + 900 && g.e - g.s >= 600; })[0], left = gs.filter(function (g) { return g.e === sx && g.e - g.s >= 600; })[0];
       if (right) sr.fixed.push({ t: 'dw', a: sx + 900, w: 600 }); else if (left) sr.fixed.push({ t: 'dw', a: sx - 600, w: 600 }); else warn.push('개수대 바로 옆에 식기세척기(600) 자리가 없습니다.'); }
-    if (sx != null && cx != null && sr === cr) { var gapSC = sx < cx ? cx - (sx + 900) : sx - (cx + 600); sr.fixed.forEach(function (f) { if (f.t === 'dw' && ((f.a >= sx && f.a < cx) || (f.a < sx && f.a >= cx))) gapSC -= 600; }); if (gapSC < 400) warn.push('개수대와 쿡탑 사이 작업대가 ' + Math.max(0, gapSC) + 'mm입니다 — 600 이상이면 쓰기 편합니다.'); }
+    if (sx != null && cx != null && sr === cr) { var gapSC = sx < cx ? cx - (sx + 900) : sx - (cx + 600); if (gapSC < 400) warn.push('개수대와 쿡탑 사이 작업대가 ' + Math.max(0, gapSC) + 'mm입니다 — 600 이상이면 쓰기 편합니다.'); }
     // 남은 자리를 표준 모듈로 채우고, 쿡탑 옆 한 칸은 서랍장으로
     var mods = [];
     R.forEach(function (r) { var list = r.fixed.slice();
@@ -73,7 +73,48 @@
       if (m.t === 'cook') { ups.push({ t: 'hood', a: m.a, w: m.w, run: m.run }); return; } if (m.t === 'sink' && !o.upSink) return; if (m.t === 'filler') { ups.push({ t: 'ufill', a: m.a, w: m.w, run: m.run }); return; }
       ups.push({ t: m.t === 'corner' ? 'ucorner' : 'upper', a: m.a, w: m.t === 'corner' ? 1000 : m.w, run: m.run }); });
     var no = 0; mods.forEach(function (m) { m.no = m.t === 'filler' ? '' : ++no; }); var un = 0; ups.forEach(function (m) { m.no = m.t === 'ufill' ? '' : 'U' + (++un); });
-    return { o: o, runs: R.map(function (r) { return { i: r.i, len: r.len }; }), base: mods, upper: ups, warn: warn, bom: bom(mods, ups, o, R) };
+    // 2026-11-16 쿡탑이 냉장고·키큰장에 바로 붙으면(사이 300 미만) 열·동선이 나쁘다 — 알리고, layout() 이 다른 자리를 찾아 본다
+    var ckm = mods.filter(function (m) { return m.t === 'cook'; })[0], adj = !!ckm && mods.some(function (m) { return (m.t === 'fridge' || m.t === 'tall') && m.run === ckm.run && (Math.abs(m.a - (ckm.a + ckm.w)) < 300 || Math.abs(ckm.a - (m.a + m.w)) < 300); });
+    if (adj) warn.push('쿡탑이 냉장고 바로 옆입니다 — 사이에 조리대를 300 이상 두면 열과 동선이 편합니다.');
+    return { o: o, runs: R.map(function (r) { return { i: r.i, len: r.len }; }), base: mods, upper: ups, warn: warn, info: [], flag: { cookFridge: adj, cook: !!ckm }, bom: bom(mods, ups, o, R) };
+  }
+  // 손으로 고르지 않은 것(쿡탑 벽·개수대 자리)을 바꿔 가며 가장 나은 배치를 고른다: 쿡탑이 꼭 들어가게, 냉장고 옆은 피하게, 경고가 적게.
+  // 그래도 쿡탑 자리가 없으면 식기세척기를 빼 본다(뺐다고 알린다).
+  function layout(runs, o) {
+    var raw = o || {}, r = layout1(runs, raw); if (!r) return r;
+    var score = function (t, pen) { return (t.flag.cook ? 0 : 100) + (t.flag.cookFridge ? 10 : 0) + t.warn.length + pen; };
+    if (!r.flag.cook || r.flag.cookFridge) {
+      var pickedCook = raw.cookR != null && raw.cookR !== '' && Number(raw.cookR) >= 0, pickedAt = raw.sinkAt != null && raw.sinkAt !== '', dwOn = opt(raw).dw ? 1 : 0;
+      var best = r, bs = score(r, 0), note = '', cooks = pickedCook ? [Number(raw.cookR)] : runs.map(function (_, i) { return i; }), ats = pickedAt ? [raw.sinkAt] : [20, 80, 50];
+      (dwOn ? [1, 0] : [0]).forEach(function (dw) { cooks.forEach(function (ci) { ats.forEach(function (at) {
+        var o2 = {}; Object.keys(raw).forEach(function (k) { o2[k] = raw[k]; }); o2.cookR = ci; o2.sinkAt = at; o2.dw = dw; if (!pickedCook) o2.cookAt = Number(at) < 50 ? 85 : 15;
+        var t = layout1(runs, o2), sc = t ? score(t, dw === dwOn ? 0 : 3) : 1e9;
+        if (sc < bs) { best = t; bs = sc; note = (!r.flag.cook ? '쿡탑 자리를 내려고 ' : '쿡탑이 냉장고 옆에 붙지 않게 ') + (dw === dwOn ? '개수대와 쿡탑 자리를 옮겼습니다.' : '식기세척기를 뺐습니다 — 벽이 600 더 길면 넣을 수 있습니다.'); } }); }); });
+      if (best !== r) { best.info.push(note); r = best; } }
+    return r;
+  }
+
+  // ── 어림 금액 (2026-11-16, 부가세 10% 별도) ──
+  // 근거: 집지니 실견적 — 사제 싱크대(E0 몸통·PET 문짝·인조대리석 12T·설치) m당 80만 원(용인·수원), 30평대 ㄱ자 395만 원(안양·남동).
+  //       m당 80만을 하부(상판·설치 포함) 55만 + 상부 25만으로 나눴다. 상판 올림은 업계 공개가(인조대리석 m당 40만·엔지니어드스톤 70만·세라믹 100만)의 차이.
+  //       등급 배수는 공개 시세(브랜드 2.4~3m 100만~800만) 범위 안에서 잡은 어림값 — 실제 금액은 가구 업체 견적으로 확정.
+  var PRICE = { base: 550000, upper: 250000, tallK: 1.3, hood: 250000, demo: 200000,
+    grade: { a: [1, '실속', '사제 · PET 문짝 · E0 몸통'], b: [1.4, '중간', '브랜드 보급형 수준'], c: [2, '고급', '브랜드 상위 · 도장 문짝'] },
+    top: { solid: [0, '인조대리석'], quartz: [300000, '엔지니어드스톤'], ceramic: [600000, '세라믹'] } };
+  function cost(L, po) {
+    po = po || {}; var g = PRICE.grade[po.grade || L.o.grade] ? (po.grade || L.o.grade) : 'a', tp = PRICE.top[po.top || L.o.top] ? (po.top || L.o.top) : 'solid', demo = po.demo != null ? Number(po.demo) : Number(L.o.demo), b = L.bom;
+    var upM = L.upper.filter(function (u) { return u.t === 'upper' || u.t === 'ucorner' || u.t === 'frup'; }).reduce(function (a, u) { return a + u.w; }, 0) / 1000, tall = L.base.filter(function (m) { return m.t === 'tall'; }).length;
+    function calc(gk) { var k = PRICE.grade[gk][0], rows = [], won = function (v) { return Math.round(v / 10000) * 10000; };
+      rows.push(['하부장 · 상판(인조대리석) · 설치', b.하부장_m + ' m', won(b.하부장_m * PRICE.base * k)]);
+      if (upM > 0) rows.push(['상부장', Math.round(upM * 100) / 100 + ' m', won(upM * PRICE.upper * k)]);
+      if (tall) rows.push(['키큰장', tall + '개', won(tall * 0.6 * (PRICE.base + PRICE.upper) * PRICE.tallK * k)]);
+      if (PRICE.top[tp][0]) rows.push(['상판을 ' + PRICE.top[tp][1] + '(으)로', b.상판_m + ' m', won(b.상판_m * PRICE.top[tp][0])]);
+      if (b.후드) rows.push(['후드', b.후드 + '대', PRICE.hood * b.후드]);
+      if (demo) rows.push(['기존 싱크대 철거 · 폐기', '1식', PRICE.demo]);
+      return { rows: rows, total: rows.reduce(function (a, x) { return a + x[2]; }, 0) }; }
+    var cur = calc(g);
+    return { grade: g, top: tp, rows: cur.rows, total: cur.total, tiers: ['a', 'b', 'c'].map(function (k) { return { k: k, 이름: PRICE.grade[k][1], 설명: PRICE.grade[k][2], total: calc(k).total }; }), 상판이름: PRICE.top[tp][1],
+      근거: '집지니 실견적(사제 싱크대 m당 80만 원 · 30평대 ㄱ자 395만 원)과 2026년 공개 시세로 잡은 어림값입니다. 부가세 10% 별도. 냉장고 · 식기세척기 · 쿡탑 본체는 들어 있지 않습니다.' };
   }
 
   var NAME = { base: '하부장', drawer: '서랍장(3단)', sink: '개수대 하부장', dw: '식기세척기 자리', cook: '쿡탑 하부장(서랍 2단)', corner: '코너장(블라인드)', fridge: '냉장고 자리', tall: '키큰장', filler: '필러', upper: '상부장', ucorner: '코너 상부장', hood: '후드 자리', frup: '냉장고 상부장', ufill: '상부 필러' };
@@ -96,23 +137,25 @@
   var FILL = { sink: '#E6EFE8', cook: '#F3E9DA', dw: '#EEF0F2', corner: '#F1F1EE', fridge: '#FFFFFF', tall: '#F6F6F3', filler: '#FAFAF8', drawer: '#FFFFFF', base: '#FFFFFF' };
   function planSvg(L, geo) {
     var pts = [], rects = [];
-    L.base.forEach(function (m) { var g = geo[m.run]; if (!g) return; var d = m.t === 'fridge' || m.t === 'tall' ? 650 : L.o.depth, p = function (a, b) { return [g.x + g.ux * a + g.nx * b, g.y + g.uy * a + g.ny * b]; }, q = [p(m.a, 0), p(m.a + m.w, 0), p(m.a + m.w, d), p(m.a, d)]; q.forEach(function (x) { pts.push(x); }); rects.push({ m: m, q: q, c: p(m.a + m.w / 2, d / 2), lc: m.t === 'cook' ? p(m.a + m.w / 2, d * 0.84) : null }); });
+    L.base.forEach(function (m) { var g = geo[m.run]; if (!g) return; var d = m.t === 'fridge' || m.t === 'tall' ? 650 : L.o.depth, p = function (a, b) { return [g.x + g.ux * a + g.nx * b, g.y + g.uy * a + g.ny * b]; }, q = [p(m.a, 0), p(m.a + m.w, 0), p(m.a + m.w, d), p(m.a, d)]; q.forEach(function (x) { pts.push(x); }); rects.push({ m: m, q: q, c: p(m.a + m.w / 2, m.t === 'cook' ? d * 0.33 : d / 2), lc: m.t === 'cook' ? p(m.a + m.w / 2, d * 0.84) : null }); });
     geo.forEach(function (g, i) { var len = L.runs[i].len; pts.push([g.x, g.y], [g.x + g.ux * len, g.y + g.uy * len]); });
     var xs = pts.map(function (p) { return p[0]; }), ys = pts.map(function (p) { return p[1]; }), x0 = Math.min.apply(null, xs) - 1100, y0 = Math.min.apply(null, ys) - 500, w = Math.max.apply(null, xs) + 1100 - x0, h = Math.max.apply(null, ys) + 500 - y0, fs = Math.max(90, Math.min(w, h) / 22);
     var s = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="' + [x0, y0, w, h].map(Math.round).join(' ') + '" style="width:100%;max-height:420px;font-family:inherit">';
     geo.forEach(function (g, i) { var len = L.runs[i].len; s += '<line x1="' + g.x + '" y1="' + g.y + '" x2="' + (g.x + g.ux * len) + '" y2="' + (g.y + g.uy * len) + '" stroke="' + INK + '" stroke-width="' + fs * 0.9 + '" stroke-linecap="square"/>'; var mx = g.x + g.ux * len / 2 - g.nx * fs * 1.8, my = g.y + g.uy * len / 2 - g.ny * fs * 1.8, an = -g.nx > 0.5 ? 'start' : -g.nx < -0.5 ? 'end' : 'middle'; s += '<text x="' + mx + '" y="' + my + '" font-size="' + fs * 0.95 + '" fill="' + PEN + '" text-anchor="' + an + '" dominant-baseline="middle">' + (i + 1) + '번 벽 ' + len.toLocaleString('ko-KR') + '</text>'; });
     rects.forEach(function (r) { var m = r.m; s += '<polygon points="' + r.q.map(function (p) { return p.join(','); }).join(' ') + '" fill="' + (FILL[m.t] || '#fff') + '" stroke="' + INK + '" stroke-width="' + fs * 0.12 + '"' + (m.t === 'fridge' || m.t === 'dw' ? ' stroke-dasharray="' + fs * 0.5 + ' ' + fs * 0.3 + '"' : '') + '/>';
       if (m.t === 'sink') { var g = geo[m.run], c = r.c; s += '<rect x="' + (c[0] - 330) + '" y="' + (c[1] - 210) + '" width="660" height="420" rx="60" fill="none" stroke="' + GRN + '" stroke-width="' + fs * 0.14 + '" transform="rotate(' + (Math.atan2(g.uy, g.ux) * 180 / Math.PI) + ' ' + c[0] + ' ' + c[1] + ')"/>'; }
-      if (m.t === 'cook') [[-130, -130], [130, -130], [-130, 130], [130, 130]].forEach(function (o) { s += '<circle cx="' + (r.c[0] + o[0]) + '" cy="' + (r.c[1] + o[1]) + '" r="95" fill="none" stroke="' + INK + '" stroke-width="' + fs * 0.1 + '"/>'; });
+      if (m.t === 'cook') [[-95, -95], [95, -95], [-95, 95], [95, 95]].forEach(function (o) { s += '<circle cx="' + (r.c[0] + o[0]) + '" cy="' + (r.c[1] + o[1]) + '" r="65" fill="none" stroke="' + INK + '" stroke-width="' + fs * 0.1 + '"/>'; });
+      if (m.t === 'corner') { var gc = geo[m.run], cp = function (a, b) { return (gc.x + gc.ux * a + gc.nx * b) + ',' + (gc.y + gc.uy * a + gc.ny * b); }; s += '<polyline points="' + cp(m.a + 400, 0) + ' ' + cp(m.a + 400, L.o.depth) + '" fill="none" stroke="' + PEN + '" stroke-width="' + fs * 0.08 + '" stroke-dasharray="' + fs * 0.4 + ' ' + fs * 0.3 + '"/>'; }
       if (m.t !== 'filler') s += '<text x="' + (r.lc || r.c)[0] + '" y="' + (r.lc || r.c)[1] + '" font-size="' + fs + '" font-weight="600" fill="' + INK + '" text-anchor="middle" dominant-baseline="middle">' + m.no + '</text>'; });
     return s + '</svg>';
   }
   function elevSvg(L, run) {
-    var o = L.o, len = L.runs[run].len, B = L.base.filter(function (m) { return m.run === run; }), U = L.upper.filter(function (m) { return m.run === run; }), top = o.ceil, W = len + 500, fs = Math.max(70, W / 34), Y = function (v) { return top - v; };
-    var s = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="-250 -150 ' + W + ' ' + (top + 800) + '" style="width:100%;max-height:340px;font-family:inherit">';
+    var o = L.o, len = L.runs[run].len, B = L.base.filter(function (m) { return m.run === run; }), U = L.upper.filter(function (m) { return m.run === run; }), top = o.ceil, W = len + 500, fs = Math.max(110, W / 34), Y = function (v) { return top - v; };
+    var s = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="' + Math.round(-fs * 6.4) + ' -150 ' + Math.round(len + fs * 6.4 + 250) + ' ' + (top + 800) + '" style="width:100%;max-height:340px;font-family:inherit">';
     s += '<rect x="0" y="0" width="' + len + '" height="' + top + '" fill="#FBFBF9" stroke="' + RULE + '" stroke-width="' + fs * 0.1 + '"/>';
     var upY0 = 1450, upY1 = Math.min(top - 50, upY0 + o.upH);
     function door(x, y0, y1, w, n, col) { var o2 = ''; for (var i = 0; i < n; i++) { var dx = x + w * i / n; o2 += '<rect x="' + (dx + 6) + '" y="' + Y(y1) + '" width="' + (w / n - 12) + '" height="' + (y1 - y0) + '" fill="' + col + '" stroke="' + INK + '" stroke-width="' + fs * 0.08 + '"/>'; } return o2; }
+    if (run > 0) { s += '<rect x="0" y="' + Y(o.baseH) + '" width="' + o.depth + '" height="' + o.baseH + '" fill="#EDEDE8" stroke="' + PEN + '" stroke-width="' + fs * 0.06 + '"/>' + (o.up ? '<rect x="0" y="' + Y(upY1) + '" width="330" height="' + (upY1 - upY0) + '" fill="#EDEDE8" stroke="' + PEN + '" stroke-width="' + fs * 0.06 + '"/>' : '') + '<text x="' + o.depth / 2 + '" y="' + Y(o.baseH / 2) + '" font-size="' + fs * 0.7 + '" fill="' + PEN + '" text-anchor="middle" dominant-baseline="middle">옆 벽</text>'; }
     B.forEach(function (m) { var x = m.a, w = m.w, c = FILL[m.t] || '#fff';
       if (m.t === 'fridge') { s += '<rect x="' + x + '" y="' + Y(Math.min(top - 400, 1850)) + '" width="' + w + '" height="' + Math.min(top - 400, 1850) + '" fill="#fff" stroke="' + PEN + '" stroke-dasharray="' + fs * 0.6 + ' ' + fs * 0.4 + '" stroke-width="' + fs * 0.08 + '"/><text x="' + (x + w / 2) + '" y="' + Y(1000) + '" font-size="' + fs + '" fill="' + PEN + '" text-anchor="middle">냉장고</text>'; return; }
       if (m.t === 'tall') { s += door(x, 100, top - 50, w, 1, c) + door(x, 100, 1250, w, 1, c); }
@@ -125,7 +168,7 @@
       if (m.t !== 'filler') s += '<text x="' + (x + w / 2) + '" y="' + (top + 160) + '" font-size="' + fs + '" font-weight="600" fill="' + INK + '" text-anchor="middle">' + m.no + '</text><text x="' + (x + w / 2) + '" y="' + (top + 160 + fs * 1.3) + '" font-size="' + fs * 0.85 + '" fill="' + PEN + '" text-anchor="middle">' + w + '</text>'; });
     var tops = B.filter(function (m) { return m.t !== 'fridge' && m.t !== 'tall' && m.t !== 'filler'; }); if (tops.length) { var tx0 = Math.min.apply(null, tops.map(function (m) { return m.a; })), tx1 = Math.max.apply(null, tops.map(function (m) { return m.a + m.w; })); s += '<rect x="' + tx0 + '" y="' + Y(o.baseH) + '" width="' + (tx1 - tx0) + '" height="30" fill="' + INK + '"/>'; }
     U.forEach(function (m) { var x = m.a, w = m.w;
-      if (m.t === 'hood') { s += '<path d="M' + (x + 40) + ' ' + Y(upY0 + 120) + ' L' + (x + w - 40) + ' ' + Y(upY0 + 120) + ' L' + (x + w / 2 + 120) + ' ' + Y(upY1) + ' L' + (x + w / 2 - 120) + ' ' + Y(upY1) + ' Z" fill="#fff" stroke="' + INK + '" stroke-width="' + fs * 0.08 + '"/><text x="' + (x + w / 2) + '" y="' + Y(upY0 + 50) + '" font-size="' + fs * 0.85 + '" fill="' + PEN + '" text-anchor="middle">후드</text>'; return; }
+      if (m.t === 'hood') { s += '<path d="M' + (x + 40) + ' ' + Y(upY0 + 120) + ' L' + (x + w - 40) + ' ' + Y(upY0 + 120) + ' L' + (x + w / 2 + 120) + ' ' + Y(upY1) + ' L' + (x + w / 2 - 120) + ' ' + Y(upY1) + ' Z" fill="#fff" stroke="' + INK + '" stroke-width="' + fs * 0.08 + '"/><text x="' + (x + w / 2) + '" y="' + Y((upY0 + 120 + upY1) / 2) + '" font-size="' + fs * 0.8 + '" fill="' + PEN + '" text-anchor="middle" dominant-baseline="middle">후드</text>'; return; }
       if (m.t === 'frup') { s += door(x, top - 400, top - 50, w, doorsOf(m), '#fff'); return; }
       if (m.t === 'ufill') { s += '<rect x="' + x + '" y="' + Y(upY1) + '" width="' + w + '" height="' + (upY1 - upY0) + '" fill="#EDEDE8" stroke="' + PEN + '" stroke-width="' + fs * 0.06 + '"/>'; return; }
       s += door(x, upY0, upY1, w, doorsOf(m), '#fff'); });
@@ -140,8 +183,12 @@
     var h = '<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>싱크대 설계 · ' + esc(meta.name || '') + '</title><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600&display=swap"><style>' + css + '</style></head><body>';
     h += '<h1>싱크대 설계 · ' + esc(meta.name || '우리 집') + '</h1><div class="meta">집지니 CAD · ' + (L.runs.length === 1 ? '일자형' : L.runs.length === 2 ? 'ㄱ자형' : 'ㄷ자형') + ' · 벽 ' + L.runs.map(function (r) { return n(r.len); }).join(' + ') + 'mm · 하부장 높이 ' + L.o.baseH + ' · 깊이 ' + L.o.depth + ' · 상부장 ' + (L.o.up ? L.o.upH : '없음') + (meta.date ? ' · ' + esc(meta.date) : '') + '</div>';
     h += '<p class="noprint" style="margin-top:12px"><button onclick="print()" style="font:inherit;padding:8px 16px;border:1px solid ' + INK + ';background:#fff;border-radius:4px;cursor:pointer">인쇄 · PDF 저장</button></p>';
+    var c = cost(L, meta.price), won = function (v) { return n(Math.round(v / 10000)) + '만 원'; };
+    h += '<h2>어림 금액 · 부가세 10% 별도</h2><div style="font-size:26px;font-weight:600;color:' + GRN + '">약 ' + won(c.total) + '</div><table style="margin-top:8px">' + c.rows.map(function (x) { return '<tr><td>' + x[0] + '</td><td class="r">' + x[1] + '</td><td class="r">' + won(x[2]) + '</td></tr>'; }).join('') + '</table>';
+    h += '<table style="margin-top:14px"><tr><th>등급</th><th>어떤 것</th><th class="r">같은 구성일 때</th></tr>' + c.tiers.map(function (t) { return '<tr><td>' + (t.k === c.grade ? '<b>' + t.이름 + '</b> (지금)' : t.이름) + '</td><td>' + t.설명 + '</td><td class="r">약 ' + won(t.total) + '</td></tr>'; }).join('') + '</table><div class="cap">' + c.근거 + '</div>';
+    if (L.info && L.info.length) h += L.info.map(function (w) { return '<div class="cap">· ' + esc(w) + '</div>'; }).join('');
     if (L.warn.length) h += '<h2>먼저 볼 것</h2>' + L.warn.map(function (w) { return '<div class="w">· ' + esc(w) + '</div>'; }).join('');
-    h += '<h2>평면 (위에서 본 그림)</h2><div class="fig">' + planSvg(L, geo) + '</div><div class="cap">그림 1. 칸 안 숫자는 아래 모듈 번호. 점선은 가전 자리(냉장고·식기세척기).</div>';
+    h += '<h2>평면 (위에서 본 그림)</h2><div class="fig">' + planSvg(L, geo) + '</div><div class="cap">그림 1. 칸 안 숫자는 아래 모듈 번호. 점선 칸은 가전 자리(냉장고·식기세척기), 코너장 안 점선 뒤쪽은 문이 없는 막힌 칸.</div>';
     L.runs.forEach(function (r, i) { h += '<h2>' + (i + 1) + '번 벽 입면 (앞에서 본 그림)</h2><div class="fig">' + elevSvg(L, i) + '</div><div class="cap">그림 ' + (i + 2) + '. 아래 숫자는 모듈 번호와 폭(mm). 바닥 걸레받이 100, 상판 30.</div>'; });
     h += '<h2>모듈 목록</h2><table><tr><th>번호</th><th>벽</th><th>모듈</th><th class="r">폭</th><th class="r">문짝</th><th class="r">서랍</th></tr>' + L.base.map(function (m) { return '<tr><td>' + m.no + '</td><td>' + (m.run + 1) + '</td><td>' + NAME[m.t] + '</td><td class="r">' + m.w + '</td><td class="r">' + (doorsOf(m) || '') + '</td><td class="r">' + (drawersOf(m) || '') + '</td></tr>'; }).join('') + L.upper.map(function (m) { return '<tr><td>' + m.no + '</td><td>' + (m.run + 1) + '</td><td>' + NAME[m.t] + '</td><td class="r">' + m.w + '</td><td class="r">' + (doorsOf(m) || '') + '</td><td></td></tr>'; }).join('') + '</table>';
     h += '<div class="two"><div><h2>발주 수량</h2><table>' + [['상판', b.상판_m + ' m (' + b.상판_m2 + '㎡ · 이음 ' + b.상판_이음 + '곳)'], ['하부장', b.하부장_m + ' m'], ['상부장', b.상부장_m + ' m'], ['문짝', b.문짝 + '짝'], ['서랍', b.서랍 + '개'], ['경첩', b.경첩 + '개'], ['서랍 레일', b.서랍레일 + '벌'], ['손잡이', b.손잡이 + '개'], ['걸레받이', b.걸레받이_m + ' m'], ['개수대 볼 · 수전', b.개수대볼 + ' · ' + b.수전], ['후드', b.후드 + '대']].map(function (x) { return '<tr><td>' + x[0] + '</td><td class="r">' + x[1] + '</td></tr>'; }).join('') + '</table></div>';
@@ -149,5 +196,5 @@
     h += '<p class="meta" style="margin-top:22px">치수는 도면 척도로 잰 값입니다. 가구 업체 실측으로 최종 확정합니다. 가스·급배수 위치에 따라 개수대·쿡탑 자리가 바뀔 수 있습니다.</p></body></html>';
     return h;
   }
-  root.JJKitchen = { layout: layout, sheet: sheet, planSvg: planSvg, elevSvg: elevSvg, NAME: NAME, DEF: DEF };
+  root.JJKitchen = { layout: layout, cost: cost, PRICE: PRICE, sheet: sheet, planSvg: planSvg, elevSvg: elevSvg, NAME: NAME, DEF: DEF };
 })(typeof window !== 'undefined' ? window : globalThis);
