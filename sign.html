@@ -118,7 +118,7 @@ canvas { display: block; width: 100%; height: 200px; background: #fafaf5; border
     <div class="sec" id="sec-plan" style="display:none;"><h2>대금 지급 방식</h2><table class="money" id="plan-tbl"></table><p class="muted" id="plan-note" style="margin:8px 0 0;"></p></div>
     <a class="pdfbtn" id="pdf-btn" href="#" target="_blank" rel="noopener" style="display:none;">📄 계약서 전문(PDF) 보기</a>
     <div class="notice" id="resp-notice">
-      <strong>📋 결제·책임 안내</strong><br><span id="resp-text">불러오는 중…</span>
+      <strong>결제·책임 안내</strong><br><span id="resp-text">불러오는 중…</span>
     </div>
 
     <div class="agree-box">
@@ -211,8 +211,13 @@ canvas { display: block; width: 100%; height: 200px; background: #fafaf5; border
   function renderMoney(m) {
     if (m && !m.일괄 && Number(m.현장관리) > 0) applyPm();
     if (!m) return;
+    // 2026-11-16 정가(정찰 코디비 + 현장관리비)보다 공사 금액이 낮으면 그 차이를 「할인」으로 (계약서와 같은 숫자)
+    const LD = Number(params.get('ld') || 0), LC = Number(params.get('lc') || 0), LPM = Number(params.get('lpm') || 0);
     $('money-tbl').innerHTML = m.일괄
-      ? '<tr><td>자재 + 인건비</td><td class="r">' + won(m.자재인건비) + '</td></tr><tr><td>코디·현장 조율</td><td class="r">' + won(m.코디) + '</td></tr>' +
+      ? '<tr><td>자재 + 인건비</td><td class="r">' + won(m.자재인건비) + '</td></tr>' +
+        (LD > 0 && Math.abs(m.자재인건비 + LC + LPM - LD - m.공급가) < 10
+          ? '<tr><td>현장관리 (PM)</td><td class="r">' + won(LPM) + '</td></tr><tr><td>코디</td><td class="r">' + won(LC) + '</td></tr><tr><td>할인</td><td class="r">− ' + won(LD) + '</td></tr>'
+          : '<tr><td>코디·현장 조율</td><td class="r">' + won(m.코디) + '</td></tr>') +
         '<tr class="tot"><td>공사 금액 <span class="muted" style="font-weight:400;">(부가세 10% 별도)</span></td><td class="r">' + won(m.공급가) + '</td></tr>' +
         ''
       : '<tr><td>자재 + 인건비 <span class="muted">(' + (PMSEL ? 'PM이 대신 지급' : '자재상·기술자에게 직접 결제') + ')</span></td><td class="r">' + won(m.자재인건비) + '</td></tr>' +
@@ -257,7 +262,10 @@ canvas { display: block; width: 100%; height: 200px; background: #fafaf5; border
     getJ(BOT + '?s=' + encodeURIComponent(quoteId) + '&r=' + encodeURIComponent(reqId)).then((d) => {
       if (!d || !d.ok) return;
       if (!params.get('tn') && d.title) $('work-title').textContent = (params.get('name') ? params.get('name') + ' 고객님 ' : '') + d.title.replace(/^.*고객님\s*/, '');
-      if (d.scope) $('work-scope').textContent = d.scope;
+      // 2026-11-16 공사 범위·공사명은 의뢰서에 고른 공종이 아니라 실제 견적에 든 공종으로
+      const trades = (d.sections || []).map((x) => x.trade).filter(Boolean);
+      if (trades.length) { $('work-scope').textContent = trades.join(', '); $('work-title').textContent = (params.get('name') || '') + ' 고객님 인테리어 공사'; }
+      else if (d.scope) $('work-scope').textContent = d.scope;
       const tm = d.terms || {}; let mh = '';
       if (d.memo) mh += '<div><b>견적 특이사항</b><div class="muted" style="color:#333;">' + esc(d.memo).replace(/\n/g, '<br>') + '</div></div>';
       if (tm.특약) mh += '<div style="margin-top:8px;"><b>계약 특약</b><div style="color:#333;">' + esc(tm.특약).replace(/\n/g, '<br>') + '</div></div>';
