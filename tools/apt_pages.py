@@ -92,7 +92,7 @@ def plan_svg(p):
     return "".join(s)
 
 
-def head(url, title, desc, ld, depth):
+def head(url, title, desc, ld, depth, kw=""):
     up = "../" * depth
     return f"""<!DOCTYPE html>
 <html lang="ko">
@@ -101,6 +101,7 @@ def head(url, title, desc, ld, depth):
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>{esc(title)}</title>
 <meta name="description" content="{esc(desc)}">
+<meta name="keywords" content="{esc(kw)}">
 <link rel="canonical" href="{url}">
 <meta property="og:type" content="website"><meta property="og:site_name" content="집지니 · 인테리어 데이터 솔루션">
 <meta property="og:title" content="{esc(title)}"><meta property="og:description" content="{esc(desc)}"><meta property="og:url" content="{url}">
@@ -109,7 +110,7 @@ def head(url, title, desc, ld, depth):
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="{up}assets/home/home.css?v=20261116c">
-<link rel="stylesheet" href="{up}assets/apt/apt.css?v=20261117a">
+<link rel="stylesheet" href="{up}assets/apt/apt.css?v=20261117b">
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-35EM7T3M9W"></script>
 <script>window.dataLayer=window.dataLayer||[];function gtag(){{dataLayer.push(arguments);}}gtag('js',new Date());(function(){{try{{if(localStorage.getItem('jj_staff'))window['ga-disable-G-35EM7T3M9W']=true}}catch(e){{}}}})();gtag('config','G-35EM7T3M9W');</script>
 {"".join(f'<script type="application/ld+json">{json.dumps(x, ensure_ascii=False)}</script>' for x in ld)}
@@ -151,10 +152,14 @@ def type_page(code, row, d, t, pr, nq, siblings):
     turn = base[1] / 0.7
     rate = codi_rate(base[1]); codi = max(750000, base[1] * rate) if base[1] <= 5e6 else base[1] * rate
     url = f"{SITE}apt/{code}/{slug(tn)}.html"
-    title = f"{name} {tn} 인테리어 비용 — 올수리 {man(base[1])} | 집지니"
-    desc = f"{loc} {dong} {name} {tn}(전용 {e:.1f}㎡) 올수리 예상 {man(base[1])}(낮게 {man(base[0])} ~ 높게 {man(base[2])}, 부가세 별도). 집지니 도면과 공종별 금액, 셀인·반셀인·직영 비용을 한 번에."
+    # 2026-11-17 대표 「셀인 반셀인 등 주요 키워드 넣어서」 — 제목·설명·검색어·소제목·자주 묻는 질문에 셀인·반셀인·직영·셀프 인테리어·올수리·리모델링
+    title = f"{name} {tn} 인테리어 비용 {man(base[1])} — 셀인·반셀인·직영 올수리 | 집지니"
+    desc = f"{loc} {dong} {name} {tn}(전용 {e:.1f}㎡) 올수리 리모델링 예상 {man(base[1])}(낮게 {man(base[0])} ~ 높게 {man(base[2])}, 부가세 별도). 셀인(셀프 인테리어)·반셀인(반셀프)·직영 인테리어 비용 비교와 집지니 도면, 공종별 금액."
+    kw = ", ".join([f"{name} 인테리어", f"{name} {tn} 인테리어 비용", f"{name} 올수리", f"{name} 리모델링", f"{name} 셀인", f"{name} 반셀인", f"{name} 셀프 인테리어", f"{name} 도면", f"{py:.0f}평 인테리어 비용", "셀인", "반셀인", "셀프 인테리어", "반셀프 인테리어", "직영 인테리어", "올수리 비용", "인테리어 견적"])
     qa = [(f"{name} {tn} 올수리 인테리어 비용은 얼마인가요?", f"샷시·필름·베란다를 뺀 올수리 기본은 약 {man(base[1])}(낮게 {man(base[0])} ~ 높게 {man(base[2])}), 샷시까지 포함하면 약 {man(full[1])}입니다. 집지니 실제 견적 {nq}건의 평당 금액 가운데값에 공급 약 {py:.0f}평을 곱한 어림값이며 부가세 10% 별도입니다."),
           (f"{name} {tn} 도면은 어디서 보나요?", "이 쪽 위의 도면은 집지니가 단지 평면도를 다시 그린 것입니다. 집지니 CAD에서 같은 도면으로 도배·바닥·타일 물량을 직접 뽑아 볼 수 있습니다."),
+          (f"{name} {tn} 셀인(셀프 인테리어)으로 하면 어떻게 하나요?", f"셀인은 기술자·자재를 직접 구해 진행하는 방식입니다. 집지니 CAD에서 이 집 도면으로 도배·바닥·타일 물량을 무료로 뽑고, 공종별 예상 금액({man(base[1])} 기준)을 보며 업체 견적과 비교할 수 있습니다."),
+          (f"{name} {tn} 반셀인(반셀프)은 비용이 얼마인가요?", f"반셀인은 공사비를 기술자·자재상에게 직접 내고 집지니에는 코디비만 내는 방식입니다. 이 집 올수리 기본 {man(base[1])}이면 코디비는 정찰제로 약 {man(codi)}({rate * 100:.1f}%)입니다. 견적·업체 연결·공정표를 집지니가 맡습니다."),
           ("정확한 견적서는 어떻게 받나요?", "무료 견적을 신청하시면 이 집 도면 기준으로 공종별 견적서를 24시간 안에 보내 드립니다. 실측 뒤 금액을 확정합니다.")]
     ld = [crumb([("집지니", SITE), ("아파트별 공사비", SITE + "apt/"), (name, f"{SITE}apt/{code}/"), (tn, url)]), faq(qa)]
     tr = "".join(f'<tr{" class=off" if off else ""}><td>{esc(k)}{" <small>기본 제외</small>" if off else ""}</td><td class=n>{p50:,}원</td><td class=n><b>{man(v)}</b></td></tr>' for k, p50, v, off in rows)
@@ -163,6 +168,7 @@ def type_page(code, row, d, t, pr, nq, siblings):
     body = f"""<main class="ap">
 <nav class="crumb"><a href="../">아파트별 공사비</a> › <span>{esc(loc)}</span> › <a href="./">{esc(name)}</a> › <span>{esc(tn)}</span></nav>
 <h1>{esc(name)} {esc(tn)} 인테리어 비용</h1>
+<p class="kw">올수리 · 리모델링 · 셀인 · 반셀인 · 직영 인테리어 견적</p>
 <p class="sub">{esc(loc)} {esc(dong)} · {esc(year)}년 · {int(hh or 0):,}세대 · 전용 {e:.1f}㎡ · 공급 약 {py:.0f}평 · 방 {sm.get('방', '-')} · 욕실 {sm.get('욕실', '-')}</p>
 <div class="types">{sib}</div>
 <section class="hero">
@@ -183,18 +189,18 @@ def type_page(code, row, d, t, pr, nq, siblings):
   <table class="tb"><thead><tr><th>공종</th><th class=n>평당 (실견적 가운데값)</th><th class=n>이 집 (공급 {py:.0f}평)</th></tr></thead><tbody>{tr}</tbody></table>
 </section>
 <section>
-  <h2>어떻게 하느냐에 따라</h2>
+  <h2>셀인·반셀인·직영 인테리어 비용 비교</h2>
   <table class="tb way"><tbody>
-    <tr><th>셀인 (직접)</th><td>집지니 CAD로 이 도면의 도배·바닥·타일 물량을 직접 뽑고 자재를 사서 진행합니다. 도구는 무료입니다.</td></tr>
-    <tr><th>반셀인 (코디)</th><td>공사비 {man(base[1])}은 기술자·자재상에게 직접 내고, 집지니에는 코디비 약 {man(codi)}({rate * 100:.1f}%, 정찰제)만 냅니다. 견적·업체 연결·공정표를 집지니가 맡습니다.</td></tr>
-    <tr><th>직영 (맡기기)</th><td>현장관리(PM)까지 맡기시면 공사 기간 매일 현장을 챙깁니다. 금액은 견적서에서 따로 보여 드립니다.</td></tr>
+    <tr><th>셀인 (셀프 인테리어)</th><td>집지니 CAD로 이 도면의 도배·바닥·타일 물량을 직접 뽑고 자재를 사서 진행합니다. 도구는 무료입니다.</td></tr>
+    <tr><th>반셀인 (반셀프 · 코디)</th><td>공사비 {man(base[1])}은 기술자·자재상에게 직접 내고, 집지니에는 코디비 약 {man(codi)}({rate * 100:.1f}%, 정찰제)만 냅니다. 견적·업체 연결·공정표를 집지니가 맡습니다.</td></tr>
+    <tr><th>직영 인테리어 (맡기기)</th><td>현장관리(PM)까지 맡기시면 공사 기간 매일 현장을 챙깁니다. 금액은 견적서에서 따로 보여 드립니다.</td></tr>
   </tbody></table>
 </section>
 <section class="qa"><h2>자주 묻는 질문</h2>{"".join(f"<h3>{esc(q)}</h3><p>{esc(a)}</p>" for q, a in qa)}</section>
 <p class="note">금액은 집지니 실제 견적 {nq}건의 공종별 평당 금액 가운데값에 이 집 공급 평수(공급 면적 또는 전용 × 1.32)를 곱한 어림값입니다. 자재 등급·현장 상태에 따라 달라지며 실측 뒤 확정합니다. 턴키 금액은 같은 범위를 업체에 맡길 때를 30% 높게 본 추정입니다. 도면은 단지 평면도를 집지니 방식으로 다시 그린 것입니다. {TODAY} 기준.</p>
 </main>
 """
-    return url, head(url, title, desc, ld, 2) + body + foot(2), base[1]
+    return url, head(url, title, desc, ld, 2, kw) + body + foot(2), base[1]
 
 
 def apt_page(code, row, d, pr, nq):
@@ -208,28 +214,30 @@ def apt_page(code, row, d, pr, nq):
     lo = min(b[1] for _, b, _, _ in items); hi = max(b[1] for _, b, _, _ in items)
     url = f"{SITE}apt/{code}/"
     rng = man(lo) if lo == hi else f"{man(lo)} ~ {man(hi)}"
-    title = f"{name} 인테리어 비용 — 평형별 올수리 {rng} | 집지니"
-    desc = f"{loc} {dong} {name}({year}년, {int(hh or 0):,}세대) 평형별 집지니 도면과 올수리 예상 공사비 {rng}(부가세 별도). 평형을 고르면 공종별 금액과 견적서 받기."
+    title = f"{name} 인테리어 비용 {rng} — 평형별 셀인·반셀인·올수리 | 집지니"
+    desc = f"{loc} {dong} {name}({year}년, {int(hh or 0):,}세대) 평형별 올수리 리모델링 예상 공사비 {rng}(부가세 별도). 셀인(셀프 인테리어)·반셀인·직영 인테리어 비용과 집지니 도면."
+    kw = ", ".join([f"{name} 인테리어", f"{name} 인테리어 비용", f"{name} 올수리", f"{name} 리모델링", f"{name} 셀인", f"{name} 반셀인", f"{name} 도면", f"{name} 평면도"] + [f"{name} {t['이름']} 인테리어" for t in ts[:6]] + ["셀인", "반셀인", "셀프 인테리어", "직영 인테리어", "올수리 비용"])
     ld = [crumb([("집지니", SITE), ("아파트별 공사비", SITE + "apt/"), (name, url)])]
     tr = "".join(f'<tr><td><a href="{slug(t["이름"])}.html"><b>{esc(t["이름"])}</b></a></td><td class=n>{float(t.get("전용") or 0):.1f}㎡</td><td class=n>{sm.get("방", "-")} / {sm.get("욕실", "-")}</td><td class=n><b>{man(b[1])}</b></td><td class=n>{man(f[1])}</td></tr>' for t, b, f, sm in items)
     body = f"""<main class="ap">
 <nav class="crumb"><a href="../">아파트별 공사비</a> › <span>{esc(loc)}</span> › <span>{esc(name)}</span></nav>
 <h1>{esc(name)} 인테리어 비용</h1>
+<p class="kw">평형별 올수리 · 리모델링 · 셀인 · 반셀인 · 직영 인테리어 견적</p>
 <p class="sub">{esc(loc)} {esc(dong)} · {esc(year)}년 · {int(hh or 0):,}세대 · 집지니 도면 {len(ts)}개 평형</p>
 <section>
   <table class="tb"><thead><tr><th>평형</th><th class=n>전용</th><th class=n>방 / 욕실</th><th class=n>올수리 기본</th><th class=n>샷시 포함</th></tr></thead><tbody>{tr}</tbody></table>
-  <p class="note">올수리 기본은 샷시·필름·베란다를 뺀 금액, 부가세 10% 별도. 평형을 누르면 도면과 공종별 금액이 나옵니다.</p>
+  <p class="note">올수리 기본은 샷시·필름·베란다를 뺀 금액, 부가세 10% 별도. 평형을 누르면 도면과 공종별 금액, 셀인(셀프 인테리어)·반셀인(반셀프)·직영 인테리어로 할 때의 비용이 나옵니다.</p>
   <div class="cta"><a class="go" href="../../req/?apt={code}">우리 집 견적서 받기<small>무료 · 24시간 안에</small></a><a href="../../?apt={code}#f1">첫 화면 계산기에서 공사 빼 보기</a></div>
 </section>
 </main>
 """
-    return url, head(url, title, desc, ld, 1) + body + foot(1)
+    return url, head(url, title, desc, ld, 1, kw) + body + foot(1)
 
 
 def index_page(groups, n_apt, n_type):
     url = SITE + "apt/"
-    title = f"아파트별 인테리어 비용 — 서울·경기·인천 {n_apt:,}개 단지 | 집지니"
-    desc = f"서울·경기·인천 {n_apt:,}개 단지, {n_type:,}개 평형의 집지니 도면과 올수리 예상 공사비. 우리 아파트를 찾아 평형을 고르세요."
+    title = f"아파트별 인테리어 비용 — 셀인·반셀인·올수리 {n_apt:,}개 단지 | 집지니"
+    desc = f"서울·경기·인천 {n_apt:,}개 단지, {n_type:,}개 평형의 집지니 도면과 올수리 리모델링 예상 공사비. 셀인(셀프 인테리어)·반셀인(반셀프)·직영 인테리어 비용을 우리 아파트 평형으로 확인하세요."
     ld = [crumb([("집지니", SITE), ("아파트별 공사비", url)])]
     parts = []
     for sido in ['서울', '경기', '인천']:
@@ -247,7 +255,7 @@ def index_page(groups, n_apt, n_type):
 {"".join(parts)}
 </main>
 """
-    return head(url, title, desc, ld, 1) + body + foot(1)
+    return head(url, title, desc, ld, 1, "아파트 인테리어 비용, 아파트 올수리 비용, 아파트 리모델링 비용, 셀인, 반셀인, 셀프 인테리어, 반셀프 인테리어, 직영 인테리어, 아파트 평면도, 인테리어 견적") + body + foot(1)
 
 
 def write(path, text):
