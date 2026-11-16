@@ -1,0 +1,49 @@
+/* 아파트별 공사비 쪽 (2026-11-16) — 색·글꼴은 jj-tokens(home.css 가 불러옴). 흰 종이 · 가는 선 표 · 초록은 금액에만 */
+.ap{max-width:1040px;margin:0 auto;padding:28px 20px 40px;color:var(--jj-ink,#1C1F1B);font-family:var(--jjf,'IBM Plex Sans KR',sans-serif);font-size:16px;line-height:1.8;word-break:keep-all}
+.ap section{padding:0;margin:0;max-width:none;border:0;background:none}
+.ap h1,.ap h2,.ap h3,.ap p{max-width:none}
+.ap *{box-sizing:border-box}
+.ap a{color:inherit}
+.ap .crumb{font-size:13px;color:var(--jj-pencil,#6B7067);margin-bottom:14px}
+.ap .crumb a{text-decoration:none}.ap .crumb a:hover{text-decoration:underline}
+.ap h1{font-size:clamp(26px,4.4vw,38px);line-height:1.3;margin:0;letter-spacing:-.6px}
+.ap .sub{margin:8px 0 0;color:var(--jj-pencil,#6B7067);font-size:15px;font-variant-numeric:tabular-nums}
+.ap h2{font-size:20px;margin:44px 0 12px;letter-spacing:-.3px}
+.ap h2 small{font-size:13px;font-weight:400;color:var(--jj-pencil,#6B7067);margin-left:8px}
+.ap h3{font-size:15px;margin:22px 0 4px}
+.ap .types{display:flex;flex-wrap:wrap;gap:6px;margin:18px 0 0}
+.ap .types a{padding:6px 12px;border:1px solid var(--jj-rule,#DCDFD8);border-radius:4px;text-decoration:none;font-size:14px;color:var(--jj-pencil,#6B7067)}
+.ap .types a[aria-current]{border-color:var(--jj-ink,#1C1F1B);color:var(--jj-ink,#1C1F1B);font-weight:600}
+.ap .types small{color:var(--jj-pencil-2,#8E9389)}
+.ap .hero{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:36px;margin-top:26px;padding-top:22px;border-top:1px solid var(--jj-ink,#1C1F1B);align-items:start}
+.ap .plan{margin:0;border:1px solid var(--jj-rule,#DCDFD8);border-radius:4px;padding:14px;background:#fff}
+.ap .plan svg{display:block;width:100%;height:auto;max-height:520px}
+.ap .plan figcaption{margin-top:10px;padding-top:10px;border-top:1px solid var(--jj-grid,#EEF0EB);font-size:13px;color:var(--jj-pencil,#6B7067)}
+.ap .cost .k{margin:0;font-size:14px;color:var(--jj-pencil,#6B7067)}
+.ap .cost .k small{display:block;font-size:12.5px}
+.ap .cost .big{margin:4px 0 0;font-size:clamp(36px,5.6vw,52px);line-height:1.2;font-weight:700;letter-spacing:-1px;color:var(--jj-g,#1F5E2E);font-variant-numeric:tabular-nums}
+.ap .cost .rng{margin:6px 0 0;font-size:15px;color:var(--jj-pencil,#6B7067)}
+.ap .bars{list-style:none;margin:24px 0 0;padding:0}
+.ap .bars li{display:grid;grid-template-columns:1fr auto;gap:2px 12px;margin-top:14px;font-size:15px}
+.ap .bars b{font-weight:600;font-variant-numeric:tabular-nums}
+.ap .bars i{grid-column:1/-1;display:block;height:12px;background:var(--jj-pencil-2,#8E9389);border-radius:2px}
+.ap .bars .me i{background:var(--jj-g,#1F5E2E)}
+.ap .cta{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:24px}
+.ap .cta a{display:block;padding:14px 16px;border:1px solid var(--jj-ink,#1C1F1B);border-radius:4px;text-decoration:none;font-weight:600;font-size:15px;line-height:1.4}
+.ap .cta a small{display:block;font-weight:400;font-size:13px;color:var(--jj-pencil,#6B7067);margin-top:2px}
+.ap .cta a.go{background:var(--jj-g,#1F5E2E);border-color:var(--jj-g,#1F5E2E);color:#fff}
+.ap .cta a.go small{color:rgba(255,255,255,.8)}
+.ap .tb{width:100%;border-collapse:collapse;font-size:15px}
+.ap .tb th,.ap .tb td{padding:10px 8px;border-bottom:1px solid var(--jj-rule,#DCDFD8);text-align:left;vertical-align:top}
+.ap .tb thead th{font-size:13px;font-weight:600;color:var(--jj-pencil,#6B7067);border-bottom:1px solid var(--jj-ink,#1C1F1B)}
+.ap .tb .n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.ap .tb tr.off td{color:var(--jj-pencil,#6B7067)}
+.ap .tb small{font-size:12px;color:var(--jj-pencil-2,#8E9389);margin-left:6px}
+.ap .tb.way th{width:120px;font-weight:600;white-space:nowrap}
+.ap .qa p{margin:0;color:var(--jj-ink-2,#2E322C)}
+.ap .note{margin-top:28px;font-size:13px;color:var(--jj-pencil,#6B7067);line-height:1.8}
+.ap .gu{display:grid;grid-template-columns:150px 1fr;gap:16px;padding:10px 0;border-bottom:1px solid var(--jj-rule,#DCDFD8)}
+.ap .gu h3{margin:0;font-size:15px}
+.ap .gu p{margin:0;display:flex;flex-wrap:wrap;gap:4px 16px;font-size:14.5px}
+.ap .gu a{text-decoration:none}.ap .gu a:hover{text-decoration:underline;color:var(--jj-g,#1F5E2E)}
+@media (max-width:760px){.ap .hero{grid-template-columns:1fr}.ap .cta{grid-template-columns:1fr}.ap .gu{grid-template-columns:1fr;gap:4px}.ap .tb{font-size:14px}.ap .tb.way th{width:auto;white-space:normal}}

@@ -32,8 +32,8 @@ def main():
         s = open(f, encoding="utf-8", errors="ignore").read(2000)
         if 'name="robots"' in s and "noindex" in s: continue
         loc = SITE + (rel[:-10] if rel.endswith("index.html") else rel)   # cases/index.html → cases/
-        pr = dict(PRIO).get(rel) or ("0.7" if rel.startswith(("region/", "py/", "trade/")) else "0.6" if rel.startswith("cases/q-") else "0.5" if rel.startswith("cases/") else "0.7")
-        cf = "weekly" if rel.startswith(("region/", "py/", "trade/")) or rel in ("interior-price-table.html", "cases/index.html", "index.html") else "monthly"
+        pr = dict(PRIO).get(rel) or ("0.8" if rel.startswith("apt/") else "0.7" if rel.startswith(("region/", "py/", "trade/")) else "0.6" if rel.startswith("cases/q-") else "0.5" if rel.startswith("cases/") else "0.7")
+        cf = "weekly" if rel.startswith(("region/", "py/", "trade/", "apt/")) or rel in ("interior-price-table.html", "cases/index.html", "index.html") else "monthly"
         rows.append(f"  <url><loc>{loc}</loc><lastmod>{lastmod(rel)}</lastmod><changefreq>{cf}</changefreq><priority>{pr}</priority></url>")
     xml = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' + "\n".join(rows) + "\n</urlset>\n"
     p = os.path.join(ROOT, "sitemap.xml")
