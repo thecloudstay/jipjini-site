@@ -116,7 +116,7 @@ canvas { display: block; width: 100%; height: 200px; background: #fafaf5; border
     <div class="sec"><h2>공사 금액</h2><table class="money" id="money-tbl"><tr><td>불러오는 중…</td></tr></table></div>
     <div class="sec" id="sec-memo" style="display:none;"><h2>특이사항 · 특약</h2><div id="memo-body" style="font-size:13.5px;line-height:1.75;"></div></div>
     <div class="sec" id="sec-plan" style="display:none;"><h2>대금 지급 방식</h2><table class="money" id="plan-tbl"></table><p class="muted" id="plan-note" style="margin:8px 0 0;"></p></div>
-    <a class="pdfbtn" id="pdf-btn" href="#" target="_blank" rel="noopener" style="display:none;">📄 계약서 전문(PDF) 보기</a>
+    <a class="pdfbtn" id="pdf-btn" href="#" target="_blank" rel="noopener" style="display:none;">계약서 전문(PDF) 보기</a>
     <div class="notice" id="resp-notice">
       <strong>결제·책임 안내</strong><br><span id="resp-text">불러오는 중…</span>
     </div>
@@ -150,10 +150,17 @@ canvas { display: block; width: 100%; height: 200px; background: #fafaf5; border
     <h2>계약 서명 완료</h2>
     <p style="color: var(--jp-gray); margin: 12px 0;">서명이 정상 접수되었습니다. 담당 코디가 확인한 뒤 입금 안내와 착공 일정을 카톡·문자로 보내 드립니다.</p>
     <div class="contract-id" id="contract-id">계약ID: —</div>
+    <div id="pay-box" style="display:none;text-align:left;border:1px solid #DCDFD8;border-radius:4px;padding:16px 18px;margin:16px 0;">
+      <div style="font-weight:600;margin-bottom:8px;">첫 회 입금 안내</div>
+      <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #DCDFD8;"><span class="muted" id="pay-when">1회</span><b id="pay-amt">—</b></div>
+      <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #DCDFD8;"><span class="muted">부가세 10%</span><span id="pay-vat">—</span></div>
+      <div style="padding:8px 0 0;"><span class="muted">입금 계좌</span><div style="display:flex;gap:8px;align-items:center;margin-top:4px;"><b id="pay-acc" style="flex:1;">—</b><button type="button" id="pay-copy" style="border:1px solid #DCDFD8;background:#fff;border-radius:4px;padding:6px 10px;cursor:pointer;">계좌 복사</button></div></div>
+      <p class="muted" style="margin:8px 0 0;font-size:12px;">입금자 이름은 계약자 성함으로 해 주세요. 입금이 확인되면 세금계산서 또는 현금영수증을 보내 드립니다.</p>
+    </div>
     <div class="savebar">
-      <button type="button" class="main" onclick="saveImage()">📷 계약 확인서 이미지로 저장</button>
-      <button type="button" onclick="window.print()">🖨 인쇄 · PDF 저장</button>
-      <a id="pdf-dl" href="#" target="_blank" rel="noopener" style="display:none;">📄 계약서 전문(PDF)</a>
+      <button type="button" class="main" onclick="saveImage()">계약 확인서 이미지로 저장</button>
+      <button type="button" onclick="window.print()">인쇄 · PDF 저장</button>
+      <a id="pdf-dl" href="#" target="_blank" rel="noopener" style="display:none;">계약서 전문(PDF)</a>
     </div>
     <p class="muted" id="save-hint" style="margin:6px 0 0;">아래 계약 내용과 서명이 함께 저장됩니다. 저장이 안 되면 화면을 캡처해 두셔도 됩니다.</p>
     <p style="font-size: 13px; color: var(--jp-gray); line-height: 1.7;">
@@ -402,13 +409,17 @@ canvas { display: block; width: 100%; height: 200px; background: #fafaf5; border
       document.querySelector('.canvas-box').style.display = 'none';
       document.getElementById('submit-btn').style.display = 'none';
       const when = new Date(); const ws = when.getFullYear() + '. ' + (when.getMonth() + 1) + '. ' + when.getDate() + '. ' + String(when.getHours()).padStart(2, '0') + ':' + String(when.getMinutes()).padStart(2, '0');
-      document.getElementById('main-form').insertAdjacentHTML('beforeend', '<div class="signed" id="signed-block"><h2>✍ 서명 완료</h2><dl class="kv"><dt>계약 번호</dt><dd>' + realContractId + '</dd><dt>서명 일시</dt><dd>' + ws + '</dd><dt>서명인</dt><dd>' + (params.get('name') || '') + '</dd></dl><img src="' + signaturePng + '" alt="서명"><div class="muted">위 계약 내용(공사명·기간·내용·금액·대금 지급)과 동의 사항 5가지에 동의하고 서명했습니다. · 집지니 874-10-00088</div></div>');
+      document.getElementById('main-form').insertAdjacentHTML('beforeend', '<div class="signed" id="signed-block"><h2>서명 완료</h2><dl class="kv"><dt>계약 번호</dt><dd>' + realContractId + '</dd><dt>서명 일시</dt><dd>' + ws + '</dd><dt>서명인</dt><dd>' + (params.get('name') || '') + '</dd></dl><img src="' + signaturePng + '" alt="서명"><div class="muted">위 계약 내용(공사명·기간·내용·금액·대금 지급)과 동의 사항 5가지에 동의하고 서명했습니다. · 집지니 874-10-00088</div></div>');
       const dl = document.getElementById('pdf-dl'), pb = document.getElementById('pdf-btn');
-      if (d.signedPdf) { dl.href = d.signedPdfDownload || d.signedPdf; dl.textContent = '📄 서명된 계약서(PDF) 내려받기'; dl.style.display = ''; if (pb) { pb.href = d.signedPdf; pb.textContent = '📄 서명된 계약서(PDF) 보기'; } }
+      if (d.signedPdf) { dl.href = d.signedPdfDownload || d.signedPdf; dl.textContent = '서명된 계약서(PDF) 내려받기'; dl.style.display = ''; if (pb) { pb.href = d.signedPdf; pb.textContent = '📄 서명된 계약서(PDF) 보기'; } }
       else if (pb && pb.style.display !== 'none') { dl.href = pb.href; dl.style.display = ''; }
       const succ = document.getElementById('success'); document.querySelector('.wrap').insertBefore(succ, document.getElementById('main-form'));
       document.getElementById('success').classList.add('show');
       document.getElementById('contract-id').textContent = '계약ID: ' + realContractId;
+      if (d.pay && d.pay.금액) { $('pay-when').textContent = d.pay.회차 + ' (부가세 별도)'; $('pay-amt').textContent = won(d.pay.금액); $('pay-vat').textContent = won(d.pay.부가세);
+        $('pay-acc').textContent = d.pay.계좌 || '담당 코디가 문자로 알려 드립니다'; $('pay-copy').style.display = d.pay.계좌 ? '' : 'none';
+        $('pay-copy').onclick = () => { try { navigator.clipboard.writeText(d.pay.계좌); $('pay-copy').textContent = '복사됨'; } catch (_c) {} };
+        $('pay-box').style.display = ''; }
       window.scrollTo({ top: 0, behavior: 'smooth' });
     })
     .catch(function(err){
