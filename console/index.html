@@ -150,6 +150,7 @@ button.ghost{background:transparent;color:var(--sub);border:1px solid var(--line
         });
       });
     }
+    var EDGE_FN = { api_payList: 1 };   // 슈퍼베이스 함수로 옮긴 기능(옮길 때마다 여기 하나씩)
     function call(fn, args, ok, bad, uo, ck) {
       // 2026-10-21 보기 화면: 슈퍼베이스에 남은 지난 결과를 먼저 그리고(meta.cached), 구글 서버의 새 결과가 다르면 다시 그린다
       var live = false, shown = null;
@@ -161,8 +162,12 @@ button.ghost{background:transparent;color:var(--sub);border:1px solid var(--line
               shown = JSON.stringify(row.data); try { ok(row.data, uo, { cached: true, at: row.updated_at }); } catch (e) { console.error('[rpc 미리]', fn, e); }
             }).catch(function () {});
         }
-        return fetch(cfg.gas + '?type=rpc', { method: 'POST', redirect: 'follow', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ fn: fn, args: args, tok: tok, ck: ck || '' }) });
-      }).then(function (r) { return r.json(); }).then(function (j) {
+        var gasCall = function () { return fetch(cfg.gas + '?type=rpc', { method: 'POST', redirect: 'follow', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ fn: fn, args: args, tok: tok, ck: ck || '' }) }).then(function (r) { return r.json(); }); };
+        // 2026-11-16 앱스에서 빠져나오기 2단계: 슈퍼베이스 함수(jj-api)로 옮긴 기능은 그쪽을 먼저 — 안 되면(권한·오류) 예전처럼 앱스로
+        if (!EDGE_FN[fn]) return gasCall();
+        return fetch(cfg.url + '/functions/v1/jj-api', { method: 'POST', headers: { 'Content-Type': 'application/json', apikey: cfg.anon, Authorization: 'Bearer ' + tok }, body: JSON.stringify({ fn: fn, args: args }) })
+          .then(function (r) { return r.json(); }).then(function (j) { return j && j.ok ? j : gasCall(); }, function () { return gasCall(); });
+      }).then(function (j) {
         live = true;
         if (j && j.ok) { if (ok && !(shown !== null && shown === JSON.stringify(j.v))) ok(j.v, uo, { cached: false }); else if (shown !== null) document.dispatchEvent(new CustomEvent('jj-rpc-same', { detail: { fn: fn, ck: ck } })); }
         else if (j && /^(부를 수 없는 함수|없는 함수)/.test(String(j.e || ''))) {
