@@ -765,3 +765,28 @@ section.fd-sec,.fd-head{scroll-margin-top:72px}
   .cac+.cac{padding:28px 0 4px;border-left:0;border-top:1.5px solid var(--ink);margin-top:28px}
   .cas{min-height:0}
 }
+
+/* 바로 가기 (2026-11-16) — 고객 무리 넷을 한눈에, 줄마다 바로 그 도구로 */
+section.go4{padding-top:88px}
+.go4s{margin-top:14px;color:var(--pencil);font-size:17px;line-height:1.75}
+.go4g{display:grid;grid-template-columns:repeat(4,1fr);margin-top:40px;border-top:1.5px solid var(--ink)}
+.go4g>div{padding:30px 26px 0 0;min-width:0}
+.go4g>div+div{padding-left:26px;border-left:1px solid var(--rule)}
+.go4g>div:last-child{padding-right:0}
+.go4g h3{font-size:19px;font-weight:600;letter-spacing:-.3px;color:var(--g);line-height:1.4;min-height:2.8em}
+.go4g .cal{margin-top:10px}
+.go4g .cal a{padding:15px 2px;min-height:54px;gap:10px}
+.go4g .cal b{font-size:16.5px;line-height:1.4}
+.go4g .cal span{font-size:13.5px}
+@media(max-width:1100px){
+  .go4g{grid-template-columns:1fr 1fr}
+  .go4g>div:nth-child(odd){padding-left:0;border-left:0}
+  .go4g>div:nth-child(n+3){border-top:1.5px solid var(--ink);margin-top:30px}
+  .go4g h3{min-height:0}
+}
+@media(max-width:640px){
+  section.go4{padding-top:64px}
+  .go4g{grid-template-columns:1fr}
+  .go4g>div{padding:26px 0 0}
+  .go4g>div+div{padding-left:0;border-left:0;border-top:1.5px solid var(--ink);margin-top:26px}
+}
