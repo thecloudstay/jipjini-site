@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="no-referrer">
+<meta name="theme-color" content="#1F5E2E">
+<title>작업 일정 초대 | 집지니</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#1C1F1B;--pencil:#6B7067;--rule:#DCDFD8;--g:#1F5E2E;--warn:#9A3B1F}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"IBM Plex Sans KR",-apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;color:var(--ink);background:#fff;font-size:18px;line-height:1.7;letter-spacing:-.2px;-webkit-font-smoothing:antialiased}
+.wrap{max-width:520px;margin:0 auto;padding:28px 20px 60px}
+.brand{font-weight:700;color:var(--g);font-size:17px}
+h1{font-size:27px;font-weight:700;line-height:1.4;margin-top:22px;letter-spacing:-.6px;word-break:keep-all}
+.sub{color:var(--pencil);margin-top:8px;font-size:17px}
+dl{margin-top:26px;border-top:1.5px solid var(--ink)}
+dl div{display:flex;gap:16px;padding:15px 2px;border-bottom:1px solid var(--rule)}
+dt{flex:0 0 64px;color:var(--pencil);font-size:16px}
+dd{flex:1;font-weight:600;font-size:19px;word-break:keep-all}
+.btns{display:grid;gap:12px;margin-top:30px}
+button{font:inherit;font-size:20px;font-weight:700;min-height:64px;border-radius:4px;cursor:pointer;border:1.5px solid var(--ink);background:#fff;color:var(--ink)}
+button.yes{background:var(--g);border-color:var(--g);color:#fff}
+button:disabled{opacity:.5}
+button:focus-visible,a:focus-visible,textarea:focus-visible{outline:3px solid var(--g);outline-offset:3px}
+label{display:block;margin-top:24px;color:var(--pencil);font-size:16px}
+textarea{width:100%;font:inherit;font-size:18px;padding:12px;border:1px solid var(--rule);border-radius:4px;margin-top:6px;min-height:76px}
+.note{margin-top:22px;color:var(--pencil);font-size:16px}
+.msg{margin-top:26px;padding:18px 0;border-top:1.5px solid var(--ink);border-bottom:1px solid var(--rule);font-size:20px;font-weight:600}
+.msg.bad{color:var(--warn)}
+.tel{display:block;margin-top:26px;font-size:18px;color:var(--g);font-weight:600;text-underline-offset:4px}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="brand">집지니</p>
+  <h1 id="h">작업 일정 초대</h1>
+  <p class="sub" id="sub">집지니가 초대 내용을 불러오고 있습니다.</p>
+
+  <dl id="info" hidden>
+    <div><dt>현장</dt><dd id="site"></dd></div>
+    <div><dt>작업</dt><dd id="work"></dd></div>
+    <div><dt>날짜</dt><dd id="date"></dd></div>
+    <div id="payRow" hidden><dt>조건</dt><dd id="pay"></dd></div>
+  </dl>
+
+  <div id="ask" hidden>
+    <label for="memo">전할 말 (선택)</label>
+    <textarea id="memo" maxlength="300" placeholder="예: 오전 8시 도착합니다 / 21일만 가능합니다"></textarea>
+    <div class="btns">
+      <button type="button" class="yes" id="yes">가능합니다</button>
+      <button type="button" id="no">어렵습니다</button>
+    </div>
+    <p class="note">「가능합니다」를 누르면 일정이 바로 잡힙니다. 자세한 주소와 작업 내용은 작업 전날 문자로 다시 보내 드립니다.</p>
+  </div>
+
+  <p class="msg" id="msg" hidden></p>
+  <a class="tel" id="tel" hidden></a>
+</div>
+<script src="/assets/site_config.js"></script>
+<script>
+(function () {
+  var SB = 'https://pnqyysuyrovgnmrchrrg.supabase.co/rest/v1/rpc/', A = window.JJ_SB_ANON || '';
+  var $ = function (id) { return document.getElementById(id); };
+  var t = (location.search.match(/[?&]t=([A-Za-z0-9]{20,40})/) || [])[1] || '';
+  function rpc(fn, body) {
+    return fetch(SB + fn, { method: 'POST', headers: { apikey: A, Authorization: 'Bearer ' + A, 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
+      .then(function (r) { if (!r.ok) throw new Error('연결이 잘 안 됩니다. 잠시 뒤 다시 눌러 주세요.'); return r.json(); })
+      .then(function (j) { if (!j || !j.ok) throw new Error((j && j.e) || '처리하지 못했습니다.'); return j.v; });
+  }
+  function md(s) { var m = String(s || '').match(/^\d{4}-(\d{2})-(\d{2})/); if (!m) return ''; var d = new Date(s + 'T00:00:00+09:00'); return Number(m[1]) + '월 ' + Number(m[2]) + '일(' + '일월화수목금토'.charAt(d.getDay()) + ')'; }
+  function say(text, bad) { $('msg').textContent = text; $('msg').className = 'msg' + (bad ? ' bad' : ''); $('msg').hidden = false; }
+  function tel(p) { if (!p) return; $('tel').href = 'tel:' + String(p).replace(/\D/g, ''); $('tel').textContent = '집지니 코디에게 전화하기 ' + p; $('tel').hidden = false; }
+  function done(st) {
+    $('ask').hidden = true;
+    if (st === '수락') { $('h').textContent = '일정이 잡혔습니다'; $('sub').textContent = '수락해 주셔서 고맙습니다.'; say('작업 전날 자세한 주소와 작업 내용을 문자로 보내 드립니다.'); }
+    else if (st === '거절') { $('h').textContent = '알겠습니다'; $('sub').textContent = '답해 주셔서 고맙습니다.'; say('이번 일정은 다른 분께 부탁드리겠습니다. 다음에 다시 연락드리겠습니다.'); }
+    else { $('h').textContent = '취소된 초대입니다'; $('sub').textContent = ''; say('일정이 바뀌어 이 초대는 취소됐습니다.', true); }
+  }
+  function fail(e) { $('sub').textContent = ''; say(e.message || String(e), true); tel('010-9806-0422'); }
+  if (!t) return fail(new Error('링크가 올바르지 않습니다. 문자에 온 링크를 다시 눌러 주세요.'));
+  // 공개 열쇠: 사이트 설정에 없으면 이미 열려 있는 설정 경로(type=sb_config)에서 받아 이 기기에 둔다
+  var GAS = 'https://script.google.com/macros/s/AKfycbzxm4mmZs1yVJPa3T-wb0cdJbEUMPYl6dDKtQNSNmJy4nEsCholrEnPAN8e0JfAtOV99A/exec';
+  function key() {
+    if (A) return Promise.resolve(A);
+    try { var c = JSON.parse(localStorage.getItem('jjf_conf') || 'null'); if (c && c.anon) { A = c.anon; return Promise.resolve(A); } } catch (e0) {}
+    return fetch(GAS + '?type=sb_config').then(function (r) { return r.json(); }).then(function (j) { if (!j || !j.anon) throw new Error('지금은 이 화면으로 답할 수 없습니다. 전화로 알려 주세요.'); A = j.anon; try { localStorage.setItem('jjf_conf', JSON.stringify({ url: j.url, anon: j.anon, org: j.org })); } catch (e1) {} return A; },
+      function () { throw new Error('지금은 이 화면으로 답할 수 없습니다. 전화로 알려 주세요.'); });
+  }
+  key().then(function () { return rpc('crew_invite_get', { p_token: t }); }).then(function (v) {
+    $('h').textContent = (v['이름'] || '') + '님, 이 날 작업 가능하신가요?';
+    $('sub').textContent = '아래 내용을 보시고 단추를 눌러 주세요.';
+    $('site').textContent = v['현장'] || '-';
+    $('work').textContent = (v['작업'] || '') + (v['공종'] && v['공종'] !== v['작업'] ? ' (' + v['공종'] + ')' : '');
+    $('date').textContent = md(v['시작']) + (v['끝'] && v['끝'] !== v['시작'] ? ' ~ ' + md(v['끝']) : '');
+    if (v['조건']) { $('pay').textContent = v['조건']; $('payRow').hidden = false; }
+    $('info').hidden = false; tel(v['코디']);
+    if (v['상태'] !== '초대') return done(v['상태']);
+    $('ask').hidden = false;
+  }).catch(fail);
+  function answer(yes) {
+    $('yes').disabled = $('no').disabled = true; $('msg').hidden = true;
+    rpc('crew_invite_answer', { p_token: t, p_yes: yes, p_memo: $('memo').value.trim() }).then(function (v) { done(v['상태']); })
+      .catch(function (e) { $('yes').disabled = $('no').disabled = false; say(e.message, true); });
+  }
+  $('yes').addEventListener('click', function () { answer(true); });
+  $('no').addEventListener('click', function () { answer(false); });
+})();
+</script>
+</body>
+</html>
