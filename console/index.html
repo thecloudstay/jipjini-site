@@ -129,6 +129,27 @@ button.ghost{background:transparent;color:var(--sub);border:1px solid var(--line
         .then(function (r) { return r.json(); }).then(function (n) { refreshing = null; if (!n || !n.access_token) throw new Error('로그인이 만료됐습니다 — 빠른 콘솔에서 다시 로그인해 주세요.'); var keep = Object.assign({}, s, n); if (!keep.expires_at && n.expires_in) keep.expires_at = Math.floor(Date.now() / 1000) + n.expires_in; localStorage.setItem(KEY, JSON.stringify(keep)); return n.access_token; }, function (e) { refreshing = null; throw e; });
       return refreshing;
     }
+    function sbRpc(name, body) {
+      return token().then(function (tok) { return fetch(cfg.url + '/rest/v1/rpc/' + name, { method: 'POST', headers: { apikey: cfg.anon, Authorization: 'Bearer ' + tok, 'Content-Type': 'application/json' }, body: JSON.stringify(body) }); })
+        .then(function (r) { return r.json().then(function (j) { if (!r.ok) throw new Error((j && (j.message || j.error)) || '슈퍼베이스 응답 오류'); return j; }); });
+    }
+    function viaQueue(fn, args) {
+      return sbRpc('console_call', { p_fn: fn, p_args: args }).then(function (id) {
+        return new Promise(function (res, rej) {
+          var t0 = Date.now();
+          (function poll() {
+            setTimeout(function () {
+              sbRpc('console_call_result', { p_id: id }).then(function (r) {
+                if (r && r.status === '끝') return res(r.result ? r.result.v : null);
+                if (r && r.status === '실패') return rej(new Error(r.error || '처리하지 못했습니다'));
+                if (Date.now() - t0 > 180000) return rej(new Error('아직 처리 중입니다 — 1~2분 뒤 화면을 다시 확인해 주세요.'));
+                poll();
+              }, function (e) { if (Date.now() - t0 > 180000) rej(e); else poll(); });
+            }, Date.now() - t0 < 20000 ? 2500 : 5000);
+          })();
+        });
+      });
+    }
     function call(fn, args, ok, bad, uo, ck) {
       // 2026-10-21 보기 화면: 슈퍼베이스에 남은 지난 결과를 먼저 그리고(meta.cached), 구글 서버의 새 결과가 다르면 다시 그린다
       var live = false, shown = null;
@@ -144,6 +165,10 @@ button.ghost{background:transparent;color:var(--sub);border:1px solid var(--line
       }).then(function (r) { return r.json(); }).then(function (j) {
         live = true;
         if (j && j.ok) { if (ok && !(shown !== null && shown === JSON.stringify(j.v))) ok(j.v, uo, { cached: false }); else if (shown !== null) document.dispatchEvent(new CustomEvent('jj-rpc-same', { detail: { fn: fn, ck: ck } })); }
+        else if (j && /^(부를 수 없는 함수|없는 함수)/.test(String(j.e || ''))) {
+          // 2026-11-16 슈퍼베이스 이전: 웹앱(배포된 옛 버전)에 없는 새 함수는 슈퍼베이스에 부탁해 두면 앱스 스크립트 1분 고리가 최신 코드로 처리한다 — 새 버전 배포가 필요 없다
+          viaQueue(fn, args).then(function (v) { if (ok) ok(v, uo, { cached: false, queued: true }); }, function (e2) { if (bad && shown === null) bad(e2, uo); else console.error('[rpc 대기열]', fn, e2); });
+        }
         else { var e = new Error((j && j.e) || '서버 응답 없음'); if (bad && shown === null) bad(e, uo); else console.error('[rpc]', fn, e); }
       }).catch(function (e) { live = true; var er = new Error(/Failed to fetch|NetworkError/i.test(String(e && e.message)) ? (navigator.onLine === false ? '인터넷 연결을 확인해 주세요.' : '서버 응답을 받지 못했습니다 — 저장은 됐을 수 있으니 화면을 다시 확인해 주세요.') : String(e && e.message || e)); if (bad && shown === null) bad(er, uo); else console.error('[rpc]', fn, er); });
     }

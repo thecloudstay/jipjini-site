@@ -83,8 +83,15 @@ textarea{width:100%;font:inherit;font-size:18px;padding:12px;border:1px solid va
   }
   function fail(e) { $('sub').textContent = ''; say(e.message || String(e), true); tel('010-9806-0422'); }
   if (!t) return fail(new Error('링크가 올바르지 않습니다. 문자에 온 링크를 다시 눌러 주세요.'));
-  if (!A) return fail(new Error('지금은 이 화면으로 답할 수 없습니다. 전화로 알려 주세요.'));
-  rpc('crew_invite_get', { p_token: t }).then(function (v) {
+  // 공개 열쇠: 사이트 설정에 없으면 이미 열려 있는 설정 경로(type=sb_config)에서 받아 이 기기에 둔다
+  var GAS = 'https://script.google.com/macros/s/AKfycbzxm4mmZs1yVJPa3T-wb0cdJbEUMPYl6dDKtQNSNmJy4nEsCholrEnPAN8e0JfAtOV99A/exec';
+  function key() {
+    if (A) return Promise.resolve(A);
+    try { var c = JSON.parse(localStorage.getItem('jjf_conf') || 'null'); if (c && c.anon) { A = c.anon; return Promise.resolve(A); } } catch (e0) {}
+    return fetch(GAS + '?type=sb_config').then(function (r) { return r.json(); }).then(function (j) { if (!j || !j.anon) throw new Error('지금은 이 화면으로 답할 수 없습니다. 전화로 알려 주세요.'); A = j.anon; try { localStorage.setItem('jjf_conf', JSON.stringify({ url: j.url, anon: j.anon, org: j.org })); } catch (e1) {} return A; },
+      function () { throw new Error('지금은 이 화면으로 답할 수 없습니다. 전화로 알려 주세요.'); });
+  }
+  key().then(function () { return rpc('crew_invite_get', { p_token: t }); }).then(function (v) {
     $('h').textContent = (v['이름'] || '') + '님, 이 날 작업 가능하신가요?';
     $('sub').textContent = '아래 내용을 보시고 단추를 눌러 주세요.';
     $('site').textContent = v['현장'] || '-';
