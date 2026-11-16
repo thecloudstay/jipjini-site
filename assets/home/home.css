@@ -1,10 +1,11 @@
 /* 집지니 첫 화면 — 「공사 도면 한 장」 (2026-11-12 디자인 다시 짬)
    종이: 흰 바탕, 먹선, 제도용 모눈과 치수선. 초록은 집지니 것(우리 자리·우리 핀·우리 줄)에만 쓴다.
    글꼴: IBM Plex Sans KR 하나. 큰 숫자는 가는 300으로 — 도면의 치수 글자처럼. */
+@import url("/assets/jj-tokens.css");
 :root{
-  --paper:#FFFFFF; --ink:#1C1F1B; --pencil:#7D8278; --rule:#DCDFD8; --grid:#EEF0EB;
-  --g:#1F5E2E; --gl:#EAF2E6; --gd:#164421;
-  --f:"IBM Plex Sans KR",-apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+  --paper:var(--jj-paper); --ink:var(--jj-ink); --pencil:var(--jj-pencil); --rule:var(--jj-rule); --grid:var(--jj-grid);
+  --g:var(--jj-g); --gl:var(--jj-gl); --gd:var(--jj-gd);
+  --f:var(--jjf);
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth;scroll-padding-top:72px}
