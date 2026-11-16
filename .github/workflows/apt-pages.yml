@@ -1,0 +1,26 @@
+# 2026-11-17 도면이 새로 열리거나(open.json) 단가가 바뀌면 아파트별 공사비 쪽을 바로 다시 만든다 (매일 06:17 사이트 자동화에도 들어 있음)
+name: 아파트별 공사비 쪽
+on:
+  push:
+    branches: [main]
+    paths: ["data/plans/open.json", "data/repair-prices.json", "tools/apt_pages.py"]
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: real-quotes
+  cancel-in-progress: false
+jobs:
+  gen:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - run: python3 tools/apt_pages.py
+      - run: python3 tools/sitemap_build.py
+      - run: python3 tools/indexnow.py || echo "IndexNow 실패 — 다음 날 다시"
+      - run: |
+          git config user.name "jipjini-bot"; git config user.email "thecloudstay@gmail.com"
+          git add -A apt sitemap.xml tools/indexnow_state.json
+          git commit -m "아파트별 공사비 쪽 다시 만듦" || echo "바뀐 것 없음"
+          git pull --rebase -q && git push

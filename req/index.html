@@ -2478,6 +2478,14 @@ function formApp() {
       // 2026-10-01: 방·욕실 기본 줄(2·1) 초기 상태 기억 → 고객이 손대지 않았으면 개수를 빈 값으로 전송
       this._spaceRowBase = { rooms: JSON.stringify(this.data.spaceList.rooms || []), bathrooms: JSON.stringify(this.data.spaceList.bathrooms || []) };
       this.cadApply_();
+      // 2026-11-17 아파트별 공사비 쪽(apt/단지/평형)에서 「이 집 도면으로 견적서 받기」로 오면 단지 주소·평형을 미리 채움
+      try { const qp = new URLSearchParams(location.search), ac = qp.get('apt'), at = qp.get('t');
+        if (ac && !this.data.address) fetch('/data/apt/find.json').then(function (r) { return r.json(); }).then(function (rows) {
+          const r = (rows || []).filter(function (x) { return x[0] === ac; })[0]; if (!r) return;
+          if (!self.data.address) self.data.address = [r[2], r[3], r[1]].filter(Boolean).join(' ');
+          const note = '[아파트별 공사비 쪽에서 신청] ' + r[1] + (at ? ' ' + at + ' 평형' : '');
+          if ((self.data.memo || '').indexOf(note) < 0) self.data.memo = note + (self.data.memo ? '\n' + self.data.memo : '');
+        }).catch(function () {}); } catch (_ap) {}
       const base = (window.JIPJINI_DEPLOY_URL || (window.location.origin + window.location.pathname));
       // 옵션 트리 (자재 drill-down)
       try {
