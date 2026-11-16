@@ -14,7 +14,7 @@ import os, re, json, html, datetime, math, csv
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SITE = "https://jipjini.com/"
 OUT = os.path.join(ROOT, "apt")
-TODAY = datetime.date.today().isoformat()
+TODAY = (datetime.datetime.utcnow() + datetime.timedelta(hours=9)).date().isoformat()   # 한국 날짜(러너는 UTC)
 ORDER = ['철거·준비', '샷시', '설비', '전기·조명', '목공', '욕실·타일', '도장', '필름', '도배', '바닥', '주방', '문·현관', '베란다']
 BASE_OFF = {'샷시', '필름', '베란다'}   # 첫 화면과 같은 「올수리 기본」
 FILL = {'거실': '#F6F7F4', '방': '#FFFFFF', '주방': '#F6F7F4', '욕실': '#EAF2E6', '발코니': '#EEF0EB', '현관': '#EEF0EB'}
