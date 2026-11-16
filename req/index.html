@@ -179,6 +179,12 @@
   .frq-s b{font-size:16px;color:var(--ink);}
   .frq-s span{font-size:13px;color:var(--sub);}
   .frq[open] .frq-s{border-bottom:1px solid var(--line);}
+  /* 2026-11-16 펼쳐지는 칸인지 한눈에 — 오른쪽에 「파일로 보내기 ▾」 단추 모양, 펼치면 「접기 ▴」 */
+  .frq-s{position:relative;padding-right:150px;}
+  .frq-s::after{content:"파일로 보내기  ▾";position:absolute;right:18px;top:50%;transform:translateY(-50%);font-size:13px;font-weight:600;color:var(--acc);border:1px solid var(--acc);border-radius:4px;padding:7px 12px;white-space:pre;background:#fff;}
+  .frq[open] .frq-s::after{content:"접기  ▴";}
+  .frq-s:hover::after{background:var(--acc);color:#fff;}
+  @media (max-width:520px){.frq-s{padding-right:20px;padding-bottom:58px;}.frq-s::after{top:auto;bottom:14px;transform:none;left:20px;right:auto;}}
   .frq-b{padding:16px 20px 20px;}
   .frq-drop{display:flex;flex-direction:column;gap:4px;align-items:center;justify-content:center;border:1.5px dashed var(--line2);border-radius:12px;padding:20px 12px;background:var(--panel);cursor:pointer;text-align:center;}
   .frq-drop b{color:var(--acc);font-size:15px;}
