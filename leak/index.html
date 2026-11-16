@@ -12,10 +12,11 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/assets/fix/fix.css?v=20261114">
+<link rel="stylesheet" href="/assets/fix/fix.css?v=20261116">
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-35EM7T3M9W"></script>
 <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());(function(){try{if(/[?&]jj_staff=1/.test(location.search))localStorage.setItem('jj_staff','1');if(/[?&]jj_staff=0/.test(location.search))localStorage.removeItem('jj_staff');if(localStorage.getItem('jj_staff'))window['ga-disable-G-35EM7T3M9W']=true}catch(e){}})();gtag('config','G-35EM7T3M9W');</script>
 <meta name="twitter:card" content="summary_large_image">
+<style>@media print{.top{display:none!important}}</style>
 </head>
 <body>
 <main>
@@ -50,6 +51,12 @@
   <button type="button" class="chip" data-v="known" aria-pressed="true">찾았음 (윗집 배관·욕실 등)</button>
   <button type="button" class="chip" data-v="unknown" aria-pressed="false">아직 모름 → 누수 탐지 포함</button>
   <button type="button" class="chip" data-v="mybath" aria-pressed="false">우리 집 욕실 방수 → 같이 고침</button>
+</div>
+<div id="proBox" hidden>
+<h2><span class="n">4</span>산정서에 적을 것</h2>
+<div class="two"><div><label class="f" for="pfOffice">사무소 이름</label><input id="pfOffice" type="text" placeholder="예: ○○손해사정"></div><div><label class="f" for="pfWho">담당자</label><input id="pfWho" type="text"></div></div>
+<label class="f" for="pfCase">사건 · 접수 번호</label><input id="pfCase" type="text" placeholder="예: 2026-1234">
+<p class="hint">여기 적은 내용은 이 기기에서 산정서 머리에만 찍히고 집지니로 보내지 않습니다. 사무소 이름과 담당자는 다음에도 남아 있습니다.</p>
 </div>
 <div class="btns"><button type="button" class="btn" id="go">복구 금액 보기</button></div>
 </div>
@@ -118,6 +125,7 @@
 
 <section class="res" id="res" hidden>
   <div class="docmeta"><b>집지니</b><span id="dm"></span></div>
+  <div class="docmeta" id="proMeta" hidden><b>의뢰</b><span id="pm2"></span></div>
   <div class="total"><div><div class="sub">복구 예상 금액 · 부가세 10% 별도</div><div class="big" id="tot"></div></div><div class="sub" id="apt"></div></div>
   <div class="facts" id="facts"></div>
   <div id="bars"></div>
@@ -155,6 +163,14 @@
   var F = JJFix, $ = function (id) { return document.getElementById(id); };
   var APT = null, PLAN = null, ROOMS = [], LAST = null, H = 2.3;
   var SKIP = /피트|발코니|실외기/;
+  // 2026-11-16 사무소용(손해사정 사무소·관리사무소·시공 업체) — 주소 끝에 ?pro=1. 고객 안내(정액표·상담 신청)를 접고 산정서 머리에 사무소·사건 번호를 찍는다.
+  var PRO = /[?&]pro=1/.test(location.search);
+  if (PRO) {
+    $('proBox').hidden = false; $('flat').hidden = true; $('ask').hidden = true;
+    document.querySelector('h1').textContent = '누수 복구 공사비 산정서 · 사무소용';
+    document.querySelector('.lead').textContent = '단지와 젖은 곳을 고르면 공정별 물량·단가·금액이 나옵니다. 사무소 이름과 사건 번호를 넣어 인쇄하세요.';
+    try { $('pfOffice').value = localStorage.getItem('jj_pro_office') || ''; $('pfWho').value = localStorage.getItem('jj_pro_who') || ''; } catch (e) {}
+  }
 
   function typical(A) {   // 평면이 없을 때 전용면적으로 나눈 보통 아파트 방 크기
     var r = [['거실', '거실', .24], ['주방', '주방', .13], ['안방', '방', .15], ['작은방 1', '방', .11]];
@@ -248,6 +264,7 @@
       var R = calc(P); if (!R) { alert('젖은 곳을 한 군데 이상 눌러 주세요.'); return; }
       LAST = R; var no = F.docNo('JJL');
       $('dm').textContent = '누수 복구 공사비 산정서 · ' + no + ' · ' + F.today();
+      if (PRO) { var po = $('pfOffice').value.trim(), pw = $('pfWho').value.trim(), pc = $('pfCase').value.trim(); try { localStorage.setItem('jj_pro_office', po); localStorage.setItem('jj_pro_who', pw); } catch (e) {} $('pm2').textContent = [po, pw && ('담당 ' + pw), pc && ('사건 ' + pc)].filter(Boolean).join(' · '); $('proMeta').hidden = !(po || pw || pc); }
       $('tot').textContent = F.won(R.tot);
       $('apt').textContent = (APT ? APT.name + ' · ' : '') + '전용 ' + $('area').value + '㎡';
       $('facts').innerHTML = '<div><b>' + R.surf + '㎡</b><span>다시 바를 벽·천장</span></div><div><b>' + R.floorA + '㎡</b><span>바꿀 바닥</span></div><div><b>' + R.days + '일</b><span>예상 공사 기간(건조 포함)</span></div>';
