@@ -35,6 +35,9 @@
       onPick({ code: r[0], name: r[1], gu: r[2], dong: r[3], year: Number(r[4]) || 0, homes: r[5], hasPlan: !!r[6] });
     });
     document.addEventListener('click', function (e) { if (!e.target.closest('.find')) list.innerHTML = ''; });
+    // 2026-11-16 주소 끝에 ?apt=단지번호 가 붙어 오면(첫 화면에서 단지를 고르고 넘어온 경우) 그 단지를 바로 고른 상태로 연다
+    var pre = (location.search.match(/[?&]apt=([A-Za-z0-9]+)/) || [])[1];
+    if (pre) getJSON('/data/apt/find.json').then(function (d) { rows = d; for (var i = 0; i < d.length; i++) if (d[i][0] === pre) { var r = d[i]; input.value = r[1]; onPick({ code: r[0], name: r[1], gu: r[2], dong: r[3], year: Number(r[4]) || 0, homes: r[5], hasPlan: !!r[6] }); break; } }).catch(function () {});
   }
   function plan(code) { return getJSON('/data/plans/' + code + '.json'); }
   function prices() { return getJSON('/data/repair-prices.json'); }

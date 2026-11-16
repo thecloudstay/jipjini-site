@@ -59,7 +59,7 @@ details.dim{margin-top:10px}details.dim summary{cursor:pointer;color:#1F5E2E;fon
 <p class="note">자재 규격은 제품마다 조금씩 다릅니다. 포장에 적힌 값과 다르면 숫자를 고쳐 넣으세요. 넣은 값은 이 기기에만 남습니다. 직접 가진 도면 그림으로 재려면 <a href="/cad.html">집지니 CAD</a>에 올려 방을 나눈 뒤 수량표를 보세요.</p>
 </main>
 <footer class="fix">집지니 · 대표 박찬영 · 사업자등록번호 874-10-00088 · 서울·경기·인천 · <a href="/privacy.html">개인정보 처리방침</a></footer>
-<script src="/assets/fix/fix.js?v=20261114"></script>
+<script src="/assets/fix/fix.js?v=20261116"></script>
 <script>
 (function () {
   var $ = function (id) { return document.getElementById(id); }, PY = 3.3058;
@@ -188,6 +188,7 @@ details.dim{margin-top:10px}details.dim summary{cursor:pointer;color:#1F5E2E;fon
     v.ra = ''; v.rb = ''; draw();
     $('psum').innerHTML = pick.length ? '고른 방 ' + pick.length + '곳 — 바닥 <b>' + r1(fl) + '㎡</b> · 둘레 <b>' + r1(pe) + 'm</b>' + (SURF[k] ? ' · 벽 <b>' + r1(wall) + '㎡</b>' : '') + ' → 아래 칸에 넣었습니다.' : '방을 골라 주세요.';
   }
+  if (/[?&]apt=/.test(location.search)) $('planBox').open = true;   // 첫 화면에서 단지를 고르고 넘어온 경우
   if (F && F.aptFinder) F.aptFinder($('q'), $('ql'), function (a) {
     P.rooms = null; P.sel = {}; $('proom').innerHTML = ''; $('typeRow').hidden = true;
     $('picked').innerHTML = '<b>' + F.esc(a.name) + '</b> · ' + F.esc(a.gu + ' ' + a.dong) + (a.year ? ' · ' + a.year + '년' : '');

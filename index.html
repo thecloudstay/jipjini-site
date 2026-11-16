@@ -22,7 +22,7 @@
 <meta name="twitter:image" content="https://jipjini.com/og-cover.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/home/home.css?v=20261116b">
+<link rel="stylesheet" href="assets/home/home.css?v=20261116c">
 <link rel="stylesheet" href="assets/home/data.css?v=20261114a">
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-35EM7T3M9W"></script>
 <script>
@@ -77,6 +77,11 @@
 <section class="go4" id="go">
   <h2>무슨 일로 오셨어요?</h2>
   <p class="go4s">해당하는 줄을 누르면 바로 시작합니다. 아래 도구는 모두 무료이고 가입 없이 씁니다.</p>
+  <div class="gof">
+    <label for="goq">아파트에 사시면 단지부터 고르세요</label>
+    <div class="gofi"><input id="goq" type="search" autocomplete="off" placeholder="단지 이름 · 예: 래미안위브, 검단 에코비스타"><ul id="gol"></ul></div>
+    <p class="gop" id="gop">고르면 아래 복구비·수리비·적산 도구가 우리 집 평형으로 바로 열립니다. 빌라·주택·오피스텔은 단지 없이 전용면적만 넣으면 됩니다.</p>
+  </div>
   <div class="go4g">
     <div>
       <h3>집을 고칩니다</h3>
@@ -94,16 +99,16 @@
     <div>
       <h3>사고가 났거나 경매를 봅니다</h3>
       <ul class="cal">
-        <li><a href="disaster/" data-ev="home_go_disaster"><b>누수·화재·침수 복구비</b><span>1분</span></a></li>
-        <li><a href="leak/" data-ev="home_go_leak"><b>보험 청구용 산정서</b><span>인쇄</span></a></li>
-        <li><a href="auction/" data-ev="home_go_auction"><b>경매 물건 수리비</b><span>입찰 전</span></a></li>
+        <li><a href="disaster/" data-apt data-ev="home_go_disaster"><b>누수·화재·침수 복구비</b><span>1분</span></a></li>
+        <li><a href="leak/" data-apt data-ev="home_go_leak"><b>보험 청구용 산정서</b><span>인쇄</span></a></li>
+        <li><a href="auction/" data-apt data-ev="home_go_auction"><b>경매 물건 수리비</b><span>입찰 전</span></a></li>
         <li><a href="tel:01098060422" data-ev="home_go_tel"><b>전화로 접수</b><span>010-9806-0422</span></a></li>
       </ul>
     </div>
     <div>
       <h3>현장에서 일합니다</h3>
       <ul class="cal">
-        <li><a href="calc/" data-ev="home_go_calc"><b>공정별 간편 적산기</b><span>도배·타일·바닥</span></a></li>
+        <li><a href="calc/" data-apt data-ev="home_go_calc"><b>공정별 간편 적산기</b><span>도배·타일·바닥</span></a></li>
         <li><a href="cad.html" data-ev="home_go_takeoff"><b>도면에서 물량표 뽑기</b><span>17공종</span></a></li>
         <li><a href="cad.html" data-ev="home_go_dwg"><b>오토캐드 파일 받기</b><span>.dwg</span></a></li>
         <li><a href="cad-guide.html" data-ev="home_go_guide"><b>도면 화면 사용법</b><span>사진 안내</span></a></li>
@@ -616,6 +621,25 @@
 <script src="assets/site_config.js"></script>
 <script src="assets/home/sys.js?v=20261113b"></script>
 <script src="assets/home/home.js?v=20261113b"></script>
+<script>
+/* 바로 가기의 단지 고르기 (2026-11-16): 고른 단지를 도구 주소에 ?apt=번호 로 붙여 그 집으로 바로 열리게 한다. 고른 단지는 이 기기에만 기억 */
+(function () {
+  var q = document.getElementById('goq'), l = document.getElementById('gol'), p = document.getElementById('gop'); if (!q) return;
+  var rows = null, t = 0, base = p.textContent, esc = function (s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); };
+  function norm(s) { return String(s || '').replace(/\s|아파트|단지|\(.*?\)/g, '').toLowerCase(); }
+  function load() { return rows ? Promise.resolve(rows) : fetch('data/apt/find.json').then(function (r) { return r.json(); }).then(function (d) { rows = d; return d; }); }
+  function apply(r) { [].forEach.call(document.querySelectorAll('#go a[data-apt]'), function (a) { var h = a.getAttribute('href').split('?')[0]; a.setAttribute('href', r ? h + '?apt=' + r[0] : h); });
+    if (r) { p.innerHTML = '<b>' + esc(r[1]) + '</b> · ' + esc(r[2] + ' ' + r[3]) + (r[6] ? ' · 집지니 도면 있음' : ' · 도면 준비 중(전용면적으로 계산)') + ' — 아래 줄을 누르면 이 집으로 열립니다. <button type="button" id="gox">다른 집</button>'; document.getElementById('gox').onclick = function () { q.value = ''; apply(null); try { localStorage.removeItem('jj_go_apt'); } catch (e) {} q.focus(); }; }
+    else p.textContent = base; }
+  function show() { var k = norm(q.value); if (k.length < 2) { l.innerHTML = ''; return; } var hit = []; for (var i = 0; i < rows.length && hit.length < 30; i++) { var r = rows[i]; if (norm(r[1]).indexOf(k) > -1 || norm(r[3] + r[1]).indexOf(k) > -1) hit.push(r); }
+    hit.sort(function (a, b) { return b[6] - a[6]; });
+    l.innerHTML = hit.slice(0, 8).map(function (r) { return '<li><button type="button" data-c="' + r[0] + '">' + esc(r[1]) + '<small>' + esc(r[2] + ' ' + r[3]) + (r[6] ? ' · 도면 있음' : '') + '</small></button></li>'; }).join('') || '<li><button type="button" disabled>못 찾았습니다 — 전용면적만 넣어도 됩니다</button></li>'; }
+  q.addEventListener('input', function () { clearTimeout(t); t = setTimeout(function () { load().then(show).catch(function () {}); }, 180); });
+  l.addEventListener('click', function (e) { var b = e.target.closest('button[data-c]'); if (!b) return; var r = rows.filter(function (x) { return x[0] === b.getAttribute('data-c'); })[0]; l.innerHTML = ''; q.value = r[1]; apply(r); try { localStorage.setItem('jj_go_apt', JSON.stringify(r)); } catch (e2) {} });
+  document.addEventListener('click', function (e) { if (!e.target.closest('.gofi')) l.innerHTML = ''; });
+  try { var sv = JSON.parse(localStorage.getItem('jj_go_apt') || 'null'); if (sv && sv[0]) { q.value = sv[1]; apply(sv); } } catch (e) {}
+})();
+</script>
 <script src="assets/home/flow.js?v=20261113b" defer></script>
 <script src="assets/home/estim.js?v=20261112v"></script>
 <script src="assets/chatbot.js" defer></script>

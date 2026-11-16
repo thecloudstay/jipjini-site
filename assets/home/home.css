@@ -790,3 +790,17 @@ section.go4{padding-top:88px}
   .go4g>div{padding:26px 0 0}
   .go4g>div+div{padding-left:0;border-left:0;border-top:1.5px solid var(--ink);margin-top:26px}
 }
+
+/* 바로 가기 위 단지 고르기 (2026-11-16) */
+.gof{margin-top:30px;max-width:640px}
+.gof label{display:block;font-size:15px;font-weight:600;margin-bottom:8px}
+.gofi{position:relative}
+.gofi input{width:100%;font:inherit;font-size:17px;padding:14px 16px;border:1.5px solid var(--ink);border-radius:4px;background:#fff;color:var(--ink)}
+.gofi input:focus{outline:2px solid var(--g);outline-offset:2px}
+.gofi ul{list-style:none;position:absolute;left:0;right:0;top:100%;z-index:30;background:#fff;border:1px solid var(--rule);border-top:0;max-height:320px;overflow:auto}
+.gofi li button{display:block;width:100%;text-align:left;font:inherit;font-size:15.5px;padding:11px 16px;border:0;border-bottom:1px solid var(--rule);background:#fff;color:var(--ink);cursor:pointer}
+.gofi li button:hover,.gofi li button:focus{background:#F3F6F2}
+.gofi li small{color:var(--pencil);margin-left:8px;font-size:13.5px}
+.gop{margin-top:10px;font-size:14.5px;line-height:1.7;color:var(--pencil)}
+.gop b{color:var(--g);font-weight:600}
+.gop button{font:inherit;font-size:13.5px;color:var(--g);background:none;border:0;text-decoration:underline;text-underline-offset:3px;cursor:pointer;padding:0 0 0 6px}
