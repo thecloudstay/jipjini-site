@@ -231,8 +231,7 @@ body.loading .jl .k{opacity:.15;animation:jp 1.6s ease-in-out infinite}
     var cfg = { url: c.url, anon: c.anon, gas: GAS, org: c.org || 'jipjini', ver: (ls.get('jja_app') || {}).ver || '' };
     var js = JSON.stringify(snap).replace(/</g, '\\u003c').replace(/\u2028/g, '\\u2028').replace(/\u2029/g, '\\u2029');
     html = html.replace(/(<script type="application\/json" id="jjSnap">)[\s\S]*?(<\/script>)/, function (m, a, b) { return a + js + b; });
-    var head = '<meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex,nofollow"><link rel="icon" href="/console/icons/icon-192.png">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;600;700&display=swap" rel="stylesheet">' +
+    var head = '<meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex,nofollow"><link rel="icon" href="/console/icons/icon-192.png">' +
       '<script>(' + shim.toString() + ')(' + JSON.stringify(cfg) + ');<\/script>';
     html = /<head[^>]*>/i.test(html) ? html.replace(/<head[^>]*>/i, function (m) { return m + head; }) : head + html;
     document.open(); document.write(html); document.close();
