@@ -24,6 +24,7 @@
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/home/home.css?v=20261116c">
 <link rel="stylesheet" href="assets/home/data.css?v=20261114a">
+<link rel="stylesheet" href="assets/home/first.css?v=20261116a">
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-35EM7T3M9W"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
@@ -39,7 +40,7 @@
 <header class="top">
   <a href="./" class="brand"><span class="mark">집</span>집지니<small class="btag">인테리어 데이터 솔루션</small></a>
   <nav class="links">
-    <a href="#map">우리 집 공사비</a>
+    <a href="#f1">우리 집 공사비</a>
     <a href="#claim">사고·경매</a>
     <a href="compare/">견적서 검토</a>
     <a href="#go">무료 도구</a>
@@ -49,29 +50,64 @@
   </nav>
 </header>
 
-<!-- 첫 화면: 문구 + 다시 그린 실제 도면 위의 치수선 -->
-<section class="hero">
-  <div class="hc">
-    <p class="hk">아파트 인테리어 데이터 기업 <b>집지니</b></p>
-    <h1>인테리어 비용,<br>지금 바로 30% 낮춰 드립니다.</h1>
-    <p class="hs">수도권 아파트의 도면·물량·단가 데이터를 직접 만들고, 그 데이터로 견적을 냅니다. 평수로 어림잡은 견적 대신 우리 집 도면에서 센 견적. 같은 자재와 같은 기술자로 업체가 얹던 몫만 뺍니다. 셀인(셀프 인테리어)·반셀인(반셀프)·직영 인테리어를 하시는 분 옆에 코디가 붙습니다.</p>
-    <div class="hb">
-      <a class="btn" href="#map">우리 집 비용 확인</a>
-      <a class="btn ghost" href="#go">하려는 일 고르기</a>
+<!-- 첫 화면 (2026-11-16 개편): 아파트 이름 하나 → 우리 집 도면과 올수리 예상 공사비. 양식 assets/home/first.css, 동작 assets/home/first.js -->
+<div class="f1" id="f1">
+  <div class="fh">
+    <nav class="doors" aria-label="무슨 일로 오셨나요"><a class="is-on" href="#f1" aria-current="true">인테리어</a><a href="leak/">누수·보험</a><a href="auction/">경매</a></nav>
+    <p class="fk"><span class="fnb">인테리어 비용, 30% 낮춰 드립니다</span> · <span class="fnb">인테리어 데이터 솔루션 기업 <b>집지니</b></span></p>
+    <h1>우리 집 공사비,<br><span class="fnb">30초 안에</span> 봅니다.</h1>
+    <p>아파트 이름만 넣으세요.<br>우리 집 도면과 올수리 예상 금액이 <span class="fnb">바로 나옵니다.</span></p>
+    <div class="ff">
+      <input id="f1-q" type="search" autocomplete="off" placeholder="아파트 이름 또는 동 이름" aria-label="아파트 이름 또는 동 이름" aria-controls="f1-sug" aria-expanded="false" role="combobox">
+      <ul id="f1-sug" class="sug" role="listbox" hidden></ul>
     </div>
-    <dl class="hn">
-      <div><dt>지도에 올린 수도권 단지</dt><dd id="nAll" data-live="all">10,242</dd></div>
-      <div><dt>모은 평면도</dt><dd>8,311<small>장</small></dd></div>
-      <div><dt>CAD로 다시 그린 평형</dt><dd data-live="types">253</dd></div>
-    </dl>
-    <a class="hstk" href="#suite"><span class="hstk-l">집지니가 직접 만들어 쓰는 제품</span><span class="hstk-v"><b>DB</b><b>CAD</b><b>자동적산기</b><b>ERP</b><b>CRM</b></span></a>
+    <p class="fmeta fnum" id="f1-meta">도면을 불러오는 중입니다.</p>
   </div>
-  <figure class="hp">
-    <div class="sheet flow" id="heroFlow" data-s="1" aria-live="polite"><p class="ftag"></p><div class="fsvg"></div><div class="fqty"></div><div class="ford"></div></div>
-    <ol class="fst" id="heroSteps" role="tablist" aria-label="평면도가 발주까지 바뀌는 여섯 단계"><li><button type="button" role="tab" data-s="1"><b>평면도</b><span>사진·캡처 그대로</span><i></i></button></li><li><button type="button" role="tab" data-s="2"><b>벡터 변환</b><span>선과 꼭짓점</span><i></i></button></li><li><button type="button" role="tab" data-s="3"><b>CAD 도면</b><span>벽·창·문·치수</span><i></i></button></li><li><button type="button" role="tab" data-s="4"><b>물량 산출</b><span>방마다 ㎡</span><i></i></button></li><li><button type="button" role="tab" data-s="5"><b>적산</b><span>공종별 상세 물량</span><i></i></button></li><li><button type="button" role="tab" data-s="6"><b>발주</b><span>자재상별로 바로</span><i></i></button></li></ol>
-    <figcaption>예시: 송도파크자이 131A. 원본 대신 집지니가 다시 그린 도면으로 보여 드립니다. 금액은 어림, 부가세 별도.</figcaption>
-  </figure>
-</section>
+
+  <div class="fres" id="f1-res" aria-live="polite">
+    <div class="rhead">
+      <h2><span class="ftag" id="f1-rtag">예시</span><span id="f1-rname">&nbsp;</span><small id="f1-rsub"></small></h2>
+      <div class="types" id="f1-types" role="group" aria-label="평형 고르기"></div>
+    </div>
+    <div class="fgrid">
+      <div class="fplan">
+        <div id="f1-plan" aria-label="우리 집 평면"></div>
+        <div class="cap fnum" id="f1-pcap"></div>
+      </div>
+      <div class="cost">
+        <div class="lab" id="f1-clab">올수리 예상 공사비</div>
+        <p class="fbig fnum" id="f1-cbig">&nbsp;</p>
+        <p class="rng fnum" id="f1-crng">&nbsp;</p>
+        <ul class="bars">
+          <li><div class="t"><span>같은 범위를 턴키 업체에 맡기면 (추정)</span><b class="fnum" id="f1-vt"></b></div><div class="b"><i id="f1-bt" style="width:100%"></i></div></li>
+          <li class="is-me"><div class="t"><span>집지니로 직접 거래하면</span><b class="fnum" id="f1-vj"></b></div><div class="b"><i id="f1-bj" style="width:70%"></i></div></li>
+        </ul>
+        <p class="save fnum">차이 <b id="f1-vs"></b></p>
+        <div class="fcta">
+          <a id="f1-a1" href="cad.html"><span>직접 할게요</span><small>도면에서 물량 뽑기</small></a>
+          <a id="f1-a2" class="fgo" href="req/"><span>맡길게요</span><small>24시간 안에 견적서</small></a>
+        </div>
+        <p class="fnote">금액은 부가세 10% 별도입니다. 집지니 실제 견적 <span class="fnum" id="f1-nq">12</span>건의 평당 금액 가운데값에 이 집 공급 평수를 곱한 어림값이며, 현장 실측 뒤 확정합니다. 턴키 금액은 업체 몫 약 30%를 더한 추정입니다.</p>
+      </div>
+    </div>
+
+    <div class="trades">
+      <h3>뺄 공사는 빼 보세요</h3>
+      <p class="s">체크를 끄면 위 금액이 바로 바뀝니다.</p>
+      <ul class="tl" id="f1-tl"></ul>
+    </div>
+  </div>
+
+  <div class="fproof">
+    <h3>이 숫자가 나오는 근거</h3>
+    <p class="s">어림이 아니라 실제 도면과 실제 견적에서 가져옵니다. <span class="fmore"><a href="#map">지도에서 찾기</a><a href="#data">데이터</a><a href="#tech">기술 구성</a><a href="ir/">투자자용 안내</a></span></p>
+    <div class="three fnum">
+      <div><em id="f1-p1">903</em><b>도면이 열린 단지</b><span>수도권 아파트를 날마다 도면으로 바꿔 올립니다.</span></div>
+      <div><em id="f1-p2">15건</em><b>공개한 실제 견적</b><span>줄마다 자재와 단가를 그대로 보여 드립니다.</span></div>
+      <div><em>24시간</em><b>견적서 받는 시간</b><span>맡기시면 우리 집 도면 기준으로 다시 셉니다.</span></div>
+    </div>
+  </div>
+</div>
 
 <!-- 바로 가기 (2026-11-16 대표 「고객 그루핑 다 모아서, 주요 기능을 바로바로」) — 탭으로 숨기던 「어떤 분이세요?」를 한눈에 보이는 목록으로 바꿈 -->
 <section class="go4" id="go">
@@ -491,7 +527,7 @@
     <div class="ly"><div class="k">현장<small>시공 관리</small></div><div class="v"><span class="me">공정별 작업지시서</span><span class="me">공정표·사진</span><span class="me">알림톡 6종</span><span class="me">노무비 청구·지급</span></div></div>
     <div class="ly"><div class="k">거래<small>견적·계약·돈</small></div><div class="v"><span class="me">자동 견적·자가 점검</span><span class="me">단가 근거 공개</span><span class="me">전자 계약</span><span class="me">입금·정산 장부</span><span>자재 수수료 주문</span></div></div>
     <div class="ly"><div class="k">설계<small>도면·물량</small></div><div class="v"><span class="me">집지니 CAD</span><span class="me">오토캐드 파일 읽고 쓰기</span><span class="me">물량 자동 산출 17공종</span><span class="me">공법 선택</span></div></div>
-    <div class="ly base"><div class="k">데이터<small>바닥</small></div><div class="v"><span class="me">수도권 <span data-live="all">10,242</span>단지</span><span class="me">평면도 8,311장 수집</span><span class="me">도면 자동 변환·채점</span><span class="me">자가 학습 고리</span></div></div>
+    <div class="ly base"><div class="k">데이터<small>바닥</small></div><div class="v"><span class="me">수도권 <b data-live="all" style="font-weight:inherit">10,242</b>단지</span><span class="me">평면도 8,311장 수집</span><span class="me">도면 자동 변환·채점</span><span class="me">자가 학습 고리</span></div></div>
   
     </div>
     <div class="cmp"><h3>흔한 인테리어 서비스와 비교</h3><p class="cap0">● 있음 ◐ 일부 ○ 없음 · 일반적인 경우 기준</p>
@@ -568,6 +604,7 @@
       </ul>
       <div class="irb">
         <a class="btn" href="files/jipjini-ir.pdf?v=20261113e" download="집지니_IR.pdf">IR 자료 받기 (PDF)</a>
+        <a class="btn ghost" href="ir/">투자자용 안내 보기</a>
         <a class="btn ghost" href="https://pf.kakao.com/_NjpxhC/chat" target="_blank" rel="noopener">카톡으로 문의</a>
       </div>
     </div>
@@ -576,7 +613,7 @@
       <div><dt>모은 평면도</dt><dd>8,311</dd></div>
       <div><dt>도면 공개 단지 · 매일 늘어남</dt><dd id="irOpen" data-live="open">78</dd></div>
       <div><dt>벽 인식률 · 표본 77장</dt><dd>98.8%</dd></div>
-      <div><dt>단가 공개 실견적</dt><dd>14</dd></div>
+      <div><dt>단가 공개 실견적</dt><dd>15</dd></div>
       <div><dt>노하우를 모은 시간 · 2013년부터</dt><dd>13년</dd></div>
     </dl>
     <div class="lv irlv"><p><b>도면 완성률 <span data-live="pct">11.3</span>%</b><span class="lvm">평면을 확보한 <span data-live="have">692</span>단지 중 <span data-live="open">78</span>단지 도면 열림 · 오늘 새로 연 평형 <span data-live="today">26</span>개 · <span data-live="date">11월 13일</span> 기준</span></p><div class="lvt" role="progressbar" aria-label="도면 완성률" aria-valuemin="0" aria-valuemax="100"><i data-live-bar="pct" style="width:11.3%"></i></div></div>
@@ -620,7 +657,7 @@
 
 <script src="assets/site_config.js"></script>
 <script src="assets/home/sys.js?v=20261113b"></script>
-<script src="assets/home/home.js?v=20261113b"></script>
+<script src="assets/home/home.js?v=20261116a"></script>
 <script>
 /* 바로 가기의 단지 고르기 (2026-11-16): 고른 단지를 도구 주소에 ?apt=번호 로 붙여 그 집으로 바로 열리게 한다. 고른 단지는 이 기기에만 기억 */
 (function () {
@@ -642,6 +679,7 @@
 </script>
 <script src="assets/home/flow.js?v=20261113b" defer></script>
 <script src="assets/home/estim.js?v=20261112v"></script>
+<script src="assets/home/first.js?v=20261116a" data-page="home"></script>
 <script src="assets/chatbot.js" defer></script>
 <!--SITENAV--><style>.jj-map{max-width:900px;margin:32px auto 0;padding:22px 16px 26px;border-top:2px solid #d9d2c0;font-family:Pretendard,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;color:#2a2a2a;word-break:keep-all}.jj-map .ttl{font-size:14px;font-weight:800;letter-spacing:1px;color:#1e4d3a;margin-bottom:10px;text-align:center}.jj-map .grp{display:flex;flex-wrap:wrap;gap:6px 8px;align-items:center;margin:6px 0;font-size:14px}.jj-map .grp b{min-width:70px;color:#555;font-weight:700;font-size:13px}.jj-map .grp a{display:inline-block;padding:6px 12px;border:1px solid #cfc8b8;border-radius:16px;background:#fff;color:#2a2a2a;text-decoration:none;font-size:14px;font-weight:500}.jj-map .grp a:hover{border-color:#1e4d3a;color:#1e4d3a}.jj-map .grp a[aria-current=page]{background:#1e4d3a;color:#fff;border-color:#1e4d3a;font-weight:800}.jj-map .grp a[aria-current=page]::before{content:"▶ ";font-size:11px}.jj-map .ft{font-size:13px;color:#555;margin-top:12px;text-align:center;line-height:1.8}.jj-where{max-width:1200px;margin:0 auto;padding:8px 16px;font-size:14px;color:#2a2a2a;background:#efe9db;border-bottom:1px solid #d9d2c0;display:flex;gap:6px;align-items:center;flex-wrap:wrap;word-break:keep-all}.jj-where a{color:#1e4d3a;text-decoration:none;font-weight:600}.jj-where .now{background:#1e4d3a;color:#fff;padding:2px 10px;border-radius:12px;font-weight:700;font-size:13px}.nav-item.is-current>.nav-top{color:#1e4d3a!important;font-weight:800!important;box-shadow:inset 0 -3px 0 #1e4d3a}.nav-dropdown a.is-current{background:#e6efe9!important;color:#1e4d3a!important;font-weight:700!important}@media(max-width:640px){.jj-map .grp b{min-width:100%}}</style><div class="jj-map"><div class="ttl">집지니 사이트 지도 — 지금 보는 쪽은 ▶ 짙은 녹색</div><div class="grp"><b>시작하기 ·</b><a href="index.html">홈</a><a href="self-interior-agency.html">셀인대행이란</a><a href="request.html">무료 견적 신청</a><a href="prepare.html">사전 준비</a></div><div class="grp"><b>집지니 CAD ·</b><a href="cad.html">집지니 CAD — 무료 공사 계획 도면</a></div><div class="grp"><b>샘플실 ·</b><a href="showroom.html">가양동 샘플실 · 상담 예약</a></div><div class="grp"><b>진행 방식 ·</b><a href="workflow.html">진행 방식 8단계</a><a href="interior-coordinator.html">코디네이터란</a></div><div class="grp"><b>가격·견적 ·</b><a href="pricing.html">가격·코디비</a><a href="interior-price-table.html">실견적 시세표</a><a href="cases/">견적 사례</a><a href="py/">평형별 비용</a><a href="trade/">공종별 비용</a></div><div class="grp"><b>가이드 ·</b><a href="banself-interior.html">반셀프 코디</a><a href="jikyoung-interior.html">직영 인테리어</a><a href="interior-margin-30.html">마진 30%</a><a href="interior-estimate-compare.html">견적서 비교</a><a href="apt-olsuri-cost.html">32평 올수리</a><a href="bathroom-remodel-cost.html">욕실 리모델링</a><a href="interior-scam-types.html">사기 유형</a></div><div class="grp"><b>회사 ·</b><a href="about.html">회사소개</a><a href="faq.html">자주 묻는 질문</a><a href="ai-answers.html">AI에게 물어볼 때</a><a href="sitemap.html">사이트 지도</a></div><div class="ft">서울·경기·인천 수도권 전역 · 자재상·기술자 직거래 · 정찰제 코디비 · 부가세 10% 별도<br>샘플실: <a href="showroom.html" style="color:#1e4d3a;font-weight:600">서울 강서구 공항대로41길 66 세신종합상가 지하 1층 B156호 (가양동)</a> · 상담 예약 010-9806-0422</div></div><script>(function(){try{
 var here=location.pathname.replace(/\/index\.html$/,"/");

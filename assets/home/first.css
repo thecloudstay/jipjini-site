@@ -1,0 +1,95 @@
+/* 첫 화면 「우리 집 공사비 30초」 (2026-11-16) — 아파트 이름 하나로 도면과 올수리 예상 공사비. 첫 화면과 투자자용 쪽(/ir/)이 함께 쓴다.
+   기존 양식과 이름이 겹치지 않게 모두 .f1 안에서만 통한다. 색·글꼴은 jj-tokens.css */
+.f1{max-width:1120px;margin:0 auto;padding:0 20px;color:var(--jj-ink);font-family:var(--jjf);font-size:16px;line-height:1.75;word-break:keep-all;overflow-wrap:break-word;text-align:left}
+.f1 *{box-sizing:border-box}
+.f1 h1,.f1 h2,.f1 h3,.f1 p,.f1 ul{max-width:none}
+.f1 a{color:inherit}
+.f1 button{font:inherit}
+.f1 .fnb{white-space:nowrap}
+.f1 .fnum{font-variant-numeric:tabular-nums}
+.f1 .doors{display:flex;gap:4px;font-size:14px;margin:0 0 26px -12px}
+.f1 .doors a{padding:7px 12px;border-radius:var(--jj-radius);text-decoration:none;color:var(--jj-pencil)}
+.f1 .doors a.is-on{color:var(--jj-ink);font-weight:600;box-shadow:inset 0 -2px 0 var(--jj-g);border-radius:0}
+.f1 .doors a:hover{color:var(--jj-ink)}
+.f1 .fh{padding:44px 0 28px}
+.f1 .fk{margin:0 0 14px;font-size:14px;color:var(--jj-pencil)}
+.f1 .fk b{color:var(--jj-g);font-weight:700}
+.f1 .fh h1{margin:0;font-size:clamp(30px,5.4vw,50px);line-height:1.32;font-weight:700;letter-spacing:-.8px;text-wrap:balance}
+.f1 .fh p{margin:16px 0 0;max-width:30em;color:var(--jj-pencil);font-size:17px;text-wrap:pretty}
+.f1 .ff{position:relative;margin-top:30px;max-width:620px}
+.f1 .ff input{width:100%;height:60px;padding:0 18px;border:1.5px solid var(--jj-ink);border-radius:var(--jj-radius);font:inherit;font-size:18px;color:var(--jj-ink);background:#fff;outline-offset:2px}
+.f1 .ff input::placeholder{color:var(--jj-pencil-2)}
+.f1 .ff input:focus-visible{outline:2px solid var(--jj-g)}
+.f1 .sug{position:absolute;z-index:5;left:0;right:0;top:64px;margin:0;padding:6px;list-style:none;background:#fff;border:1px solid var(--jj-rule);border-radius:var(--jj-radius);box-shadow:0 10px 30px rgba(28,31,27,.10);max-height:340px;overflow:auto}
+.f1 .sug[hidden]{display:none}
+.f1 .sug li{display:flex;justify-content:space-between;gap:12px;padding:11px 12px;border-radius:var(--jj-radius);cursor:pointer}
+.f1 .sug li[aria-selected=true],.f1 .sug li:hover{background:var(--jj-gl)}
+.f1 .sug li b{font-weight:600}
+.f1 .sug li span{color:var(--jj-pencil);font-size:14px;white-space:nowrap}
+.f1 .sug .fnone{cursor:default;color:var(--jj-pencil);display:block}
+.f1 .sug .fnone:hover{background:none}
+.f1 .fmeta{margin-top:14px;font-size:14px;color:var(--jj-pencil)}
+.f1 .fmeta button{margin:0 2px;padding:3px 9px;border:1px solid var(--jj-rule);border-radius:var(--jj-radius);background:#fff;font:inherit;font-size:14px;color:var(--jj-ink);cursor:pointer}
+.f1 .fmeta button:hover{border-color:var(--jj-ink)}
+.f1 .fres{margin-top:34px;border-top:1px solid var(--jj-ink)}
+.f1 .rhead{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:10px 20px;padding:20px 0 16px}
+.f1 .rhead h2{margin:0;font-size:22px;line-height:1.4;font-weight:700;letter-spacing:-.3px}
+.f1 .rhead h2 small{margin-left:10px;font-size:14px;font-weight:400;color:var(--jj-pencil)}
+.f1 .ftag{display:inline-block;margin-right:10px;padding:1px 8px;border:1px solid var(--jj-rule);border-radius:var(--jj-radius);font-size:13px;font-weight:500;color:var(--jj-pencil);vertical-align:3px}
+.f1 .types{display:flex;flex-wrap:wrap;gap:6px}
+.f1 .types button{padding:6px 12px;border:1px solid var(--jj-rule);border-radius:var(--jj-radius);background:#fff;font:inherit;font-size:14px;color:var(--jj-pencil);cursor:pointer}
+.f1 .types button.is-on{border-color:var(--jj-ink);color:var(--jj-ink);font-weight:600}
+.f1 .fgrid{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:36px;align-items:start}
+.f1 .fplan{border:1px solid var(--jj-rule);border-radius:var(--jj-radius);background:#fff;padding:14px}
+.f1 .fplan svg{display:block;width:100%;height:auto;max-height:520px}
+.f1 .fplan .cap{display:flex;flex-wrap:wrap;gap:6px 18px;margin-top:12px;padding-top:12px;border-top:1px solid var(--jj-grid);font-size:14px;color:var(--jj-pencil)}
+.f1 .fplan .cap b{color:var(--jj-ink);font-weight:600}
+.f1 .cost .lab{font-size:14px;color:var(--jj-pencil)}
+.f1 .cost .fbig{margin:2px 0 0;font-size:clamp(38px,6vw,56px);line-height:1.2;font-weight:700;letter-spacing:-1.2px;color:var(--jj-g)}
+.f1 .cost .fbig small{font-size:.42em;font-weight:600;letter-spacing:0;margin-left:4px}
+.f1 .cost .rng{margin:6px 0 0;font-size:15px;color:var(--jj-pencil)}
+.f1 .bars{margin:26px 0 0;padding:0;list-style:none}
+.f1 .bars li{margin-top:14px}
+.f1 .bars .t{display:flex;justify-content:space-between;gap:12px;font-size:15px}
+.f1 .bars .t b{font-weight:600}
+.f1 .bars .b{height:14px;margin-top:6px;background:var(--jj-grid);border-radius:2px;overflow:hidden}
+.f1 .bars .b i{display:block;height:100%;background:var(--jj-pencil-2);transition:width .35s}
+.f1 .bars .is-me .b i{background:var(--jj-g)}
+.f1 .save{margin:18px 0 0;padding:14px 16px;background:var(--jj-gl);border-radius:var(--jj-radius);font-size:16px}
+.f1 .save b{font-weight:700;color:var(--jj-gd)}
+.f1 .fcta{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:22px}
+.f1 .fcta a{display:block;padding:15px 12px;border:1.5px solid var(--jj-ink);border-radius:var(--jj-radius);text-align:center;text-decoration:none;font-weight:600;line-height:1.45}
+.f1 .fcta a small{display:block;font-size:13px;font-weight:400;color:var(--jj-pencil)}
+.f1 .fcta a.fgo{background:var(--jj-g);border-color:var(--jj-g);color:#fff}
+.f1 .fcta a.fgo small{color:#d5e6cf}
+.f1 .fnote{margin:14px 0 0;font-size:13px;line-height:1.7;color:var(--jj-pencil)}
+.f1 .trades{margin-top:44px}
+.f1 .trades h3,.f1 .fproof h3{margin:0 0 4px;font-size:19px;font-weight:700;letter-spacing:-.2px}
+.f1 .trades p.s,.f1 .fproof p.s{margin:0 0 16px;font-size:15px;color:var(--jj-pencil)}
+.f1 .tl{margin:0;padding:0;list-style:none;border-top:1px solid var(--jj-rule)}
+.f1 .tl li{display:grid;grid-template-columns:150px minmax(0,1fr) 108px;gap:14px;align-items:center;padding:11px 0;border-bottom:1px solid var(--jj-grid)}
+.f1 .tl label{display:flex;align-items:center;gap:10px;font-size:15px;cursor:pointer}
+.f1 .tl input{width:18px;height:18px;accent-color:var(--jj-g);margin:0}
+.f1 .tl .b{height:10px;background:var(--jj-grid);border-radius:2px;overflow:hidden}
+.f1 .tl .b i{display:block;height:100%;background:var(--jj-ink-2);transition:width .3s}
+.f1 .tl li.is-off .b i{background:var(--jj-rule)}
+.f1 .tl li.is-off label,.f1 .tl li.is-off .v{color:var(--jj-pencil-2)}
+.f1 .tl .v{text-align:right;font-size:15px}
+.f1 .fproof{margin:56px 0 0;padding:36px 0 0;border-top:1px solid var(--jj-rule)}
+.f1 .three{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0;border:1px solid var(--jj-rule);border-radius:var(--jj-radius)}
+.f1 .three div{padding:22px 20px}
+.f1 .three div+div{border-left:1px solid var(--jj-rule)}
+.f1 .three em{display:block;font-style:normal;font-size:32px;line-height:1.25;font-weight:700;letter-spacing:-.6px}
+.f1 .three b{display:block;margin-top:6px;font-size:15px;font-weight:600}
+.f1 .three span{display:block;margin-top:4px;font-size:14px;line-height:1.65;color:var(--jj-pencil)}
+@media (max-width:820px){
+.f1 .fh{padding:40px 0 20px}
+.f1 .fgrid{grid-template-columns:1fr;gap:26px}
+.f1 .three{grid-template-columns:1fr}
+.f1 .three div+div{border-left:0;border-top:1px solid var(--jj-rule)}
+.f1 .tl li{grid-template-columns:118px minmax(0,1fr) 92px;gap:10px}
+.f1 .doors a{padding:7px 8px}
+}
+.f1 [hidden]{display:none!important}
+.f1 .fmore{display:block;margin-top:10px}
+.f1 .fmore a{display:inline-block;margin:0 16px 4px 0;color:var(--jj-ink);text-decoration:underline;text-underline-offset:3px;font-weight:500}

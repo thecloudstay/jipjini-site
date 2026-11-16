@@ -7,6 +7,7 @@ on:
     paths:
       - 'data/plans/A*.json'
       - 'tools/plan_quality.py'
+      - 'tools/open_list.py'
 permissions:
   contents: write
 concurrency: plan-quality
@@ -17,11 +18,13 @@ jobs:
       - uses: actions/checkout@v4
       - name: 공간 구성 검사
         run: python3 tools/plan_quality.py
+      - name: 열린 단지 목록(첫 화면 찾기)
+        run: python3 tools/open_list.py
       - name: 올리기
         run: |
           git config user.name "jipjini-bot"
           git config user.email "thecloudstay@gmail.com"
-          git add data/plans/quality.json
+          git add data/plans/quality.json data/plans/open.json
           git commit -m "도면 품질 검사 갱신 [skip ci]" || echo "바뀐 것 없음"
           git pull --rebase -q || true
           git push || echo "올리기 실패(다음 번에)"
