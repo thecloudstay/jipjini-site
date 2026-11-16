@@ -151,6 +151,29 @@ def game_pause(busy=None):
     os._exit(0)
 
 
+def user_idle_sec():
+    """마지막 키보드·마우스 입력 뒤 지난 초(윈도). 모르면 큰 값"""
+    if os.name != "nt": return 1e9
+    try:
+        import ctypes
+        class LII(ctypes.Structure): _fields_ = [("cbSize", ctypes.c_uint), ("dwTime", ctypes.c_uint)]
+        li = LII(); li.cbSize = ctypes.sizeof(LII)
+        if not ctypes.windll.user32.GetLastInputInfo(ctypes.byref(li)): return 1e9
+        return ((ctypes.windll.kernel32.GetTickCount() - li.dwTime) & 0xFFFFFFFF) / 1000.0
+    except Exception:
+        return 1e9
+
+
+def user_pause():
+    """2026-11-17 대표 「뭐 이렇게 느리냐, 뚝뚝 끊기는 현상」: 재 보니 처리기 100% — 변환 3줄이 유휴 우선순위여도 대표가 컴퓨터를 쓸 때
+    화면·클로드 데스크톱이 끊겼다(연결이 두 번 끊김). → 조각(2·3번째 줄)은 대표가 3분 안에 키보드·마우스를 만졌으면 쉬고, 3분 손을 떼면 다시 돈다.
+    어미 1줄은 계속 돈다."""
+    waited = 0
+    while user_idle_sec() < 180:
+        time.sleep(30); waited += 30
+    return waited
+
+
 def shard_file(i):
     return os.path.join(OUT, "상태_조각%d.json" % i)
 
@@ -309,6 +332,7 @@ def run_items(n, shard, busy):
             except ValueError:
                 area = 0
             game_pause(busy if shard is None else None)
+            if shard is not None: user_pause()
             # 2026-11-15 대표 「평면도 불러오기가 현저히 느려짐」: 평면도 받기(네이버 쪽 열기)가 도는 동안 변환 3줄이 처리기를 다 써서
             #   받기가 단지 하나에 1분 40초 걸리고 쪽 열기 30초 넘김 오류까지 났다 → 받기가 도는 동안은 1줄(어미)만 돌고 조각은 쉰다.
             # 2026-11-16: 조각은 유휴 우선순위라 받기를 밀어내지 않으므로 받기 중에도 쉬지 않는다(위 idle_priority).
