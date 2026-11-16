@@ -48,7 +48,7 @@ def main():
     try:
         import csv
         rows = [r for r in csv.DictReader(open(os.path.join(DATA, "원본_목록.csv"), encoding="utf-8-sig")) if str(r.get("순서")) == "1"]
-        left = sum(1 for r in rows if (st.get("%s_%s" % (r["단지코드"], r["평형"])) or {}).get("판") != ver)
+        left = sum(1 for r in rows if (st.get("%s_%s" % (r["단지코드"], r["평형"])) or {}).get("판") != ver or (st.get("%s_%s" % (r["단지코드"], r["평형"])) or {}).get("판정") == "오류")
         T = [v["초"] for v in st.values() if isinstance(v.get("초"), list) and len(v["초"]) == 2][-300:]
         if T:
             rd = statistics.median([t[0] for t in T]); cv = statistics.median([t[1] for t in T]); eta = left * (rd + cv) / 3600
@@ -57,7 +57,9 @@ def main():
         else:
             L.append("2 속도: 시간 기록 아직 없음 · 남은 %d장" % left)
         ok = sum(1 for v in st.values() if isinstance(v.get("점수"), (int, float)) and v["점수"] >= 85 and v.get("판정") in ("통과", "예외"))
-        L.append("6 진행: 원본 %d장 중 변환 %d장 · 공개 기준 통과 %d장" % (len(rows), len(st), ok))
+        err = sum(1 for v in st.values() if v.get("판정") == "오류")
+        L.append("6 진행: 원본 %d장 중 변환 %d장(오류 %d장 빼고) · 공개 기준 통과 %d장" % (len(rows), len(st) - err, err, ok))
+        if err > 50: fix.append("오류로 끝난 장 %d개 — 일괄 변환이 판과 상관없이 3번까지 다시 돌림, 줄지 않으면 오류 문구부터 볼 것" % err)
     except Exception as e:
         L.append("2 속도: 셀 수 없음 " + str(e)[:60])
     # 3 회차 길이
@@ -96,6 +98,17 @@ def main():
             L.append("7 그래픽 카드: 이 파이썬에서는 안 보임(학습 환경 파이썬으로 돌리면 보임)")
     except Exception as e:
         L.append("7 그래픽 카드: 확인 못 함 " + str(e)[:40])
+    # 8 램 — 2026-11-14 대표 램 8GB → 24GB 교체. 줄어들거나 꽉 차면 병렬 변환 줄 수를 다시 본다
+    try:
+        import ctypes
+        class M(ctypes.Structure):
+            _fields_ = [("l", ctypes.c_ulong), ("load", ctypes.c_ulong), ("tot", ctypes.c_ulonglong), ("free", ctypes.c_ulonglong),
+                        ("pt", ctypes.c_ulonglong), ("pf", ctypes.c_ulonglong), ("vt", ctypes.c_ulonglong), ("vf", ctypes.c_ulonglong), ("ve", ctypes.c_ulonglong)]
+        m = M(); m.l = ctypes.sizeof(M); ctypes.windll.kernel32.GlobalMemoryStatusEx(ctypes.byref(m))
+        L.append("8 램: 전체 %.1fGB · 남은 %.1fGB · 사용 %d%%" % (m.tot / 2**30, m.free / 2**30, m.load))
+        if m.load >= 90: fix.append("램 사용 %d%% — 병렬 변환 줄 수를 줄이거나 학습과 겹치지 않게" % m.load)
+    except Exception as e:
+        L.append("8 램: 확인 못 함 " + str(e)[:40])
     txt = "하네스 점검 · %s · 판 %s\n\n지킨 것·숫자\n  %s\n\n고칠 것 (%d)\n  %s\n" % (
         time.strftime("%Y-%m-%d %H:%M"), ver, "\n  ".join(L), len(fix), "\n  ".join(fix) if fix else "없음")
     open(os.path.join(LOG, "하네스_점검.txt"), "w", encoding="utf-8").write(txt)
