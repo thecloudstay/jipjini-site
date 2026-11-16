@@ -49,13 +49,6 @@
 .fun b{display:block;margin-top:8px;font-size:15px;font-weight:600}
 .fun span{display:block;margin-top:4px;font-size:14px;line-height:1.65;color:var(--pencil)}
 .fun .wait em{color:var(--pencil);font-size:24px;font-weight:500;letter-spacing:0;line-height:1.9}
-.two{display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid var(--rule);border-radius:4px}
-.two>div{padding:28px 26px}
-.two>div+div{border-left:1px solid var(--rule)}
-.two h3{font-size:17px;font-weight:600;margin-bottom:4px}
-.two .c{font-size:14px;color:var(--pencil);margin-bottom:14px}
-.two li{list-style:none;padding:10px 0;border-top:1px solid var(--grid,#EEF0EB);font-size:15.5px;line-height:1.6}
-.two .mine li{font-weight:600}
 .rev{border-top:1.5px solid var(--ink)}
 .rev li{list-style:none;display:grid;grid-template-columns:44px 210px 1fr;gap:14px;align-items:baseline;padding:16px 0;border-bottom:1px solid var(--rule)}
 .rev i{font-style:normal;font-size:14px;color:var(--pencil);font-variant-numeric:tabular-nums}
@@ -70,8 +63,6 @@
   .fun{grid-template-columns:1fr 1fr}
   .fun div:nth-child(3){border-left:0}
   .fun div:nth-child(n+3){border-top:1px solid var(--rule)}
-  .two{grid-template-columns:1fr}
-  .two>div+div{border-left:0;border-top:1px solid var(--rule)}
   .rev li{grid-template-columns:30px 1fr}
   .rev span{grid-column:2}
   .mapf iframe{height:440px}
@@ -154,7 +145,7 @@
   <div class="mapf"><iframe src="../apt.html?embed=1" title="집지니 아파트 지도" loading="lazy"></iframe></div>
   <p class="mapn">지도가 안 보이면 <a href="../apt.html" style="text-decoration:underline">지도 쪽을 따로 여세요.</a></p>
   <div class="grow" id="grow" aria-label="날마다 열린 평형 수"></div>
-  <p class="growc">도면이 열린 평형 수입니다. 대표 컴퓨터 한 대가 평면을 받아 변환하고 채점해, 기준을 넘긴 것만 날마다 올립니다.</p>
+  <p class="growc">도면이 열린 평형 수입니다. 평면을 자동으로 변환하고 채점해, 기준을 넘긴 것만 날마다 올립니다.</p>
 </section>
 
 <section class="dhome" id="data" style="padding-top:96px">
@@ -239,25 +230,6 @@
     <div><em>2건</em><b>그중 계약</b><span>견적에서 계약까지 13%</span></div>
     <div><em id="fq">15건</em><b>단가를 공개한 실견적</b><span>줄마다 자재·단가 근거 공개</span></div>
     <div class="wait"><em>계측 시작</em><b>찾기 → 단지 고름 → 맡기기</b><span>첫 화면 단계별 숫자는 <span style="white-space:nowrap">2026년 11월 16일부터</span> 잽니다</span></div>
-  </div>
-</section>
-
-<section class="irx" id="solo">
-  <h2>한 사람이 돌리는 구조</h2>
-  <p class="sub">사람이 끼는 자리는 상담과 승인뿐입니다. 그래서 계약 한 건이 거의 그대로 수입이 됩니다.</p>
-  <div class="two">
-    <div><h3>시스템이 스스로 하는 일</h3><p class="c">대표 컴퓨터와 서버가 날마다</p><ul>
-      <li>평면도 받기 · 도면 변환 · 채점 · 공개</li>
-      <li>도면에서 물량 뽑기와 견적 초안, 자가 점검</li>
-      <li>고객 전용 페이지, 공정 알림 초안, 열람 확인</li>
-      <li>견적 사례 쪽 만들기와 검색 등록</li>
-      <li>방문·문의·발송 내역 보고</li>
-    </ul></div>
-    <div class="mine"><h3>대표가 직접 하는 일</h3><p class="c">세 가지만</p><ul>
-      <li>상담</li>
-      <li>견적 승인</li>
-      <li>계약</li>
-    </ul></div>
   </div>
 </section>
 
