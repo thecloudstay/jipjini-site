@@ -1,0 +1,2643 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<script>
+/* 2026-11-16 정밀 의뢰서를 jipjini.com 에서 — 구글 화면의 google.script.run 을 웹앱 주소(req_rpc)로 그대로 보낸다.
+   제출은 슈퍼베이스(intake_backup)에 원본을 먼저 남기고 접수한다 → 접수가 끊겨도 5분 고리가 다시 받아 의뢰가 사라지지 않는다. */
+(function () {
+  var GAS = 'https://script.google.com/macros/s/AKfycbzxm4mmZs1yVJPa3T-wb0cdJbEUMPYl6dDKtQNSNmJy4nEsCholrEnPAN8e0JfAtOV99A/exec';
+  window.JIPJINI_DEPLOY_URL = GAS;
+  var cfgP = null;
+  function cfg() { if (!cfgP) cfgP = fetch(GAS + '?type=sb_config').then(function (r) { return r.json(); }).catch(function () { return null; }); return cfgP; }
+  function uuid() { if (window.crypto && crypto.randomUUID) return crypto.randomUUID(); return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) { var r = Math.random() * 16 | 0; return (c === 'x' ? r : (r & 3 | 8)).toString(16); }); }
+  function backup(fn, arg) {
+    return cfg().then(function (c) {
+      if (!c || !c.url || !c.anon) return '';
+      var id = uuid(), payload; try { payload = typeof arg === 'string' ? JSON.parse(arg) : arg; } catch (_j) { payload = { raw: String(arg) }; }
+      return fetch(c.url + '/rest/v1/rpc/intake_backup_put', { method: 'POST', headers: { apikey: c.anon, Authorization: 'Bearer ' + c.anon, 'Content-Type': 'application/json' }, body: JSON.stringify({ p_id: id, p_fn: fn, p_payload: payload }) })
+        .then(function (r) { return r.ok ? r.json() : null; }).then(function (j) { return j && j.ok ? id : ''; }).catch(function () { return ''; });
+    }).catch(function () { return ''; });
+  }
+  function call(fn, args, ok, bad) {
+    var pre = /^submit/.test(fn) ? backup(fn, args[0]) : Promise.resolve('');
+    pre.then(function (bk) {
+      return fetch(GAS + '?type=req_rpc', { method: 'POST', redirect: 'follow', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ fn: fn, args: args, bk: bk }) })
+        .then(function (r) { return r.json(); })
+        .then(function (j) {
+          if (j && j.ok) { if (ok) ok(j.v); return; }
+          var e = new Error((j && (j.error || j.e || j.message)) || '서버 응답 오류');
+          if (bk && /^submit/.test(fn)) { if (ok) ok({ ok: true, reqId: '', 안내: '의뢰서를 받았습니다. 접수 번호는 곧 문자로 알려 드립니다.' }); return; }   // 원본은 슈퍼베이스에 있어 고리가 접수한다
+          if (bad) bad(e);
+        });
+    }).catch(function (e) { if (bad) bad(e); });
+  }
+  function runner(ok, bad) {
+    return new Proxy({}, { get: function (t, k) {
+      if (k === 'withSuccessHandler') return function (h) { return runner(h, bad); };
+      if (k === 'withFailureHandler') return function (h) { return runner(ok, h); };
+      if (k === 'withUserObject') return function () { return runner(ok, bad); };
+      return function () { call(String(k), Array.prototype.slice.call(arguments), ok, bad); };
+    } });
+  }
+  window.google = window.google || {};
+  window.google.script = { run: runner(null, null), host: { close: function () {} }, url: { getLocation: function (cb) { var p = {}; new URLSearchParams(location.search).forEach(function (v, k) { p[k] = v; }); cb({ parameter: p, parameters: {}, hash: location.hash.slice(1) }); } } };
+})();
+</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+<meta name="jj-cad" content="">
+<link rel="canonical" href="https://jipjini.com/request/">
+<!-- Google tag (gtag.js) — 2026-07-08 전환 퍼널 측정 (정밀 의뢰서 = 핵심 전환 지점) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-35EM7T3M9W"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-35EM7T3M9W', { page_title: '정밀 의뢰서', page_path: '/request-form' });
+</script>
+<title>집지니 인테리어 정밀 의뢰서</title>
+<!-- 2026-05-29 박 대표 fix: Alpine.js 두 번 로드되어 x-for 두 번 렌더링 + 클릭 무반응. 한 번만 로드. -->
+<script src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.5/dist/cdn.min.js" defer></script>
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<style>
+  /* 2026-11-10 전면 개편: 한 가지 색 체계(먹색·짙은 녹색·오트밀), 한 가지 글꼴, 선은 가늘게·그림자 없이·그림문자 없이 */
+  :root { --ink:#1f2421; --sub:#5d655f; --mute:#8b918c; --line:#e6e1d5; --line2:#d6d0c2; --bg:#f6f3ec; --panel:#faf8f3; --acc:#1f3d2b; --acc2:#2f5a41; --warn:#9a4a2f; }
+  html { -webkit-text-size-adjust:100%; }
+  body { font-family:'Pretendard Variable',Pretendard,-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Malgun Gothic',sans-serif; background:var(--bg); color:var(--ink); letter-spacing:-0.01em; line-height:1.6; -webkit-font-smoothing:antialiased; }
+  .card { background:#fff; border:1px solid var(--line); border-radius:16px; box-shadow:none; padding:22px 20px; margin-bottom:14px; }
+  .card[style*="border:2px solid"] { border:1px solid var(--line) !important; }
+  .section-title { color:var(--ink); font-weight:650; font-size:17px; border-bottom:0; padding-bottom:0; margin-bottom:16px; display:flex; justify-content:space-between; align-items:center; cursor:pointer; letter-spacing:-0.02em; }
+  .section-title[style] { color:var(--ink) !important; font-weight:650 !important; }
+  .req { color:var(--warn); font-size:12px; font-weight:600; margin-left:4px; }
+  label.lbl { display:block; font-size:12.5px; color:var(--sub); margin-bottom:6px; font-weight:600; }
+  input[type=text], input[type=tel], input[type=email], input[type=number], input[type=date], select, textarea {
+    width:100%; padding:11px 12px; border:1px solid var(--line2); border-radius:10px; font-size:15px; background:#fff; box-sizing:border-box; color:var(--ink); font-family:inherit; transition:border-color .15s, box-shadow .15s; }
+  input::placeholder, textarea::placeholder { color:#b3b0a6; }
+  input:focus, select:focus, textarea:focus { outline:none; border-color:var(--acc); box-shadow:0 0 0 3px rgba(31,61,43,.10); }
+  input[type=checkbox], input[type=radio] { accent-color:var(--acc) !important; }
+  .grid2 { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  .grid3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; }
+  .grid4 { display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:10px; }
+  @media (max-width:520px) { .grid3 { grid-template-columns:1fr 1fr; } .grid4 { grid-template-columns:1fr 1fr; } .card { padding:18px 15px; border-radius:14px; } }
+  .room-card { border:1px solid var(--line); border-radius:12px; padding:14px; margin-bottom:10px; background:var(--panel); position:relative; }
+  .btn-add { background:#fff; color:var(--acc); padding:8px 14px; border:1px solid var(--acc); border-radius:10px; cursor:pointer; font-size:13px; font-weight:600; font-family:inherit; }
+  .btn-add:hover { background:var(--acc); color:#fff; }
+  .btn-remove { background:#fff; color:var(--warn); padding:4px 10px; border:1px solid #dcc3b8; border-radius:8px; cursor:pointer; font-size:11px; position:absolute; top:10px; right:10px; }
+  .btn-submit { background:var(--ink); color:#fff; width:100%; padding:16px; border:none; border-radius:14px; font-size:16px; font-weight:650; cursor:pointer; margin-top:12px; letter-spacing:-0.01em; font-family:inherit; }
+  .btn-submit:hover { background:#000; }
+  .check-row { display:flex; align-items:center; gap:8px; font-size:13.5px; padding:6px 0; }
+  .check-row input { width:auto; margin:0; }
+  .scope-grid { display:grid; grid-template-columns:1fr 1fr; gap:6px; }
+  @media (min-width:640px) { .scope-grid { grid-template-columns:1fr 1fr 1fr; } }
+  .arrow { width:9px; height:9px; border-right:1.5px solid var(--mute); border-bottom:1.5px solid var(--mute); transform:rotate(-45deg); transition:transform .2s; display:inline-block; margin-left:10px; flex:none; }
+  .arrow.open { transform:rotate(45deg); }
+  /* 예전 색 상자(노랑·연두·파랑)를 한 가지 바탕으로 */
+  [style*="#FFF8E1"], [style*="#FFFDE7"], [style*="#FFF3CD"], [style*="#FAFAF7"], [style*="#F1F5F2"], [style*="#f4f7f3"], [style*="#f3f5f9"], [style*="#E8F5E9"], [style*="#E3F2FD"], [style*="#FFF4E5"] { background:var(--panel) !important; border-color:var(--line) !important; border-left-width:1px !important; border-style:solid !important; border-radius:12px !important; }
+  [style*="color:#FFD966"] { color:#efe9d8 !important; } [style*="background:#FFD966"] { background:#efe9d8 !important; color:var(--ink) !important; }
+  [style*="#fff7e6"], [style*="#FBF8F1"], [style*="#F6F2EA"], [style*="#f6f6f0"] { background:var(--panel) !important; border-color:var(--line) !important; }
+  [style*="color:#c00"] { color:var(--warn) !important; } [style*="border:1px solid #c00"] { border-color:#dcc3b8 !important; }
+  [style*="color:#1a472a"] { color:var(--acc) !important; }
+  [style*="background:#1a472a"] { background:var(--acc) !important; border-color:var(--acc) !important; }
+  [style*="border:1px solid #1a472a"] { border-color:var(--acc) !important; }
+  /* 작은 보조 양식 (외부 양식 도구 없이) */
+  .mt-2{margin-top:8px}.mt-3{margin-top:12px}.mt-4{margin-top:16px}.mb-2{margin-bottom:8px}.pb-6{padding-bottom:24px}.p-3{padding:12px}.flex{display:flex}.items-end{align-items:flex-end}.text-sm{font-size:14px}.text-xs{font-size:12px}.font-semibold{font-weight:600}.text-center{text-align:center}.text-gray-500{color:var(--mute)}.rounded{border-radius:10px}
+  .bg-green-100{background:#eef3ee}.text-green-800{color:var(--acc)}.bg-red-100{background:#f7ece8}.text-red-800{color:var(--warn)}
+  body.rf{max-width:760px;margin:0 auto;padding:20px 14px 40px}
+  /* 머리 */
+  .rf-head { text-align:left; padding:8px 4px 18px; }
+  .rf-brand { font-size:13px; font-weight:700; letter-spacing:.18em; color:var(--acc); }
+  .rf-h1 { font-size:28px; font-weight:700; letter-spacing:-0.035em; margin:6px 0 6px; color:var(--ink); line-height:1.25; }
+  .rf-sub { font-size:14px; color:var(--sub); margin:0; }
+  .rf-kakao { display:inline-block; margin-top:14px; padding:9px 16px; border:1px solid var(--line2); border-radius:999px; font-size:13px; font-weight:600; color:var(--ink); text-decoration:none; background:#fff; }
+  .rf-kakao:hover { border-color:var(--ink); }
+  .rf-guide { margin:0 0 14px; padding:16px 18px; border:1px solid var(--line); border-radius:16px; background:#fff; }
+  .rf-guide summary { cursor:pointer; font-size:13.5px; font-weight:600; color:var(--ink); list-style:none; display:flex; justify-content:space-between; align-items:center; }
+  .rf-guide summary::-webkit-details-marker { display:none; }
+  .rf-guide ol { font-size:13px; color:var(--sub); margin:12px 0 0; padding-left:18px; line-height:1.85; }
+  /* 1번 카드: 우리 집 */
+  .lead-note { font-size:13.5px; color:var(--sub); margin:-6px 0 14px; }
+  .panel { margin-top:14px; padding:14px; background:var(--panel); border:1px solid var(--line); border-radius:12px; }
+  .panel-h { font-size:13px; font-weight:650; color:var(--ink); margin:0 0 4px; }
+  .panel-d { font-size:12.5px; color:var(--sub); margin:0 0 10px; line-height:1.6; }
+  .btn-dark { display:inline-block; padding:10px 16px; border-radius:10px; border:1px solid var(--ink); background:var(--ink); color:#fff; font-weight:600; font-size:13.5px; cursor:pointer; font-family:inherit; }
+  .btn-dark:disabled { opacity:.55; }
+  .btn-line { display:inline-block; padding:10px 16px; border-radius:10px; border:1px solid var(--line2); background:#fff; color:var(--ink); font-weight:600; font-size:13.5px; cursor:pointer; font-family:inherit; }
+  .auto { margin-top:16px; border:1px solid var(--acc); border-radius:14px; overflow:hidden; }
+  .auto-h { background:var(--acc); color:#fff; font-size:13px; font-weight:650; padding:9px 14px; display:flex; justify-content:space-between; align-items:center; }
+  .auto-h small { font-weight:400; opacity:.8; font-size:11.5px; }
+  .auto dl { margin:0; padding:6px 14px 10px; display:grid; grid-template-columns:92px 1fr; row-gap:0; }
+  .auto dt { font-size:12.5px; color:var(--mute); padding:8px 0; border-bottom:1px solid var(--line); }
+  .auto dd { font-size:13.5px; color:var(--ink); margin:0; padding:8px 0; border-bottom:1px solid var(--line); font-weight:500; }
+  .auto dl > :nth-last-child(-n+2) { border-bottom:0; }
+  .auto-f { font-size:12px; color:var(--sub); padding:0 14px 12px; margin:0; }
+</style>
+</head>
+<body x-data="formApp()" class="rf">
+
+<header class="rf-head">
+  <div class="rf-brand">집지니</div>
+  <h1 class="rf-h1">정밀 의뢰서</h1>
+  <p class="rf-sub">평면도 한 장이면 방별 크기와 물량이 먼저 채워집니다. 나머지는 원하는 공사만 골라 주세요. 직접 정리한 파일이 있으면 바로 아래에서 파일만 보내셔도 됩니다.</p>
+  <a class="rf-kakao" href="https://pf.kakao.com/_NjpxhC/chat" target="_blank" rel="noopener">카카오톡으로 먼저 상담하기</a>
+</header>
+
+<details class="rf-guide">
+  <summary>작성 안내 — 5분이면 끝납니다 <span class="arrow"></span></summary>
+  <ol>
+    <li><b>우리 집 정보</b>에 주소를 적고 평면도를 넣으면 전용면적·방별 크기가 자동으로 채워집니다.</li>
+    <li><b>시공 공종 범위</b>에서 원하는 공사를 고르고, 공사 옆 <b>[세부]</b>에서 자재와 치수를 정합니다.</li>
+    <li>자재나 치수가 어려우면 <b>「상담 후 결정」</b>만 체크하세요. 코디가 카카오톡으로 함께 정합니다.</li>
+    <li>치수를 비워 두어도 됩니다. 평형 기준값으로 먼저 산정하고, 정확한 수치는 실측 때 확정합니다.</li>
+    <li>처음이라면 「전체 리모델링」과 「모두 상담 후 결정」 두 가지만 체크하고 제출하셔도 됩니다.</li>
+  </ol>
+</details>
+
+<!-- 2026-11-14 박 대표: 「직접 작성한 도면·요청 파일을 주고 견적을 받고 싶은 고객」용 — 이름·연락처·파일만으로 바로 접수, 코디가 검토 -->
+<details class="card frq" id="frq">
+  <summary class="frq-s"><b>직접 정리한 도면·요청서가 있으신가요?</b><span>파일만 보내 주시면 코디가 검토해 견적을 드립니다</span></summary>
+  <div class="frq-b" x-data>
+    <p class="lead-note" style="margin-top:4px;">손으로 그린 도면, 원하는 공사를 적은 메모·엑셀, 집 사진, 다른 업체 견적서 무엇이든 좋습니다. 아래 의뢰서를 다 채우지 않으셔도 됩니다.</p>
+    <label class="frq-drop" for="frqF"><input type="file" id="frqF" multiple accept="image/*,.pdf,.xls,.xlsx,.csv,.hwp,.hwpx,.doc,.docx,.ppt,.pptx,.txt,.dwg,.dxf" style="display:none"><b>파일 고르기</b><span>사진·PDF·엑셀·한글·워드·캐드 · 8개, 모두 합쳐 30MB까지</span></label>
+    <ul id="frqL" class="frq-l"></ul>
+    <div class="frq-g">
+      <div><label class="lbl" for="frqN">성함<span class="req">*</span></label><input id="frqN" maxlength="40" autocomplete="name"></div>
+      <div><label class="lbl" for="frqP">휴대폰<span class="req">*</span></label><input id="frqP" inputmode="tel" maxlength="20" autocomplete="tel" placeholder="010-0000-0000"></div>
+    </div>
+    <div style="margin-top:10px;"><label class="lbl" for="frqA">공사할 집 주소 <span style="font-weight:400;color:var(--mute)">(선택)</span></label><input id="frqA" maxlength="200" placeholder="예) 남양주시 다산동 한양수자인 ○○동"></div>
+    <div style="margin-top:10px;"><label class="lbl" for="frqM">요청 사항 <span style="font-weight:400;color:var(--mute)">(선택)</span></label><textarea id="frqM" rows="3" maxlength="3000" placeholder="예) 첨부한 메모대로 도배·장판·욕실 2곳 견적 부탁드립니다. 입주는 12월 말이에요."></textarea></div>
+    <label style="display:flex;gap:8px;align-items:flex-start;margin-top:10px;font-size:13px;color:var(--sub);line-height:1.5;"><input type="checkbox" id="frqC" style="margin-top:3px;"> 견적 상담을 위해 성함·연락처·주소와 보내 주신 파일을 받는 데 동의합니다. 파일은 견적에만 쓰고 공개하지 않습니다.</label>
+    <button type="button" class="btn-dark" id="frqGo" style="margin-top:12px;">파일 보내고 견적 받기</button>
+    <p id="frqMsg" class="frq-m" aria-live="polite"></p>
+  </div>
+</details>
+<style>
+  .frq{padding:0;overflow:hidden;}
+  .frq-s{list-style:none;cursor:pointer;padding:18px 20px;display:flex;flex-direction:column;gap:4px;}
+  .frq-s::-webkit-details-marker{display:none;}
+  .frq-s b{font-size:16px;color:var(--ink);}
+  .frq-s span{font-size:13px;color:var(--sub);}
+  .frq[open] .frq-s{border-bottom:1px solid var(--line);}
+  .frq-b{padding:16px 20px 20px;}
+  .frq-drop{display:flex;flex-direction:column;gap:4px;align-items:center;justify-content:center;border:1.5px dashed var(--line2);border-radius:12px;padding:20px 12px;background:var(--panel);cursor:pointer;text-align:center;}
+  .frq-drop b{color:var(--acc);font-size:15px;}
+  .frq-drop span{font-size:12px;color:var(--mute);}
+  .frq-l{list-style:none;margin:10px 0 0;padding:0;font-size:13px;}
+  .frq-l li{display:flex;justify-content:space-between;gap:8px;padding:7px 0;border-bottom:1px solid var(--line);}
+  .frq-l button{border:0;background:none;color:var(--warn);font-size:13px;cursor:pointer;}
+  .frq-g{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px;}
+  @media (max-width:520px){.frq-g{grid-template-columns:1fr;}}
+  .frq-m{margin:10px 0 0;font-size:13.5px;line-height:1.6;}
+</style>
+<script>
+(function () {
+  var F = [], MAXN = 8, MAXB = 30 * 1024 * 1024;
+  function $(i) { return document.getElementById(i); }
+  function kb(n) { return n > 1048576 ? (n / 1048576).toFixed(1) + 'MB' : Math.max(1, Math.round(n / 1024)) + 'KB'; }
+  function draw() {
+    $('frqL').innerHTML = F.map(function (f, i) { return '<li><span>' + f.name.replace(/[<>&]/g, '') + ' · ' + kb(f.size) + '</span><button type="button" data-frx="' + i + '">빼기</button></li>'; }).join('');
+  }
+  document.addEventListener('change', function (e) {
+    if (e.target.id !== 'frqF') return;
+    Array.prototype.forEach.call(e.target.files || [], function (f) { if (F.length < MAXN) F.push(f); });
+    var tot = F.reduce(function (a, f) { return a + f.size; }, 0);
+    $('frqMsg').textContent = tot > MAXB ? '모두 합쳐 30MB를 넘습니다. 큰 파일은 빼시고 카카오톡으로 보내 주세요.' : '';
+    e.target.value = ''; draw();
+  });
+  document.addEventListener('click', function (e) {
+    var x = e.target.closest && e.target.closest('[data-frx]'); if (x) { F.splice(Number(x.getAttribute('data-frx')), 1); draw(); return; }
+    if (!(e.target.closest && e.target.closest('#frqGo'))) return;
+    var msg = $('frqMsg'), btn = $('frqGo');
+    var p = { 고객명: $('frqN').value.trim(), 연락처: $('frqP').value.trim(), 주소: $('frqA').value.trim(), 메모: $('frqM').value.trim(), 동의: $('frqC').checked, 유입: (new URLSearchParams(location.search).get('utm_source') || document.referrer || '').slice(0, 120) };
+    if (!p.고객명) { msg.textContent = '성함을 적어 주세요.'; return; }
+    if (p.연락처.replace(/\D/g, '').length < 9) { msg.textContent = '연락받으실 휴대폰 번호를 적어 주세요.'; return; }
+    if (!F.length && p.메모.length < 5) { msg.textContent = '파일을 하나 이상 넣거나 요청 사항을 적어 주세요.'; return; }
+    if (!p.동의) { msg.textContent = '개인정보 수집·이용에 동의해 주세요.'; return; }
+    if (F.reduce(function (a, f) { return a + f.size; }, 0) > MAXB) { msg.textContent = '모두 합쳐 30MB를 넘습니다.'; return; }
+    btn.disabled = true; msg.textContent = '집지니가 파일을 받고 있습니다…';
+    Promise.all(F.map(function (f) { return new Promise(function (ok, no) { var r = new FileReader(); r.onload = function () { ok({ 이름: f.name, 형식: f.type || '', 내용: String(r.result) }); }; r.onerror = no; r.readAsDataURL(f); }); })).then(function (files) {
+      p.파일 = files;
+      google.script.run.withSuccessHandler(function (j) {
+        if (j && j.ok) { msg.innerHTML = '<b style="color:var(--acc)">' + String(j.안내 || '접수했습니다.').replace(/[<>&]/g, '') + '</b>'; F = []; draw(); try { gtag('event', 'file_request_submit'); } catch (_g) {} }
+        else { btn.disabled = false; msg.textContent = (j && j.error) || '보내지 못했습니다. 카카오톡으로 보내 주세요.'; }
+      }).withFailureHandler(function (err) { btn.disabled = false; msg.textContent = '보내지 못했습니다(' + (err && err.message || '연결 오류') + '). 카카오톡으로 보내 주세요.'; }).submitFileRequest(JSON.stringify(p));
+    }).catch(function () { btn.disabled = false; msg.textContent = '파일을 읽지 못했습니다. 다른 파일로 다시 해 주세요.'; });
+  });
+})();
+</script>
+
+<!-- 1. 우리 집 정보 (2026-11-10 개편: 주소 → 공공데이터 미리보기 → 평면도 넣기 → 자동으로 채운 내용. 의뢰서의 맨 앞) -->
+<div class="card">
+  <div class="section-title" style="cursor:default;">1. 우리 집 정보 <span class="req">필수</span></div>
+  <p class="lead-note">주소를 적고 평면도를 넣으면 전용면적, 방·욕실 수, 방별 크기, 바닥·벽 물량이 먼저 채워집니다.</p>
+  <div x-show="cad.on" style="margin:0 0 14px;padding:10px 12px;border-left:3px solid #1a472a;background:#FAFAF7;font-size:13.5px;line-height:1.6;">
+    <b>집지니 CAD 도면에서 가져왔습니다.</b> <span x-text="cad.sum"></span><br>
+    <span style="color:var(--sub);">주소와 연락처만 더 적어 주세요. 가져온 값은 아래에서 고칠 수 있고, 작업 목록은 맨 아래 메모에 들어 있습니다.</span>
+  </div>
+  <div><label class="lbl">시공 주소<span class="req">*</span></label>
+    <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;"><button type="button" class="btn-dark" style="width:auto;padding:9px 16px;" @click="addrOpen()" x-text="ad.open ? '주소 찾기 닫기' : '주소 찾기'"></button><span style="font-size:12px;color:var(--mute);">도로명·지번·건물 이름으로 찾아 고르면 정확한 주소가 채워집니다.</span></div>
+    <div x-show="ad.open" style="border:1px solid var(--line, #d9d6cf);margin-bottom:8px;"><div id="addrLayer" style="width:100%;height:420px;"></div></div>
+    <p x-show="ad.msg" x-text="ad.msg" style="margin:0 0 8px;font-size:12.5px;color:var(--warn);"></p>
+    <textarea x-model="data.address" rows="2" placeholder="「주소 찾기」로 고르거나 직접 적어 주세요. 예) 인천시 부평구 부개로 12 부개주공6단지" required></textarea></div>
+  <div class="mt-3"><label class="lbl">동·호수<span class="req">*</span></label><input type="text" x-model="data.unit" placeholder="예) 603동 1204호 · 단독주택이면 「없음」" required><p style="font-size:12px;color:var(--mute);margin-top:5px;">실측·공사 방문 때 필요합니다. 공동현관 비밀번호는 적지 마세요.</p></div>
+
+  <!-- ① 공공데이터 미리보기: 주소·동호 → 건축물대장·단지·실거래 타입 -->
+  <div class="panel">
+    <p class="panel-h">① 주소로 건물 정보 찾기</p>
+    <p class="panel-d">단지명·전용면적·준공년도·평형 타입을 건축물대장과 실거래 자료에서 찾아 채웁니다.</p>
+    <button type="button" class="btn-dark" @click="bldgPreview()" :disabled="pv.busy" x-text="pv.busy ? '집지니가 찾고 있습니다…' : '우리 집 정보 찾기'"></button>
+    <p x-show="pv.err" x-text="pv.err" style="margin:10px 0 0;font-size:12.5px;color:var(--warn);"></p>
+    <div x-show="pv.r" style="margin-top:12px;font-size:13.5px;line-height:1.75;">
+      <div><b x-text="pv.r && pv.r.단지명"></b> <span x-show="pv.r && pv.r.도로명" style="color:var(--mute);font-size:12px;" x-text="pv.r && pv.r.도로명"></span></div>
+      <div x-show="pv.r && pv.r.전유오류" x-text="pv.r && pv.r.전유오류" style="color:var(--warn);font-size:12.5px;"></div>
+      <div x-show="pv.r && pv.r.타입 && pv.r.타입.length" style="margin-top:6px;">
+        <span style="font-size:12px;color:var(--sub);">이 단지의 평형 타입 (최근 1년 실거래) — 우리 집 타입을 누르면 전용면적이 들어갑니다</span>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;">
+          <template x-for="t in (pv.r ? pv.r.타입 : [])" :key="t.전용면적">
+            <button type="button" @click="pickType(t)" :style="'padding:6px 12px;border-radius:999px;font-size:12.5px;cursor:pointer;font-family:inherit;border:1px solid ' + (t.같은타입 || Number(data.areaM2) === Number(t.전용면적) ? '#1f2421;background:#1f2421;color:#fff' : '#d6d0c2;background:#fff;color:#1f2421')" x-text="t.전용면적 + '㎡ (' + t.전용평 + '평)'"></button>
+          </template>
+        </div>
+      </div>
+      <div x-show="pv.r && pv.r.링크 && pv.r.링크.length" style="margin-top:8px;font-size:12px;color:var(--sub);">단지 평면도 보러 가기: <template x-for="l in (pv.r ? pv.r.링크 : [])" :key="l.url"><a :href="l.url" target="_blank" rel="noopener noreferrer" style="color:var(--ink);font-weight:600;text-decoration:underline;text-underline-offset:2px;margin-right:10px;" x-text="l.이름"></a></template></div>
+      <div x-show="ap.busy || ap.msg" style="margin-top:10px;padding-top:10px;border-top:1px solid var(--line,#e5e5e5);font-size:13px;line-height:1.7;">
+        <div x-show="ap.busy" style="color:var(--mute);">집지니가 단지 평면도를 찾고 있습니다…</div>
+        <div x-show="!ap.busy && ap.msg" x-text="ap.msg"></div>
+        <div x-show="!ap.busy && ap.r && ap.r.평형목록 && ap.r.평형목록.length > 1" style="margin-top:6px;display:flex;flex-wrap:wrap;gap:6px;">
+          <template x-for="t in (ap.r && ap.r.평형목록 ? ap.r.평형목록 : [])" :key="t.이름">
+            <button type="button" @click="aptPlan(t.이름)" :style="'padding:5px 10px;font-size:12.5px;border:1px solid ' + (t.고른평형 ? 'var(--ink,#222)' : 'var(--line,#ccc)') + ';background:' + (t.고른평형 ? 'var(--ink,#222)' : '#fff') + ';color:' + (t.고른평형 ? '#fff' : 'var(--ink,#222)') + ';border-radius:4px;cursor:pointer;'" x-text="'전용 ' + t.전용면적 + '㎡' + (t.이름 ? ' · ' + t.이름 : '')"></button>
+          </template>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ② 평면도 넣기 → 자동 적산 (분석은 이 브라우저에서) -->
+  <div class="panel">
+    <p class="panel-h">② 평면도 넣기</p>
+    <p class="panel-d">분양 안내문, 네이버 부동산·부동산114 화면 캡처, 종이 도면을 찍은 사진 모두 됩니다. 방 이름과 치수 숫자를 읽고 방을 나눠 방별 크기를 채웁니다. 없으면 건너뛰셔도 됩니다.</p>
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+      <label class="btn-dark">
+        <span x-text="pl.busy ? (pl.step ? pl.step + '…' : '집지니가 도면을 분석하고 있습니다…') : (pl.r ? '다른 도면으로 다시' : '평면도 고르기')"></span>
+        <input type="file" accept="image/*" style="display:none" @change="planPick($event)">
+      </label>
+      <button type="button" class="btn-line" x-show="pl.file && !pl.typ" @click="planFixPhoto()">기울어진 사진 반듯하게 펴기</button>
+      <button type="button" class="btn-line" x-show="pl.backup" @click="planUndo()">자동 채움 되돌리기</button>
+    </div>
+    <p x-show="pl.err" x-text="pl.err" style="margin:10px 0 0;font-size:12.5px;color:var(--warn);"></p>
+    <div x-show="pl.r" style="margin-top:12px;">
+      <div x-show="pl.svg2" style="display:flex;gap:6px;margin-bottom:8px;">
+        <button type="button" class="btn-line" :style="pl.view === 'new' ? 'border-color:var(--ink);color:var(--ink);font-weight:700;' : ''" @click="pl.view = 'new'">다시 그린 도면</button>
+        <button type="button" class="btn-line" :style="pl.view === 'src' ? 'border-color:var(--ink);color:var(--ink);font-weight:700;' : ''" @click="pl.view = 'src'">올린 그림 위에 보기</button>
+      </div>
+      <div x-show="pl.svg2 && pl.view === 'new'" x-html="pl.svg2" style="max-width:560px;border:1px solid var(--line);border-radius:10px;overflow:hidden;"></div>
+      <div x-show="!pl.svg2 || pl.view === 'src'" x-html="pl.svg" style="max-width:560px;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#fff;"></div>
+      <div style="margin-top:8px;font-size:13.5px;line-height:1.75;">
+        <b x-text="pl.sum"></b>
+        <div x-show="pl.r && pl.r.mmpp" style="font-size:13px;margin:6px 0 2px;">방·욕실 수가 다르면 고쳐 주세요 — 방
+          <select x-model.number="pl.fb" @change="planFix()" style="width:auto;padding:5px 8px;font-size:13px;"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select> 욕실
+          <select x-model.number="pl.ft" @change="planFix()" style="width:auto;padding:5px 8px;font-size:13px;"><option>1</option><option>2</option><option>3</option></select>
+        </div>
+        <div x-show="pl.typ" style="font-size:12.5px;color:var(--warn);">도면에서 방을 정확히 나누지 못해, 같은 방·욕실 수의 보통 구성(실제 평면 통계)으로 어림했습니다. 올린 도면은 코디가 직접 확인합니다.</div>
+        <div x-show="pl.r && !pl.r.mmpp" style="font-size:12.5px;color:var(--warn);">전용면적을 알면 방별 가로·세로까지 계산합니다. ①에서 찾거나 아래 건물 정보에 적은 뒤 도면을 다시 넣어 주세요.</div>
+      </div>
+    </div>
+    <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--line);">
+      <div style="font-size:12.5px;color:var(--sub);margin-bottom:6px;">부동산 사이트에서 보던 우리 단지 주소(링크)가 있으면 붙여 넣어 주세요. 코디가 바로 열어 봅니다.</div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;">
+        <input type="url" x-model="pl.link" placeholder="https://new.land.naver.com/complexes/…" style="flex:1;min-width:200px;font-size:13.5px;padding:9px 11px;">
+        <button type="button" class="btn-line" @click="planLink()" :disabled="pl.linkBusy" x-text="pl.linkBusy ? '집지니가 확인하고 있습니다…' : '확인'"></button>
+      </div>
+      <p x-show="pl.linkMsg" x-text="pl.linkMsg" style="margin:6px 0 0;font-size:12.5px;color:var(--sub);"></p>
+    </div>
+  </div>
+
+  <!-- ③ 도면이 없을 때: 비슷한 평면 고르기 -->
+  <div class="panel" x-show="!pl.r || pl.sim">
+    <p class="panel-h">③ 도면이 없다면 — 비슷한 평면 고르기</p>
+    <div x-ref="catBox" x-init="catMount($refs.catBox)"></div>
+    <p x-show="!pl.catOn" class="panel-d" style="margin:0;">예시 평면을 준비하고 있습니다. 방·욕실 수만 알려 주셔도 보통 구성으로 어림합니다 — 아래 건물 정보에서 전용면적을 적어 주세요.</p>
+    <p x-show="pl.simMsg" x-text="pl.simMsg" style="margin:8px 0 0;font-size:12.5px;color:var(--acc);font-weight:600;"></p>
+  </div>
+
+  <!-- 자동으로 채운 내용 — 한눈에 -->
+  <div class="auto" x-show="pv.r || pl.r || pl.sim">
+    <div class="auto-h">자동으로 채운 내용 <small>아래 칸에서 언제든 고칠 수 있습니다</small></div>
+    <dl>
+      <template x-if="pv.r && pv.r.단지명"><div style="display:contents"><dt>단지</dt><dd x-text="pv.r.단지명"></dd></div></template>
+      <template x-if="data.areaM2"><div style="display:contents"><dt>전용면적</dt><dd x-text="data.areaM2 + '㎡ · ' + (data.py || Math.round(data.areaM2 / 3.305785 * 10) / 10) + '평'"></dd></div></template>
+      <template x-if="pv.r && (pv.r.준공년도 || pv.r.층)"><div style="display:contents"><dt>건물</dt><dd x-text="[pv.r.준공년도 ? pv.r.준공년도 + '년 준공' : '', pv.r.층 ? pv.r.층 + '층' + (pv.r.최고층 ? ' / ' + pv.r.최고층 + '층' : '') : '', pv.r.승강기 ? '승강기 있음' : '', pv.r.세대수 ? pv.r.세대수 + '세대' : '', pv.r.난방 || ''].filter(Boolean).join(' · ')"></dd></div></template>
+      <template x-if="pl.r || pl.sim"><div style="display:contents"><dt>공간 구성</dt><dd x-text="autoRooms()"></dd></div></template>
+      <template x-if="(pl.r || pl.sim) && autoSizes()"><div style="display:contents"><dt>방별 크기</dt><dd x-text="autoSizes()" style="font-weight:400;line-height:1.7;"></dd></div></template>
+      <template x-if="pl.detail"><div style="display:contents"><dt>물량</dt><dd x-text="pl.detail" style="font-weight:400;"></dd></div></template>
+      <template x-if="pl.r && pl.r.척도 && pl.r.척도.안내"><div style="display:contents"><dt>척도 확인</dt><dd x-text="pl.r.척도.안내" style="font-weight:400;"></dd></div></template>
+    </dl>
+    <p class="auto-f" x-show="pl.typ || pl.sim">본 서비스는 과학기술정보통신부의 재원으로 한국지능정보사회진흥원의 지원을 받아 구축된 「건축 도면 데이터」를 활용하였습니다.</p>
+  </div>
+</div>
+
+<!-- 2. 연락받으실 분 -->
+<div class="card">
+  <div class="section-title" @click="open.basic = !open.basic">
+    2. 연락받으실 분 <span class="req">필수</span>
+    <span class="arrow" :class="{'open': open.basic}"></span>
+  </div>
+  <div x-show="open.basic">
+    <div class="grid2">
+      <div><label class="lbl">고객명<span class="req">*</span></label><input type="text" x-model="data.name" required></div>
+      <div><label class="lbl">연락처<span class="req">*</span></label><input type="tel" x-model="data.phone" placeholder="010-1234-5678" required></div>
+      <div><label class="lbl">이메일</label><input type="email" x-model="data.email"></div>
+      <div><label class="lbl">카카오ID</label><input type="text" x-model="data.kakao" placeholder="@아이디"></div>
+    </div>
+  </div>
+</div>
+
+<!-- 2. 건물 정보 -->
+<div class="card">
+  <div class="section-title" @click="open.building = !open.building">
+    3. 건물 · 일정 <span class="arrow" :class="{'open': open.building}"></span>
+  </div>
+  <div x-show="open.building">
+    <div class="grid3">
+      <div><label class="lbl">건물유형</label>
+        <select x-model="data.buildingType"><option>아파트</option><option>오피스텔</option><option>빌라/다세대</option><option>단독주택</option><option>상가/사무실</option></select>
+      </div>
+      <div><label class="lbl">층수</label><input type="text" x-model="data.floor" placeholder="예: 12층"></div>
+      <div><label class="lbl">엘리베이터</label><select x-model="data.elevator"><option>있음</option><option>없음</option></select></div>
+      <div><label class="lbl">거주상태</label>
+        <select x-model="data.livingStatus"><option>공실</option><option>거주중 (반이사)</option><option>거주중 (생활)</option></select>
+      </div>
+      <div><label class="lbl">희망 시공시작일<span class="req">*</span></label><input type="date" x-model="data.startDate" required><div style="font-size:11px;color:#B88B4A;margin-top:2px;">공정표 산정 필수</div></div>
+      <div>
+        <label class="lbl">바닥 전용면적 (㎡, 예: 84㎡)<span class="req">*</span></label>
+        <input type="number" step="0.1" x-model.number="data.areaM2" min="1" required placeholder="예: 84" @input="data.py = data.areaM2 ? Math.round((data.areaM2/3.305785)*10)/10 : null">
+        <div style="font-size:11px;color:#7a8770;margin-top:2px;" x-show="data.areaM2">→ <b x-text="data.py"></b>평 (자동 환산: ㎡ ÷ 3.305785)</div>
+      </div>
+      <!-- 2026-06-04 박 대표 영구 원칙: 입력 안 한 항목은 적산 안 함. "코디 추천" 옵션 ON 시만 자동 추정 -->
+      <div style="grid-column:1/-1;margin-top:6px;padding:10px;background:#FFF8E1;border:1px dashed #FFD966;border-radius:6px;">
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;font-weight:700;color:#1a472a;">
+          <input type="checkbox" x-model="data.coordiRecommend" style="width:18px;height:18px;cursor:pointer;accent-color:#FFD966;">
+          <span>코디에게 추천 받기 (입력 안 한 측정값은 자동 추정)</span>
+        </label>
+        <p style="font-size:11.5px;color:#5a5347;margin-top:5px;line-height:1.55;">
+          <b>체크 O</b>: 미입력 측정값(방·매입등 등)을 평수 기반 자동 추정 → 빠른 가견적<br>
+          <span style="color:#a85a3a;">주의 — 창호·도배·바닥 도급재는 평수와 무관 → 직접 측정값 입력 필수</span><br>
+          <b>체크 X</b>: 입력한 값만 적산 → 미입력 항목은 "[상담 후 결정]"로 표시 (정밀)
+        </p>
+      </div>
+    </div>
+    <div class="grid3 mt-3">
+      <!-- R32 박 대표 spec (2026-06-05): 방/욕실 개수는 4.방별 측정 + 6.욕실 측정 카드 row 갯수로 자동 도출. 중복 입력 제거 -->
+      <input type="hidden" x-model.number="data.rooms">
+      <input type="hidden" x-model.number="data.bathrooms">
+      <div><label class="lbl">예산 (만원 단위)</label><input type="number" x-model.number="data.budget" placeholder="예: 4500"></div>
+      <!-- 2026-10-01: 방·욕실 개수 미입력 안내 (필수 아님 — 이탈 방지) -->
+      <div x-show="data.py && (spaceRowCount('rooms') === '' || spaceRowCount('bathrooms') === '')" style="grid-column:1/-1;font-size:11px;color:#7a8770;line-height:1.5;">
+        방·욕실 개수는 공사 세부의 방별·욕실별 측정 칸에서 정해집니다. 입력 안 하면 평형 기준으로 추정합니다.
+      </div>
+    </div>
+    <!-- v21 박 대표: 공사진행 방식 (라디오 + 1줄 안내) -->
+    <div class="mt-4">
+      <label class="lbl">공사진행 방식 <span class="req">*</span></label>
+      <div style="display:flex;gap:18px;margin-top:6px;flex-wrap:wrap;">
+        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;">
+          <input type="radio" value="direct" x-model="data.serviceMode" style="width:16px;height:16px;accent-color:#1a472a;">
+          직접 시공
+        </label>
+        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;">
+          <input type="radio" value="pm" x-model="data.serviceMode" style="width:16px;height:16px;accent-color:#1a472a;">
+          관리대리인 선임 (집지니 PM)
+        </label>
+      </div>
+      <p style="font-size:11px;color:#888;margin-top:6px;line-height:1.5;">
+        직접 시공 — 고객님이 시공팀과 직접 협업하시고 코디비만 정찰제로 지불합니다.<br>
+        관리대리인 선임 — 고객님을 대리해 현장을 관리하고 <b>자재비·인건비 지급까지 대신</b> 하는 관리대리인(집지니 PM)을 선임합니다. 대금은 집지니 대금 지급 계좌에 맡기시면 PM이 공정 확인 후 자재상·기술자에게 보내고 내역을 공개합니다(마진 0). 시공은 각 기술자가, 관리·지급은 대리인이 (관리대리인비 정찰제 추가).<br>
+        <span style="color:#1a472a;font-weight:700;">집지니 하자 조율 약속</span> — 시공 책임은 시공한 기술자·자재상이 직접 집니다. 하자가 생기면 완공 후 12개월 동안 접수부터 재시공 마무리까지 코디가 무상 조율합니다.
+      </p>
+    </div>
+    <input type="hidden" x-model="data.grade">
+  </div>
+</div>
+
+<!-- 3. 시공 공종 범위 — 2026-06-01 박 대표 UX v3: 공사 단위 우선 (벽지/바닥/싱크/욕실/베란다/현관 등) + deep-research best practice -->
+<div class="card" style="border:2px solid #1a472a;">
+  <div class="section-title" @click="open.scope = !open.scope" style="color:#1a472a;font-weight:800;">
+    4. 시공 공종 범위 <span class="arrow" :class="{'open': open.scope}"></span>
+  </div>
+  <div x-show="open.scope">
+    <!-- 2026-06-01 v3: 공사 단위 (10개) → 공사별 적용 공간 → 자재 등급. 숨고·오늘의집·집닥 best practice. -->
+
+    <!-- v20.2 박 대표: 전체 리모델링 = 맨 위 / 카테고리 아코디언 (접었다 폈다) -->
+    <div class="mt-2">
+      <!-- 전체 리모델링 체크박스 + 모두 상담 후 결정 (v20.14) -->
+      <div style="padding:10px 14px;background:#1a472a;border-radius:4px;margin-bottom:12px;">
+        <label
+          :style="(selectedWorks.length === works.length) ? 'color:#FFD966;font-weight:700;' : 'color:#fff;font-weight:600;'"
+          style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:14px;">
+          <input type="checkbox"
+            :checked="selectedWorks.length === works.length"
+            @change="$event.target.checked ? selectAllWorks() : clearAllWorks()"
+            style="width:18px;height:18px;cursor:pointer;accent-color:#FFD966;">
+          <span>전체 리모델링(올수리) — 모든 공사 한 번에 선택</span>
+        </label>
+        <!-- v20.16 박 대표: 전체 리모델링 체크 시 안내 -->
+        <p x-show="selectedWorks.length === works.length" style="margin:6px 0 0 28px;font-size:11px;color:#FFD966;line-height:1.5;">* 세부사항을 적지 않으셔도 평형 기준 평균값으로 자동 산정됩니다.</p>
+        <!-- v20.27 박 대표: 모두 상담 후 결정 (친절화) -->
+        <label style="margin-top:10px;display:flex;align-items:center;gap:10px;cursor:pointer;font-size:13px;color:#FFD966;border-top:1px solid rgba(255,217,102,0.3);padding-top:10px;">
+          <input type="checkbox"
+            :checked="allConsultLater"
+            @change="toggleAllConsultLater($event.target.checked)"
+            style="width:18px;height:18px;cursor:pointer;accent-color:#FFD966;">
+          <span>모두 상담 후 결정 — 집지니의 코디(Codi)가 카톡으로 친절히 도와드릴게요 (어렵게 적으실 필요 없어요)</span>
+        </label>
+      </div>
+      <div style="font-size:14px;font-weight:700;color:#1a472a;margin-bottom:8px;">
+        ① 어떤 공사를 원하시나요? <span style="font-weight:400;color:#6B6B6B;font-size:12px;">(카테고리 클릭 → 펼침)</span>
+      </div>
+      <template x-for="cat in workCategories" :key="cat.name">
+        <div style="margin-bottom:8px;border:1px solid #C8C4BC;border-radius:6px;overflow:hidden;background:#fff;">
+          <!-- R31 v7 (2026-06-05): 헤더 클릭 = 펼침/접힘만. 자동 체크 spec 포기 (Alpine reactive 타이밍 이슈) -->
+          <div @click="toggleWorkCategory(cat.name)" style="display:flex;align-items:center;gap:8px;cursor:pointer;padding:10px 12px;background:#F6F2EA;user-select:none;">
+            <span style="font-size:13px;font-weight:700;color:#1a472a;" x-text="cat.name"></span>
+            <!-- R40 박 대표 spec (2026-06-05): consultLater 시 "상담후" 뱃지, 자재 선택 시 "N개 선택" -->
+            <span x-show="getCategoryCount(cat) > 0 && cat.workIds.some(w => (data.tradeOptions[w]||{}).consultLater)" style="font-size:10.5px;color:#5a4520;background:#d4e6d4;padding:2px 7px;border-radius:8px;font-weight:700;">상담후</span>
+            <span x-show="getCategoryCount(cat) > 0 && !cat.workIds.some(w => (data.tradeOptions[w]||{}).consultLater)" style="font-size:10.5px;color:#1a472a;background:#FFD966;padding:2px 7px;border-radius:8px;font-weight:700;" x-text="getCategoryCount(cat) + '개 선택'"></span>
+            <span style="margin-left:auto;font-size:11px;color:#1a472a;transition:transform 0.2s;" :style="isWorkCategoryOpen(cat.name) ? 'transform:rotate(90deg);' : ''"></span>
+          </div>
+          <div x-show="isWorkCategoryOpen(cat.name)" style="padding:8px;">
+            <template x-for="wid in cat.workIds" :key="wid">
+              <div style="margin-bottom:8px;">
+                <!-- R31 v8 (2026-06-05): workIds 1개 시 work label row 숨김. panel 자동 표시 + 자재 체크 시 work 자동 활성 -->
+                <label
+                  :style="cat.workIds.length === 1 ? 'display:none;' : (selectedWorks.indexOf(wid) >= 0 ? 'display:flex;align-items:center;gap:8px;padding:8px 10px;border:1px solid #1a472a;border-radius:4px;cursor:pointer;font-size:12.5px;background:#F1F5F2;color:#1a472a;font-weight:700;' : 'display:flex;align-items:center;gap:8px;padding:8px 10px;border:1px solid #C8C4BC;border-radius:4px;cursor:pointer;font-size:12.5px;background:#fff;color:#2A2A2A;')">
+                  <input type="checkbox" :checked="selectedWorks.indexOf(wid) >= 0" @change="toggleWork(wid)" style="width:15px;height:15px;cursor:pointer;accent-color:#1a472a;">
+                  <span x-text="(works.find(w => w.id === wid) || {}).label || wid"></span>
+                  <span x-show="selectedWorks.indexOf(wid) >= 0 && tradeOptionTree[wid]"
+                    @click.stop.prevent="toggleWorkAccordion(wid)"
+                    style="margin-left:auto;font-size:11px;cursor:pointer;transition:transform 0.2s;padding:2px 8px;background:#F1F5F2;color:#1a472a;border:1px solid #DCE5DE;border-radius:10px;font-weight:600;"
+                    :style="isWorkAccordionOpen(wid) ? 'margin-left:auto;font-size:11px;cursor:pointer;padding:2px 8px;background:#1a472a;color:#fff;border:1px solid #1a472a;border-radius:10px;font-weight:600;transform:rotate(90deg);' : ''"
+                  >세부 ▸</span>
+                </label>
+                <!-- R31 v8: workIds 1개 시 panel 항상 표시 (체크 무관). 자재 체크 시 work 자동 활성. workIds 2개+ 시 기존 spec -->
+                <div x-show="tradeOptionTree[wid] && (cat.workIds.length === 1 || (selectedWorks.indexOf(wid) >= 0 && isWorkAccordionOpen(wid)))"
+                  style="margin-left:20px;margin-top:6px;padding:10px;background:#FBF8F1;border-left:3px solid #1a472a;border-radius:0 6px 6px 0;">
+                  <!-- 자재 그룹 아코디언 -->
+                  <div x-show="tradeOptionTree[wid] && tradeOptionTree[wid].multiSelect" :style="(data.tradeOptions[wid] || {}).consultLater ? 'position:relative;opacity:0.4;pointer-events:none;' : ''">
+                    <!-- R40 박 대표 spec: consultLater ON 시 자재 영역 visual block + 안내문 -->
+                    <div x-show="(data.tradeOptions[wid] || {}).consultLater" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:#1a472a;color:#fff;padding:8px 14px;border-radius:6px;font-size:12px;font-weight:700;z-index:10;pointer-events:auto;">
+                      코디 추천 모드 — 자재 선택 비활성 (해제하려면 위 클릭)
+                    </div>
+                    <template x-for="grp in (tradeOptionTree[wid].groups || [])" :key="grp.name">
+                      <div style="margin-bottom:6px;border:1px solid #E8E5DE;border-radius:6px;overflow:hidden;background:#fff;">
+                        <!-- R37 박 대표 spec (2026-06-05): groups 1개 시 그룹 헤더 숨김 + 항상 펼침 (중복 단계 제거) -->
+                        <div @click="toggleGroup(wid, grp.name)" :style="tradeOptionTree[wid].groups.length === 1 ? 'display:none;' : 'display:flex;align-items:center;gap:8px;cursor:pointer;padding:6px 10px;background:#F6F2EA;user-select:none;'">
+                          <span style="font-size:12px;font-weight:700;color:#1a472a;" x-text="grp.name"></span>
+                          <span x-show="getGroupSelectedCount(wid, grp) > 0" style="font-size:10px;background:#FFD966;color:#1a472a;padding:1px 6px;border-radius:8px;font-weight:700;" x-text="getGroupSelectedCount(wid, grp) + '개'"></span>
+                          <span style="margin-left:auto;font-size:10px;color:#1a472a;transition:transform 0.2s;" :style="isGroupOpen(wid, grp.name) ? 'transform:rotate(90deg);' : ''"></span>
+                        </div>
+                        <div x-show="tradeOptionTree[wid].groups.length === 1 || isGroupOpen(wid, grp.name)" style="display:flex;flex-direction:column;gap:4px;padding:6px;">
+                          <template x-for="item in grp.items" :key="item.id">
+                            <label :style="isMultiItemSelected(wid, item.id) ? 'display:flex;align-items:center;gap:8px;font-size:12px;padding:5px 8px;background:#1a472a;color:#fff;font-weight:700;border:1px solid #1a472a;border-radius:4px;cursor:pointer;' : 'display:flex;align-items:center;gap:8px;font-size:12px;padding:5px 8px;background:#FBF8F1;border:1px solid #E8E5DE;border-radius:4px;cursor:pointer;'">
+                              <!-- R31v8 + R33v2: 자재 체크 시 work 자동 활성 (workIds 1개 카테고리 1step 지원) -->
+                              <input type="checkbox" :checked="isMultiItemSelected(wid, item.id)"
+                                @change="if(selectedWorks.indexOf(wid) < 0) toggleWork(wid); if((data.tradeOptions[wid] || {}).consultLater) { ensureWorkOpt(wid); data.tradeOptions[wid].consultLater = false; } toggleMultiItem(wid, item.id);"
+                                style="width:15px;height:15px;accent-color:#FFD966;cursor:pointer;">
+                              <span x-text="item.label"></span>
+                            </label>
+                          </template>
+                        </div>
+                      </div>
+                    </template>
+                  </div>
+                  <!-- R27 박 대표 spec (2026-06-05): 도배/바닥/목공 펼침 시 방별 측정 inline (공유 데이터, 어디서 입력해도 동기화) -->
+                  <div x-show="['wallpaper','flooring','carpentry'].indexOf(wid) >= 0" style="margin-top:8px;padding:10px;background:#F1F5F2;border:1px dashed #1a472a;border-radius:6px;">
+                    <div style="font-size:12px;font-weight:700;color:#1a472a;margin-bottom:6px;">방별 측정 (가로 × 세로 → 자동 면적·둘레)</div>
+                    <p style="font-size:11px;color:#888;margin-bottom:6px;">한 번 입력하면 도배·바닥·목공 모두 자동 적산</p>
+                    <template x-for="(r, i) in (data.spaceList.rooms || [])" :key="i">
+                      <div style="display:grid;grid-template-columns:1.2fr 1fr 1fr 1.4fr 30px;gap:5px;margin-bottom:4px;align-items:center;">
+                        <input type="text" x-model="r.name" placeholder="안방/방1..." style="padding:4px 6px;border:1px solid #C8C4BC;border-radius:3px;font-size:12px;">
+                        <input type="number" step="0.1" placeholder="가로(m)" x-model.number="r.width" style="padding:4px 6px;border:1px solid #C8C4BC;border-radius:3px;font-size:12px;">
+                        <input type="number" step="0.1" placeholder="세로(m)" x-model.number="r.depth" style="padding:4px 6px;border:1px solid #C8C4BC;border-radius:3px;font-size:12px;">
+                        <div style="font-size:11px;color:#1a472a;text-align:right;font-weight:600;" x-text="'벽 '+(2*((Number(r.width)||0)+(Number(r.depth)||0))*2.4).toFixed(1)+'㎡ / 몰딩 '+(2*((Number(r.width)||0)+(Number(r.depth)||0))).toFixed(1)+'m'"></div>
+                        <button type="button" @click="data.spaceList.rooms.splice(i,1)" style="background:#fff;border:1px solid #c00;color:#c00;font-size:10px;padding:2px 4px;border-radius:3px;cursor:pointer;">×</button>
+                      </div>
+                    </template>
+                    <button type="button" @click="addRoom()" style="background:#1a472a;color:#fff;border:none;padding:5px 12px;border-radius:4px;cursor:pointer;font-size:12px;margin-top:4px;">+ 방 추가</button>
+                    <div style="margin-top:6px;padding:6px 8px;background:#fff;border-radius:4px;font-size:12px;color:#1a472a;font-weight:600;">
+                      합계: <span x-text="(data.spaceList.rooms||[]).length"></span>개 / 벽 <span x-text="((data.spaceList.rooms||[]).reduce((s,r)=>s+2*((Number(r.width)||0)+(Number(r.depth)||0))*2.4,0)).toFixed(1)"></span>㎡ / 몰딩 <span x-text="((data.spaceList.rooms||[]).reduce((s,r)=>s+2*((Number(r.width)||0)+(Number(r.depth)||0)),0)).toFixed(1)"></span>m
+                    </div>
+                  </div>
+
+                  <!-- v21 E: bathroom 측정 — 시공방식은 tile work로 이동 (중복 제거) -->
+                  <div x-show="wid === 'bathroom' && (isMultiItemSelected('bathroom','porcelain') || isMultiItemSelected('bathroom','tub') || isMultiItemSelected('bathroom','showerBooth'))" style="margin-top:8px;padding:8px;background:#FFF;border:1px dashed #1a472a;border-radius:6px;">
+                    <div style="font-size:12px;font-weight:700;color:#1a472a;margin-bottom:6px;">욕실별 측정 (가로 × 세로)</div>
+                    <template x-for="(b, i) in (data.spaceList.bathrooms || [])" :key="i">
+                      <div style="border:1px solid #C8C4BC;padding:6px;border-radius:4px;margin-bottom:6px;background:#FBF8F1;">
+                        <button @click="data.spaceList.bathrooms.splice(i,1)" x-show="data.spaceList.bathrooms.length>1" style="float:right;background:#fff;border:1px solid #c00;color:#c00;font-size:10px;padding:2px 6px;border-radius:3px;cursor:pointer;">삭제</button>
+                        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;">
+                          <div><label style="font-size:11px;color:#5a5347;">이름</label><input type="text" x-model="b.name" style="width:100%;padding:4px 6px;border:1px solid #C8C4BC;border-radius:3px;font-size:12px;"></div>
+                          <div><label style="font-size:11px;color:#5a5347;">가로(m)</label><input type="number" step="0.1" x-model.number="b.width" style="width:100%;padding:4px 6px;border:1px solid #C8C4BC;border-radius:3px;font-size:12px;"></div>
+                          <div><label style="font-size:11px;color:#5a5347;">세로(m)</label><input type="number" step="0.1" x-model.number="b.depth" style="width:100%;padding:4px 6px;border:1px solid #C8C4BC;border-radius:3px;font-size:12px;"></div>
+                        </div>
+                      </div>
+                    </template>
+                    <button @click="addBath()" style="background:#1a472a;color:#fff;border:none;padding:5px 10px;border-radius:4px;cursor:pointer;font-size:12px;">+ 욕실 추가</button>
+                    <p style="font-size:10.5px;color:#888;margin-top:4px;">* 욕실 타일 시공방식(덧방/철거후)은 05 마감 > 타일에서 선택해주세요.</p>
+                  </div>
+                  <!-- v20.22 sink: 브랜드/빌트인 체크 시만 측정 (기본 구성 항목 제거됨) -->
+                  <div x-show="wid === 'sink' && (isMultiItemSelected('sink','brandNone') || isMultiItemSelected('sink','brandHanssem') || isMultiItemSelected('sink','dishwasher') || isMultiItemSelected('sink','microwave'))" style="margin-top:8px;padding:8px;background:#FFF;border:1px dashed #1a472a;border-radius:6px;">
+                    <div style="font-size:12px;font-weight:700;color:#1a472a;margin-bottom:6px;">부엌 측정 (싱크대 시공 시)</div>
+                    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;">
+                      <div><label style="font-size:11px;color:#5a5347;">싱크대 길이(m) (핵심)</label><input type="number" step="0.1" x-model.number="data.spaceList.kitchen.sinkLength" style="width:100%;padding:4px 6px;border:1px solid #C8C4BC;border-radius:3px;font-size:12px;"></div>
+                      <div><label style="font-size:11px;color:#5a5347;">쿡탑</label><select x-model="data.spaceList.kitchen.cooktop" style="width:100%;padding:4px 6px;border:1px solid #C8C4BC;border-radius:3px;font-size:12px;"><option>인덕션</option><option>가스</option><option>유지</option></select></div>
+                      <div><label style="font-size:11px;color:#5a5347;">식탁 공간</label><select x-model="data.spaceList.kitchen.diningArea" style="width:100%;padding:4px 6px;border:1px solid #C8C4BC;border-radius:3px;font-size:12px;"><option>분리</option><option>통합</option></select></div>
+                    </div>
+                  </div>
+                  <!-- v20.11 박 대표: 붙박이장 면적 (wardrobe 체크 시) -->
+                  <div x-show="wid === 'sink' && isMultiItemSelected('sink','wardrobe')" style="margin-top:6px;padding:8px;background:#FFF;border:1px dashed #1a472a;border-radius:6px;">
+                    <div style="font-size:12px;font-weight:700;color:#1a472a;margin-bottom:6px;">붙박이장 측정</div>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+                      <div><label style="font-size:11px;color:#5a5347;">붙박이장 길이(m)</label><input type="number" step="0.1" placeholder="예: 3" x-model.number="data.spaceList.kitchen.wardrobeLength" style="width:100%;padding:4px 6px;border:1px solid #C8C4BC;border-radius:3px;font-size:12px;"></div>
+                      <div><label style="font-size:11px;color:#5a5347;">붙박이장 높이(m)</label><input type="number" step="0.1" placeholder="예: 2.4" x-model.number="data.spaceList.kitchen.wardrobeHeight" style="width:100%;padding:4px 6px;border:1px solid #C8C4BC;border-radius:3px;font-size:12px;"></div>
+                    </div>
+                  </div>
+                  <!-- v20.11 박 대표: 신발장 면적 (shoeCabinet 체크 시) -->
+                  <div x-show="wid === 'sink' && isMultiItemSelected('sink','shoeCabinet')" style="margin-top:6px;padding:8px;background:#FFF;border:1px dashed #1a472a;border-radius:6px;">
+                    <div style="font-size:12px;font-weight:700;color:#1a472a;margin-bottom:6px;">신발장 측정</div>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+                      <div><label style="font-size:11px;color:#5a5347;">신발장 길이(m)</label><input type="number" step="0.1" placeholder="예: 1.2" x-model.number="data.spaceList.kitchen.shoeCabinetLength" style="width:100%;padding:4px 6px;border:1px solid #C8C4BC;border-radius:3px;font-size:12px;"></div>
+                      <div><label style="font-size:11px;color:#5a5347;">신발장 높이(m)</label><input type="number" step="0.1" placeholder="예: 2.4" x-model.number="data.spaceList.kitchen.shoeCabinetHeight" style="width:100%;padding:4px 6px;border:1px solid #C8C4BC;border-radius:3px;font-size:12px;"></div>
+                    </div>
+                  </div>
+                  <!-- v20.27 tile: 화장실은 화장실별 / 주방·현관·베란다는 단일 면적 -->
+                  <div x-show="wid === 'tile' && (isMultiItemSelected('tile','tileBathroom') || isMultiItemSelected('tile','tileKitchen') || isMultiItemSelected('tile','tileEntrance') || isMultiItemSelected('tile','tileBalcony'))" style="margin-top:8px;padding:8px;background:#FFF;border:1px dashed #1a472a;border-radius:6px;">
+                    <div style="font-size:12px;font-weight:700;color:#1a472a;margin-bottom:8px;">타일 면적 — 시공하실 부위만 적어주세요</div>
+
+                    <!-- R29 박 대표 spec (2026-06-05): 화장실 타일도 타일 work에서 직접 가로×세로 입력 + 자동 (벽+바닥) -->
+                    <div x-show="isMultiItemSelected('tile','tileBathroom')" style="margin-bottom:8px;padding:8px;background:#FBF8F1;border-radius:4px;">
+                      <div style="font-size:11.5px;font-weight:700;color:#1a472a;margin-bottom:4px;">화장실 타일 (욕실별 가로 × 세로 → 벽 + 바닥 자동)</div>
+                      <template x-for="(b, i) in (data.spaceList.bathrooms || [])" :key="i">
+                        <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1.2fr;gap:6px;margin-bottom:4px;align-items:center;">
+                          <input type="text" x-model="b.name" placeholder="안방욕실..." style="padding:4px 6px;border:1px solid #C8C4BC;border-radius:3px;font-size:12px;">
+                          <input type="number" step="0.1" placeholder="가로(m)" x-model.number="b.width" style="padding:4px 6px;border:1px solid #C8C4BC;border-radius:3px;font-size:12px;">
+                          <input type="number" step="0.1" placeholder="세로(m)" x-model.number="b.depth" style="padding:4px 6px;border:1px solid #C8C4BC;border-radius:3px;font-size:12px;">
+                          <div style="font-size:12px;color:#1a472a;font-weight:600;padding:4px 6px;background:#fff;border-radius:3px;text-align:right;" x-text="(Math.max(0,2*((Number(b.width)||0)+(Number(b.depth)||0))*2.4-1.68)+((Number(b.width)||0)*(Number(b.depth)||0))).toFixed(1)+'㎡'"></div>
+                        </div>
+                      </template>
+                      <button type="button" @click="addBath()" style="background:#1a472a;color:#fff;border:none;padding:4px 10px;border-radius:4px;cursor:pointer;font-size:11px;margin-top:4px;">+ 화장실 추가</button>
+                      <p style="font-size:11px;color:#888;margin-top:4px;">벽(둘레×2.4 - 문1.68) + 바닥(가로×세로) 자동. 6.욕실 카드와 데이터 공유</p>
+                    </div>
+
+                    <!-- R28 박 대표 spec (2026-06-05): 주방·현관·베란다 타일도 가로×세로 사다리식 → 자동 면적 -->
+                    <div x-show="isMultiItemSelected('tile','tileKitchen')" style="margin-bottom:8px;padding:6px;background:#FBF8F1;border-radius:4px;">
+                      <div style="font-size:11.5px;font-weight:700;color:#1a472a;margin-bottom:4px;">주방 타일 (가로 × 세로)</div>
+                      <div style="display:grid;grid-template-columns:1fr 1fr 1.2fr;gap:6px;">
+                        <input type="number" step="0.1" placeholder="가로(m) 예 2" x-model.number="data.spaceList.tile.kitchenWidth" style="padding:4px 6px;border:1px solid #C8C4BC;border-radius:3px;font-size:12px;">
+                        <input type="number" step="0.1" placeholder="세로(m) 예 2" x-model.number="data.spaceList.tile.kitchenDepth" style="padding:4px 6px;border:1px solid #C8C4BC;border-radius:3px;font-size:12px;">
+                        <div style="font-size:12px;color:#1a472a;font-weight:600;padding:4px 6px;background:#fff;border-radius:3px;text-align:right;" x-text="((Number(data.spaceList.tile.kitchenWidth)||0)*(Number(data.spaceList.tile.kitchenDepth)||0)).toFixed(2)+'㎡'"></div>
+                      </div>
+                    </div>
+                    <div x-show="isMultiItemSelected('tile','tileEntrance')" style="margin-bottom:8px;padding:6px;background:#FBF8F1;border-radius:4px;">
+                      <div style="font-size:11.5px;font-weight:700;color:#1a472a;margin-bottom:4px;">현관 타일 (가로 × 세로)</div>
+                      <div style="display:grid;grid-template-columns:1fr 1fr 1.2fr;gap:6px;">
+                        <input type="number" step="0.1" placeholder="가로(m) 예 1.5" x-model.number="data.spaceList.tile.entranceWidth" style="padding:4px 6px;border:1px solid #C8C4BC;border-radius:3px;font-size:12px;">
+                        <input type="number" step="0.1" placeholder="세로(m) 예 1.5" x-model.number="data.spaceList.tile.entranceDepth" style="padding:4px 6px;border:1px solid #C8C4BC;border-radius:3px;font-size:12px;">
+                        <div style="font-size:12px;color:#1a472a;font-weight:600;padding:4px 6px;background:#fff;border-radius:3px;text-align:right;" x-text="((Number(data.spaceList.tile.entranceWidth)||0)*(Number(data.spaceList.tile.entranceDepth)||0)).toFixed(2)+'㎡'"></div>
+                      </div>
+                    </div>
+                    <div x-show="isMultiItemSelected('tile','tileBalcony')" style="margin-bottom:8px;padding:6px;background:#FBF8F1;border-radius:4px;">
+                      <div style="font-size:11.5px;font-weight:700;color:#1a472a;margin-bottom:4px;">베란다 타일 (가로 × 세로)</div>
+                      <div style="display:grid;grid-template-columns:1fr 1fr 1.2fr;gap:6px;">
+                        <input type="number" step="0.1" placeholder="가로(m) 예 1.5" x-model.number="data.spaceList.tile.balconyWidth" style="padding:4px 6px;border:1px solid #C8C4BC;border-radius:3px;font-size:12px;">
+                        <input type="number" step="0.1" placeholder="세로(m) 예 4" x-model.number="data.spaceList.tile.balconyDepth" style="padding:4px 6px;border:1px solid #C8C4BC;border-radius:3px;font-size:12px;">
+                        <div style="font-size:12px;color:#1a472a;font-weight:600;padding:4px 6px;background:#fff;border-radius:3px;text-align:right;" x-text="((Number(data.spaceList.tile.balconyWidth)||0)*(Number(data.spaceList.tile.balconyDepth)||0)).toFixed(2)+'㎡'"></div>
+                      </div>
+                    </div>
+                  </div>
+                  <!-- v20.10 entrance: 구조 시공 (가벽/중문) 체크 시만 측정 -->
+                  <div x-show="wid === 'entrance' && isMultiItemSelected('entrance','middleDoor')" style="margin-top:8px;padding:8px;background:#FFF;border:1px dashed #1a472a;border-radius:6px;">
+                    <div style="font-size:12px;font-weight:700;color:#1a472a;margin-bottom:6px;">현관 측정 (가벽/중문 시공 시)</div>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+                      <div><label style="font-size:11px;color:#5a5347;">가로(m)</label><input type="number" step="0.1" x-model.number="data.spaceList.entryway.width" style="width:100%;padding:4px 6px;border:1px solid #C8C4BC;border-radius:3px;font-size:12px;"></div>
+                      <div><label style="font-size:11px;color:#5a5347;">세로(m)</label><input type="number" step="0.1" x-model.number="data.spaceList.entryway.depth" style="width:100%;padding:4px 6px;border:1px solid #C8C4BC;border-radius:3px;font-size:12px;"></div>
+                    </div>
+                  </div>
+                  <!-- v20.9 박 대표: 자재 체크 시만 해당 면적칸 펼침 (시공 의도 있을 때만) -->
+                  <!-- R22 박 대표 spec: 몰딩·걸레받이 둘레는 4.방 카드 가로×세로 입력 시 자동 합산 -->
+                  <div x-show="wid === 'carpentry' && isMultiItemSelected('carpentry','molding')" style="margin-top:8px;padding:8px;background:#fff7e6;border-left:3px solid #d99a2b;border-radius:4px;">
+                    <div style="font-size:11.5px;color:#5a4520;line-height:1.6;">
+                      <b>몰딩·걸레받이 둘레는 자동 계산</b> — 위 <b>"4. 방별 측정"</b> 카드에서 방별 가로×세로 입력 시<br>
+                      방+거실 둘레(2(W+D)) 합산 자동 → 견적서 자동 반영
+                    </div>
+                  </div>
+                  <!-- R29 박 대표 spec (2026-06-05): 가벽/단열벽도 가로×세로 사다리식 → 자동 ㎡ -->
+                  <div x-show="wid === 'carpentry' && isMultiItemSelected('carpentry','partitionNew')" style="margin-top:8px;padding:8px;background:#FBF8F1;border-radius:4px;">
+                    <div style="font-size:11.5px;font-weight:700;color:#1a472a;margin-bottom:4px;">가벽 신설 (가로 × 세로 → 자동 ㎡)</div>
+                    <div style="display:grid;grid-template-columns:1fr 1fr 1.2fr;gap:6px;">
+                      <input type="number" step="0.1" placeholder="가로(m) 예 3" x-model.number="data.spaceList.carpentry.partitionWidth" style="padding:4px 6px;border:1px solid #C8C4BC;border-radius:3px;font-size:12px;">
+                      <input type="number" step="0.1" placeholder="세로(m) 예 2.4" x-model.number="data.spaceList.carpentry.partitionDepth" style="padding:4px 6px;border:1px solid #C8C4BC;border-radius:3px;font-size:12px;">
+                      <div style="font-size:12px;color:#1a472a;font-weight:600;padding:4px 6px;background:#fff;border-radius:3px;text-align:right;" x-text="((Number(data.spaceList.carpentry.partitionWidth)||0)*(Number(data.spaceList.carpentry.partitionDepth)||0)).toFixed(2)+'㎡'"></div>
+                    </div>
+                  </div>
+                  <div x-show="wid === 'carpentry' && isMultiItemSelected('carpentry','wallInsulation')" style="margin-top:8px;padding:8px;background:#FBF8F1;border-radius:4px;">
+                    <div style="font-size:11.5px;font-weight:700;color:#1a472a;margin-bottom:4px;">단열 벽 (가로 × 세로 → 자동 ㎡)</div>
+                    <div style="display:grid;grid-template-columns:1fr 1fr 1.2fr;gap:6px;">
+                      <input type="number" step="0.1" placeholder="가로(m) 예 4" x-model.number="data.spaceList.carpentry.insulationWidth" style="padding:4px 6px;border:1px solid #C8C4BC;border-radius:3px;font-size:12px;">
+                      <input type="number" step="0.1" placeholder="세로(m) 예 3" x-model.number="data.spaceList.carpentry.insulationDepth" style="padding:4px 6px;border:1px solid #C8C4BC;border-radius:3px;font-size:12px;">
+                      <div style="font-size:12px;color:#1a472a;font-weight:600;padding:4px 6px;background:#fff;border-radius:3px;text-align:right;" x-text="((Number(data.spaceList.carpentry.insulationWidth)||0)*(Number(data.spaceList.carpentry.insulationDepth)||0)).toFixed(2)+'㎡'"></div>
+                    </div>
+                  </div>
+                  <!-- v20.10 balcony: 확장 시공 자재 체크 시만 베란다 측정 -->
+                  <!-- R41 박 대표 spec (2026-06-05): 베란다 바닥 W×D → 도장(벽 둘레×2.4 + 천정 W×D) 자동. 단열은 벽 면적 별도 W×D -->
+                  <div x-show="['painting','balcony'].indexOf(wid) >= 0" style="margin-top:8px;padding:10px;background:#F1F5F2;border:1px dashed #1a472a;border-radius:6px;">
+                    <div style="font-size:12px;font-weight:700;color:#1a472a;margin-bottom:6px;">베란다 측정 (바닥 W×D + 단열 벽 W×D)</div>
+                    <p style="font-size:11px;color:#888;margin-bottom:6px;">도장 면적 = <b>벽 둘레×2.4m + 천정(가로×세로)</b> 자동. 박 대표 spec: 페인트=베란다(벽+천정)만. 단열은 벽 면적 별도 입력.</p>
+                    <template x-for="(v, i) in (data.spaceList.verandas || [])" :key="i">
+                      <div style="display:grid;grid-template-columns:1.2fr 0.8fr 0.8fr 0.8fr 0.8fr 1.5fr 30px;gap:4px;margin-bottom:4px;align-items:center;">
+                        <input type="text" x-model="v.name" placeholder="거실베란다1..." style="padding:4px 6px;border:1px solid #C8C4BC;border-radius:3px;font-size:12px;">
+                        <input type="number" step="0.1" placeholder="바닥W(m)" x-model.number="v.width" style="padding:4px 6px;border:1px solid #C8C4BC;border-radius:3px;font-size:12px;">
+                        <input type="number" step="0.1" placeholder="바닥D(m)" x-model.number="v.depth" style="padding:4px 6px;border:1px solid #C8C4BC;border-radius:3px;font-size:12px;">
+                        <input type="number" step="0.1" placeholder="단열W(m)" x-model.number="v.insul_width" style="padding:4px 6px;border:1px solid #C8C4BC;border-radius:3px;font-size:12px;">
+                        <input type="number" step="0.1" placeholder="단열D(m)" x-model.number="v.insul_depth" style="padding:4px 6px;border:1px solid #C8C4BC;border-radius:3px;font-size:12px;">
+                        <div style="font-size:11px;color:#1a472a;text-align:right;font-weight:600;line-height:1.4;">
+                          도장 <span x-text="((Number(v.width)+Number(v.depth)||0)*2*2.4+(Number(v.width)||0)*(Number(v.depth)||0)).toFixed(1)"></span>㎡ / 단열 <span x-text="((Number(v.insul_width)||0)*(Number(v.insul_depth)||0)).toFixed(1)"></span>㎡
+                        </div>
+                        <button type="button" @click="data.spaceList.verandas.splice(i,1)" style="background:#fff;border:1px solid #c00;color:#c00;font-size:10px;padding:2px 4px;border-radius:3px;cursor:pointer;">×</button>
+                      </div>
+                    </template>
+                    <button type="button" @click="addVeranda()" style="background:#1a472a;color:#fff;border:none;padding:5px 12px;border-radius:4px;cursor:pointer;font-size:12px;margin-top:4px;">+ 베란다 추가</button>
+                    <div style="margin-top:6px;padding:6px 8px;background:#fff;border-radius:4px;font-size:12px;color:#1a472a;font-weight:600;">
+                      합계: 베란다 <span x-text="(data.spaceList.verandas||[]).length"></span>개 / 도장(벽+천정) <span x-text="((data.spaceList.verandas||[]).reduce((s,v)=>s+(Number(v.width)+Number(v.depth)||0)*2*2.4+(Number(v.width)||0)*(Number(v.depth)||0),0)).toFixed(1)"></span>㎡ / 단열 <span x-text="((data.spaceList.verandas||[]).reduce((s,v)=>s+(Number(v.insul_width)||0)*(Number(v.insul_depth)||0),0)).toFixed(1)"></span>㎡
+                    </div>
+                  </div>
+                  <div x-show="wid === 'balcony' && (isMultiItemSelected('balcony','floorInsulation') || isMultiItemSelected('balcony','boilerMove') || isMultiItemSelected('balcony','pipeExtension'))" style="margin-top:8px;padding:8px;background:#FFF;border:1px dashed #1a472a;border-radius:6px;">
+                    <div style="font-size:12px;font-weight:700;color:#1a472a;margin-bottom:6px;">베란다별 측정 (확장 시공 시)</div>
+                    <template x-for="(v, i) in (data.spaceList.verandas || [])" :key="i">
+                      <div style="border:1px solid #C8C4BC;padding:6px;border-radius:4px;margin-bottom:6px;background:#FBF8F1;">
+                        <button @click="data.spaceList.verandas.splice(i,1)" x-show="data.spaceList.verandas.length>1" style="float:right;background:#fff;border:1px solid #c00;color:#c00;font-size:10px;padding:2px 6px;border-radius:3px;cursor:pointer;">삭제</button>
+                        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;">
+                          <div><label style="font-size:11px;color:#5a5347;">이름</label><input type="text" x-model="v.name" placeholder="거실베란다" style="width:100%;padding:4px 6px;border:1px solid #C8C4BC;border-radius:3px;font-size:12px;"></div>
+                          <div><label style="font-size:11px;color:#5a5347;">가로(m)</label><input type="number" step="0.1" x-model.number="v.width" style="width:100%;padding:4px 6px;border:1px solid #C8C4BC;border-radius:3px;font-size:12px;"></div>
+                          <div><label style="font-size:11px;color:#5a5347;">세로(m)</label><input type="number" step="0.1" x-model.number="v.depth" style="width:100%;padding:4px 6px;border:1px solid #C8C4BC;border-radius:3px;font-size:12px;"></div>
+                        </div>
+                      </div>
+                    </template>
+                    <button @click="addVeranda()" style="background:#1a472a;color:#fff;border:none;padding:5px 10px;border-radius:4px;cursor:pointer;font-size:12px;">+ 베란다 추가</button>
+                  </div>
+                  <!-- R21 박 대표 spec (2026-06-05): 각 창별 가로×세로 사다리식 입력 → 자동 자² 합산. R24: wid==='window'만으로 즉시 펼침 (등급 선택 대기 X) -->
+                  <div x-show="wid === 'window'" style="margin-top:8px;padding:8px;background:#FFF;border:1px dashed #1a472a;border-radius:6px;">
+                    <div style="font-size:12px;font-weight:700;color:#1a472a;margin-bottom:6px;">창별 측정 (가로 × 세로 → 자동 면적)</div>
+                    <template x-for="(w, i) in (data.spaceList.windows.list || [])" :key="i">
+                      <div style="display:grid;grid-template-columns:60px 1fr 1fr 80px 30px;gap:6px;margin-bottom:4px;align-items:center;">
+                        <div style="font-size:11px;color:#5a5347;font-weight:600;" x-text="'창 ' + (i+1)"></div>
+                        <input type="number" step="0.1" placeholder="가로(m)" x-model.number="w.width" style="padding:4px 6px;border:1px solid #C8C4BC;border-radius:3px;font-size:12px;">
+                        <input type="number" step="0.1" placeholder="세로(m)" x-model.number="w.height" style="padding:4px 6px;border:1px solid #C8C4BC;border-radius:3px;font-size:12px;">
+                        <div style="font-size:11px;color:#1a472a;text-align:right;" x-text="((Number(w.width)||0)*(Number(w.height)||0)).toFixed(2)+'㎡'"></div>
+                        <button type="button" @click="data.spaceList.windows.list.splice(i,1)" style="background:#fff;border:1px solid #c00;color:#c00;font-size:10px;padding:2px 4px;border-radius:3px;cursor:pointer;">×</button>
+                      </div>
+                    </template>
+                    <button type="button" @click="if(!data.spaceList.windows.list)data.spaceList.windows.list=[];data.spaceList.windows.list.push({width:null,height:null})" style="background:#1a472a;color:#fff;border:none;padding:5px 10px;border-radius:4px;cursor:pointer;font-size:12px;margin-top:4px;">+ 창 추가</button>
+                    <div style="margin-top:8px;padding:6px 8px;background:#F1F5F2;border-radius:4px;font-size:12px;color:#1a472a;font-weight:600;">
+                      합계: 창 <span x-text="(data.spaceList.windows.list||[]).length"></span>개 / 총 면적 <span x-text="((data.spaceList.windows.list||[]).reduce((s,w)=>s+(Number(w.width)||0)*(Number(w.height)||0),0)).toFixed(2)"></span>㎡
+                    </div>
+                    <div style="margin-top:6px;padding:6px 8px;background:#fff7e6;border-left:3px solid #d99a2b;font-size:11px;color:#5a4520;">창호 등급은 ② 공종 단일 선택 → 자동 자² × 등급 단가 = 견적. 모르면 비워두고 코디 현장 측정.</div>
+                  </div>
+                  <!-- v20.25 film: 시공 부위별 면적/갯수 -->
+                  <div x-show="wid === 'film' && (isMultiItemSelected('film','sinkDoor') || isMultiItemSelected('film','roomDoor') || isMultiItemSelected('film','windowFilm'))" style="margin-top:8px;padding:8px;background:#FFF;border:1px dashed #1a472a;border-radius:6px;">
+                    <div style="font-size:12px;font-weight:700;color:#1a472a;margin-bottom:6px;">필름 시공 (부위별)</div>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+                      <div x-show="isMultiItemSelected('film','sinkDoor')">
+                        <label style="font-size:11px;color:#5a5347;">싱크대 길이(m)</label>
+                        <input type="number" step="0.1" placeholder="예: 3" x-model.number="data.spaceList.film.sinkDoorLength" style="width:100%;padding:4px 6px;border:1px solid #C8C4BC;border-radius:3px;font-size:12px;">
+                      </div>
+                      <div x-show="isMultiItemSelected('film','roomDoor')">
+                        <label style="font-size:11px;color:#5a5347;">방문 갯수</label>
+                        <input type="number" step="1" placeholder="예: 4" x-model.number="data.spaceList.film.roomDoorCount" style="width:100%;padding:4px 6px;border:1px solid #C8C4BC;border-radius:3px;font-size:12px;">
+                      </div>
+                    </div>
+                    <!-- R30 박 대표 spec (2026-06-05): 샷시 필름도 가로×세로 사다리식 → 자동 ㎡ -->
+                    <div x-show="isMultiItemSelected('film','windowFilm')" style="margin-top:8px;padding:8px;background:#FBF8F1;border-radius:4px;">
+                      <div style="font-size:11.5px;font-weight:700;color:#1a472a;margin-bottom:4px;">샷시 필름 (창별 가로 × 세로 → 자동 ㎡)</div>
+                      <template x-for="(w, i) in (data.spaceList.film.windowList || [])" :key="i">
+                        <div style="display:grid;grid-template-columns:50px 1fr 1fr 1.2fr 30px;gap:5px;margin-bottom:4px;align-items:center;">
+                          <div style="font-size:11px;color:#5a5347;font-weight:600;" x-text="'창 '+(i+1)"></div>
+                          <input type="number" step="0.1" placeholder="가로(m)" x-model.number="w.width" style="padding:4px 6px;border:1px solid #C8C4BC;border-radius:3px;font-size:12px;">
+                          <input type="number" step="0.1" placeholder="세로(m)" x-model.number="w.height" style="padding:4px 6px;border:1px solid #C8C4BC;border-radius:3px;font-size:12px;">
+                          <div style="font-size:12px;color:#1a472a;font-weight:600;padding:4px 6px;background:#fff;border-radius:3px;text-align:right;" x-text="((Number(w.width)||0)*(Number(w.height)||0)).toFixed(2)+'㎡'"></div>
+                          <button type="button" @click="data.spaceList.film.windowList.splice(i,1)" style="background:#fff;border:1px solid #c00;color:#c00;font-size:10px;padding:2px 4px;border-radius:3px;cursor:pointer;">×</button>
+                        </div>
+                      </template>
+                      <button type="button" @click="if(!data.spaceList.film.windowList)data.spaceList.film.windowList=[];data.spaceList.film.windowList.push({width:null,height:null})" style="background:#1a472a;color:#fff;border:none;padding:4px 10px;border-radius:4px;cursor:pointer;font-size:11px;margin-top:4px;">+ 창 추가</button>
+                      <div style="margin-top:6px;padding:4px 8px;background:#fff;border-radius:4px;font-size:11px;color:#1a472a;font-weight:600;">
+                        합계: <span x-text="(data.spaceList.film.windowList||[]).length"></span>개 / 총 <span x-text="((data.spaceList.film.windowList||[]).reduce((s,w)=>s+(Number(w.width)||0)*(Number(w.height)||0),0)).toFixed(2)"></span>㎡
+                      </div>
+                    </div>
+                  </div>
+                  <!-- v20.27 lighting: 매입등 갯수 (downlightNew 체크 시) -->
+                  <div x-show="wid === 'lighting' && isMultiItemSelected('lighting','downlightNew')" style="margin-top:8px;padding:8px;background:#FFF;border:1px dashed #1a472a;border-radius:6px;">
+                    <div style="font-size:12px;font-weight:700;color:#1a472a;margin-bottom:6px;">매입등 (다운라이트) — 몇 개 타공·신설하시나요?</div>
+                    <div style="display:grid;grid-template-columns:1fr;gap:6px;">
+                      <div><label style="font-size:11px;color:#5a5347;">매입등 타공 갯수</label><input type="number" min="0" placeholder="예: 8" x-model.number="data.spaceList.lighting.downlight_add" style="width:100%;padding:4px 6px;border:1px solid #C8C4BC;border-radius:3px;font-size:12px;"></div>
+                    </div>
+                  </div>
+                  <!-- v20.29 박 대표: 자재별 측정 분리 -->
+                  <!-- 기구 변경 → 콘센트 추가 / 스위치 추가 / 인터넷 8P -->
+                  <div x-show="wid === 'lighting' && isMultiItemSelected('lighting','fixtureChange')" style="margin-top:8px;padding:8px;background:#FFF;border:1px dashed #1a472a;border-radius:6px;">
+                    <div style="font-size:12px;font-weight:700;color:#1a472a;margin-bottom:6px;">기구 변경 — 각각 몇 개씩 필요하신가요?</div>
+                    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;">
+                      <div><label style="font-size:11px;color:#5a5347;">콘센트 추가</label><input type="number" min="0" x-model.number="data.spaceList.electrical.outlets_add" style="width:100%;padding:4px 6px;border:1px solid #C8C4BC;border-radius:3px;font-size:12px;"></div>
+                      <div><label style="font-size:11px;color:#5a5347;">스위치 추가</label><input type="number" min="0" x-model.number="data.spaceList.electrical.switches_add" style="width:100%;padding:4px 6px;border:1px solid #C8C4BC;border-radius:3px;font-size:12px;"></div>
+                      <div><label style="font-size:11px;color:#5a5347;">인터넷 8P</label><input type="number" min="0" x-model.number="data.spaceList.electrical.internet_jacks" style="width:100%;padding:4px 6px;border:1px solid #C8C4BC;border-radius:3px;font-size:12px;"></div>
+                    </div>
+                  </div>
+                  <!-- 콘센트 위치 변경 → 위치 이동 갯수 -->
+                  <div x-show="wid === 'lighting' && isMultiItemSelected('lighting','outletMove')" style="margin-top:8px;padding:8px;background:#FFF;border:1px dashed #1a472a;border-radius:6px;">
+                    <div style="font-size:12px;font-weight:700;color:#1a472a;margin-bottom:6px;">콘센트 위치 변경 — 몇 개를 이동하시나요?</div>
+                    <div style="display:grid;grid-template-columns:1fr;gap:6px;">
+                      <div><label style="font-size:11px;color:#5a5347;">콘센트 위치 이동 갯수</label><input type="number" min="0" placeholder="예: 3" x-model.number="data.spaceList.electrical.outlets_move" style="width:100%;padding:4px 6px;border:1px solid #C8C4BC;border-radius:3px;font-size:12px;"></div>
+                    </div>
+                  </div>
+                  <!-- v20.27 박 대표: 상담후 결정 체크 시 자재 항목 초기화 (모순 방지) -->
+                  <div style="margin-top:8px;padding:6px 10px;background:#F1F5F2;border:1px dashed #1a472a;border-radius:6px;">
+                    <label style="display:flex;align-items:center;gap:6px;font-size:11.5px;cursor:pointer;">
+                      <input type="checkbox"
+                        :checked="(data.tradeOptions[wid] || {}).consultLater"
+                        @change="ensureWorkOpt(wid); data.tradeOptions[wid].consultLater = $event.target.checked; if($event.target.checked) data.tradeOptions[wid].selectedIds = [];"
+                        style="width:14px;height:14px;accent-color:#1a472a;">
+                      <b style="color:#1a472a;">상담 후 결정 — 집지니의 코디(Codi)가 카톡으로 알아서 추천해드릴게요</b>
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </template>
+          </div>
+        </div>
+      </template>
+      <!-- 옛 전체 리모델링 위치 (제거됨) -->
+      <div x-show="false">
+        <label>
+      </div>
+    </div>
+
+    <!-- v20.27 박 대표: 초보자 친절 안내 (단계별 따라하기) -->
+    <div x-show="selectedWorks.length > 0" style="margin-top:12px;padding:12px 14px;background:#FAFAF7;border:1px solid #C8C4BC;border-left:3px solid #1a472a;border-radius:0 6px 6px 0;">
+      <p style="font-size:12.5px;color:#1a472a;font-weight:700;margin:0 0 8px 0;">인테리어가 처음이세요? 천천히 따라 하세요</p>
+      <p style="font-size:11.5px;color:#5a5347;margin:0;line-height:1.8;">
+        <b>1단계.</b> 선택하신 공사 옆 <b>[▶ 세부]</b> 버튼을 눌러주세요. 자재와 측정 입력칸이 펼쳐집니다.<br>
+        <b>2단계.</b> 원하시는 자재를 체크하시고, 측정값(가로·세로·갯수)을 적어주세요.<br>
+        <b>3단계.</b> 자재나 측정값이 어렵게 느껴지시면 <b>"상담 후 결정"</b>만 체크하세요. 집지니의 코디(Codi)가 카톡으로 친절히 도와드립니다.<br>
+        <b>4단계.</b> 측정값을 비워두셔도 괜찮습니다. 평형 기준 평균값으로 자동 산정하고, 정확한 수치는 집지니의 코디(Codi)가 카톡 상담 시 확정해드립니다.
+      </p>
+      <p style="font-size:11.5px;color:#1a472a;margin:10px 0 0 0;padding:6px 10px;background:#FFF;border-radius:4px;line-height:1.6;">
+        <b>가장 쉬운 방법</b>: 위쪽 <b>"전체 리모델링(올수리)"</b> + <b>"모두 상담 후 결정"</b> 두 가지만 체크하시고 제출하시면, 집지니의 코디(Codi)가 카톡으로 처음부터 끝까지 친절히 안내해드립니다.
+      </p>
+    </div>
+
+    <!-- v20.5 박 대표: ② 별도 영역 삭제 (각 work 펼침이 카테고리 안 인라인으로 이동) -->
+    <div x-show="false">
+      <div style="font-size:14px;font-weight:700;color:#1a472a;margin-bottom:8px;">② 공사별 세부 입력 (옛 — 인라인 통합됨)</div>
+      <div style="background:#FBF8F1;padding:12px 14px;border-radius:8px;margin-top:6px;">
+        <template x-for="wId in selectedWorksOrdered" :key="wId">
+          <div x-show="tradeOptionTree[wId]" style="padding:0;border-bottom:1px dashed #C8C4BC;">
+            <!-- v18 박 대표: 아코디언 헤더 (work label + 선택 갯수 + 펼침 화살표) -->
+            <div @click="toggleWorkAccordion(wId)" style="display:flex;align-items:center;gap:8px;cursor:pointer;padding:12px 8px;user-select:none;">
+              <span style="font-size:13px;font-weight:700;color:#1a472a;" x-text="(works.find(x=>x.id===wId)||{}).label || wId"></span>
+              <span x-show="getSelectedPath(wId)" style="font-size:11px;color:#fff;background:#1a472a;padding:2px 8px;border-radius:10px;" x-text="getSelectedPath(wId)"></span>
+              <span style="margin-left:auto;font-size:12px;color:#1a472a;transition:transform 0.2s;" :style="isWorkAccordionOpen(wId) ? 'transform:rotate(90deg);' : ''"></span>
+            </div>
+            <!-- 아코디언 내용 (펼침 시만) -->
+            <div x-show="isWorkAccordionOpen(wId)" style="padding:6px 8px 12px 8px;">
+
+            <!-- v19 박 대표: 2뎁스 그룹 아코디언 (시공옵션 / 브랜드 / 부가) -->
+            <div x-show="tradeOptionTree[wId] && tradeOptionTree[wId].multiSelect" style="padding-left:6px;">
+              <div style="font-size:11px;color:#6B6B6B;margin-bottom:8px;">카테고리별로 묶음 · 클릭하면 펼침</div>
+
+              <template x-for="grp in (tradeOptionTree[wId].groups || [])" :key="grp.name">
+                <div style="margin-bottom:8px;border:1px solid #E8E5DE;border-radius:6px;overflow:hidden;background:#fff;">
+                  <!-- 그룹 헤더 (펼침/접힘) -->
+                  <div @click="toggleGroup(wId, grp.name)" style="display:flex;align-items:center;gap:8px;cursor:pointer;padding:8px 10px;background:#F6F2EA;user-select:none;">
+                    <span style="font-size:12.5px;font-weight:700;color:#1a472a;" x-text="grp.name"></span>
+                    <span x-show="getGroupSelectedCount(wId, grp) > 0" style="font-size:10.5px;color:#fff;background:#FFD966;color:#1a472a;padding:1px 6px;border-radius:8px;font-weight:700;" x-text="getGroupSelectedCount(wId, grp) + '개'"></span>
+                    <span style="margin-left:auto;font-size:11px;color:#1a472a;transition:transform 0.2s;" :style="isGroupOpen(wId, grp.name) ? 'transform:rotate(90deg);' : ''"></span>
+                  </div>
+                  <!-- 그룹 항목 (펼침 시) -->
+                  <div x-show="isGroupOpen(wId, grp.name)" style="display:flex;flex-direction:column;gap:4px;padding:8px;">
+                    <template x-for="item in grp.items" :key="item.id">
+                      <label style="display:flex;align-items:center;gap:8px;font-size:12.5px;cursor:pointer;padding:6px 10px;background:#FBF8F1;border:1px solid #E8E5DE;border-radius:4px;"
+                        :style="isMultiItemSelected(wId, item.id) ? 'background:#1a472a;color:#fff;font-weight:700;border-color:#1a472a;' : ''">
+                        <input type="checkbox" :checked="isMultiItemSelected(wId, item.id)" @change="toggleMultiItem(wId, item.id)" style="width:16px;height:16px;cursor:pointer;accent-color:#FFD966;">
+                        <span x-text="item.label"></span>
+                      </label>
+                    </template>
+                  </div>
+                </div>
+              </template>
+
+              <!-- v20 박 대표: work별 측정 panel inline (4-13번 카드 통합) -->
+
+              <!-- 욕실 측정 -->
+              <div x-show="wId === 'bathroom'" style="margin-top:10px;padding:10px;background:#FFF;border:1px dashed #1a472a;border-radius:6px;">
+                <div style="font-size:12.5px;font-weight:700;color:#1a472a;margin-bottom:8px;">욕실별 측정 (가로 × 세로 + 시공방식)</div>
+                <template x-for="(b, i) in (data.spaceList.bathrooms || [])" :key="i">
+                  <div style="border:1px solid #C8C4BC;padding:8px;border-radius:4px;margin-bottom:6px;background:#FBF8F1;">
+                    <button @click="data.spaceList.bathrooms.splice(i,1)" x-show="data.spaceList.bathrooms.length>1" style="float:right;background:#fff;border:1px solid #c00;color:#c00;font-size:10px;padding:2px 6px;border-radius:3px;cursor:pointer;">삭제</button>
+                    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:6px;">
+                      <div><label style="font-size:11px;color:#5a5347;">이름</label><input type="text" x-model="b.name" style="width:100%;padding:4px 6px;border:1px solid #C8C4BC;border-radius:3px;font-size:12px;"></div>
+                      <div><label style="font-size:11px;color:#5a5347;">가로(m)</label><input type="number" step="0.1" x-model.number="b.width" style="width:100%;padding:4px 6px;border:1px solid #C8C4BC;border-radius:3px;font-size:12px;"></div>
+                      <div><label style="font-size:11px;color:#5a5347;">세로(m)</label><input type="number" step="0.1" x-model.number="b.depth" style="width:100%;padding:4px 6px;border:1px solid #C8C4BC;border-radius:3px;font-size:12px;"></div>
+                    </div>
+                    <div><label style="font-size:11px;color:#5a5347;">시공방식 (핵심)</label>
+                      <select x-model="b.tileMethod" style="width:100%;padding:4px 6px;border:1px solid #C8C4BC;border-radius:3px;font-size:12px;">
+                        <option value="덧방">덧방 (저비용, 평탄도↓)</option>
+                        <option value="일반">일반 (방수+평탄화, 표준)</option>
+                        <option value="철거후신규">철거후신규 (고비용)</option>
+                      </select>
+                    </div>
+                  </div>
+                </template>
+                <button @click="addBath()" style="background:#1a472a;color:#fff;border:none;padding:6px 12px;border-radius:4px;cursor:pointer;font-size:12px;">+ 욕실 추가</button>
+              </div>
+
+              <!-- 부엌 측정 -->
+              <div x-show="wId === 'sink'" style="margin-top:10px;padding:10px;background:#FFF;border:1px dashed #1a472a;border-radius:6px;">
+                <div style="font-size:12.5px;font-weight:700;color:#1a472a;margin-bottom:8px;">부엌 측정</div>
+                <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;">
+                  <div><label style="font-size:11px;color:#5a5347;">싱크대 길이(m) (핵심)</label><input type="number" step="0.1" x-model.number="data.spaceList.kitchen.sinkLength" style="width:100%;padding:4px 6px;border:1px solid #C8C4BC;border-radius:3px;font-size:12px;"></div>
+                  <div><label style="font-size:11px;color:#5a5347;">쿡탑</label><select x-model="data.spaceList.kitchen.cooktop" style="width:100%;padding:4px 6px;border:1px solid #C8C4BC;border-radius:3px;font-size:12px;"><option>인덕션</option><option>가스</option><option>유지</option></select></div>
+                  <div><label style="font-size:11px;color:#5a5347;">식탁 공간</label><select x-model="data.spaceList.kitchen.diningArea" style="width:100%;padding:4px 6px;border:1px solid #C8C4BC;border-radius:3px;font-size:12px;"><option>분리</option><option>통합</option></select></div>
+                </div>
+              </div>
+
+              <!-- 현관 측정 -->
+              <div x-show="wId === 'entrance'" style="margin-top:10px;padding:10px;background:#FFF;border:1px dashed #1a472a;border-radius:6px;">
+                <div style="font-size:12.5px;font-weight:700;color:#1a472a;margin-bottom:8px;">현관 측정</div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+                  <div><label style="font-size:11px;color:#5a5347;">가로(m)</label><input type="number" step="0.1" x-model.number="data.spaceList.entryway.width" style="width:100%;padding:4px 6px;border:1px solid #C8C4BC;border-radius:3px;font-size:12px;"></div>
+                  <div><label style="font-size:11px;color:#5a5347;">세로(m)</label><input type="number" step="0.1" x-model.number="data.spaceList.entryway.depth" style="width:100%;padding:4px 6px;border:1px solid #C8C4BC;border-radius:3px;font-size:12px;"></div>
+                </div>
+              </div>
+
+              <!-- 목공 면적 -->
+              <div x-show="wId === 'carpentry'" style="margin-top:10px;padding:10px;background:#FFF;border:1px dashed #1a472a;border-radius:6px;">
+                <div style="font-size:12.5px;font-weight:700;color:#1a472a;margin-bottom:8px;">목공 면적</div>
+                <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;">
+                  <div><label style="font-size:11px;color:#5a5347;">가벽 면적(㎡)</label><input type="number" step="0.1" x-model.number="data.spaceList.carpentry.partitionArea" style="width:100%;padding:4px 6px;border:1px solid #C8C4BC;border-radius:3px;font-size:12px;"></div>
+                  <div><label style="font-size:11px;color:#5a5347;">단열 벽 면적(㎡)</label><input type="number" step="0.1" x-model.number="data.spaceList.carpentry.insulationArea" style="width:100%;padding:4px 6px;border:1px solid #C8C4BC;border-radius:3px;font-size:12px;"></div>
+                  <div><label style="font-size:11px;color:#5a5347;">문 갯수 (몰딩)</label><input type="number" step="1" x-model.number="data.spaceList.carpentry.doorCount" style="width:100%;padding:4px 6px;border:1px solid #C8C4BC;border-radius:3px;font-size:12px;"></div>
+                </div>
+              </div>
+
+              <!-- 베란다 측정 -->
+              <div x-show="wId === 'balcony'" style="margin-top:10px;padding:10px;background:#FFF;border:1px dashed #1a472a;border-radius:6px;">
+                <div style="font-size:12.5px;font-weight:700;color:#1a472a;margin-bottom:8px;">베란다별 측정</div>
+                <template x-for="(v, i) in (data.spaceList.verandas || [])" :key="i">
+                  <div style="border:1px solid #C8C4BC;padding:8px;border-radius:4px;margin-bottom:6px;background:#FBF8F1;">
+                    <button @click="data.spaceList.verandas.splice(i,1)" x-show="data.spaceList.verandas.length>1" style="float:right;background:#fff;border:1px solid #c00;color:#c00;font-size:10px;padding:2px 6px;border-radius:3px;cursor:pointer;">삭제</button>
+                    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;">
+                      <div><label style="font-size:11px;color:#5a5347;">이름</label><input type="text" x-model="v.name" placeholder="거실베란다" style="width:100%;padding:4px 6px;border:1px solid #C8C4BC;border-radius:3px;font-size:12px;"></div>
+                      <div><label style="font-size:11px;color:#5a5347;">가로(m)</label><input type="number" step="0.1" x-model.number="v.width" style="width:100%;padding:4px 6px;border:1px solid #C8C4BC;border-radius:3px;font-size:12px;"></div>
+                      <div><label style="font-size:11px;color:#5a5347;">세로(m)</label><input type="number" step="0.1" x-model.number="v.depth" style="width:100%;padding:4px 6px;border:1px solid #C8C4BC;border-radius:3px;font-size:12px;"></div>
+                    </div>
+                  </div>
+                </template>
+                <button @click="addVeranda()" style="background:#1a472a;color:#fff;border:none;padding:6px 12px;border-radius:4px;cursor:pointer;font-size:12px;">+ 베란다 추가</button>
+              </div>
+
+              <!-- 샷시 측정 -->
+              <div x-show="wId === 'window'" style="margin-top:10px;padding:10px;background:#FFF;border:1px dashed #1a472a;border-radius:6px;">
+                <div style="font-size:12.5px;font-weight:700;color:#1a472a;margin-bottom:8px;">샷시 측정</div>
+                <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;">
+                  <div><label style="font-size:11px;color:#5a5347;">창 갯수 (핵심)</label><input type="number" x-model.number="data.spaceList.windows.count" min="0" style="width:100%;padding:4px 6px;border:1px solid #C8C4BC;border-radius:3px;font-size:12px;"></div>
+                  <div><label style="font-size:11px;color:#5a5347;">총 둘레(m)</label><input type="number" step="0.1" x-model.number="data.spaceList.windows.totalPerimeter" style="width:100%;padding:4px 6px;border:1px solid #C8C4BC;border-radius:3px;font-size:12px;"></div>
+                  <div><label style="font-size:11px;color:#5a5347;">단열 등급</label>
+                    <select x-model="data.spaceList.windows.grade" style="width:100%;padding:4px 6px;border:1px solid #C8C4BC;border-radius:3px;font-size:12px;">
+                      <option>프리미엄 (단열·방음 강화)</option>
+                      <option>중급 (고급 PVC, 표준)</option>
+                      <option>보급 (일반 PVC)</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 전기·조명 갯수 -->
+              <div x-show="wId === 'lighting'" style="margin-top:10px;padding:10px;background:#FFF;border:1px dashed #1a472a;border-radius:6px;">
+                <div style="font-size:12.5px;font-weight:700;color:#1a472a;margin-bottom:8px;">전기·조명 갯수</div>
+                <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:6px;">
+                  <div><label style="font-size:11px;color:#5a5347;">콘센트 추가</label><input type="number" min="0" x-model.number="data.spaceList.electrical.outlets_add" style="width:100%;padding:4px 6px;border:1px solid #C8C4BC;border-radius:3px;font-size:12px;"></div>
+                  <div><label style="font-size:11px;color:#5a5347;">콘센트 이설</label><input type="number" min="0" x-model.number="data.spaceList.electrical.outlets_move" style="width:100%;padding:4px 6px;border:1px solid #C8C4BC;border-radius:3px;font-size:12px;"></div>
+                  <div><label style="font-size:11px;color:#5a5347;">스위치 추가</label><input type="number" min="0" x-model.number="data.spaceList.electrical.switches_add" style="width:100%;padding:4px 6px;border:1px solid #C8C4BC;border-radius:3px;font-size:12px;"></div>
+                  <div><label style="font-size:11px;color:#5a5347;">매입등 타공</label><input type="number" min="0" x-model.number="data.spaceList.lighting.downlight_add" style="width:100%;padding:4px 6px;border:1px solid #C8C4BC;border-radius:3px;font-size:12px;"></div>
+                </div>
+              </div>
+
+              <!-- v20.3 박 대표: 모든 work 공통 "상담 후 결정 + 공종별 메모" panel (부담 ↓) -->
+              <div style="margin-top:10px;padding:10px;background:#F1F5F2;border:1px dashed #1a472a;border-radius:6px;">
+                <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer;margin-bottom:6px;">
+                  <input type="checkbox"
+                    :checked="(data.tradeOptions[wId] || {}).consultLater"
+                    @change="ensureWorkOpt(wId); data.tradeOptions[wId].consultLater = $event.target.checked"
+                    style="width:14px;height:14px;accent-color:#1a472a;">
+                  <b style="color:#1a472a;">상담 후 결정 (집지니의 코디(Codi)가 카톡으로 추천)</b>
+                </label>
+                <textarea
+                  :value="(data.tradeOptions[wId] || {}).memo || ''"
+                  @input="ensureWorkOpt(wId); data.tradeOptions[wId].memo = $event.target.value"
+                  placeholder="이 공사에 부가적으로 남기고 싶은 말 (선택 · 모르면 비워두세요)"
+                  rows="2"
+                  style="width:100%;padding:6px 8px;border:1px solid #C8C4BC;border-radius:4px;font-size:12px;resize:vertical;"></textarea>
+              </div>
+            </div>
+          </div>
+          </div>
+        </template>
+      </div>
+      <div style="font-size:12px;color:#5a5347;margin-top:10px;padding:10px 12px;background:#FAFAF7;border-left:2px solid #1a472a;border-radius:4px;line-height:1.7;">
+        <b style="color:#1a472a;">인테리어 처음이세요?</b> "상담 후 추천" 그대로 두면 집지니의 코디(Codi)가 카톡으로 자재 모델·자재상을 직접 추천드립니다.<br>
+        측정값 (가로·세로·갯수)은 ③ 자재 아코디언 안에 work별로 자동 표시. 모르면 비워두고 제출하셔도 집지니의 코디(Codi)가 카톡 상담드려요.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- R26 박 대표 spec: 도배/바닥/목공 선택 시만 방별 측정 카드 표시 (부담 줄임) -->
+<div class="card" style="display:none;" x-show="false /* R27: inline 이동 — 도배/바닥/목공 work 펼침 안 표시 */">
+  <div class="section-title" style="cursor:default;">
+    방별 측정 — 가로 × 세로 (도배 벽면적 + 몰딩 둘레 자동)
+  </div>
+  <div>
+    <p style="font-size:11.5px;color:#5a5347;margin-bottom:8px;padding:6px 8px;background:#fff7e6;border-left:3px solid #d99a2b;border-radius:4px;">
+      각 방의 가로 × 세로 입력하시면 <b>도배 벽 면적 + 몰딩·걸레받이 둘레</b>가 자동 계산됩니다. (창호·문 차감은 코디 현장 측정)
+    </p>
+    <template x-for="(r, i) in (data.spaceList.rooms || [])" :key="i">
+      <div style="display:grid;grid-template-columns:1.2fr 1fr 1fr 1.4fr 30px;gap:6px;margin-bottom:6px;align-items:center;">
+        <input type="text" x-model="r.name" placeholder="안방/작은방1..." style="padding:6px 8px;border:1px solid #C8C4BC;border-radius:4px;font-size:13px;">
+        <input type="number" step="0.1" placeholder="가로(m)" x-model.number="r.width" style="padding:6px 8px;border:1px solid #C8C4BC;border-radius:4px;font-size:13px;">
+        <input type="number" step="0.1" placeholder="세로(m)" x-model.number="r.depth" style="padding:6px 8px;border:1px solid #C8C4BC;border-radius:4px;font-size:13px;">
+        <div style="font-size:12px;color:#1a472a;text-align:right;font-weight:600;" x-text="'벽 ' + (2*((Number(r.width)||0)+(Number(r.depth)||0))*2.4).toFixed(1)+'㎡ / 몰딩 '+(2*((Number(r.width)||0)+(Number(r.depth)||0))).toFixed(1)+'m'"></div>
+        <button type="button" @click="data.spaceList.rooms.splice(i,1)" style="background:#fff;border:1px solid #c00;color:#c00;font-size:11px;padding:4px 6px;border-radius:3px;cursor:pointer;">×</button>
+      </div>
+    </template>
+    <button type="button" @click="addRoom()" style="background:#1a472a;color:#fff;border:none;padding:6px 14px;border-radius:4px;cursor:pointer;font-size:13px;margin-top:4px;">+ 방 추가</button>
+    <div style="margin-top:10px;padding:8px 10px;background:#F1F5F2;border-radius:4px;font-size:13px;color:#1a472a;font-weight:600;">
+      합계: 방 <span x-text="(data.spaceList.rooms||[]).length"></span>개 / 총 벽 면적 <span x-text="((data.spaceList.rooms||[]).reduce((s,r)=>s+2*((Number(r.width)||0)+(Number(r.depth)||0))*2.4,0)).toFixed(1)"></span>㎡ / 총 몰딩 둘레 <span x-text="((data.spaceList.rooms||[]).reduce((s,r)=>s+2*((Number(r.width)||0)+(Number(r.depth)||0)),0)).toFixed(1)"></span>m
+    </div>
+  </div>
+</div>
+
+<!-- R26 박 대표 spec: 창호 선택 시 창별 사다리식 측정 (별도 카드) -->
+<div class="card" style="display:none;" x-show="false /* R27: inline (window work 펼침 안) */">
+  <div class="section-title" style="cursor:default;">
+    창호 측정 — 창별 가로 × 세로 (자동 면적 합산)
+  </div>
+  <div>
+    <p style="font-size:11.5px;color:#5a5347;margin-bottom:8px;padding:6px 8px;background:#fff7e6;border-left:3px solid #d99a2b;border-radius:4px;">
+      외창 1개씩 가로 × 세로 입력 → 자동 자²/㎡ 합산. 등급(보급/중급/프리미엄)은 위 ② 공종에서 선택. 모르면 코디 현장 측정.
+    </p>
+    <template x-for="(w, i) in (data.spaceList.windows.list || [])" :key="i">
+      <div style="display:grid;grid-template-columns:60px 1fr 1fr 1.2fr 30px;gap:6px;margin-bottom:6px;align-items:center;">
+        <div style="font-size:12px;color:#5a5347;font-weight:600;" x-text="'창 ' + (i+1)"></div>
+        <input type="number" step="0.1" placeholder="가로(m)" x-model.number="w.width" style="padding:6px 8px;border:1px solid #C8C4BC;border-radius:4px;font-size:13px;">
+        <input type="number" step="0.1" placeholder="세로(m)" x-model.number="w.height" style="padding:6px 8px;border:1px solid #C8C4BC;border-radius:4px;font-size:13px;">
+        <div style="font-size:12px;color:#1a472a;text-align:right;font-weight:600;" x-text="((Number(w.width)||0)*(Number(w.height)||0)).toFixed(2)+'㎡'"></div>
+        <button type="button" @click="data.spaceList.windows.list.splice(i,1)" style="background:#fff;border:1px solid #c00;color:#c00;font-size:11px;padding:4px 6px;border-radius:3px;cursor:pointer;">×</button>
+      </div>
+    </template>
+    <button type="button" @click="if(!data.spaceList.windows.list)data.spaceList.windows.list=[];data.spaceList.windows.list.push({width:null,height:null})" style="background:#1a472a;color:#fff;border:none;padding:6px 14px;border-radius:4px;cursor:pointer;font-size:13px;margin-top:4px;">+ 창 추가</button>
+    <div style="margin-top:10px;padding:8px 10px;background:#F1F5F2;border-radius:4px;font-size:13px;color:#1a472a;font-weight:600;">
+      합계: 창 <span x-text="(data.spaceList.windows.list||[]).length"></span>개 / 총 면적 <span x-text="((data.spaceList.windows.list||[]).reduce((s,w)=>s+(Number(w.width)||0)*(Number(w.height)||0),0)).toFixed(2)"></span>㎡
+    </div>
+  </div>
+</div>
+
+<!-- R26 박 대표 spec: 베란다 선택 시 베란다 측정 (별도 카드) -->
+<div class="card" style="display:none;" x-show="false /* R27: inline (balcony/painting work 펼침 안) */">
+  <div class="section-title" style="cursor:default;">
+    베란다 측정 — 가로 × 세로 (확장·도장·단열 자동)
+  </div>
+  <div>
+    <p style="font-size:11.5px;color:#5a5347;margin-bottom:8px;padding:6px 8px;background:#fff7e6;border-left:3px solid #d99a2b;border-radius:4px;">
+      베란다별 가로 × 세로 + 도장/단열 면적 (자²). 박 대표 spec: 도장은 베란다만.
+    </p>
+    <template x-for="(v, i) in (data.spaceList.verandas || [])" :key="i">
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr 30px;gap:6px;margin-bottom:6px;align-items:center;">
+        <input type="text" x-model="v.name" placeholder="거실베란다..." style="padding:6px 8px;border:1px solid #C8C4BC;border-radius:4px;font-size:13px;">
+        <input type="number" step="0.1" placeholder="가로(m)" x-model.number="v.width" style="padding:6px 8px;border:1px solid #C8C4BC;border-radius:4px;font-size:13px;">
+        <input type="number" step="0.1" placeholder="세로(m)" x-model.number="v.depth" style="padding:6px 8px;border:1px solid #C8C4BC;border-radius:4px;font-size:13px;">
+        <select x-model="v.expand" style="padding:6px 8px;border:1px solid #C8C4BC;border-radius:4px;font-size:13px;"><option :value="false">유지</option><option :value="true">확장</option></select>
+        <button type="button" @click="data.spaceList.verandas.splice(i,1)" style="background:#fff;border:1px solid #c00;color:#c00;font-size:11px;padding:4px 6px;border-radius:3px;cursor:pointer;">×</button>
+      </div>
+    </template>
+    <button type="button" @click="addVeranda()" style="background:#1a472a;color:#fff;border:none;padding:6px 14px;border-radius:4px;cursor:pointer;font-size:13px;margin-top:4px;">+ 베란다 추가</button>
+  </div>
+</div>
+
+<!-- R26 박 대표 spec: 타일/욕실 선택 시만 욕실 측정 카드 표시 -->
+<div class="card" style="display:none;" x-show="false /* R27: inline (tile/bathroom work 펼침 안) */">
+  <div class="section-title" style="cursor:default;">
+    욕실 측정 — 가로 × 세로 (벽 + 바닥 타일 자동)
+  </div>
+  <div>
+    <p style="font-size:11.5px;color:#5a5347;margin-bottom:8px;padding:6px 8px;background:#fff7e6;border-left:3px solid #d99a2b;border-radius:4px;">
+      각 욕실 가로 × 세로 입력 시 <b>벽(둘레×2.4 - 문) + 바닥(가로×세로)</b> 자동 합산 → 견적서 반영
+    </p>
+    <template x-for="(b, i) in (data.spaceList.bathrooms || [])" :key="i">
+      <div style="display:grid;grid-template-columns:1.2fr 1fr 1fr 1.4fr 30px;gap:6px;margin-bottom:6px;align-items:center;">
+        <input type="text" x-model="b.name" placeholder="안방욕실..." style="padding:6px 8px;border:1px solid #C8C4BC;border-radius:4px;font-size:13px;">
+        <input type="number" step="0.1" placeholder="가로(m)" x-model.number="b.width" style="padding:6px 8px;border:1px solid #C8C4BC;border-radius:4px;font-size:13px;">
+        <input type="number" step="0.1" placeholder="세로(m)" x-model.number="b.depth" style="padding:6px 8px;border:1px solid #C8C4BC;border-radius:4px;font-size:13px;">
+        <div style="font-size:12px;color:#1a472a;text-align:right;font-weight:600;" x-text="'타일 ' + (Math.max(0,2*((Number(b.width)||0)+(Number(b.depth)||0))*2.4-1.68)+((Number(b.width)||0)*(Number(b.depth)||0))).toFixed(1)+'㎡'"></div>
+        <button type="button" @click="data.spaceList.bathrooms.splice(i,1)" style="background:#fff;border:1px solid #c00;color:#c00;font-size:11px;padding:4px 6px;border-radius:3px;cursor:pointer;">×</button>
+      </div>
+    </template>
+    <button type="button" @click="addBath()" style="background:#1a472a;color:#fff;border:none;padding:6px 14px;border-radius:4px;cursor:pointer;font-size:13px;margin-top:4px;">+ 욕실 추가</button>
+    <div style="margin-top:10px;padding:8px 10px;background:#F1F5F2;border-radius:4px;font-size:13px;color:#1a472a;font-weight:600;">
+      합계: 욕실 <span x-text="(data.spaceList.bathrooms||[]).length"></span>개 / 총 타일 면적 <span x-text="(data.spaceList.bathrooms||[]).reduce((s,b)=>s+Math.max(0,2*((Number(b.width)||0)+(Number(b.depth)||0))*2.4-1.68)+((Number(b.width)||0)*(Number(b.depth)||0)),0).toFixed(1)"></span>㎡
+    </div>
+  </div>
+</div>
+
+<!-- v20 박 대표: 4-13번 별도 카드 모두 삭제 → 3번 안 ③ 자재 아코디언으로 통합 -->
+<div style="display:none;">
+  <!-- 옛 4번 영역 (호환용 hidden) -->
+  <input type="hidden" x-model.number="data.spaceList.exclusiveFloor">
+  <div>
+    <div class="grid3">
+      <div>
+        <label class="lbl">전용면적 (㎡) (핵심)</label>
+        <input type="number" step="0.1" placeholder="예: 84.5" x-model.number="data.spaceList.exclusiveFloor">
+        <p style="font-size:11px;color:#888;margin-top:4px;">방·거실 합산 실 바닥면적 (천장 높이 2.4m 통일)</p>
+      </div>
+      <div>
+        <label class="lbl">바닥재</label>
+        <select x-model="data.spaceList.floorMaterial"><option>강마루</option><option>강화마루</option><option>장판</option><option>데코타일</option><option>유지</option></select>
+      </div>
+      <div>
+        <label class="lbl">천장 (몰딩)</label>
+        <select x-model="data.spaceList.ceiling"><option>교체</option><option>유지</option></select>
+      </div>
+    </div>
+    <div style="font-size:11.5px;color:#5a5347;margin-top:10px;padding:8px 12px;background:#FAFAF7;border-left:2px solid #1a472a;border-radius:4px;">
+      <b style="color:#1a472a;">안내:</b> 평수 (1평 = 3.3㎡) × 0.8 = 전용면적 근사값. 예: 32평 → 약 84㎡<br>
+      모르면 비워두고 제출 → 집지니의 코디(Codi)가 평수 기반 자동 산출 후 카톡 안내드립니다.
+    </div>
+
+  </div>
+
+<!-- 5. 거실 (이하 모두 wrapper 안 유지) -->
+<div class="card" x-show="isSectionVisible('living')">
+  <div class="section-title" @click="open.living = !open.living">
+    5. 거실 <span class="arrow" :class="{'open': open.living}"></span>
+  </div>
+  <div x-show="open.living">
+    <div class="grid3">
+      <div><label class="lbl">가로(m)</label><input type="number" step="0.1" x-model.number="data.spaceList.livingRoom.width"></div>
+      <div><label class="lbl">세로(m)</label><input type="number" step="0.1" x-model.number="data.spaceList.livingRoom.depth"></div>
+      <!-- v16 박 대표: 천장 높이 2.4m 통일. UI 입력 제거 -->
+      <div><label class="lbl">바닥</label><select x-model="data.spaceList.livingRoom.floor"><option>유지</option><option>강마루</option><option>장판</option><option>데코타일</option></select></div>
+      <!-- 2026-06-05 R19 박 대표 spec: 도배는 ② 공종 선택 시 전체 자동 (부분 X) -->
+      <div style="grid-column:span 2;padding:6px 8px;background:#fff7e6;border-left:3px solid #d99a2b;font-size:11px;color:#5a4520;">도배는 ② 공종 "도배" 체크 시 <b>전체 자동 시공</b> (방·거실·복도 통일). 박 대표 spec — 부분 시공 불가</div>
+      <div><label class="lbl">천장(몰딩)</label><select x-model="data.spaceList.livingRoom.ceiling"><option>유지</option><option>교체</option></select></div>
+      <div><label class="lbl">우물천장 면적 (자²)</label><input type="number" step="0.1" min="0" x-model.number="data.spaceList.livingRoom.wellCeiling_area" placeholder="있을 때만, 없으면 0"></div>
+    </div>
+  </div>
+</div>
+
+<!-- 6. 욕실 -->
+<div class="card" x-show="isSectionVisible('bath')">
+  <div class="section-title" @click="open.bath = !open.bath">
+    6. 욕실 (가로/세로 + 욕조/샤워부스/시공방식) <span class="arrow" :class="{'open': open.bath}"></span>
+  </div>
+  <div x-show="open.bath">
+    <template x-for="(b, i) in data.spaceList.bathrooms" :key="i">
+      <div class="room-card">
+        <button class="btn-remove" @click="data.spaceList.bathrooms.splice(i,1)" x-show="data.spaceList.bathrooms.length>1">삭제</button>
+        <div class="grid4">
+          <div><label class="lbl">이름</label><input type="text" x-model="b.name"></div>
+          <div><label class="lbl">가로(m)</label><input type="number" step="0.1" x-model.number="b.width"></div>
+          <div><label class="lbl">세로(m)</label><input type="number" step="0.1" x-model.number="b.depth"></div>
+          <!-- R23: 자동 타일 면적 표시 (벽 + 바닥) -->
+          <div><label class="lbl">타일 면적</label>
+            <div style="font-size:12px;color:#1a472a;font-weight:600;padding:4px 6px;background:#F1F5F2;border-radius:3px;"
+                 x-text="(Math.max(0,(2*((Number(b.width)||0)+(Number(b.depth)||0))*2.4)-1.68) + ((Number(b.width)||0)*(Number(b.depth)||0))).toFixed(1) + '㎡'"></div>
+          </div>
+        </div>
+        <div class="grid2 mt-2">
+          <div>
+            <label class="lbl">시공 방식 (핵심)</label>
+            <select x-model="b.tileMethod">
+              <option value="덧방">덧방 (기존 타일 위, 저비용)</option>
+              <option value="일반">일반 (방수+평탄화, 표준)</option>
+              <option value="철거후신규">철거후신규 (완전 새로, 고비용)</option>
+            </select>
+            <p style="font-size:11px;color:#888;margin-top:4px;">덧방=싸지만 평탄도↓ · 일반/철거=방수재시공 비용 +120k/㎡</p>
+          </div>
+          <div><label class="lbl">천장 교체</label><select x-model="b.ceiling"><option :value="true">교체</option><option :value="false">유지</option></select></div>
+        </div>
+        <div class="mt-2">
+          <label class="check-row"><input type="checkbox" x-model="b.tub"> 욕조 설치</label>
+          <label class="check-row"><input type="checkbox" x-model="b.showerBooth"> 샤워부스 설치</label>
+          <label class="check-row"><input type="checkbox" x-model="b.wallTile"> 벽 타일</label>
+          <label class="check-row"><input type="checkbox" x-model="b.floorTile"> 바닥 타일</label>
+          <label class="check-row"><input type="checkbox" x-model="b.toilet"> 양변기 교체</label>
+          <label class="check-row"><input type="checkbox" x-model="b.sink"> 세면대 교체</label>
+          <label class="check-row"><input type="checkbox" x-model="b.faucet"> 수전 교체</label>
+          <label class="check-row"><input type="checkbox" x-model="b.door"> 욕실문 교체</label>
+        </div>
+      </div>
+    </template>
+    <button class="btn-add" @click="addBath()">+ 욕실 추가</button>
+  </div>
+</div>
+
+<!-- 7. 부엌 -->
+<div class="card" x-show="isSectionVisible('kitchen')">
+  <div class="section-title" @click="open.kitchen = !open.kitchen">
+    7. 부엌 (싱크대 + 가전) <span class="arrow" :class="{'open': open.kitchen}"></span>
+  </div>
+  <div x-show="open.kitchen">
+    <div class="grid3">
+      <div><label class="lbl">싱크대 길이(m)</label><input type="number" step="0.1" x-model.number="data.spaceList.kitchen.sinkLength"></div>
+      <div><label class="lbl">쿡탑</label><select x-model="data.spaceList.kitchen.cooktop"><option>인덕션</option><option>가스</option><option>유지</option></select></div>
+      <div><label class="lbl">식탁공간</label><select x-model="data.spaceList.kitchen.diningArea"><option>분리</option><option>통합</option></select></div>
+    </div>
+    <div class="mt-2">
+      <label class="check-row"><input type="checkbox" x-model="data.spaceList.kitchen.upperCabinet"> 상부장 교체</label>
+      <label class="check-row"><input type="checkbox" x-model="data.spaceList.kitchen.lowerCabinet"> 하부장 교체</label>
+      <label class="check-row"><input type="checkbox" x-model="data.spaceList.kitchen.wallTile"> 벽 타일 교체</label>
+      <label class="check-row"><input type="checkbox" x-model="data.spaceList.kitchen.faucet"> 수전 교체</label>
+      <label class="check-row"><input type="checkbox" x-model="data.spaceList.kitchen.hood"> 후드 교체</label>
+      <label class="check-row"><input type="checkbox" x-model="data.spaceList.kitchen.sink"> 싱크볼 교체</label>
+    </div>
+  </div>
+</div>
+
+<!-- 8. 현관·중문·다용도실 -->
+<div class="card" x-show="isSectionVisible('entry')">
+  <div class="section-title" @click="open.entry = !open.entry">
+    8. 현관 / 중문 / 다용도실 <span class="arrow" :class="{'open': open.entry}"></span>
+  </div>
+  <div x-show="open.entry">
+    <div class="grid2">
+      <div><label class="lbl">현관 가로(m)</label><input type="number" step="0.1" x-model.number="data.spaceList.entryway.width"></div>
+      <div><label class="lbl">현관 세로(m)</label><input type="number" step="0.1" x-model.number="data.spaceList.entryway.depth"></div>
+    </div>
+    <div class="mt-2">
+      <label class="check-row"><input type="checkbox" x-model="data.spaceList.entryway.shoeCabinet"> 신발장 교체</label>
+      <label class="check-row"><input type="checkbox" x-model="data.spaceList.entryway.tile"> 현관 타일 교체</label>
+      <label class="check-row"><input type="checkbox" x-model="data.spaceList.entryway.middleDoor"> 중문 설치</label>
+      <label class="check-row"><input type="checkbox" x-model="data.spaceList.entryway.doorFilm"> 현관문 필름</label>
+    </div>
+    <!-- 2026-06-05 R19: 도어 갯수 분리 (RC#10 작은 평수 자동 11~13개 산정 fix) -->
+    <div class="mt-3" style="padding:10px;background:#f6f6f0;border-left:3px solid #1a472a;border-radius:4px;">
+      <div style="font-size:12px;font-weight:700;color:#1a472a;margin-bottom:8px;">도어 갯수 (교체할 것만 N, 없으면 0)</div>
+      <div class="grid3">
+        <div><label class="lbl">방문 교체</label><input type="number" min="0" x-model.number="data.spaceList.entryway.roomDoorCount" placeholder="0~5"></div>
+        <div><label class="lbl">현관문 교체</label><input type="number" min="0" max="1" x-model.number="data.spaceList.entryway.entryDoorCount" placeholder="0~1"></div>
+        <div><label class="lbl">도어락 교체</label><input type="number" min="0" max="1" x-model.number="data.spaceList.entryway.doorLockCount" placeholder="0~1"></div>
+      </div>
+    </div>
+    <div class="mt-3">
+      <label class="check-row"><input type="checkbox" x-model="data.spaceList.utility.expand"> 다용도실 확장</label>
+    </div>
+  </div>
+</div>
+
+<!-- 8.5 목공 — v16 박 대표 가이드: 걸레받이·문선몰딩·가벽·벽단열 -->
+<div class="card" x-show="isSectionVisible('carpentry')">
+  <div class="section-title" @click="open.carpentry = !open.carpentry">
+    목공 (걸레받이 · 문선몰딩 · 가벽 · 벽단열) <span class="arrow" :class="{'open': open.carpentry}"></span>
+  </div>
+  <div x-show="open.carpentry">
+    <div class="grid2">
+      <div>
+        <label class="check-row"><input type="checkbox" x-model="data.spaceList.carpentry.baseboard"> <b>걸레받이</b> 신규 (전체 둘레)</label>
+        <label class="check-row"><input type="checkbox" x-model="data.spaceList.carpentry.doorMolding"> <b>문선몰딩</b> 신규 (문틀 마감)</label>
+      </div>
+      <div>
+        <label class="check-row"><input type="checkbox" x-model="data.spaceList.carpentry.partition"> <b>가벽 설치</b></label>
+        <label class="check-row"><input type="checkbox" x-model="data.spaceList.carpentry.insulation"> <b>벽 단열공사</b> (XPS 30T)</label>
+      </div>
+    </div>
+    <div class="grid3 mt-2">
+      <div>
+        <label class="lbl">가벽 면적 (㎡)</label>
+        <input type="number" step="0.1" placeholder="예: 6" x-model.number="data.spaceList.carpentry.partitionArea">
+      </div>
+      <div>
+        <label class="lbl">단열 벽 면적 (㎡)</label>
+        <input type="number" step="0.1" placeholder="예: 12" x-model.number="data.spaceList.carpentry.insulationArea">
+      </div>
+      <div>
+        <label class="lbl">문 갯수 (몰딩 시공)</label>
+        <input type="number" step="1" placeholder="예: 6" x-model.number="data.spaceList.carpentry.doorCount">
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 9. 베란다 / 발코니 — v15 박 대표 가이드: 화장실과 동일 (가로×세로 + 갯수 추가) -->
+<div class="card" x-show="isSectionVisible('veranda')">
+  <div class="section-title" @click="open.veranda = !open.veranda">
+    9. 베란다 / 발코니 (가로×세로 · 갯수 추가) <span class="arrow" :class="{'open': open.veranda}"></span>
+  </div>
+  <div x-show="open.veranda">
+    <template x-for="(v, i) in (data.spaceList.verandas || [])" :key="i">
+      <div class="room-card">
+        <button class="btn-remove" @click="data.spaceList.verandas.splice(i,1)" x-show="data.spaceList.verandas.length>1">삭제</button>
+        <div class="grid4">
+          <div><label class="lbl">이름</label><input type="text" x-model="v.name" placeholder="예: 거실베란다"></div>
+          <div><label class="lbl">가로(m)</label><input type="number" step="0.1" x-model.number="v.width"></div>
+          <div><label class="lbl">세로(m)</label><input type="number" step="0.1" x-model.number="v.depth"></div>
+          <div><label class="lbl">확장</label><select x-model="v.expand"><option :value="true">확장</option><option :value="false">유지</option></select></div>
+        </div>
+        <div class="grid3 mt-2">
+          <div><label class="lbl">바닥</label><select x-model="v.floor"><option>타일</option><option>방수페인트</option><option>유지</option></select></div>
+          <!-- 2026-06-05 R19 박 대표 spec: 페인트 = 베란다만 (집 전체 X) -->
+          <div><label class="lbl">도장 면적 (자²)</label><input type="number" step="0.1" min="0" x-model.number="v.paint_area" placeholder="베란다 도장만, 없으면 0"></div>
+          <div><label class="lbl">단열 면적 (자²)</label><input type="number" step="0.1" min="0" x-model.number="v.insulation_area" placeholder="확장 시 단열, 없으면 0"></div>
+        </div>
+      </div>
+    </template>
+    <button class="btn-add" @click="addVeranda()">+ 베란다 추가</button>
+  </div>
+</div>
+
+<!-- 10. 샷시 — v16 박 대표 가이드: 갯수+사이즈+종류+등급 -->
+<div class="card" x-show="isSectionVisible('windows')">
+  <div class="section-title" @click="open.windows = !open.windows">
+    10. 샷시 (창 갯수 · 사이즈 · 등급) <span class="arrow" :class="{'open': open.windows}"></span>
+  </div>
+  <div x-show="open.windows">
+    <div class="grid3">
+      <div><label class="lbl">교체 범위</label><select x-model="data.spaceList.windows.replace"><option>전체</option><option>일부</option><option>유지</option></select></div>
+      <div>
+        <label class="lbl">창 갯수 (핵심)</label>
+        <input type="number" x-model.number="data.spaceList.windows.count" min="0" placeholder="예: 5">
+      </div>
+      <div>
+        <label class="lbl">총 둘레 (m) (핵심)</label>
+        <input type="number" step="0.1" x-model.number="data.spaceList.windows.totalPerimeter" placeholder="예: 25">
+        <p style="font-size:11px;color:#888;margin-top:4px;">창 둘레 합 (없으면 갯수 기반 자동)</p>
+      </div>
+    </div>
+    <div class="grid3 mt-2">
+      <div>
+        <label class="lbl">종류</label>
+        <select x-model="data.spaceList.windows.type">
+          <option>이중창 (PVC)</option>
+          <option>이중창 (AL)</option>
+          <option>단창 (PVC)</option>
+          <option>단창 (AL)</option>
+        </select>
+      </div>
+      <div>
+        <label class="lbl">단열 등급 (핵심)</label>
+        <select x-model="data.spaceList.windows.grade">
+          <option>프리미엄 (단열·방음 강화)</option>
+          <option>중급 (고급 PVC, 표준)</option>
+          <option>보급 (일반 PVC)</option>
+        </select>
+      </div>
+      <div>
+        <label class="lbl">방충망 동시 교체</label>
+        <select x-model="data.spaceList.windows.mesh"><option :value="true">교체</option><option :value="false">유지</option></select>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 11. 전기 & 조명 -->
+<div class="card" x-show="isSectionVisible('electric')">
+  <div class="section-title" @click="open.electric = !open.electric">
+    11. 전기 / 조명 <span class="arrow" :class="{'open': open.electric}"></span>
+  </div>
+  <div x-show="open.electric">
+    <div class="text-sm font-semibold mb-2" style="color:#1a472a">전기 (콘센트·스위치·배선)</div>
+    <div class="grid4">
+      <div><label class="lbl">콘센트 추가</label><input type="number" min="0" x-model.number="data.spaceList.electrical.outlets_add"></div>
+      <div><label class="lbl">콘센트 이설 (위치이동)</label><input type="number" min="0" x-model.number="data.spaceList.electrical.outlets_move"></div>
+      <div><label class="lbl">스위치 추가</label><input type="number" min="0" x-model.number="data.spaceList.electrical.switches_add"></div>
+      <div><label class="lbl">스위치 이설</label><input type="number" min="0" x-model.number="data.spaceList.electrical.switches_move"></div>
+    </div>
+    <div class="grid3 mt-2">
+      <div><label class="lbl">인터넷·통신 단자</label><input type="number" min="0" x-model.number="data.spaceList.electrical.internet_jacks"></div>
+      <div class="flex items-end"><label class="check-row"><input type="checkbox" x-model="data.spaceList.electrical.intercom"> 인터폰 교체</label></div>
+      <div class="flex items-end"><label class="check-row"><input type="checkbox" x-model="data.spaceList.electrical.doorlock"> 디지털 도어락</label></div>
+    </div>
+    <div class="grid3 mt-2">
+      <div class="flex items-end">
+        <label class="check-row"><input type="checkbox" x-model="data.spaceList.electrical.panelReplace"> <b> (핵심) 분전함 교체</b> (노후 아파트 필수)</label>
+      </div>
+      <div class="flex items-end">
+        <label class="check-row"><input type="checkbox" x-model="data.spaceList.electrical.breakerUpgrade"> 누전차단기 업그레이드</label>
+      </div>
+    </div>
+
+    <div class="text-sm font-semibold mt-4 mb-2" style="color:#1a472a">조명 (교체·신규·타공)</div>
+    <div class="grid4">
+      <div><label class="lbl">기존 등기구 철거</label><input type="number" min="0" x-model.number="data.spaceList.lighting.removeExisting" placeholder="떼낼 등 갯수"></div>
+      <div><label class="lbl">천장등 교체</label><input type="number" min="0" x-model.number="data.spaceList.lighting.ceiling_replace"></div>
+      <div><label class="lbl"> (핵심) 매입등 타공 (다운라이트)</label><input type="number" min="0" x-model.number="data.spaceList.lighting.downlight_add" placeholder="천장 타공 갯수"></div>
+      <div><label class="lbl">펜던트등 신규</label><input type="number" min="0" x-model.number="data.spaceList.lighting.pendant_add"></div>
+    </div>
+    <div class="grid3 mt-2">
+      <div><label class="lbl">벽등 추가</label><input type="number" min="0" x-model.number="data.spaceList.lighting.wall_sconce"></div>
+      <div><label class="lbl"> (핵심) 조명 라인 추가·이동 (m)</label><input type="number" step="0.5" min="0" x-model.number="data.spaceList.lighting.lineExtension" placeholder="배선 추가 m"></div>
+      <div class="flex items-end"><label class="check-row"><input type="checkbox" x-model="data.spaceList.lighting.indirect_led"> 간접조명 LED 라인</label></div>
+    </div>
+    <div style="font-size:11.5px;color:#5a5347;margin-top:10px;padding:8px 12px;background:#FAFAF7;border-left:2px solid #1a472a;border-radius:4px;">
+      <b style="color:#1a472a;">안내:</b> 분전함 교체 = 1990년 이전 아파트는 거의 필수.
+      매입등 타공 = 평천장에 다운라이트 매립 시 천장 1개당 1개 타공 작업 (타공비 2,000원/개). <b>매입등 기기 본체는 건축주 직접 조달 (별도)</b>.
+      조명 라인 이동/추가 = 천장 등 위치 변경 시 배선 추가 m 입력.
+    </div>
+  </div>
+</div>
+
+<!-- 12. 설비 -->
+<div class="card" x-show="isSectionVisible('plumbing')">
+  <div class="section-title" @click="open.plumbing = !open.plumbing">
+    12. 설비 (배관 / 보일러 / 에어컨) <span class="arrow" :class="{'open': open.plumbing}"></span>
+  </div>
+  <div x-show="open.plumbing">
+    <label class="check-row"><input type="checkbox" x-model="data.spaceList.plumbing.pipe_replace"> 배관 교체</label>
+    <label class="check-row"><input type="checkbox" x-model="data.spaceList.plumbing.boiler_replace"> 보일러 교체</label>
+    <label class="check-row"><input type="checkbox" x-model="data.spaceList.plumbing.vent_replace"> 환풍기 교체</label>
+    <label class="check-row"><input type="checkbox" x-model="data.spaceList.plumbing.ac_system"> 시스템 에어컨</label>
+
+    <!-- 2026-06-05 R19: 수전·배관 6종 갯수 입력 (cycle 95-100 발견 spec gap) -->
+    <div style="margin-top:12px;padding:10px;background:#f6f6f0;border-left:3px solid #1a472a;border-radius:4px;">
+      <div style="font-size:12px;font-weight:700;color:#1a472a;margin-bottom:8px;">수전·배관 갯수 (필요한 것만 N 입력, 없으면 0)</div>
+      <div class="grid3">
+        <div><label class="lbl">수도꼭지 신설</label><input type="number" min="0" x-model.number="data.spaceList.plumbing.waterFall_count" placeholder="0~5"></div>
+        <div><label class="lbl">세탁기 배수</label><input type="number" min="0" x-model.number="data.spaceList.plumbing.washDrain_count" placeholder="0~1"></div>
+        <div><label class="lbl">식기세척기 급배수</label><input type="number" min="0" x-model.number="data.spaceList.plumbing.dishDrain_count" placeholder="0~1"></div>
+        <div><label class="lbl">보일러 분배기</label><input type="number" min="0" x-model.number="data.spaceList.plumbing.boilerDist_count" placeholder="0~1"></div>
+        <div><label class="lbl">정수기 직수</label><input type="number" min="0" x-model.number="data.spaceList.plumbing.waterPurifier_count" placeholder="0~1"></div>
+        <div><label class="lbl">가스 이전</label><input type="number" min="0" x-model.number="data.spaceList.plumbing.gasMove_count" placeholder="0~1"></div>
+      </div>
+      <p style="font-size:11px;color:#888;margin-top:6px;">모르면 비워두고 제출 → 코디가 현장 측정 후 확정.</p>
+    </div>
+
+    <div class="grid3 mt-2">
+      <div><label class="lbl">벽걸이 에어컨 신설 개수</label><input type="number" min="0" x-model.number="data.spaceList.plumbing.ac_new_count" placeholder="예: 4"></div>
+      <div>
+        <label class="lbl">에어컨 배관 길이 (1대당 m) (핵심)</label>
+        <input type="number" min="0" step="0.5" x-model.number="data.spaceList.plumbing.ac_pipe_length" placeholder="예: 5">
+        <p style="font-size:11px;color:#888;margin-top:3px;">실내기↔실외기 거리 (보통 3-7m). 미입력 시 5m 기본 적용.</p>
+      </div>
+      <div><label class="lbl">에어컨 기기 조달</label>
+        <select x-model="data.spaceList.plumbing.ac_unit_source">
+          <option value="owner">건축주 직접 조달 (권장, 30%↓)</option>
+          <option value="codi">집지니 카탈로그</option>
+          <option value="consult">상담 후 결정</option>
+        </select>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 13. 철거 -->
+<div class="card" x-show="isSectionVisible('demo')">
+  <div class="section-title" @click="open.demo = !open.demo">
+    13. 철거 <span class="arrow" :class="{'open': open.demo}"></span>
+  </div>
+  <div x-show="open.demo">
+    <label class="check-row"><input type="checkbox" x-model="data.spaceList.demolition.shoecabinet"> 신발장</label>
+    <label class="check-row"><input type="checkbox" x-model="data.spaceList.demolition.kitchen"> 기존 주방</label>
+    <label class="check-row"><input type="checkbox" x-model="data.spaceList.demolition.molding"> 몰딩</label>
+    <label class="check-row"><input type="checkbox" x-model="data.spaceList.demolition.doors"> 문 (방·욕실)</label>
+    <label class="check-row"><input type="checkbox" x-model="data.spaceList.demolition.doorframes"> 문틀</label>
+    <label class="check-row"><input type="checkbox" x-model="data.spaceList.demolition.tile"> 기존 타일 (욕실·현관)</label>
+    <div class="mt-2"><label class="lbl">폐기물 처리</label><select x-model="data.spaceList.demolition.wastefee"><option>포함</option><option>별도</option></select></div>
+  </div>
+</div>
+
+</div><!-- /v20 4-13번 카드 wrapper end -->
+
+<!-- 13. 공종 범위 — 2026-05-29 박 대표 UX: 상단으로 이동됨 (2번 다음). -->
+<!-- 이 위치는 비워둠 — 메모 카드만 다음에 옴 -->
+<!-- /13 -->
+
+
+<!-- 14. 메모 -->
+<div class="card">
+  <div class="section-title" @click="open.memo = !open.memo">
+    14. 메모 / 특이사항 <span class="arrow" :class="{'open': open.memo}"></span>
+  </div>
+  <div x-show="open.memo">
+    <textarea x-model="data.memo" rows="4" placeholder="우선순위·특이사항·요청사항을 자유롭게 적어주세요"></textarea>
+  </div>
+</div>
+
+<!-- 제출 -->
+<div class="card">
+  <button class="btn-submit" @click="submit()" :disabled="busy || ok" x-text="busy ? '전송 중...' : (ok ? '접수 완료' : '의뢰서 제출')"></button>
+  <div x-show="msg" class="mt-3 p-3 rounded text-sm" :class="ok ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'" x-text="msg"></div>
+</div>
+
+<footer class="text-center text-xs text-gray-500 mt-4 pb-6">
+  집지니 · <a href="https://pf.kakao.com/_NjpxhC/chat" target="_blank" style="color:#1a472a;font-weight:700;text-decoration:none;">카카오톡 @집지니</a> · thecloudstay@gmail.com<br>
+  문의사항은 카카오톡으로 부탁드립니다 (유선통화는 카톡 상담 이후 가능)<br>
+  코디 운영비 정찰제 (500만↓15% / 1천만↓11% / 2천만↓8.5% / 3천만↓7% / 4천만↓6% / 5천만↓5% / 7천만↓4.5% / 1억↓4% / 1억+ 3.5%, 공급가액 기준 · 청구 시 부가세 10% 포함) · 자재·인건비 마진 0% · 사업자 874-10-00088
+</footer>
+
+<script>
+// 2026-05-29 박 대표 옵션 카탈로그 시트 inject (router.js request_form 라우트에서 채움)
+// 2026-05-29 박 대표 fix: scriptlet 제거 (GAS HtmlService 안에서 JS syntax 깨뜨림).
+// 옵션 트리는 fetch로 별도 로드 (Alpine init에서).
+window.JIPJINI_OPTION_TREE = null;
+function formApp() {
+  return {
+    // 2026-05-29 박 대표 UX: 13번 공종 범위를 상단으로 + 공종 선택 시 해당 세부 카드만 노출.
+    // 처음엔 모든 세부 카드 접힘. 고객이 공종 체크하면 해당 카드 자동 표시·펼침.
+    open: { basic: true, building: true, scope: true, rooms: false, living: false, bath: false, kitchen: false, entry: false, veranda: false, windows: false, electric: false, plumbing: false, demo: false, memo: false },
+    busy: false, msg: '', ok: false,
+    ad: { open: false, loading: false, msg: '' },   // 2026-11-10 주소 찾기
+    cad: { on: false, sum: '' },             // 2026-11-11 집지니 CAD 에서 넘어온 도면 요약
+    pv: { busy: false, err: '', r: null },   // 2026-11-10 우리 집 정보 미리보기
+    pl: { busy: false, err: '', r: null, svg: '', svg2: '', view: 'new', sum: '', detail: '', backup: '', sim: '', simMsg: '', catOn: false, auto0: null, applied0: '', fb: 3, ft: 2, typ: false, file: null, step: '', note: '', link: '', linkBusy: false, linkMsg: '', linkOk: '' },   // 2026-11-10 도면 넣기 → 자동 적산
+    planLoad_() { const one = function (src) { return new Promise(function (ok, no) { var s = document.createElement('script'); s.src = src; s.onload = function () { ok(); }; s.onerror = function () { no(new Error('분석 도구를 불러오지 못했습니다 — 잠시 뒤 다시 시도해 주세요.')); }; document.head.appendChild(s); }); }; if (window.JJPlanTools && window.JJPlanAuto) return Promise.resolve(); return one('https://jipjini.com/assets/plan_auto.js?v=20261110h').then(function () { return one('https://jipjini.com/assets/plan_tools.js?v=20261110m'); }).then(function () { return one('https://jipjini.com/assets/plan_style.js?v=20261110h').catch(function () {}); }); },
+    planPick(ev) {
+      const f = ev.target.files && ev.target.files[0]; ev.target.value = ''; if (!f) return; this.ap.auto = false; this.pl.file = f; this.planRun_(f);
+    },
+    planLink() {
+      const self = this, u = String(this.pl.link || '').trim(); if (!u) { this.pl.linkMsg = '주소를 붙여 넣어 주세요.'; return; }
+      this.pl.linkBusy = true; this.pl.linkMsg = '';
+      const done = function (r) { self.pl.linkBusy = false; self.pl.linkOk = r.주소;
+        if (r.단지명 && String(self.data.address || '').indexOf(r.단지명) < 0) self.data.address = (String(self.data.address || '').trim() + ' ' + r.단지명).trim();
+        self.pl.linkMsg = r.사이트 + ' 주소를 의뢰에 함께 넣었습니다' + (r.단지명 ? ' (단지명: ' + r.단지명 + ' — 주소 칸에 보탰습니다. 「우리 집 정보 미리보기」를 눌러 보세요)' : '') + '. 그 화면의 평면도를 캡처해 위 「평면도 넣기」에 넣으면 방별 크기까지 자동으로 채워집니다.'; };
+      const fail = function (e) { self.pl.linkBusy = false; self.pl.linkOk = ''; self.pl.linkMsg = (e && e.message) || '주소를 확인하지 못했습니다.'; };
+      if (typeof google !== 'undefined' && google.script && google.script.run) google.script.run.withSuccessHandler(done).withFailureHandler(fail).api_planLinkCheck({ 주소: u }); else fail(new Error('의뢰서 화면에서만 됩니다.'));
+    },
+    planFixPhoto() { const self = this; if (!this.pl.file || !window.JJPlanTools) return; window.JJPlanTools.fixPhoto(this.pl.file).then(function (cv) { if (cv) self.planRun_(cv); }); },
+    planRun_(f) {
+      const self = this; this.pl.busy = true; this.pl.err = ''; this.pl.step = '';
+      this.planLoad_().then(function () { return window.JJPlanTools.analyze(f, { areaM2: Number(self.data.areaM2) || 0, onStep: function (t) { self.pl.step = t; } }); }).then(function (r) {
+        self.pl.busy = false;
+        if (!r || !r.ok) { self.pl.err = (r && r.why) || '도면을 읽지 못했습니다.'; return; }
+        self.pl.r = r; self.pl.svg = window.JJPlanAuto.overlaySvg(r); self.pl.svg2 = window.JJPlanStyle ? window.JJPlanStyle.svg(r, { title: '우리 집 평면 구성도' }) : ''; self.pl.note = (r.척도 && r.척도.안내) || '';
+        self.pl.auto0 = { engine: r.engine || '', 방: r.sum.방, 욕실: r.sum.욕실, 발코니: r.sum.발코니, mmpp: r.mmpp || 0, 치수: (r.척도 && r.척도.방식) || '', 글자: (r.글자 && r.글자.방이름) || 0, rooms: (r.rooms || []).map(function (m) { return [m.kind, m.area || 0]; }) };
+        self.pl.sum = '찾은 공간: 거실 1 · 방 ' + r.sum.방 + ' · 욕실 ' + r.sum.욕실 + ' · 발코니 ' + r.sum.발코니;
+        self.pl.detail = r.mmpp ? ('바닥 ' + r.sum.바닥 + '㎡ · 벽 ' + r.sum.벽 + '㎡ · 걸레받이 ' + r.sum.걸레받이 + 'm (거실·방 기준, 천장 높이 2.4m)') : '';
+        self.pl.typ = false; self.pl.sim = ''; self.pl.simMsg = ''; self.pl.fb = Math.max(1, Math.min(5, r.sum.방 || 3)); self.pl.ft = Math.max(1, Math.min(3, r.sum.욕실 || 1));
+        if (r.mmpp) self.planApply_(r); self.pl.applied0 = JSON.stringify((self.data.spaceList.rooms || []).map(function (x) { return [x.name || '', Number(x.width) || 0, Number(x.depth) || 0]; }));
+      }).catch(function (e) { self.pl.busy = false; self.pl.err = (e && e.message) || '도면을 읽지 못했습니다.'; });
+    },
+    // 집지니 CAD 「이 도면으로 견적 의뢰하기」가 주소에 실어 보낸 묶음을 풀어 의뢰서를 미리 채운다 (2026-11-11)
+    cadApply_() {
+      try {
+        const el = document.querySelector('meta[name="jj-cad"]'), b = el ? String(el.getAttribute('content') || '') : ''; if (!b) return;
+        const bin = atob(b.replace(/-/g, '+').replace(/_/g, '/')), k = JSON.parse(decodeURIComponent(escape(bin))); if (!k || k.v !== 1) return;
+        const self = this, R = (Array.isArray(k.r) ? k.r : []).map(function (x) { return { name: String(x[0] || ''), kind: String(x[1] || ''), w: Number(x[2]) || 0, d: Number(x[3]) || 0, a: Number(x[4]) || 0 }; });
+        if (Number(k.a) > 0) { this.data.areaM2 = Number(k.a); this.data.py = Math.round((this.data.areaM2 / 3.305785) * 10) / 10; }
+        const dim = R.filter(function (x) { return x.w > 0 && x.d > 0; });
+        if (dim.length) this.planApply_({ rooms: dim });
+        else { const nb = R.filter(function (x) { return x.kind === '방'; }).length, nt = R.filter(function (x) { return x.kind === '욕실'; }).length; if (nb) this.data.rooms = nb; if (nt) this.data.bathrooms = nt; }
+        const ids = this.works.map(function (w) { return w.id; }), got = [];
+        (Array.isArray(k.w) ? k.w : []).forEach(function (id) { if (ids.indexOf(id) < 0) return; if (self.selectedWorks.indexOf(id) < 0) self.toggleWork(id); got.push((self.works.find(function (w) { return w.id === id; }) || {}).label || id); });
+        const L = ['[집지니 CAD 도면에서 가져옴] ' + (k.n || '') + (Number(k.h) ? ' · 천장 높이 ' + k.h + 'mm' : '')];
+        if (R.length) L.push('공간: ' + R.map(function (x) { return x.name + (x.a ? ' ' + x.a + '㎡' : ''); }).join(', '));
+        if (k.t) L.push(String(k.t));
+        this.data.memo = L.join('\n') + (this.data.memo ? '\n\n' + this.data.memo : '');
+        this.open.memo = true;
+        this.cad.sum = [R.length ? '공간 ' + R.length + '곳' : '', Number(k.a) > 0 ? '전용 약 ' + k.a + '㎡' : '', got.length ? '고른 공사 ' + got.length + '가지' : '', Number(k.c) ? '작업 지시 ' + k.c + '건' : ''].filter(Boolean).join(' · ');
+        this.cad.on = true;
+        try { gtag('event', 'cad_to_request', { rooms: R.length, works: got.length }); } catch (_e) {}
+      } catch (e) { /* 묶음이 깨졌으면 빈 의뢰서로 둔다 */ }
+    },
+    planApply_(r) {
+      const S = this.data.spaceList; if (!this.pl.backup) this.pl.backup = JSON.stringify(S);
+      const beds = r.rooms.filter(function (x) { return x.kind === '방'; }), baths = r.rooms.filter(function (x) { return x.kind === '욕실'; }), bals = r.rooms.filter(function (x) { return x.kind === '발코니'; }), liv = r.rooms.filter(function (x) { return x.kind === '거실'; })[0];
+      const big = function (x) { return Math.max(x.w, x.d); }, small = function (x) { return Math.min(x.w, x.d); };
+      if (beds.length) S.rooms = beds.map(function (x, i) { return { name: i === 0 ? '안방' : '작은방' + i, width: big(x), depth: small(x), height: 2.4, floor: '유지', wall: '유지', ceiling: '유지', door: '유지' }; });
+      if (baths.length) { const tpl = JSON.stringify((S.bathrooms && S.bathrooms[0]) || { wallH: 2.4, tileMethod: '철거후', wallTile: true, floorTile: true, toilet: true, sink: true, faucet: true, ceiling: true });
+        S.bathrooms = baths.map(function (x, i) { const b = JSON.parse(tpl); b.name = baths.length === 1 ? '욕실' : (i === 0 ? '공용욕실' : '안방욕실'); b.width = big(x); b.depth = small(x); b.tileArea = null; return b; }); }
+      if (liv) { S.livingRoom.width = big(liv); S.livingRoom.depth = small(liv); }
+      if (bals.length) { const vt = JSON.stringify((S.verandas && S.verandas[0]) || { expand: true, floor: '타일' });
+        S.verandas = bals.map(function (x, i) { const v = JSON.parse(vt); v.name = i === 0 ? '거실베란다' : '베란다' + (i + 1); v.width = big(x); v.depth = small(x); return v; }); }
+      const ent = r.rooms.filter(function (x) { return x.kind === '현관'; })[0]; if (ent && S.entryway) { S.entryway.width = big(ent); S.entryway.depth = small(ent); }
+      if (!S.exclusiveFloor && Number(this.data.areaM2)) S.exclusiveFloor = Number(this.data.areaM2);
+      this.data.rooms = beds.length || this.data.rooms; this.data.bathrooms = baths.length || this.data.bathrooms;
+    },
+    catMount(el) {
+      const self = this; let go = function () { window.JJPlanCat.mount(el, { areaM2: function () { return Number(self.data.areaM2) || 0; }, onPick: function (r) {
+        self.pl.sim = r.예시ID; if (!r.mmpp) { self.pl.simMsg = '전용면적을 먼저 넣어 주세요(①에서 찾거나 아래 건물 정보에 직접 입력). 그다음 다시 골라 주세요.'; return; }
+        self.planApply_(r); self.pl.simMsg = '고른 평면(방 ' + r.sum.방 + ' · 욕실 ' + r.sum.욕실 + ')으로 방별 크기를 채웠습니다 — 바닥 약 ' + r.sum.바닥 + '㎡ · 벽 약 ' + r.sum.벽 + '㎡. 아래 칸에서 고칠 수 있습니다.'; } }); };
+      const go0 = go; go = null; const run = function () { go0(); try { window.JJPlanCat.load().then(function () { self.pl.catOn = true; }, function () {}); } catch (_e) {} };
+      if (window.JJPlanCat) return run(); const s = document.createElement('script'); s.src = 'https://jipjini.com/assets/plan_catalog.js?v=20261110'; s.onload = run; document.head.appendChild(s);
+    },
+    planFix() {   // 고객이 방·욕실 수를 고치면 같은 수의 보통 구성으로 다시 채움 (올린 그림은 그대로 보관함으로)
+      const r0 = this.pl.r, m2 = Number(this.data.areaM2) || 0; if (!r0 || !window.JJPlanAuto || !m2) return;
+      const ty = window.JJPlanAuto.typical(this.pl.fb, this.pl.ft, m2); if (!ty.ok) return;
+      ty.dataUrl = r0.dataUrl; ty.W = r0.W; ty.H = r0.H; this.pl.r = ty; this.pl.typ = true;
+      this.pl.sum = '보통 구성: 거실 1 · 방 ' + ty.sum.방 + ' · 욕실 ' + ty.sum.욕실; this.pl.detail = '바닥 ' + ty.sum.바닥 + '㎡ · 벽 ' + ty.sum.벽 + '㎡ · 걸레받이 ' + ty.sum.걸레받이 + 'm (거실·방·주방 기준, 천장 높이 2.4m)';
+      this.planApply_(ty);
+    },
+    autoRooms() { const S = this.data.spaceList, n = (S.rooms || []).length, b = (S.bathrooms || []).length, v = (S.verandas || []).filter(function (x) { return x.width; }).length; return '거실 1 · 방 ' + n + ' · 욕실 ' + b + (v ? ' · 발코니 ' + v : ''); },
+    autoSizes() { const S = this.data.spaceList, f = function (nm, w, d) { return (w && d) ? nm + ' ' + w + '×' + d + 'm' : ''; }, a = [];
+      if (S.livingRoom) a.push(f('거실', S.livingRoom.width, S.livingRoom.depth)); (S.rooms || []).forEach(function (r) { a.push(f(r.name, r.width, r.depth)); }); (S.bathrooms || []).forEach(function (r) { a.push(f(r.name, r.width, r.depth)); });
+      (S.verandas || []).forEach(function (r) { a.push(f(r.name, r.width, r.depth)); }); if (S.entryway) a.push(f('현관', S.entryway.width, S.entryway.depth)); return a.filter(Boolean).join(' · '); },
+    planLearn_(reqId) {
+      const a = this.pl.auto0; if (!a || !reqId) return; const S = this.data.spaceList, dims = function (x) { return [x.name || '', Number(x.width) || 0, Number(x.depth) || 0]; };
+      const body = { 의뢰ID: reqId, 방식: a.engine, 자동: a, 확정: { 방: (S.rooms || []).length, 욕실: (S.bathrooms || []).length, 전용면적: Number(this.data.areaM2) || 0, rooms: (S.rooms || []).map(dims).concat((S.bathrooms || []).map(dims)) }, 대체: !!this.pl.typ, 되돌림: !this.pl.backup && !this.pl.sim, 치수고침: JSON.stringify((S.rooms || []).map(dims)) !== this.pl.applied0 };
+      try { if (typeof google !== 'undefined' && google.script && google.script.run) google.script.run.withFailureHandler(function () {}).api_planLearn(JSON.stringify(body)); } catch (_e) {}
+    },
+    planUndo() { if (!this.pl.backup) return; try { this.data.spaceList = JSON.parse(this.pl.backup); } catch (_e) {} this.pl.backup = ''; this.pl.sim = ''; this.pl.simMsg = ''; },
+    planAttach_(reqId) {   // 접수 뒤 도면 그림·자동 표시를 콘솔 도면 보관함으로
+      const r = this.pl.r; if (!reqId) return;
+      if ((!r || !r.dataUrl) && this.pl.sim) { try { if (typeof google !== 'undefined' && google.script && google.script.run) google.script.run.withFailureHandler(function () {}).api_reqPlanAttach(JSON.stringify({ 의뢰ID: reqId, 예시ID: this.pl.sim, 전용면적: Number(this.data.areaM2) || 0 })); } catch (_s) {} return; }
+      if (!r || !r.dataUrl) return;
+      if (this.ap.auto) {   // 2026-11-10 주소로 불러온 단지 평면도는 원본 그림을 보관하지 않는다 — 집지니식으로 다시 그린 그림(같은 자리·크기)을 보관해 그 위에서 편집한다
+        if (!(window.JJPlanStyle && window.JJPlanStyle.png && r.W && r.H)) return;
+        window.JJPlanStyle.png(r, { bare: { W: r.W, H: r.H } }, r.W).then(function (url) {
+          try { if (typeof google !== 'undefined' && google.script && google.script.run) google.script.run.withFailureHandler(function () {}).api_reqPlanAttach(JSON.stringify({ 의뢰ID: reqId, dataUrl: url, 표시: r.shapes || [], 단지평면: true })); } catch (_e) {}
+        }).catch(function () {});
+        return;
+      }
+      try { if (typeof google !== 'undefined' && google.script && google.script.run) google.script.run.withFailureHandler(function () {}).api_reqPlanAttach(JSON.stringify({ 의뢰ID: reqId, dataUrl: r.dataUrl, 표시: r.shapes || [] })); } catch (_e) {}
+    },
+    // 주소 찾기 (카카오 우편번호 검색, 열쇠 없이 쓰는 공개 도구) — 고객이 제각각 적은 주소 때문에 건물 조회·도면 찾기가 빗나가던 것을 입력 단계에서 막는다 (2026-11-10)
+    addrOpen() {
+      const self = this; if (this.ad.open) { this.ad.open = false; return; }
+      this.ad.msg = '';
+      const show = function () {
+        self.ad.open = true;
+        self.$nextTick(function () { const el = document.getElementById('addrLayer'); if (!el) return; el.innerHTML = '';
+          try { new daum.Postcode({ width: '100%', height: '100%', oncomplete: function (d) { self.addrPicked(d); } }).embed(el, { autoClose: false }); } catch (e) { self.ad.open = false; self.ad.msg = '주소 찾기를 열지 못했습니다. 주소를 직접 적어 주세요.'; } });
+      };
+      if (window.daum && window.daum.Postcode) { show(); return; }
+      if (this.ad.loading) return; this.ad.loading = true;
+      const sc = document.createElement('script'); sc.src = 'https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js';
+      sc.onload = function () { self.ad.loading = false; if (window.daum && window.daum.Postcode) show(); else self.ad.msg = '주소 찾기를 열지 못했습니다. 주소를 직접 적어 주세요.'; };
+      sc.onerror = function () { self.ad.loading = false; self.ad.msg = '주소 찾기를 열지 못했습니다. 주소를 직접 적어 주세요.'; };
+      document.head.appendChild(sc);
+    },
+    addrPicked(d) {
+      d = d || {}; const road = String(d.roadAddress || d.autoRoadAddress || '').trim(), jibun = String(d.jibunAddress || d.autoJibunAddress || '').trim(), bn = String(d.buildingName || '').trim();
+      let base = (d.userSelectedType === 'J' && jibun) ? jibun : (road || jibun); if (!base) return;
+      this.data.address = base + (bn && base.indexOf(bn) < 0 ? ' ' + bn : '');
+      if (d.apartment === 'Y') this.data.buildingType = '아파트';
+      this.ad.open = false; this.ad.msg = '';
+      this.bldgPreview();   // 고른 주소로 건물 정보까지 바로 찾는다
+    },
+    bldgPreview() {
+      const self = this, addr = String(this.data.address || '').trim(), unit = String(this.data.unit || '').trim();
+      if (addr.length < 6) { this.pv.err = '시공 주소를 먼저 적어 주세요 (도로명 또는 지번 + 단지명).'; return; }
+      this.pv.busy = true; this.pv.err = ''; this.pv.r = null;
+      const done = function (r) { self.pv.busy = false; self.pv.r = r || null; if (!r) return;
+        if (r.전용면적 && (!self.data.areaM2 || Math.abs(Number(self.data.areaM2) - Number(r.전용면적)) > 0.6)) { self.data.areaM2 = Number(r.전용면적); self.data.py = Math.round((self.data.areaM2 / 3.305785) * 10) / 10; }
+        if (r.층 && !self.data.floor) self.data.floor = r.층 + '층';
+        if (r.승강기) self.data.elevator = '있음';
+        if (/공동주택|아파트/.test(String(r.주용도 || '')) || (r.단지명 && r.세대수)) self.data.buildingType = '아파트';
+        self.data.bldgPreview = { 단지명: r.단지명 || '', 전용면적: r.전용면적 || '', 준공년도: r.준공년도 || '', 도로명: r.도로명 || '' };
+        self.aptPlan('');   // 2026-11-10 주소만으로 단지 평면도 바로 불러오기
+      };
+      const fail = function (e) { self.pv.busy = false; self.pv.err = (e && e.message) ? e.message : '건물 정보를 찾지 못했습니다. 모르면 비워 두고 제출하셔도 됩니다.'; };
+      if (typeof google !== 'undefined' && google.script && google.script.run) google.script.run.withSuccessHandler(done).withFailureHandler(fail).api_bldgPreview({ 주소: addr, 동호: unit });
+      else fail(new Error('미리보기는 집지니 의뢰서 화면에서만 됩니다.'));
+    },
+    pickType(t) { this.data.areaM2 = Number(t.전용면적); this.data.py = Math.round((this.data.areaM2 / 3.305785) * 10) / 10; if (this.pv.r) this.pv.r.타입.forEach(function (x) { x.같은타입 = (x.전용면적 === t.전용면적); }); if (this.ap.r && this.ap.r.있음) this.aptPlan(''); },
+    // 2026-11-10 주소 → 단지 평면도 바로 불러오기. 고객이 그림을 직접 넣었으면 건드리지 않는다.
+    ap: { busy: false, r: null, msg: '', auto: false },
+    aptPlan(typeName) {
+      const self = this, pv = this.pv.r; if (!pv || !(pv.단지코드 || pv.도로명)) return;
+      if (this.pl.file && !this.ap.auto) return;
+      if (!(typeof google !== 'undefined' && google.script && google.script.run)) return;
+      this.ap.busy = true; this.ap.msg = '';
+      const done = function (r) { self.ap.busy = false; self.ap.r = r || null; if (!r) return; self.ap.msg = r.안내 || '';
+        if (r.고른평형 && r.고른평형.전용면적 && (!self.data.areaM2 || typeName)) { self.data.areaM2 = Number(r.고른평형.전용면적); self.data.py = Math.round((self.data.areaM2 / 3.305785) * 10) / 10; }
+        if (!r.dataUrl) return;
+        const im = new Image(); im.onload = function () { self.ap.auto = true; self.pl.file = im; self.planRun_(im); }; im.onerror = function () { self.ap.msg = '평면도 그림을 열지 못했습니다. 그림이 있으면 아래에 직접 넣어 주세요.'; }; im.src = r.dataUrl; };
+      const fail = function () { self.ap.busy = false; };
+      google.script.run.withSuccessHandler(done).withFailureHandler(fail).api_aptPlanForAddress({ 단지코드: pv.단지코드 || '', 도로명: pv.도로명 || '', 단지명: pv.단지명 || '', 전용면적: Number(this.data.areaM2) || Number(pv.전용면적) || 0, 평형: typeName || '' });
+    },
+    trades: ['Z. 올수리(전체)','A. 철거','B. 확장','C. 설비·전기','D. 창호','E. 도어','F. 목공','G. 타일','H. 도기(욕실)','I. 수전','J. 도장','K. 시트·필름','L. 바닥','M. 도배','N. 가구·싱크','O. 조명','P. 기타·청소'],
+    // 섹션별 관련 공종 매핑 (해당 공종 체크되면 카드 표시 + 자동 펼침)
+    // v16: 박 대표 선택 안한 카드 표시 안 되게 정확 매칭. 목공 section 신규.
+    sectionTradesMap: {
+      rooms:    ['바닥', '도배', '도장', '필름'], // 4번 카드 (전용면적 + 마감)
+      living:   ['도배', '도장', '조명'],
+      bath:     ['타일', '도기', '수전', '욕실방수', '평탄화'],
+      kitchen:  ['수전', '가구싱크'],
+      entry:    ['가구싱크', '타일'], // 현관 = 신발장/타일
+      veranda:  ['확장'],
+      windows:  ['창호'],
+      electric: ['설비전기'],
+      plumbing: [], // 별도 X
+      demo:     ['철거'],
+      carpentry: ['목공'] // v16 신규: 목공 카드 (걸레받이·가벽·단열)
+    },
+    // 2026-05-29 박 대표 신혼부부 UX: 공간 → 작업 → 자재 drill-down (3단)
+    // 1단 = 공간 선택 (어디를 작업?)
+    // 2단 = 그 공간 안 작업 선택 (벽지·바닥·조명 등)
+    // 3단 = 자재 선택 (서브웨이 drill-down — tradeOptionTree)
+    spaces: [
+      { id: 'living', label: '거실', icon: '' },
+      { id: 'bedroom', label: '침실 · 방', icon: '' },
+      { id: 'kitchen', label: '주방', icon: '' },
+      { id: 'bathroom', label: '욕실', icon: '' },
+      { id: 'veranda', label: '베란다', icon: '' },
+      { id: 'entry', label: '현관', icon: '' },
+      { id: 'all', label: '집 전체 (올수리)', icon: '' }
+    ],
+    // 공간별 가능한 작업 → 공종 매핑 (내부 시스템 trade 코드 자동 변환)
+    spaceTaskMap: {
+      living: [
+        { label: '벽지 새로', trade: 'M. 도배', icon: '' },
+        { label: '바닥 새로', trade: 'L. 바닥', icon: '' },
+        { label: '조명 교체', trade: 'O. 조명', icon: '' },
+        { label: '천장 / 우물천장', trade: 'F. 목공', icon: '' }
+      ],
+      bedroom: [
+        { label: '벽지 새로', trade: 'M. 도배', icon: '' },
+        { label: '바닥 새로', trade: 'L. 바닥', icon: '' },
+        { label: '방문 교체', trade: 'E. 도어', icon: '' },
+        { label: '붙박이장', trade: 'N. 가구·싱크', icon: '' }
+      ],
+      kitchen: [
+        { label: '싱크대 교체', trade: 'N. 가구·싱크', icon: '' },
+        { label: '주방 타일 교체', trade: 'G. 타일', icon: '' },
+        { label: '수전 교체', trade: 'I. 수전', icon: '' },
+        { label: '바닥 새로', trade: 'L. 바닥', icon: '' }
+      ],
+      bathroom: [
+        { label: '욕실 전체 리모델', trade: 'A. 철거', icon: '' },
+        { label: '타일만 새로', trade: 'G. 타일', icon: '' },
+        { label: '변기·세면대', trade: 'H. 도기(욕실)', icon: '' },
+        { label: '수전·샤워', trade: 'I. 수전', icon: '' }
+      ],
+      veranda: [
+        { label: '베란다 확장', trade: 'B. 확장', icon: '' },
+        { label: '베란다 바닥', trade: 'L. 바닥', icon: '' },
+        { label: '창호 교체', trade: 'D. 창호', icon: '' }
+      ],
+      entry: [
+        { label: '신발장 교체', trade: 'N. 가구·싱크', icon: '' },
+        { label: '현관 타일', trade: 'G. 타일', icon: '' },
+        { label: '중문 설치', trade: 'E. 도어', icon: '' },
+        { label: '현관문 필름', trade: 'K. 시트·필름', icon: '' }
+      ],
+      all: [
+        { label: '집 전체 올수리 — 박 대표 상담 후 견적', trade: 'Z. 올수리(전체)', icon: '' }
+      ]
+    },
+    selectedSpaces: [], // 박 대표 선택한 공간 ID 배열
+    selectedTasks: {},  // { 'living': ['M. 도배', 'L. 바닥'], 'kitchen': ['N. 가구·싱크'] }
+
+    // 2026-06-01 v4: 박 대표 전수검사 fix — trade(단수) → trades(배열). 적산기 v2 trade name 정합 (prefix 없음).
+    // 신발장은 가구싱크, 화장실은 도기+수전+타일+철거+설비전기 묶음 명시.
+    // v17 박 대표: ② "어느 공간" 카드 정리. 공간 매핑 의미 X work는 spaces=[] (② 카드 X)
+    // 공간 적용 의미 있는 work만 ② 카드에 표시 (벽지/바닥/욕실/싱크대/현관/베란다)
+    // 사전준비·철거·기타·조명·도장·샷시·필름·목공 = ② 표시 X (자동 전체 적용)
+    works: [
+      { id: 'preparation', label: '사전 준비', trades: ['사전준비'], spaces: [], autoAll: true, note: '세대동의서·EV 보양 (자동 전체)' },
+      { id: 'demolition',  label: '철거', trades: ['철거'], spaces: [], autoAll: true, note: '필수 공종 (자동 전체)' },
+      { id: 'wallpaper', label: '도배 (전체 시공만, 부분 불가)', trades: ['도배'], spaces: [], autoAll: true, note: '박 대표 spec: 도배는 항상 전체 시공 (방·거실·복도 통일). 부분 시공 절대 X' }, // 2026-06-05 R19: 박 대표 6차 강조 spec — autoAll 전환
+      { id: 'flooring',  label: '바닥', trades: ['바닥'], spaces: ['bedroom','living'] }, // v20 박 대표: 주방=타일 별도, 베란다=확장 work 별도
+      { id: 'sink',      label: '싱크대', trades: ['가구싱크'], spaces: ['kitchen'] },
+      { id: 'bathroom',  label: '욕실 (도기·욕조·샤워)', trades: ['철거','도기','수전','설비전기'], spaces: ['bathroom'] },
+      { id: 'tile',      label: '타일 (화장실·주방·현관·베란다)', trades: ['타일'], spaces: [], autoAll: true, note: '4부위 통합 타일 공정' },
+      { id: 'balcony',   label: '베란다 확장', trades: ['확장','바닥'], spaces: ['veranda'] },
+      { id: 'entrance',  label: '현관 (도어 포함)', trades: ['타일','가구싱크','목공'], spaces: ['entry'] },
+      { id: 'carpentry', label: '목공 (몰딩·가벽·단열)', trades: ['목공'], spaces: [], autoAll: true, note: '자동 전체 적용' },
+      { id: 'lighting',  label: '전기·조명', trades: ['조명'], spaces: [], autoAll: true, note: '전기 + 조명' },
+      { id: 'plumbing',  label: '설비 (배관·급배수)', trades: ['설비전기'], spaces: [], autoAll: true, note: '설비 통합' },
+      { id: 'painting',  label: '도장 (베란다만)', trades: ['도장'], spaces: [], autoAll: true, note: '베란다 페인트 (박 대표 spec)' },
+      { id: 'window',    label: '샷시', trades: ['창호'], spaces: [], autoAll: true, note: '자동 전체 적용' },
+      { id: 'film',      label: '필름 (싱크대 / 문짝 / 샷시)', trades: ['필름'], spaces: [], autoAll: true, note: '자동 전체 적용' },
+      { id: 'etc',       label: '기타', trades: ['기타'], spaces: [], autoAll: true, note: '본공사 외 부속 (자동 전체)' }
+    ],
+    // R26 박 대표 spec (2026-06-05): 한국 인테리어 공정 순서 12 카테고리 (마감 분리)
+    workCategories: [
+      { name: '01  사전준비 · 철거', workIds: ['preparation','demolition'] },
+      { name: '02  창호', workIds: ['window'] },
+      { name: '03  설비 · 전기', workIds: ['plumbing','lighting','balcony'] },
+      { name: '04  목공', workIds: ['carpentry'] },
+      { name: '05  타일', workIds: ['tile'] },
+      { name: '06  욕실', workIds: ['bathroom'] },
+      { name: '07  도장', workIds: ['painting'] },
+      { name: '08  도배', workIds: ['wallpaper'] },
+      { name: '09  바닥', workIds: ['flooring'] },
+      { name: '10  가구 · 현관', workIds: ['sink','entrance'] },
+      { name: '11  필름', workIds: ['film'] },
+      { name: '12  기타', workIds: ['etc'] }
+    ],
+    openWorkCategories: {},
+    toggleWorkCategory(name) {
+      // v20.8 박 대표: 기본 닫힘. 클릭 시 토글
+      this.openWorkCategories[name] = !this.openWorkCategories[name];
+    },
+    isWorkCategoryOpen(name) {
+      return this.openWorkCategories[name] === true; // 기본 닫힘
+    },
+    getCategoryCount(cat) {
+      // R40v2 박 대표 spec (2026-06-05): selectedIds 또는 consultLater 기준 (selectedWorks만으로는 자재 해제 시 잔존)
+      var self = this;
+      if (!cat || !Array.isArray(cat.workIds)) return 0;
+      return cat.workIds.filter(function(w){
+        var opt = self.data.tradeOptions[w] || {};
+        var hasItems = Array.isArray(opt.selectedIds) && opt.selectedIds.length > 0;
+        return hasItems || opt.consultLater === true;
+      }).length;
+    },
+    // v20.4 박 대표: ② work 아코디언을 공사 순서대로 정렬 (철거→목공→전기→마감→가구)
+    get selectedWorksOrdered() {
+      var order = [];
+      this.workCategories.forEach(function(c){
+        (c.workIds || []).forEach(function(w){ order.push(w); });
+      });
+      return this.selectedWorks.slice().sort(function(a, b){
+        var ia = order.indexOf(a); var ib = order.indexOf(b);
+        if (ia === -1) ia = 999; if (ib === -1) ib = 999;
+        return ia - ib;
+      });
+    },
+    selectedWorks: [],       // 선택한 공사 ID 배열
+    selectedWorkSpaces: {},  // { 'wallpaper': ['bedroom','living'], 'flooring': ['living'] }
+
+    // 공사 토글 + scope 자동 sync (적산기 v2 trade와 연결)
+    toggleWork(workId) {
+      const i = this.selectedWorks.indexOf(workId);
+      if (i >= 0) {
+        this.selectedWorks.splice(i, 1);
+        delete this.selectedWorkSpaces[workId];
+        this.openWorks[workId] = false; // v21 박 대표 F: 해제 시 panel 닫음
+      } else {
+        this.selectedWorks.push(workId);
+        this.openWorks[workId] = true;  // v21 박 대표 F: 체크 시 자동 펼침
+        const w = this.works.find(x => x.id === workId);
+        // 첫 공간 자동 선택 (smart default) + selectedSpaces sync (면적 입력 카드 보이게)
+        if (w && w.spaces && w.spaces.length > 0) {
+          const firstSpace = w.spaces[0];
+          this.selectedWorkSpaces[workId] = [firstSpace];
+          if (this.selectedSpaces.indexOf(firstSpace) < 0) this.selectedSpaces.push(firstSpace);
+          this.autoOpenSpaceInput(firstSpace);
+        } else {
+          this.selectedWorkSpaces[workId] = [];
+        }
+      }
+      this.syncScopeFromWorks();
+    },
+    // 공사별 공간 토글 — 면적 입력 카드 자동 펼침 + selectedSpaces sync
+    toggleWorkSpace(workId, spaceId) {
+      if (!this.selectedWorkSpaces[workId]) this.selectedWorkSpaces[workId] = [];
+      const arr = this.selectedWorkSpaces[workId];
+      const i = arr.indexOf(spaceId);
+      if (i >= 0) {
+        arr.splice(i, 1);
+        // 다른 공사에서 이 space 안 쓰면 selectedSpaces에서 제거
+        const stillUsed = Object.keys(this.selectedWorkSpaces).some(function(w){
+          return (this.selectedWorkSpaces[w]||[]).indexOf(spaceId) >= 0;
+        }, this);
+        if (!stillUsed) {
+          const sIdx = this.selectedSpaces.indexOf(spaceId);
+          if (sIdx >= 0) this.selectedSpaces.splice(sIdx, 1);
+        }
+      } else {
+        arr.push(spaceId);
+        // selectedSpaces 자동 sync (면적 입력 카드 보이게)
+        if (this.selectedSpaces.indexOf(spaceId) < 0) this.selectedSpaces.push(spaceId);
+        this.autoOpenSpaceInput(spaceId);
+      }
+    },
+    isWorkSpaceSelected(workId, spaceId) {
+      return (this.selectedWorkSpaces[workId] || []).indexOf(spaceId) >= 0;
+    },
+    // 전체 리모델링 1-tap (박 대표 정찰제 정합)
+    selectAllWorks() {
+      const self = this;
+      this.works.forEach(function(w){
+        if (self.selectedWorks.indexOf(w.id) < 0) {
+          self.selectedWorks.push(w.id);
+        }
+        if (!self.selectedWorkSpaces[w.id]) {
+          self.selectedWorkSpaces[w.id] = (w.spaces || []).slice();
+          (w.spaces || []).forEach(function(sId){
+            if (self.selectedSpaces.indexOf(sId) < 0) self.selectedSpaces.push(sId);
+            self.autoOpenSpaceInput(sId);
+          });
+        }
+      });
+      this.syncScopeFromWorks();
+    },
+    // 전체 해제
+    clearAllWorks() {
+      this.selectedWorks = [];
+      this.selectedWorkSpaces = {};
+      this.selectedSpaces = [];
+      this.data.scope = [];
+    },
+    // works → data.scope (trade list) 자동 sync — 적산기 v2 연결 (다중 trade 처리)
+    // v17 박 대표 CRITICAL fix: 옛 scope 누적 X → 완전 재계산 (해제 시 정확 제거)
+    syncScopeFromWorks() {
+      const set = new Set(); // (핵심) 빈 set으로 시작 (옛 잔존 제거)
+      const self = this;
+      this.selectedWorks.forEach(function(wId){
+        const w = self.works.find(x => x.id === wId);
+        if (w && Array.isArray(w.trades)) {
+          w.trades.forEach(function(t){ set.add(t); });
+        } else if (w && w.trade) {
+          set.add(w.trade);
+        }
+      });
+      this.data.scope = Array.from(set);
+      if (!this.data.worksRaw) this.data.worksRaw = {};
+      this.data.worksRaw.works = this.selectedWorks.slice();
+      this.data.worksRaw.workSpaces = JSON.parse(JSON.stringify(this.selectedWorkSpaces));
+    },
+    // 공간 토글 — 2026-05-29 박 대표 fix: 공간 선택 시 spaceList 자동 동기화 + 섹션 자동 펼침
+    toggleSpace(spaceId) {
+      const i = this.selectedSpaces.indexOf(spaceId);
+      if (i >= 0) {
+        this.selectedSpaces.splice(i, 1);
+        delete this.selectedTasks[spaceId];
+      } else {
+        this.selectedSpaces.push(spaceId);
+        if (!this.selectedTasks[spaceId]) this.selectedTasks[spaceId] = [];
+        // 공간 → spaceList 자동 매핑 + 입력 카드 이름 prefill + 섹션 강제 펼침
+        this.autoOpenSpaceInput(spaceId);
+      }
+      this.syncScopeFromTasks();
+    },
+    // 박 대표 요청: 공간 선택만 해도 → 정밀 측정 카드 자동 보이고 이름 prefill
+    autoOpenSpaceInput(spaceId) {
+      const sp = this.data.spaceList;
+      if (spaceId === 'bedroom') {
+        // 방 카드 — 기존 rooms[0] 이름이 비어있거나 "공간 1" 디폴트면 "침실 1"로 prefill
+        if (!Array.isArray(sp.rooms) || sp.rooms.length === 0) {
+          sp.rooms = [{ name: '침실 1', width: null, depth: null, height: 2.4, floor: '유지', wall: '유지', ceiling: '유지', door: '유지' }];
+        } else {
+          const r0 = sp.rooms[0];
+          if (!r0.name || r0.name === '공간 1' || r0.name === '방') r0.name = '침실 1';
+        }
+        this.open.rooms = true;
+      } else if (spaceId === 'living') {
+        this.open.living = true;
+      } else if (spaceId === 'bathroom') {
+        if (!Array.isArray(sp.bathrooms) || sp.bathrooms.length === 0) {
+          sp.bathrooms = [{ name: '욕실 1', width: 0, depth: 0, wallH: 0, tileMethod: '철거후신규', ceiling: true, tub: false, showerBooth: true, wallTile: true, floorTile: true, toilet: true, sink: true, faucet: true, door: false }];
+        } else {
+          const b0 = sp.bathrooms[0];
+          if (!b0.name || b0.name === '공간 1' || b0.name === '욕실') b0.name = '욕실 1';
+        }
+        this.open.bath = true;
+      } else if (spaceId === 'kitchen') {
+        this.open.kitchen = true;
+      } else if (spaceId === 'entry') {
+        this.open.entry = true;
+      } else if (spaceId === 'veranda') {
+        this.open.veranda = true;
+      } else if (spaceId === 'all') {
+        // 올수리 — 모든 섹션 펼침
+        const sections = ['rooms','living','bath','kitchen','entry','veranda','windows','electric','plumbing','demo'];
+        const self = this;
+        sections.forEach(function(s){ self.open[s] = true; });
+      }
+    },
+    // 작업 토글 (해당 공간 안)
+    toggleTask(spaceId, trade) {
+      if (!this.selectedTasks[spaceId]) this.selectedTasks[spaceId] = [];
+      const arr = this.selectedTasks[spaceId];
+      const i = arr.indexOf(trade);
+      if (i >= 0) arr.splice(i, 1);
+      else arr.push(trade);
+      this.syncScopeFromTasks();
+    },
+    // 선택된 모든 task → data.scope 동기화 (내부 시스템 trade 코드)
+    syncScopeFromTasks() {
+      const set = {};
+      const self = this;
+      this.selectedSpaces.forEach(function(sId){
+        (self.selectedTasks[sId] || []).forEach(function(t){ set[t] = true; });
+      });
+      this.data.scope = Object.keys(set);
+      this.onScopeChange();
+    },
+    // 작업이 선택되었는지
+    isTaskSelected(spaceId, trade) {
+      return (this.selectedTasks[spaceId] || []).indexOf(trade) >= 0;
+    },
+    // 2026-06-01 v3 (deep-research 셀인 카페 기반): 파레토 80/20 원칙
+    // 각 공사 = 3등급 (저가형 / 보통형 / 고급형). 각 등급당 brand 1-2개 + 평당 가격
+    // 보통형 = 박 대표 정찰제 주력 (셀인 카페 80%+ 거론)
+    // v18 박 대표: key = work id (1 work = 1 카드). label = work label 자동 사용
+    // estimator.js는 trade 기준이라 영향 X (UI만 변경)
+    tradeOptionTree: {
+      // 2026-11-11 고객 페이지 자재 고르기 사양과 뜻이 같은 선택지 11개는 표시 이름을 사양 이름과 같게 맞춤(id 는 그대로라 접수된 자료는 그대로 읽힘) — 대응표는 selection.gs SEL_FROM_REQ_
+      // v19 박 대표: groups 구조 (2뎁스 아코디언 — 시공옵션 / 브랜드 / 부가 그룹화)
+      // 1. 사전 준비 (works.preparation)
+      'preparation': {
+        multiSelect: true,
+        groups: [
+          { name: '필수 준비', items: [
+            { id: 'consent', label: '세대 동의서 (입주자대표·관리실 신고)' },
+            { id: 'notice', label: '입주민 안내문 (게시판·세대 발송)' },
+            { id: 'survey', label: '현장 정밀 측량·도면 재작성' }
+          ]},
+          { name: '보양 작업', items: [
+            { id: 'evFilm', label: '엘리베이터 보양 (양생필름·합판)' },
+            { id: 'evMat', label: '엘리베이터 내부 매트 (자재 운반)' },
+            { id: 'corridor', label: '복도·계단 보양 (부직포·합판)' },
+            { id: 'commonEntry', label: '공용 현관 보양' }
+          ]}
+        ]
+      },
+      // 2. 철거 (works.demolition) — v20.12 박 대표: 가스배관 철거 신규
+      'demolition': {
+        multiSelect: true,
+        groups: [
+          { name: '철거 범위', items: [
+            { id: 'general', label: '일반 보통 (신발장·주방·방문틀 등)' },
+            { id: 'nonBearing', label: '비내력벽 철거 (벽체 구조 변경)' },
+            { id: 'gasPipeRemove', label: '가스배관 철거' }
+          ]},
+          { name: '운반·처리', items: [
+            { id: 'ladderCarSmall', label: '사다리차 (5층 이하, 소형 25만)' },
+            { id: 'ladderCarLarge', label: '사다리차 (6층 이상, 대형 45만)' },
+            { id: 'wasteTransport', label: '폐기물 운반·처리' }
+          ]}
+        ]
+      },
+      // 3. 벽지 (works.wallpaper) — R19 박 대표 6차 강조 spec: 부분 시공 절대 X, 전체 시공만, 등급 1개만
+      // wallpaper autoAll=true (방·거실·복도 자동 전체 적용), multiSelect=false (등급 단일)
+      // R34 박 대표 spec (2026-06-05): 합지/실크 그룹 분리. multiSelect:true (UI 보임 + SINGLE_PICK_WORKS server-side 단일 가드)
+      'wallpaper': {
+        multiSelect: true,
+        helpNote: '주의 — 도배는 전체 시공만 (부분 X). 합지 또는 실크 등급 1개 선택 → 모든 공간 자동 통일. 면적은 코디 현장 측정 후 확정.',
+        groups: [
+          // R39 박 대표 spec (2026-06-05): 도배 등급 1개만 선택 (합지/실크 중복 X) — singleSelect 가드
+          { name: '도배 등급 (1개 선택)', singleSelect: true, items: [
+            { id: 'hapji.basic',       label: '합지 벽지 (기본)' },
+            { id: 'silk.brandShinhan', label: '실크 보급' },
+            { id: 'silk.brandKenari',  label: '실크 표준' },
+            { id: 'silk.brandLX',      label: '실크 프리미엄' }
+          ]},
+          { name: '부가 작업 (중복 가능)', items: [
+            { id: 'puttyWork', label: '퍼티 작업' },
+            { id: 'wallSanding', label: '벽면 면갈이' }
+          ]}
+        ]
+      },
+      // 4. 바닥 (works.flooring) — v20.28 박 대표: 장판 두께 별도 그룹 (한국 표준 4종)
+      'flooring': {
+        multiSelect: true,
+        groups: [
+          // R39 박 대표 spec: 바닥재 1개만 선택 + 장판 두께 1개만
+          { name: '바닥재 종류 (1개 선택)', singleSelect: true, items: [
+            { id: 'janpan', label: '장판' },
+            { id: 'gangmaru', label: '강마루' },
+            { id: 'floorTile', label: '타일' }
+          ]},
+          { name: '장판 두께 (장판 선택 시, 1개)', singleSelect: true, items: [
+            { id: 'janpan18', label: '장판 1.8T' },
+            { id: 'janpan22', label: '장판 2.2T' },
+            { id: 'janpan28', label: '2.8T (고급)' },
+            { id: 'janpan45', label: '4.5T (프리미엄)' }
+          ]},
+          { name: '부가 (중복 가능)', items: [
+            { id: 'thresholdRemove', label: '문턱 제거' },
+            { id: 'levelingWork', label: '평탄화 (면갈이)' },
+            { id: 'baseboard', label: '걸레받이 (신규)' }
+          ]}
+        ]
+      },
+      // 5. 싱크대 (works.sink) — v20.22 박 대표: '기본 구성' 그룹 삭제
+      'sink': {
+        multiSelect: true,
+        groups: [
+          // R39 박 대표 spec: 싱크 브랜드 1개만 (노브랜드/한샘 중복 X)
+          { name: '브랜드 (1개 선택)', singleSelect: true, items: [
+            { id: 'brandNone', label: '노브랜드 (직영 PB)' },
+            { id: 'brandHanssem', label: '한샘' }
+          ]},
+          { name: '빌트인 가전', items: [
+            { id: 'dishwasher', label: '빌트인 식기세척기 포함' },
+            { id: 'microwave', label: '빌트인 전자레인지' }
+          ]},
+          { name: '추가 가구', items: [
+            { id: 'wardrobe', label: '붙박이장 (안방·옷장)' },
+            { id: 'shoeCabinet', label: '신발장' }
+          ]}
+        ]
+      },
+      // 6. 욕실 (works.bathroom) — v20.20 박 대표: 타일은 별도 tile work로 분리
+      'bathroom': {
+        multiSelect: true,
+        groups: [
+          { name: '도기·욕조·샤워', items: [
+            { id: 'porcelain', label: '도기공사 (양변기·세면대·수전)' },
+            { id: 'tub', label: '욕조 설치·교체' },
+            { id: 'showerBooth', label: '샤워부스' }
+          ]},
+          { name: '부가', items: [
+            { id: 'accessoryWork', label: '액세서리 (수건걸이·티슈홀더·욕실장·거울)' },
+            { id: 'ventilator', label: '환풍기 교체' },
+            { id: 'waterproof', label: '욕실 방수 (단독 시공·명세 분리)' },
+            { id: 'groutBath', label: '줄눈 시공 (욕실 바닥·벽)' }
+          ]}
+        ]
+      },
+      // 6.5. 타일 (works.tile) — v20.20 박 대표: 4부위 통합 + 부위별 면적
+      'tile': {
+        multiSelect: true,
+        groups: [
+          { name: '시공 부위', items: [
+            { id: 'tileBathroom', label: '화장실 타일' },
+            { id: 'tileKitchen', label: '주방 타일 (벽)' },
+            { id: 'tileEntrance', label: '현관 타일' },
+            { id: 'tileBalcony', label: '베란다 타일' }
+          ]},
+          { name: '시공방식', items: [
+            { id: 'methodOverlay', label: '기존 타일 위 덧방' },
+            { id: 'methodRemove', label: '철거후 (전체 철거 + 방수)' }
+          ]}
+        ]
+      },
+      // 7. 베란다 확장 (works.balcony)
+      'balcony': {
+        multiSelect: true,
+        groups: [
+          { name: '확장 공사', items: [
+            { id: 'floorInsulation', label: '바닥 단열 및 방수' },
+            { id: 'boilerMove', label: '보일러 위치 이전' },
+            { id: 'pipeExtension', label: '엑셀 파이프 연장 (보일러 배관 확장)' },
+            { id: 'elasticCoat', label: '탄성코트' }
+          ]}
+        ]
+      },
+      // 8. 현관 (works.entrance)
+      'entrance': {
+        multiSelect: true,
+        groups: [
+          { name: '구조', items: [
+            { id: 'middleDoor', label: '중문' }
+          ]},
+          { name: '부가', items: [
+            { id: 'doorLock', label: '도어락' },
+            { id: 'entryMirror', label: '현관 거울' }
+          ]}
+        ]
+      },
+      // 9. 목공 (works.carpentry) — v20.9 박 대표: 몰딩 신설 + 우물천정 막기 라벨
+      'carpentry': {
+        multiSelect: true,
+        groups: [
+          { name: '목공 공사', items: [
+            { id: 'molding', label: '몰딩 (걸레받이·문선)' },
+            { id: 'wellCeiling', label: '우물천정 막기' },
+            { id: 'partitionNew', label: '가벽 신설' },
+            { id: 'wallInsulation', label: '벽 단열 공사' }
+          ]},
+          { name: '트렌드 마감 (2026)', items: [
+            { id: 'minusMolding', label: '무몰딩(마이너스몰딩) 마감' },
+            { id: 'hiddenDoor', label: '히든 도어 (무문선)' },
+            { id: 'artWall', label: '아트월·웨인스코팅' },
+            { id: 'curtainBox', label: '커튼박스 제작' }
+          ]}
+        ]
+      },
+      // 10. 전기·조명 (works.lighting) — v20.24 박 대표: 설비는 별도 plumbing work로 분리
+      'lighting': {
+        multiSelect: true,
+        groups: [
+          { name: '조명', items: [
+            { id: 'lightReplace', label: 'LED 등기구 교체 (기본형)' },
+            { id: 'downlightNew', label: '매입등 (다운라이트) 신설' },
+            { id: 'lineLighting', label: '간접·라인조명 (T5/LED바)' }
+          ]},
+          { name: '전기', items: [
+            { id: 'fixtureChange', label: '기구 변경 (스위치·콘센트 커버)' },
+            { id: 'panelNew', label: '분전반 교체·증설' },
+            { id: 'outletMove', label: '콘센트 위치 변경 (이설)' }
+          ]}
+        ]
+      },
+      // 10.5. 설비 (works.plumbing) — v20.24 박 대표: lighting에서 분리
+      'plumbing': {
+        multiSelect: true,
+        groups: [
+          { name: '설비 (배관·급배수)', items: [
+            { id: 'waterFall', label: '수도 단내림 (싱크대 수전 위치 변경)' },
+            { id: 'washDrain', label: '세탁기 배수구 신설/이전' },
+            { id: 'dishDrain', label: '식기세척기 급배수' },
+            { id: 'gasMove', label: '가스배관 이전 (가스레인지 위치)' },
+            { id: 'boilerDist', label: '보일러 분배기 교체' },
+            { id: 'acSystem', label: '시스템에어컨 매립 설치 (기기 별도)' },
+            { id: 'waterPurifier', label: '정수기·비데 직수 라인 신설' },
+            { id: 'acPipe', label: '에어컨 배관 신설/이전' },
+            { id: 'ventSystem', label: '환기 시스템 (전열교환기·환풍기)' }
+          ]}
+        ]
+      },
+      // 11. 도장 (works.painting)
+      'painting': {
+        multiSelect: true,
+        groups: [
+          { name: '도장 공사', items: [
+            { id: 'interiorPaint', label: '내부용 수성' },
+            { id: 'antiMold', label: '곰팡이·결로 방지 (발수)' },
+            { id: 'moldingPaint', label: '내부 몰딩 페인트' }
+          ]}
+        ]
+      },
+      // 12. 샷시 (works.window) — R36 박 대표 spec (2026-06-05): 상/중/하 보이게 multiSelect:true. SINGLE_PICK_WORKS server-side 단일 가드
+      'window': {
+        multiSelect: true,
+        helpNote: '주의 — 창호는 외창 실측 (평수 무관). 등급 1개 선택 → 코디 현장 측정 후 단가 확정.',
+        groups: [
+          // R39 박 대표 spec: 창호 등급 1개만 선택
+          { name: '창호 등급 (외창 실측, 1개 선택)', singleSelect: true, items: [
+            { id: 'fullBasic',   label: '보급 (일반 PVC)' },
+            { id: 'fullMid',     label: '중급 (고급 PVC)' },
+            { id: 'fullPremium', label: '프리미엄 (단열·방음 강화)' }
+          ]},
+          { name: '부가', items: [
+            { id: 'meshScreen', label: '방충망 교체' }
+          ]}
+        ]
+      },
+      // 13. 필름 (works.film)
+      'film': {
+        multiSelect: true,
+        groups: [
+          { name: '필름 시공', items: [
+            { id: 'sinkDoor', label: '싱크대 도어' },
+            { id: 'roomDoor', label: '방문' },
+            { id: 'entryDoor', label: '현관문' },
+            { id: 'windowFilm', label: '샷시' }
+          ]}
+        ]
+      },
+      // 14. 기타 (works.etc) — v20.23 박 대표: 도어락·인터폰 2개만 (환풍/점검구 등 모두 삭제, 방충망=샷시로)
+      'etc': {
+        multiSelect: true,
+        groups: [
+          { name: '기타', items: [
+            { id: 'doorLock', label: '도어락' },
+            { id: 'intercom', label: '인터폰' }
+          ]}
+        ]
+      },
+      // v17 박 대표: 사전준비 = 7개 핵심 항목 체크박스 다중 선택
+      '사전준비': {
+        multiSelect: true, // (핵심) 다중 선택 mode (체크박스)
+        items: [
+          { id: 'consent', label: '세대 동의서 (입주자대표·관리실 신고)' },
+          { id: 'notice', label: '입주민 안내문 (게시판·세대 발송)' },
+          { id: 'evFilm', label: '엘리베이터 보양 (양생필름·합판)' },
+          { id: 'evMat', label: '엘리베이터 내부 매트 (자재 운반)' },
+          { id: 'corridor', label: '복도·계단 보양 (부직포·합판)' },
+          { id: 'commonEntry', label: '공용 현관 보양' },
+          { id: 'survey', label: '현장 정밀 측량·도면 재작성' }
+        ]
+      },
+      // v17: 위 모든 trade는 multiSelect 형식으로 정의 (옛 categories 구조 삭제)
+    },
+    // v16 박 대표: 자재 등급 의미 X 공종(사전준비·철거·설비전기)은 카탈로그에서 제외
+    // tradeOptionCatalog: 자재 선택 의미 있는 trade만 유지
+    tradeOptionCatalog: {
+      // '사전준비' 제거 (서비스 행위)
+      // '철거' 제거 (노무·폐기물, 자재 X)
+      // '설비전기' 제거 (배관/전선 표준)
+      '목공': ['멤브레인 (영림)', '강화 PVC', '상담 후 추천'],
+      '타일': ['포세린 300×600', '도기질 300×300', '상담 후 추천'],
+      '바닥': ['강마루', '장판 1.8T', '장판 2.2T', '장판 2.8T', '장판 4.5T', '데코타일', '상담 후 추천'],
+      '도배': ['합지 (보급)', '실크 보급 (신한)', '실크 표준 (개나리)', '실크 프리미엄 (LX)', '상담 후 추천'],
+      '가구싱크': ['한샘 키친바흐', '한샘 표준', '한샘 + 붙박이장', '상담 후 추천'],
+      '조명': ['LED 전체 교체', '메인등만', '상담 후 추천'],
+      'P. 기타·청소': ['입주 청소 포함', '잔손 마무리', '상담 후 추천']
+    },
+    // 번들 선택 시 → 자동 체크 + 대표 옵션 자동 적용
+    selectBundle(bundle) {
+      this.data.bundleSelected = bundle.id;
+      this.data.scope = bundle.trades.slice();
+      // 번들의 대표 옵션 자동 적용 — 트리 공종(L.바닥·M.도배 등)은 1단계 자동, flat은 그대로
+      const self = this;
+      Object.keys(bundle.options || {}).forEach(function(t){
+        if (self.tradeOptionTree[t]) {
+          // 트리 공종은 _상담 후 추천_ 자동 (집지니의 코디(Codi)가 직접 drill-down)
+          if (!self.data.tradeOptions[t] || typeof self.data.tradeOptions[t] !== 'object') {
+            self.data.tradeOptions[t] = { category: '상담 후 추천', sub: '', detail: '' };
+          }
+        } else {
+          self.data.tradeOptions[t] = bundle.options[t];
+        }
+      });
+      this.onScopeChange();
+    },
+    // 2026-05-29 박 대표 서브웨이 drill-down: 단계별 선택 (1=카테고리·2=세부·3=브랜드)
+    selectTradeOption(trade, level, name) {
+      if (!this.data.tradeOptions[trade] || typeof this.data.tradeOptions[trade] !== 'object') {
+        this.data.tradeOptions[trade] = { category: '', sub: '', detail: '' };
+      }
+      const opt = this.data.tradeOptions[trade];
+      if (level === 1) { opt.category = name; opt.sub = ''; opt.detail = ''; }
+      else if (level === 2) { opt.sub = name; opt.detail = ''; }
+      else if (level === 3) { opt.detail = name; }
+    },
+    // v20.3 박 대표: tradeOptions[wId] 객체 초기화 helper (consultLater 사용)
+    ensureWorkOpt(wId) {
+      if (!this.data.tradeOptions[wId] || typeof this.data.tradeOptions[wId] !== 'object') {
+        this.data.tradeOptions[wId] = { selectedIds: [], consultLater: false };
+      }
+      if (!Array.isArray(this.data.tradeOptions[wId].selectedIds)) this.data.tradeOptions[wId].selectedIds = [];
+    },
+    // v20.14 박 대표: 모두 상담 후 결정 (모든 work consultLater = true + 자동 선택)
+    get allConsultLater() {
+      if (!this.works || this.works.length === 0) return false;
+      var self = this;
+      return this.works.every(function(w){
+        var opt = self.data.tradeOptions[w.id];
+        return opt && opt.consultLater === true;
+      });
+    },
+    toggleAllConsultLater(checked) {
+      var self = this;
+      if (checked) {
+        // 모든 work selectedWorks에 추가 + consultLater=true
+        this.works.forEach(function(w){
+          if (self.selectedWorks.indexOf(w.id) < 0) self.selectedWorks.push(w.id);
+          self.ensureWorkOpt(w.id);
+          self.data.tradeOptions[w.id].consultLater = true;
+        });
+      } else {
+        // v20.15 박 대표: 해제 시 하위도 모두 해제 (work 선택 + consultLater)
+        this.selectedWorks = [];
+        this.works.forEach(function(w){
+          if (self.data.tradeOptions[w.id]) {
+            self.data.tradeOptions[w.id].consultLater = false;
+            self.data.tradeOptions[w.id].selectedIds = [];
+          }
+        });
+      }
+      // 2026-10-01: selectedWorks만 바뀌고 data.scope가 안 바뀌어 콘솔 「공종범위」가 빈 값([])으로 저장되던 문제 → 켜기·끄기 모두 동기화
+      this.syncScopeFromWorks();
+    },
+    // v17 박 대표: 다중 선택 (체크박스, 기록 유지)
+    isMultiItemSelected(trade, itemId) {
+      var opt = this.data.tradeOptions[trade];
+      if (!opt || !Array.isArray(opt.selectedIds)) return false;
+      return opt.selectedIds.indexOf(itemId) >= 0;
+    },
+    toggleMultiItem(trade, itemId) {
+      if (!this.data.tradeOptions[trade] || typeof this.data.tradeOptions[trade] !== 'object') {
+        this.data.tradeOptions[trade] = { selectedIds: [] };
+      }
+      var opt = this.data.tradeOptions[trade];
+      if (!Array.isArray(opt.selectedIds)) opt.selectedIds = [];
+      var i = opt.selectedIds.indexOf(itemId);
+      if (i >= 0) { opt.selectedIds.splice(i, 1); return; }
+      // R39 박 대표 spec (2026-06-05): singleSelect 그룹 가드 — 같은 그룹 내 다른 자재 자동 해제
+      var tree = this.tradeOptionTree[trade];
+      if (tree && Array.isArray(tree.groups)) {
+        var targetGroup = null;
+        for (var g = 0; g < tree.groups.length; g++) {
+          var grp = tree.groups[g];
+          if (Array.isArray(grp.items) && grp.items.some(function(it){ return it.id === itemId; })) {
+            targetGroup = grp; break;
+          }
+        }
+        if (targetGroup && targetGroup.singleSelect) {
+          // 같은 그룹 내 다른 자재 모두 해제
+          var groupItemIds = targetGroup.items.map(function(it){ return it.id; });
+          opt.selectedIds = opt.selectedIds.filter(function(sid){ return groupItemIds.indexOf(sid) < 0; });
+        }
+      }
+      opt.selectedIds.push(itemId);
+    },
+    // 2단 옵션 목록 (1단 선택값에 따라)
+    getLevel2Options(trade) {
+      const tree = this.tradeOptionTree[trade];
+      const opt = this.data.tradeOptions[trade];
+      if (!tree || !opt || !opt.category) return [];
+      const cat = tree.categories.find(function(c){ return c.name === opt.category; });
+      return (cat && Array.isArray(cat.children)) ? cat.children : [];
+    },
+    // 3단 옵션 목록 (2단 선택값에 따라)
+    getLevel3Options(trade) {
+      const subs = this.getLevel2Options(trade);
+      const opt = this.data.tradeOptions[trade];
+      if (!opt || !opt.sub) return [];
+      const sub = subs.find(function(s){ return s.name === opt.sub; });
+      return (sub && Array.isArray(sub.children)) ? sub.children : [];
+    },
+    // 선택된 chip 스타일 — 선택됨/안 됨
+    chipStyle(selected) {
+      const base = 'padding:6px 12px;border:1.5px solid;border-radius:16px;font-size:12px;font-weight:600;cursor:pointer;margin:3px 4px 3px 0;transition:all .15s;';
+      return base + (selected
+        ? 'background:#1a472a;color:#fff;border-color:#1a472a;'
+        : 'background:#fff;color:#1a472a;border-color:#C8C4BC;');
+    },
+    // 현재 선택된 경로 (요약 breadcrumb) — v19: groups 구조 + items fallback
+    getSelectedPath(trade) {
+      const opt = this.data.tradeOptions[trade];
+      if (!opt || typeof opt !== 'object') return '';
+      // multiSelect 경우 — 선택된 항목 갯수 + 항목 label 합산
+      if (Array.isArray(opt.selectedIds) && opt.selectedIds.length > 0) {
+        var tree = this.tradeOptionTree[trade];
+        if (tree && tree.multiSelect) {
+          // v19: groups 구조에서 모든 items 모으기
+          var allItems = [];
+          if (Array.isArray(tree.groups)) {
+            tree.groups.forEach(function(g){
+              if (Array.isArray(g.items)) g.items.forEach(function(it){ allItems.push(it); });
+            });
+          } else if (Array.isArray(tree.items)) {
+            allItems = tree.items;
+          }
+          var labels = opt.selectedIds.map(function(id){
+            var item = allItems.find(function(x){ return x.id === id; });
+            return item ? item.label : id;
+          });
+          return labels.length + '개 선택';
+        }
+        return opt.selectedIds.length + '개 선택';
+      }
+      // 옛 drill-down
+      const parts = [];
+      if (opt.category) parts.push(opt.category);
+      if (opt.sub) parts.push(opt.sub);
+      if (opt.detail) parts.push(opt.detail);
+      return parts.join(' › ');
+    },
+    // v19 박 대표: 그룹 아코디언 + work 아코디언 상태 관리
+    openWorks: {},
+    openGroups: {},
+    toggleWorkAccordion(wId) {
+      // v20.8 박 대표: 기본 닫힘 (false). 클릭 시 토글
+      this.openWorks[wId] = !this.openWorks[wId];
+    },
+    isWorkAccordionOpen(wId) {
+      return this.openWorks[wId] === true; // 기본 닫힘
+    },
+    toggleGroup(wId, gname) {
+      var key = wId + '||' + gname;
+      this.openGroups[key] = !this.openGroups[key];
+    },
+    isGroupOpen(wId, gname) {
+      var key = wId + '||' + gname;
+      return this.openGroups[key] === true; // 기본 닫힘
+    },
+    getGroupSelectedCount(wId, grp) {
+      var opt = this.data.tradeOptions[wId];
+      if (!opt || !Array.isArray(opt.selectedIds) || !grp || !Array.isArray(grp.items)) return 0;
+      var n = 0;
+      grp.items.forEach(function(it){
+        if (opt.selectedIds.indexOf(it.id) >= 0) n++;
+      });
+      return n;
+    },
+    // 섹션이 _보일지_ 결정. Z.올수리 = 모두 보임. 그 외 = 매핑에 해당 공종 있을 때.
+    // v16 박 대표: 선택 안 한 카드 보임 → 옛 scope 검사 제거. selectedWorks만 검사.
+    isSectionVisible(section) {
+      const trades = this.sectionTradesMap[section] || [];
+      if (!Array.isArray(this.selectedWorks) || !Array.isArray(this.works) || this.selectedWorks.length === 0) return false;
+      const activeWorkTrades = {};
+      const self = this;
+      this.selectedWorks.forEach(function(wid){
+        const w = self.works.find(function(x){ return x.id === wid; });
+        if (w && Array.isArray(w.trades)) w.trades.forEach(function(t){ activeWorkTrades[t] = true; });
+        else if (w && w.trade) activeWorkTrades[w.trade] = true;
+      });
+      for (let i = 0; i < trades.length; i++) {
+        if (activeWorkTrades[trades[i]]) return true;
+      }
+      return false;
+    },
+    // 공종 체크 변경 시 → 관련 섹션 자동 펼침 + tradeOptions 기본값(상담 후 추천) 자동 채움
+    onScopeChange() {
+      const self = this;
+      const isAll = this.data.scope.indexOf('Z. 올수리(전체)') >= 0;
+      Object.keys(this.sectionTradesMap).forEach(function(section){
+        if (isAll || self.isSectionVisible(section)) {
+          self.open[section] = true;
+        }
+      });
+      // tradeOptions 기본값 — 트리 공종은 object {}, flat 공종은 '상담 후 추천' 문자열
+      this.data.scope.forEach(function(t){
+        if (self.tradeOptionTree[t]) {
+          if (!self.data.tradeOptions[t] || typeof self.data.tradeOptions[t] !== 'object') {
+            self.data.tradeOptions[t] = { category: '상담 후 추천', sub: '', detail: '' };
+          }
+        } else if (self.tradeOptionCatalog[t]) {
+          if (!self.data.tradeOptions[t] || typeof self.data.tradeOptions[t] === 'object') {
+            self.data.tradeOptions[t] = '상담 후 추천';
+          }
+        }
+      });
+    },
+    data: {
+      name: '', phone: '', email: '', kakao: '',
+      address: '', unit: '', buildingType: '아파트', floor: '', elevator: '있음', livingStatus: '공실', serviceMode: 'direct', // v17 박 대표: 공사 방식 (direct/pm)
+      startDate: '', py: null, rooms: '', bathrooms: '', grade: '중급 (표준)', budget: null, // 2026-10-01: 방·욕실 기본값 3·2 제거 (빈 값 = 미입력)
+      scope: [],
+      // 2026-05-29 박 대표 UX: 선택→선택→선택 (번들 + 공종별 옵션 + 정밀 입력)
+      bundleSelected: '',  // 'b1', 'b2', 'b3', 'b4', 'b5' 또는 ''
+      tradeOptions: {},    // R18: { 'M. 도배': '실크 표준 (개나리)', 'L. 바닥': '강마루', ... }
+      memo: '',
+      spaceList: {
+        rooms: [
+          { name: '안방', width: null, depth: null, height: 2.4, floor: '유지', wall: '유지', ceiling: '유지', door: '유지' },
+          { name: '작은방1', width: null, depth: null, height: 2.4, floor: '유지', wall: '유지', ceiling: '유지', door: '유지' }
+        ],
+        bathrooms: [
+          { name: '안방욕실', width: null, depth: null, wallH: 2.4, tileMethod: '철거후', tileArea: null, wallTile: true, floorTile: true, tub: false, showerBooth: true, toilet: true, sink: true, faucet: true, ceiling: true, door: true }
+        ],
+        kitchen: { sinkLength: null, upperCabinet: true, lowerCabinet: true, wallTile: true, floor: '유지', faucet: true, cooktop: '인덕션', hood: true, sink: true, diningArea: '분리' },
+        livingRoom: { width: null, depth: null, height: 2.4, floor: '유지', wall: '유지', ceiling: '유지', tvWall: '유지' },
+        veranda: { length: null, expand: true, floor: '타일' }, // 옛 호환
+        verandas: [{ name: '거실베란다', width: null, depth: null, expand: true, floor: '타일' }], // v15 신규 array
+        exclusiveFloor: null, // v15 박 대표 가이드: 전용면적 단일 입력 (방별 X)
+        floorMaterial: '유지',
+        ceiling: '유지',
+        // v16 박 대표 목공
+        carpentry: { baseboard: false, doorMolding: false, partition: false, insulation: false, partitionArea: null, insulationArea: null, doorCount: null },
+        entryway: { width: null, depth: null, shoeCabinet: true, tile: true, middleDoor: false, doorFilm: false },
+        utility: { expand: false, floor: '유지' },
+        windows: { replace: '유지', count: 0, type: '이중창 (PVC)', grade: '중급 (고급 PVC, 표준)', totalPerimeter: null, mesh: true, list: [] }, // R21 박 대표 spec: list = [{width, height}] 사다리식 입력 → 자동 자² 합산
+        ceilingHeight: 2.4, // v16 박 대표 천장 높이 (default 2.4m)
+        electrical: { outlets_add: 0, outlets_move: 0, switches_add: 0, switches_move: 0, internet_jacks: 0, intercom: false, doorlock: false, panelReplace: false, breakerUpgrade: false }, // v16 박 대표 분전함 추가
+        lighting: { ceiling_replace: 0, downlight_add: 0, pendant_add: 0, indirect_led: false, wall_sconce: 0, removeExisting: 0, lineExtension: 0 }, // v16 박 대표: 등기구 철거+라인 추가
+        plumbing: { pipe_replace: false, boiler_replace: false, vent_replace: false, ac_new_count: 0, ac_system: false },
+        demolition: { shoecabinet: true, kitchen: true, molding: true, doors: true, doorframes: true, tile: true, wastefee: '포함' },
+        // v20.20 박 대표: 타일 work (4부위 통합 면적)
+        tile: { bathroomArea: null, kitchenArea: null, entranceArea: null, balconyArea: null },
+        // v20.25 박 대표: 필름 work (부위별 면적/갯수)
+        film: { sinkDoorLength: null, roomDoorCount: null, windowFilmCount: null, windowFilmLength: null }
+      }
+    },
+    // 2026-05-29 박 대표 server inject: 옵션 카탈로그 + 공간/작업 카탈로그 동시 fetch
+    init() {
+      const self = this;
+      // 2026-10-01: 방·욕실 기본 줄(2·1) 초기 상태 기억 → 고객이 손대지 않았으면 개수를 빈 값으로 전송
+      this._spaceRowBase = { rooms: JSON.stringify(this.data.spaceList.rooms || []), bathrooms: JSON.stringify(this.data.spaceList.bathrooms || []) };
+      this.cadApply_();
+      const base = (window.JIPJINI_DEPLOY_URL || (window.location.origin + window.location.pathname));
+      // 옵션 트리 (자재 drill-down)
+      try {
+        fetch(base + '?type=get_option_tree').then(function(r){ return r.ok ? r.json() : null; }).then(function(d){
+          if (d && d.ok && d.result && typeof d.result === 'object' && Object.keys(d.result).length > 0) {
+            self.tradeOptionTree = d.result;
+          }
+        }).catch(function(){});
+      } catch (_e) {}
+      // 공간 + 작업 카탈로그 (신혼부부 UX)
+      try {
+        fetch(base + '?type=get_space_task_catalog').then(function(r){ return r.ok ? r.json() : null; }).then(function(d){
+          if (d && d.ok && d.result) {
+            if (Array.isArray(d.result.spaces) && d.result.spaces.length > 0) {
+              self.spaces = d.result.spaces;
+            }
+            if (d.result.tasks && typeof d.result.tasks === 'object' && Object.keys(d.result.tasks).length > 0) {
+              self.spaceTaskMap = d.result.tasks;
+            }
+          }
+        }).catch(function(){});
+      } catch (_e) {}
+    },
+    _spaceRowBase: null, // init()에서 채움
+    // 2026-10-01: 방·욕실 개수 — 고객이 줄을 추가·삭제·입력했을 때만 줄 수, 기본 줄 그대로(또는 0줄)면 '' (콘솔이 평형 기준 추정)
+    spaceRowCount(kind) {
+      const rows = (this.data.spaceList && this.data.spaceList[kind]) || [];
+      if (rows.length === 0) return '';
+      const base = this._spaceRowBase && this._spaceRowBase[kind];
+      if (base && JSON.stringify(rows) === base) return '';
+      return rows.length;
+    },
+    addRoom() {
+      const n = this.data.spaceList.rooms.length + 1;
+      this.data.spaceList.rooms.push({ name: '작은방' + n, width: null, depth: null, height: 2.4, floor: '유지', wall: '유지', ceiling: '유지', door: '유지' });
+    },
+    addBath() {
+      this.data.spaceList.bathrooms.push({ name: '욕실' + (this.data.spaceList.bathrooms.length + 1), width: null, depth: null, wallH: 2.4, tileMethod: '철거후신규', wallTile: true, floorTile: true, tub: false, showerBooth: true, toilet: true, sink: true, faucet: true, ceiling: true, door: true });
+    },
+    // v15 박 대표 가이드: 베란다 갯수 추가
+    addVeranda() {
+      if (!Array.isArray(this.data.spaceList.verandas)) this.data.spaceList.verandas = [];
+      const n = this.data.spaceList.verandas.length + 1;
+      this.data.spaceList.verandas.push({ name: '베란다' + n, width: null, depth: null, expand: false, floor: '유지' });
+    },
+    submit() {
+      // 2026-11-14 자가 개선: 접수가 끝난 뒤 다시 눌러 같은 의뢰가 두 번 들어가는 것을 막음 (11-13 같은 의뢰 66초 간격 2건)
+      if (this.busy || this.ok) return;
+      if (!this.data.name || !this.data.phone || !this.data.address || !this.data.py) {
+        this.ok = false; this.msg = '필수 항목(고객명·연락처·주소·평수)을 입력해주세요.'; return;
+      }
+      // 2026-10-28 박 대표: 동·호수 칸을 따로 받기 (김연희 실측 당일 동·호수가 없어 다시 물어봄)
+      if (!String(this.data.unit || '').trim()) { this.ok = false; this.msg = '동·호수를 입력해주세요 (단독주택이면 「없음」).'; return; }
+      // 2026-05-29 박 대표 요구: 희망 시공시작일 필수 (공정표 산정 필수)
+      if (!this.data.startDate) {
+        this.ok = false; this.msg = '희망 시공시작일을 입력해주세요. 공정표 산정에 필요합니다.'; return;
+      }
+      // 2026-07-24 mismatch guard (first real customer lesson): finish works selected but all spaces kept '유지'
+      try {
+        var __sl = this.data.spaceList || {};
+        var __self = this;
+        var __finWorks = ['wallpaper', 'flooring'].filter(function(w){ return (__self.selectedWorks || []).indexOf(w) >= 0; });
+        if (__finWorks.length > 0 && !this._mismatchOk) {
+          var __vals = [];
+          (__sl.rooms || []).forEach(function(r){ __vals.push(r.floor, r.wall); });
+          if (__sl.livingRoom) { __vals.push(__sl.livingRoom.floor, __sl.livingRoom.wall); }
+          var __filled = __vals.filter(function(v){ return !!v; });
+          var __allKeep = __filled.length > 0 && __filled.every(function(v){ return v === '유지'; });
+          if (__allKeep) {
+            var __names = __finWorks.map(function(w){ return w === 'wallpaper' ? '도배' : '바닥'; }).join('·');
+            var __go = window.confirm('[입력 확인] ' + __names + ' 공사를 선택하셨는데, 방·거실 마감이 모두 "유지"로 되어 있어요.\n\n· 전체 교체를 원하시면 [취소]를 누르고 각 공간에서 바닥·벽 마감을 선택해 주세요.\n· 이대로 제출하면 "유지"인 공간은 견적에서 제외됩니다.\n\n이대로 제출할까요?');
+            if (!__go) { return; }
+            this._mismatchOk = true;
+          }
+        }
+      } catch (__mg) {}
+      this.busy = true; this.msg = ''; this.ok = false;
+      // 자재등급 정찰제 통일 (2026-05-24) — 사용자 입력 X
+      this.data.grade = '중급 (표준)';
+      // 2026-10-01: 「모두 상담 후 결정」 켜짐 → 공종범위에 표시 항목 1개 추가 + v20 allConsultLater=true (끄면 원래 공종 목록 그대로)
+      // 표시 항목만 단독으로 보내지 않음: 공종범위가 비어 있지 않으면 적산기가 이름이 맞는 공종만 남기므로 공종 목록은 유지
+      const allConsult = !!this.allConsultLater;
+      const scopeOut = (this.data.scope || []).slice();
+      if (allConsult && scopeOut.indexOf('모두 상담 후 결정') < 0) scopeOut.push('모두 상담 후 결정');
+      // v22 박 대표: 의뢰서_v20 통합 payload (마스터 시트 28 컬럼)
+      const requestV20 = {
+        selectedWorks: this.selectedWorks || [],            // ['preparation','wallpaper',...]
+        selectedWorksOrdered: this.selectedWorksOrdered || [], // 공사 순서대로
+        tradeOptions: this.data.tradeOptions || {},          // work별 {selectedIds, consultLater}
+        workCategories: this.workCategories || [],
+        works: this.works || [],
+        tradeOptionTree: this.tradeOptionTree || {},
+        spaceList: this.data.spaceList || {},
+        serviceMode: this.data.serviceMode || 'direct',
+        allConsultLater: allConsult,
+        submittedAt: new Date().toISOString()
+      };
+      const payload = {
+        '고객명': this.data.name,
+        '연락처': this.data.phone,
+        '이메일': this.data.email || '',
+        '카카오ID': this.data.kakao || '',
+        '주소': String(this.data.address || '').trim() + (/^\s*(없음|없다|x|-)\s*$/i.test(this.data.unit || '') || String(this.data.address || '').indexOf(String(this.data.unit || '').trim()) >= 0 ? '' : ' ' + String(this.data.unit || '').trim()),
+        '동호수': String(this.data.unit || '').trim(),
+        '건물유형': this.data.buildingType,
+        '층수': this.data.floor || '',
+        '엘리베이터': this.data.elevator,
+        '거주상태': this.data.livingStatus,
+        '공사방식': this.data.serviceMode === 'pm' ? 'PM 파견' : '직영',
+        '시공시작일': this.data.startDate || '',
+        '평수': this.data.py,
+        '건물미리보기': this.data.bldgPreview ? JSON.stringify(this.data.bldgPreview) : '',   // 2026-11-10 공공데이터로 확인한 단지명·전용면적·준공
+        // R32 박 대표 spec: rooms/bathrooms array length 우선 자동 도출
+        // 2026-10-01: 기본 줄(2·1) 그대로면 '' 전송 — 콘솔이 실제 값/기본값 구분 가능 (필수 아님)
+        '방개수': this.spaceRowCount('rooms') || this.data.rooms || '',
+        '욕실개수': this.spaceRowCount('bathrooms') || this.data.bathrooms || '',
+        '베란다': this.data.spaceList.veranda.expand ? '확장' : '유지',
+        '공종범위': JSON.stringify(scopeOut),
+        '자재등급': '중급',
+        '예산': this.data.budget || '',
+        '메모': (this.data.memo || '') + (this.pl.linkOk ? '\n[고객이 붙여 넣은 단지 주소] ' + this.pl.linkOk : ''),
+        'spaceListJson': JSON.stringify(this.data.spaceList),
+        'tradeOptionsJson': JSON.stringify(this.data.tradeOptions || {}),
+        'selectedSpacesJson': JSON.stringify(this.selectedSpaces || []),
+        'selectedTasksJson': JSON.stringify(this.selectedTasks || {}),
+        // v22 신규 컬럼
+        '의뢰서_v20(JSON)': JSON.stringify(requestV20),
+        'PDF URL': '' // 서버에서 PDF 생성 후 채움
+      };
+      const onOk = (json) => {
+        this.busy = false;
+        if (json && json.ok) {
+          this.ok = true;
+          this.msg = '의뢰가 정상 접수되었습니다 (의뢰ID: ' + json.reqId + '). 집지니의 코디(Codi)가 24시간 이내 카카오톡으로 연락드립니다.';
+          try { if (typeof gtag === 'function') gtag('event', 'request_submit', { req_id: json.reqId }); } catch (_g) {}
+          try { this.planAttach_(json.reqId); } catch (_p) {}
+          try { this.planLearn_(json.reqId); } catch (_l) {}   // 2026-11-10 자가 학습: 자동 인식 ↔ 고객 확정값   // 2026-11-10 고객이 넣은 도면 붙이기
+        } else {
+          this.ok = false;
+          this.msg = '제출 실패: ' + (json && (json.error || json.err || json.message) || '알 수 없는 오류');
+        }
+      };
+      const onErr = (err) => {
+        this.busy = false; this.ok = false;
+        this.msg = '네트워크 오류: ' + (err && err.message ? err.message : err) + '. 잠시 후 다시 시도해주세요.';
+      };
+      // 1순위: GAS HtmlService sandbox 안전한 google.script.run (CORS·sandbox URL 문제 0)
+      if (typeof google !== 'undefined' && google.script && google.script.run) {
+        google.script.run
+          .withSuccessHandler(onOk)
+          .withFailureHandler(onErr)
+          .submitPrecisionRequest(JSON.stringify(payload));
+        return;
+      }
+      // 2순위: fetch fallback (browser 직접 열림 등)
+      const deployUrl = window.JIPJINI_DEPLOY_URL || (window.location.origin + window.location.pathname);
+      const params = new URLSearchParams();
+      params.append('type', 'request');
+      Object.keys(payload).forEach(k => params.append(k, payload[k]));
+      fetch(deployUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: params.toString()
+      }).then(r => r.json()).then(onOk).catch(onErr);
+    }
+  };
+}
+</script>
+</body>
+</html>
