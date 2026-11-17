@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """다음 블로그 글 주제 고르기 + 글감(숫자·사실) 묶음 만들기 (2026-11-17)
 
-요일 규칙(주 2편): 화요일 = 단지 공사비(셀인대행·반셀프 인테리어) / 금요일 = 누수 → 경매 → 실견적 차례로
+주 2편 번갈아: 단지 공사비(셀인대행·반셀프 인테리어) ↔ 누수 → 경매 → 실견적 차례
 같은 주제는 다시 쓰지 않는다(대장의 주제키). 고른 결과를 글감 파일로 남긴다:
   python3 tools/blog/blog_topics.py [종류]   → tools/blog/_facts.json (클로드가 이것만 보고 글을 쓴다)
 """
@@ -31,13 +31,14 @@ def won(n):
 
 
 def pick_kind(m, arg=None):
+    """주 2편을 번갈아: 단지 공사비 → (누수 → 경매 → 실견적 차례) → 단지 공사비 …(요일과 무관)"""
     if arg:
         return arg
-    wd = datetime.now(KST).weekday()   # 월0 화1 … 금4
-    if wd in (0, 1, 2):
+    live = [r for r in m.records if r.get("상태") != "보류"]
+    if not live or live[-1].get("종류") != "단지공사비":
         return "단지공사비"
-    done_fri = [r for r in m.records if r.get("종류") in FRI_ROT]
-    return FRI_ROT[len(done_fri) % len(FRI_ROT)]
+    done_rot = [r for r in live if r.get("종류") in FRI_ROT]
+    return FRI_ROT[len(done_rot) % len(FRI_ROT)]
 
 
 def complexes():
