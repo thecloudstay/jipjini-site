@@ -58,10 +58,11 @@ def age_of(y):
 
 def pick_complex(m, prefix, prefer_old=False):
     used = m.used_keys()
+    used_codes = {k.split(":", 1)[1] for k in used if k and ":" in k}   # 한 단지는 어떤 주제로든 한 번만(글이 겹치지 않게)
     g = complexes()
     cand = []
     for code, ts in g.items():
-        if f"{prefix}:{code}" in used:
+        if f"{prefix}:{code}" in used or code in used_codes:
             continue
         r0 = ts[0]
         hh = int(r0.get("세대") or 0)
