@@ -1494,7 +1494,9 @@ function formApp() {
       try {
         const el = document.querySelector('meta[name="jj-cad"]'), b = el ? String(el.getAttribute('content') || '') : ''; if (!b) return;
         const bin = atob(b.replace(/-/g, '+').replace(/_/g, '/')), k = JSON.parse(decodeURIComponent(escape(bin))); if (!k || k.v !== 1) return;
-        const self = this, R = (Array.isArray(k.r) ? k.r : []).map(function (x) { return { name: String(x[0] || ''), kind: String(x[1] || ''), w: Number(x[2]) || 0, d: Number(x[3]) || 0, a: Number(x[4]) || 0 }; });
+        // 2026-11-17 최진솔 의뢰: 거실이 「방15」·넓이 0 으로 들어와 메모가 「방15」로 끝나고 견적 자동 검증이 실패 → 종류가 거실이면 이름을 거실로, 넓이가 0이면 가로×세로로
+        const self = this, R = (Array.isArray(k.r) ? k.r : []).map(function (x) { var o = { name: String(x[0] || ''), kind: String(x[1] || ''), w: Number(x[2]) || 0, d: Number(x[3]) || 0, a: Number(x[4]) || 0 };
+          if (o.kind === '거실' && !/거실/.test(o.name)) o.name = '거실'; if (!o.a && o.w > 0 && o.d > 0) o.a = Math.round(o.w * o.d * 100) / 100; return o; });
         if (Number(k.a) > 0) { this.data.areaM2 = Number(k.a); this.data.py = Math.round((this.data.areaM2 / 3.305785) * 10) / 10; }
         const dim = R.filter(function (x) { return x.w > 0 && x.d > 0; });
         if (dim.length) this.planApply_({ rooms: dim });
