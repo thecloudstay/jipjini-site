@@ -4,7 +4,7 @@
      → 올리기 걸음과 떨어져 있어, 나중에 「우리 집 검색」으로 미리 다시 그려 둔 도면을 받아도 같은 편집기를 그대로 쓴다.
    지키는 선: 올린 원본 그림은 이 기기 밖으로 보내지 않고 보관하지도 않는다(다시 그린 도면 자료와 표시만 localStorage 에 둔다). 인쇄·저장물에는 다시 그린 도면만 들어간다. 바깥 꾸러미 없음. */
 (function (root) {
-  var KEY = 'jj_cad_v2', OLDKEY = 'jj_cad_v1', VER = '20261114f', REQ_URL = 'https://script.google.com/macros/s/AKfycbzxm4mmZs1yVJPa3T-wb0cdJbEUMPYl6dDKtQNSNmJy4nEsCholrEnPAN8e0JfAtOV99A/exec?type=request_form', doc = document, $ = function (id) { return doc.getElementById(id); };
+  var KEY = 'jj_cad_v2', OLDKEY = 'jj_cad_v1', VER = '20261117a', REQ_URL = 'https://script.google.com/macros/s/AKfycbzxm4mmZs1yVJPa3T-wb0cdJbEUMPYl6dDKtQNSNmJy4nEsCholrEnPAN8e0JfAtOV99A/exec?type=request_form', doc = document, $ = function (id) { return doc.getElementById(id); };
   var S = { state: null, file: null, pending: null };
   function esc(t) { return String(t == null ? '' : t).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
   function ev(name, prm) { try { if (root.gtag) root.gtag('event', name, prm || {}); } catch (e) {} }
@@ -174,7 +174,11 @@
     $('cadStart').addEventListener('click', function () { if (S.pending) { ev('cad_edit_start'); open(S.pending); S.pending = null; } });
     $('cadQuote').addEventListener('click', function () { ev('cad_quote_click');
       // 누르는 순간에만: 공간·면적·고른 공사·작업 목록을 의뢰서 주소에 실어 보낸다(그림·도면 파일은 보내지 않는다)
-      try { var pk = root.JJCadEditor && root.JJCadEditor.quote && root.JJCadEditor.quote(); if (pk && (pk.r.length || pk.c)) { var enc = function (o) { return btoa(unescape(encodeURIComponent(JSON.stringify(o)))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''); }, b = enc(pk); if (b.length > 5200) { pk.t = pk.t.slice(0, 250) + ' …(이하 줄임)'; b = enc(pk); } if (b.length > 5200) { pk.t = ''; b = enc(pk); } this.href = REQ_URL + '&cad=' + b; } } catch (e) { this.href = 'request.html'; } });
+      // 2026-11-17 대표 「고객이 그린 도면도 저장」: 도면 그림과 작업 상태를 열쇠(tk)로 임시 보관 → 의뢰서가 접수 직후 그 열쇠로 의뢰에 붙인다
+      var tk = ''; try { var A = new Uint8Array(16); (root.crypto || root.msCrypto).getRandomValues(A); tk = Array.prototype.map.call(A, function (x) { return ('0' + x.toString(16)).slice(-2); }).join(''); } catch (_t) { tk = ''; }
+      if (tk && root.JJCadEditor && root.JJCadEditor.sheet) { try { root.JJCadEditor.sheet(function (url) { if (!url) return; var st = null; try { st = root.JJCadEditor.getState(); } catch (_s) {}
+        fetch(REQ_URL.replace(/\?type=.*$/, '?type=cad_draft'), { method: 'POST', redirect: 'follow', keepalive: url.length < 60000, headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ tk: tk, dataUrl: url, state: st, 이름: (st && st.name) || '' }) }).catch(function () {}); }); } catch (_d) {} }
+      try { var pk = root.JJCadEditor && root.JJCadEditor.quote && root.JJCadEditor.quote(); if (pk && tk) pk.tk = tk; if (pk && (pk.r.length || pk.c)) { var enc = function (o) { return btoa(unescape(encodeURIComponent(JSON.stringify(o)))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''); }, b = enc(pk); if (b.length > 5200) { pk.t = pk.t.slice(0, 250) + ' …(이하 줄임)'; b = enc(pk); } if (b.length > 5200) { pk.t = ''; b = enc(pk); } this.href = REQ_URL + '&cad=' + b; } } catch (e) { this.href = 'request.html'; } });
     $('cadNew').addEventListener('click', restart);
     aptInit();
     load(function (old) {

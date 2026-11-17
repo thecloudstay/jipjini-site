@@ -1459,7 +1459,7 @@ function formApp() {
     open: { basic: true, building: true, scope: true, rooms: false, living: false, bath: false, kitchen: false, entry: false, veranda: false, windows: false, electric: false, plumbing: false, demo: false, memo: false },
     busy: false, msg: '', ok: false,
     ad: { open: false, loading: false, msg: '' },   // 2026-11-10 주소 찾기
-    cad: { on: false, sum: '' },             // 2026-11-11 집지니 CAD 에서 넘어온 도면 요약
+    cad: { on: false, sum: '', tk: '' },             // 2026-11-11 집지니 CAD 에서 넘어온 도면 요약
     pv: { busy: false, err: '', r: null },   // 2026-11-10 우리 집 정보 미리보기
     pl: { busy: false, err: '', r: null, svg: '', svg2: '', view: 'new', sum: '', detail: '', backup: '', sim: '', simMsg: '', catOn: false, auto0: null, applied0: '', fb: 3, ft: 2, typ: false, file: null, step: '', note: '', link: '', linkBusy: false, linkMsg: '', linkOk: '' },   // 2026-11-10 도면 넣기 → 자동 적산
     planLoad_() { const one = function (src) { return new Promise(function (ok, no) { var s = document.createElement('script'); s.src = src; s.onload = function () { ok(); }; s.onerror = function () { no(new Error('분석 도구를 불러오지 못했습니다 — 잠시 뒤 다시 시도해 주세요.')); }; document.head.appendChild(s); }); }; if (window.JJPlanTools && window.JJPlanAuto) return Promise.resolve(); return one('https://jipjini.com/assets/plan_auto.js?v=20261110h').then(function () { return one('https://jipjini.com/assets/plan_tools.js?v=20261110m'); }).then(function () { return one('https://jipjini.com/assets/plan_style.js?v=20261110h').catch(function () {}); }); },
@@ -1509,7 +1509,7 @@ function formApp() {
         this.data.memo = L.join('\n') + (this.data.memo ? '\n\n' + this.data.memo : '');
         this.open.memo = true;
         this.cad.sum = [R.length ? '공간 ' + R.length + '곳' : '', Number(k.a) > 0 ? '전용 약 ' + k.a + '㎡' : '', got.length ? '고른 공사 ' + got.length + '가지' : '', Number(k.c) ? '작업 지시 ' + k.c + '건' : ''].filter(Boolean).join(' · ');
-        this.cad.on = true;
+        this.cad.on = true; if (/^[a-z0-9]{20,40}$/.test(String(k.tk || ''))) this.cad.tk = String(k.tk);   // 2026-11-17 CAD 도면 그림을 접수 뒤 붙이는 열쇠
         try { gtag('event', 'cad_to_request', { rooms: R.length, works: got.length }); } catch (_e) {}
       } catch (e) { /* 묶음이 깨졌으면 빈 의뢰서로 둔다 */ }
     },
@@ -1553,6 +1553,8 @@ function formApp() {
     planUndo() { if (!this.pl.backup) return; try { this.data.spaceList = JSON.parse(this.pl.backup); } catch (_e) {} this.pl.backup = ''; this.pl.sim = ''; this.pl.simMsg = ''; },
     planAttach_(reqId) {   // 접수 뒤 도면 그림·자동 표시를 콘솔 도면 보관함으로
       const r = this.pl.r; if (!reqId) return;
+      // 2026-11-17 대표 「고객이 그린 도면도 저장」: 집지니 CAD 에서 넘어왔으면 CAD 가 보관해 둔 도면 그림을 이 의뢰에 붙인다
+      if (this.cad && this.cad.tk) { try { if (typeof google !== 'undefined' && google.script && google.script.run) google.script.run.withFailureHandler(function () {}).api_reqPlanAttach(JSON.stringify({ 의뢰ID: reqId, cad토큰: this.cad.tk })); } catch (_c) {} }
       if ((!r || !r.dataUrl) && this.pl.sim) { try { if (typeof google !== 'undefined' && google.script && google.script.run) google.script.run.withFailureHandler(function () {}).api_reqPlanAttach(JSON.stringify({ 의뢰ID: reqId, 예시ID: this.pl.sim, 전용면적: Number(this.data.areaM2) || 0 })); } catch (_s) {} return; }
       if (!r || !r.dataUrl) return;
       if (this.ap.auto) {   // 2026-11-10 주소로 불러온 단지 평면도는 원본 그림을 보관하지 않는다 — 집지니식으로 다시 그린 그림(같은 자리·크기)을 보관해 그 위에서 편집한다
