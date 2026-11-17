@@ -18,3 +18,8 @@ node_modules/
 scn_shots/
 tools/plan_scenarios/last.json
 __pycache__/
+
+# 블로그 글감·원고 임시 파일
+tools/blog/_facts.json
+tools/blog/_post.json
+tools/blog/_shot.js
