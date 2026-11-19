@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<meta name="referrer" content="no-referrer">
+<title>집지니</title>
+<style>
+html,body{margin:0;background:#fff;color:#1C1F1B;font-family:'IBM Plex Sans KR','Apple SD Gothic Neo','Malgun Gothic',sans-serif;word-break:keep-all}
+main{max-width:420px;margin:28vh auto 0;padding:0 16px;text-align:center;line-height:1.7}
+b{display:block;font-size:20px;color:#1F5E2E;margin-bottom:8px}
+p{color:#6B7067;font-size:15px;margin:0}
+a{color:#1F5E2E}
+</style>
+</head>
+<body>
+<main><b>집지니</b><p id="m">여는 중입니다…</p></main>
+<script>
+// 2026-11-20 짧은 주소 풀기 — jipjini.com/s/?코드 → 원래 주소로 이동 (문자 앱이 긴 링크를 자르던 문제)
+(function () {
+  var c = (location.search.slice(1).split('&')[0] || '').replace(/[^a-z0-9]/g, '').slice(0, 16), m = document.getElementById('m');
+  var bad = function () { m.innerHTML = '링크를 찾지 못했습니다. 받으신 문자를 다시 열어 보시거나<br><a href="tel:01098060422">010-9806-0422</a>로 연락 주세요.'; };
+  if (!c) return bad();
+  fetch('https://pnqyysuyrovgnmrchrrg.supabase.co/functions/v1/s?c=' + c, { cache: 'no-store' })
+    .then(function (r) { return r.json(); })
+    .then(function (j) { if (j && j.ok && /^https:\/\//.test(j.url)) location.replace(j.url); else bad(); })
+    .catch(function () { m.innerHTML = '연결이 고르지 않습니다. 잠시 뒤 다시 열어 주세요.'; });
+})();
+</script>
+</body>
+</html>
