@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>S-OJT 컨설팅 접수 · 집지니</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#1C1F1B;--sub:#6B7067;--line:#DCDFD8;--acc:#1F5E2E;--bg:#fff}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:'IBM Plex Sans KR','Apple SD Gothic Neo','Malgun Gothic',sans-serif;font-size:16px;line-height:1.7;word-break:keep-all}
+.wrap{max-width:640px;margin:0 auto;padding:40px 16px 64px}
+.top{font-size:14px;color:var(--sub);border-bottom:1px solid var(--line);padding-bottom:12px;margin-bottom:32px}
+.top a{color:var(--sub);text-decoration:none}
+h1{font-size:26px;line-height:1.4;margin:0 0 12px;font-weight:600}
+.lead{color:var(--sub);margin:0 0 28px}
+table.how{width:100%;border-collapse:collapse;margin:0 0 36px;font-size:15px}
+table.how td{border-top:1px solid var(--line);padding:10px 0;vertical-align:top}
+table.how td:first-child{width:7.5em;color:var(--sub);padding-right:12px}
+h2{font-size:18px;font-weight:600;margin:0 0 14px;padding-top:20px;border-top:2px solid var(--ink)}
+label{display:block;margin:0 0 14px;font-size:14px;color:var(--sub)}
+label b{color:var(--acc);font-weight:500}
+input,textarea{display:block;width:100%;margin-top:4px;padding:10px 12px;border:1px solid var(--line);border-radius:4px;font:inherit;font-size:16px;color:var(--ink);background:#fff}
+input:focus,textarea:focus{outline:2px solid var(--acc);outline-offset:-1px;border-color:var(--acc)}
+textarea{min-height:110px;resize:vertical}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:0 14px}
+.hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+.agree{display:flex;gap:8px;align-items:flex-start;font-size:14px;color:var(--sub);margin:4px 0 20px}
+.agree input{width:auto;margin:5px 0 0}
+button{width:100%;padding:14px;border:0;border-radius:4px;background:var(--acc);color:#fff;font:inherit;font-size:16px;font-weight:600;cursor:pointer}
+button:disabled{opacity:.6;cursor:default}
+button:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
+.msg{margin-top:14px;font-size:15px;min-height:1.7em}
+.msg.err{color:#A12C2C}
+.done{padding:20px 0;border-top:2px solid var(--acc)}
+.done p{margin:0 0 8px}
+.foot{margin-top:48px;font-size:13px;color:var(--sub);border-top:1px solid var(--line);padding-top:12px}
+@media (max-width:520px){.row{grid-template-columns:1fr}h1{font-size:22px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top"><a href="/">집지니</a> · S-OJT 컨설팅</div>
+
+  <h1>체계적 현장훈련(S-OJT) 컨설팅 접수</h1>
+  <p class="lead">고용노동부·한국산업인력공단이 훈련비를 지원하는 사업장 현장훈련입니다. 참여 신청부터 과정 개발, 훈련 서류, 결과보고서와 비용 신청까지 저희가 함께 준비합니다.</p>
+
+  <table class="how">
+    <tr><td>대상</td><td>고용보험에 가입한 중소 사업장. 훈련생은 한 과정에 10명 이하, 훈련은 하루 4시간 이상입니다.</td></tr>
+    <tr><td>진행 순서</td><td>참여 신청 → 선정 → 훈련 과정 개발 → 과정 인정 → 훈련 → 수료 보고 → 훈련비 지원</td></tr>
+    <tr><td>저희가 하는 일</td><td>과정 설계와 훈련시간표, 참여·동의 서류, 훈련 기록, 결과보고서, 비용 신청 서류 준비</td></tr>
+    <tr><td>접수 뒤</td><td>적어 주신 연락처로 직접 전화드려 사업장 상황을 여쭙고, 참여가 가능한지 먼저 알려 드립니다.</td></tr>
+  </table>
+
+  <h2>접수</h2>
+  <form id="f" novalidate>
+    <label>회사명 <b>필수</b><input name="company" maxlength="80" autocomplete="organization" required></label>
+    <div class="row">
+      <label>담당자<input name="contact" maxlength="40" autocomplete="name"></label>
+      <label>연락처 <b>필수</b><input name="phone" maxlength="30" inputmode="tel" autocomplete="tel" placeholder="010-0000-0000" required></label>
+    </div>
+    <div class="row">
+      <label>업종<input name="industry" maxlength="60" placeholder="예: 목재 가공, 건축자재 유통"></label>
+      <label>근로자 수<input name="employees" maxlength="20" inputmode="numeric" placeholder="예: 12명"></label>
+    </div>
+    <label>메일<input name="email" type="email" maxlength="120" autocomplete="email"></label>
+    <label>하고 싶은 말<textarea name="memo" maxlength="1500" placeholder="훈련하고 싶은 직무, 원하는 시기, 예전에 참여한 적이 있는지 등"></textarea></label>
+    <div class="hp" aria-hidden="true"><label>비워 두세요<input name="hp" tabindex="-1" autocomplete="off"></label></div>
+    <label class="agree"><input type="checkbox" id="ok"> 상담을 위해 적어 주신 회사명·담당자·연락처·메일을 받는 데 동의합니다. 상담이 끝나면 요청 시 지웁니다.</label>
+    <button id="go" type="submit">접수하기</button>
+    <div class="msg" id="msg" role="status" aria-live="polite"></div>
+  </form>
+
+  <div class="foot">집지니 · 박찬영 · 010-9806-0422</div>
+</div>
+<script>
+(function () {
+  var URL_ = 'https://pnqyysuyrovgnmrchrrg.supabase.co/functions/v1/sojt-intake';
+  var f = document.getElementById('f'), msg = document.getElementById('msg'), go = document.getElementById('go');
+  function say(t, bad) { msg.textContent = t; msg.className = 'msg' + (bad ? ' err' : ''); }
+  f.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var d = {}; Array.prototype.forEach.call(f.elements, function (el) { if (el.name) d[el.name] = el.value.trim(); });
+    if (!d.company) { say('회사명을 적어 주세요.', 1); f.company.focus(); return; }
+    if (d.phone.replace(/\D/g, '').length < 9) { say('연락받을 전화번호를 적어 주세요.', 1); f.phone.focus(); return; }
+    if (!document.getElementById('ok').checked) { say('정보를 받는 데 동의해 주셔야 접수할 수 있습니다.', 1); return; }
+    go.disabled = true; say('보내는 중입니다.');
+    fetch(URL_, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(d) })
+      .then(function (r) { return r.json().catch(function () { return { ok: false }; }); })
+      .then(function (j) {
+        if (!j.ok) { go.disabled = false; say(j.err || '접수하지 못했습니다. 잠시 뒤 다시 보내 주시거나 010-9806-0422로 전화 주세요.', 1); return; }
+        f.outerHTML = '<div class="done"><p><strong>접수했습니다.</strong></p><p>' + d.company.replace(/[<>&]/g, '') + ' 건은 확인하는 대로 전화드리겠습니다. 급하시면 010-9806-0422로 연락 주세요.</p></div>';
+      })
+      .catch(function () { go.disabled = false; say('인터넷 연결을 확인하고 다시 보내 주세요. 계속 안 되면 010-9806-0422로 전화 주세요.', 1); });
+  });
+})();
+</script>
+</body>
+</html>

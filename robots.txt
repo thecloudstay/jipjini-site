@@ -5,6 +5,7 @@ User-agent: *
 Disallow: /q/
 Disallow: /blog-draft/
 Disallow: /quote.html
+Disallow: /sojt/
 Allow: /
 
 # 네이버 검색 봇 (Yeti) — 강조
@@ -12,6 +13,7 @@ User-agent: Yeti
 Disallow: /q/
 Disallow: /blog-draft/
 Disallow: /quote.html
+Disallow: /sojt/
 Allow: /
 
 # 구글봇
@@ -19,6 +21,7 @@ User-agent: Googlebot
 Disallow: /q/
 Disallow: /blog-draft/
 Disallow: /quote.html
+Disallow: /sojt/
 Allow: /
 
 # 빙봇
@@ -26,6 +29,7 @@ User-agent: Bingbot
 Disallow: /q/
 Disallow: /blog-draft/
 Disallow: /quote.html
+Disallow: /sojt/
 Allow: /
 
 # 다음봇
@@ -33,6 +37,7 @@ User-agent: Daumoa
 Disallow: /q/
 Disallow: /blog-draft/
 Disallow: /quote.html
+Disallow: /sojt/
 Allow: /
 
 # 사이트맵 위치

@@ -1,0 +1,517 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>S-OJT 관리</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.js"></script>
+<style>
+:root{--ink:#1C1F1B;--sub:#6B7067;--line:#DCDFD8;--acc:#1F5E2E;--warn:#A12C2C;--soft:#F5F6F3;--bg:#fff}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:'IBM Plex Sans KR','Apple SD Gothic Neo','Malgun Gothic',sans-serif;font-size:15px;line-height:1.6;word-break:keep-all}
+a{color:var(--acc)}
+button{font:inherit;font-size:14px;padding:7px 12px;border:1px solid var(--line);border-radius:4px;background:#fff;color:var(--ink);cursor:pointer}
+button.p{background:var(--acc);border-color:var(--acc);color:#fff}
+button.x{color:var(--warn)}
+button:disabled{opacity:.5;cursor:default}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--acc);outline-offset:1px}
+input,select,textarea{font:inherit;font-size:15px;padding:7px 9px;border:1px solid var(--line);border-radius:4px;background:#fff;color:var(--ink);width:100%}
+textarea{min-height:80px;resize:vertical}
+header{display:flex;align-items:center;gap:20px;padding:10px 16px;border-bottom:1px solid var(--line);position:sticky;top:0;background:#fff;z-index:5;flex-wrap:wrap}
+header strong{font-weight:600}
+nav{display:flex;gap:2px}
+nav button{border:0;border-bottom:2px solid transparent;border-radius:0;padding:8px 10px;color:var(--sub)}
+nav button.on{color:var(--ink);border-bottom-color:var(--acc);font-weight:600}
+header .r{margin-left:auto;display:flex;gap:10px;align-items:center;font-size:13px;color:var(--sub)}
+main{padding:20px 16px 60px;max-width:1240px;margin:0 auto}
+.cols{display:grid;grid-template-columns:340px 1fr;gap:28px;align-items:start}
+.cols>*{min-width:0}
+.list{border-top:1px solid var(--line)}
+.it{padding:10px 4px;border-bottom:1px solid var(--line);cursor:pointer}
+.it:hover{background:var(--soft)}
+.it.on{background:var(--soft);box-shadow:inset 3px 0 0 var(--acc)}
+.it .t{font-weight:500}
+.it .s{font-size:13px;color:var(--sub)}
+.due{font-size:13px}
+.due.near{color:var(--warn);font-weight:500}
+h2{font-size:20px;font-weight:600;margin:0 0 4px}
+h3{font-size:15px;font-weight:600;margin:28px 0 8px;padding-top:12px;border-top:2px solid var(--ink);display:flex;align-items:center;gap:10px}
+h3 .r{margin-left:auto;font-weight:400}
+.sub{color:var(--sub);font-size:13px}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px 14px}
+.grid label{font-size:13px;color:var(--sub)}
+.grid .w2{grid-column:span 2}.grid .w3{grid-column:span 3}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{font-weight:500;color:var(--sub);text-align:left;font-size:13px;border-bottom:1px solid var(--ink);padding:6px 8px}
+td{border-bottom:1px solid var(--line);padding:7px 8px;vertical-align:top}
+td.n{white-space:nowrap}
+.steps{display:flex;flex-wrap:wrap;gap:0;margin:10px 0 0;border:1px solid var(--line);border-radius:4px;overflow:hidden}
+.steps button{border:0;border-right:1px solid var(--line);border-radius:0;padding:7px 10px;font-size:13px;color:var(--sub);background:#fff}
+.steps button:last-child{border-right:0}
+.steps button.past{color:var(--ink);background:var(--soft)}
+.steps button.cur{background:var(--acc);color:#fff;font-weight:600}
+.steps button small{display:block;font-size:11px;opacity:.85}
+.add{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;align-items:center}
+.add>*{width:auto;flex:1 1 140px}
+.add button{flex:0 0 auto}
+.empty{color:var(--sub);padding:14px 0}
+.msg{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:9px 16px;border-radius:4px;font-size:14px;display:none;z-index:20;max-width:90vw}
+.thumbs{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.thumbs img{width:84px;height:64px;object-fit:cover;border:1px solid var(--line);border-radius:4px}
+.lock{padding:12px 14px;border:1px solid var(--line);border-left:3px solid var(--acc);border-radius:4px;margin:6px 0 10px;font-size:14px}
+.sig img{max-height:70px;border:1px solid var(--line);border-radius:4px;background:#fff;padding:4px}
+#login{max-width:360px;margin:12vh auto;padding:0 16px}
+#login h1{font-size:20px;font-weight:600;margin:0 0 16px}
+#login input{margin-bottom:10px}
+#login button{width:100%;padding:11px;margin-bottom:8px}
+.err{color:var(--warn);font-size:14px;min-height:1.5em}
+.secret{font-family:'IBM Plex Sans KR',monospace;background:var(--soft);padding:2px 6px;border-radius:4px}
+@media (max-width:860px){.cols{grid-template-columns:1fr}.grid{grid-template-columns:1fr 1fr}.grid .w3{grid-column:span 2}}
+@media (max-width:520px){table{display:block;overflow-x:auto}#who{display:none}.grid{grid-template-columns:1fr}.grid .w2,.grid .w3{grid-column:span 1}header{gap:8px}}
+</style>
+</head>
+<body>
+<div id="login" hidden>
+  <h1>S-OJT 관리</h1>
+  <input id="lgEmail" type="email" autocomplete="username" placeholder="메일 주소">
+  <input id="lgPw" type="password" autocomplete="current-password" placeholder="비밀번호">
+  <button class="p" id="lgBtn">로그인</button>
+  <button id="lgMail">비밀번호 없이 — 메일로 로그인 링크 받기</button>
+  <div class="err" id="lgErr"></div>
+</div>
+<div id="app" hidden>
+  <header>
+    <strong>S-OJT 관리</strong>
+    <nav id="nav">
+      <button data-v="intake">접수</button>
+      <button data-v="company">업체</button>
+      <button data-v="profile">대표 정보</button>
+    </nav>
+    <div class="r"><span id="lockState"></span><span id="who"></span><button id="out">나가기</button></div>
+  </header>
+  <main id="view"></main>
+</div>
+<div class="msg" id="msg"></div>
+<script>
+(function () {
+'use strict';
+var GAS = 'https://script.google.com/macros/s/AKfycbzxm4mmZs1yVJPa3T-wb0cdJbEUMPYl6dDKtQNSNmJy4nEsCholrEnPAN8e0JfAtOV99A/exec';
+var STAGES = ['접수','이음컨설팅','참여신청','선정','과정개발','과정인정','훈련','수료보고','지원금','완료'];
+var DOC_STAGES = ['참여약정','과정개발','과정인정','훈련','종료·비용'];
+var DOC_KINDS = {
+  '참여약정': ['약정서','서식10 개인정보 수집·이용 동의서','서식11 정보 공유 동의서','서식12 참여서약서','사업자등록증','기타'],
+  '과정개발': ['직무 분석','훈련과정 설계서','훈련 교재','기타'],
+  '과정인정': ['서식13 훈련시간표','과정인정 신청 화면','기타'],
+  '훈련': ['서식14 출석 입력 요청 대장','서식15 외부강사 서약서','중간 점검','기타'],
+  '종료·비용': ['결과보고서','서식16 훈련강사 참여내역서','서식17 수당 지급 명세서','비용 신청서','기타']
+};
+var SITES = ['HRD4U','고용24','한기대 사내강사 교육','기타'];
+var CRIT = ['직무 이해','수행 능력','문제 해결','태도'];
+var $ = function (id) { return document.getElementById(id); };
+var esc = function (s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
+var ls = { get: function (k) { try { return JSON.parse(localStorage.getItem(k)); } catch (e) { return null; } }, set: function (k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} } };
+var SB = null, ME = '', VIEW = 'intake', CUR = null, KEY = null, PROFILE = null;
+function toast(t) { var m = $('msg'); m.textContent = t; m.style.display = 'block'; clearTimeout(toast.t); toast.t = setTimeout(function () { m.style.display = 'none'; }, 2600); }
+function ymd(d) { if (!d) return ''; var x = new Date(d); x.setMinutes(x.getMinutes() - x.getTimezoneOffset()); return x.toISOString().slice(0, 10); }
+function today() { return ymd(new Date()); }
+function addDays(s, n) { var d = new Date(s + 'T00:00:00'); d.setDate(d.getDate() + n); return ymd(d); }
+function addMonth(s) { var d = new Date(s + 'T00:00:00'); d.setMonth(d.getMonth() + 1); return ymd(d); }
+function dleft(s) { return Math.round((new Date(s + 'T00:00:00') - new Date(today() + 'T00:00:00')) / 864e5); }
+function q(p) { return p.then(function (r) { if (r.error) { toast('저장하지 못했습니다 — ' + r.error.message); throw r.error; } return r.data; }); }
+function audit(action, target) { SB.from('sojt_audit').insert({ action: action, target: target || null }).then(function () {}); }
+
+/* ── 마감 계산 (2025 운영 지침) ── */
+function deadlines(c) {
+  var a = c.stage_at || {}, out = [];
+  if (a['참여신청'] && !a['선정']) out.push(['선정 결과(신청 뒤 10일 안)', addDays(a['참여신청'], 10)]);
+  if (a['선정'] && !a['과정인정']) out.push(['과정 개발(선정 뒤 1개월)', addMonth(a['선정'])]);
+  if (c.train_start && !a['과정인정']) out.push(['과정인정 신청(훈련 시작 5일 전)', addDays(c.train_start, -5)]);
+  if (c.train_end && !a['수료보고']) out.push(['수료 보고(훈련 끝난 뒤 30일 안)', addDays(c.train_end, 30)]);
+  return out.sort(function (x, y) { return x[1] < y[1] ? -1 : 1; });
+}
+function dueText(c) {
+  var d = deadlines(c)[0]; if (!d) return '';
+  var n = dleft(d[1]);
+  return '<span class="due' + (n <= 5 ? ' near' : '') + '">' + esc(d[0].replace(/\(.*\)/, '')) + ' ' + d[1].slice(5) + (n < 0 ? ' · ' + (-n) + '일 지남' : n === 0 ? ' · 오늘' : ' · ' + n + '일 남음') + '</span>';
+}
+
+/* ── 로그인 ── */
+function conf() {
+  var c = ls.get('jjf_conf'); if (c && c.url && c.anon) return Promise.resolve(c);
+  return fetch(GAS + '?type=sb_config').then(function (r) { return r.json(); }).then(function (j) { if (j && j.url && j.anon) { ls.set('jjf_conf', { url: j.url, anon: j.anon, org: j.org }); return j; } throw new Error('설정 없음'); });
+}
+function needLogin(t) {
+  $('app').hidden = true; $('login').hidden = false; $('lgErr').textContent = t || '';
+  $('lgEmail').value = ls.get('jja_email') || '';
+}
+function login() {
+  var em = $('lgEmail').value.trim(), pw = $('lgPw').value;
+  if (!em || !pw) { $('lgErr').textContent = '메일과 비밀번호를 적어 주세요.'; return; }
+  $('lgBtn').disabled = true;
+  SB.auth.signInWithPassword({ email: em, password: pw }).then(function (r) {
+    $('lgBtn').disabled = false; $('lgPw').value = '';
+    if (r.error) { $('lgErr').textContent = /Invalid login/i.test(r.error.message) ? '메일 또는 비밀번호가 맞지 않습니다.' : r.error.message; return; }
+    ls.set('jja_email', em); start();
+  });
+}
+function mailLink() {
+  var em = $('lgEmail').value.trim(); if (!em) { $('lgErr').textContent = '메일 주소를 적어 주세요.'; return; }
+  SB.auth.signInWithOtp({ email: em, options: { emailRedirectTo: location.origin + '/sojt/desk/', shouldCreateUser: false } }).then(function (r) {
+    $('lgErr').textContent = r.error ? (/after/.test(r.error.message) ? '이미 보냈습니다. 메일함을 확인하세요.' : r.error.message) : '메일을 보냈습니다. 링크를 누르면 이 화면으로 돌아옵니다.';
+    ls.set('jja_email', em);
+  });
+}
+var STARTING = false;
+function start() {
+  if (STARTING) return; STARTING = true;
+  SB.auth.getSession().then(function (r) {
+    var s = r.data && r.data.session; if (!s) { STARTING = false; return needLogin(); }
+    ME = s.user.email;
+    SB.rpc('sojt_is_owner').then(function (o) {
+      STARTING = false;
+      if (!o.data) { SB.auth.signOut(); return needLogin('대표 계정만 들어올 수 있습니다.'); }
+      $('login').hidden = true; $('app').hidden = false; $('who').textContent = ME;
+      SB.from('sojt_profile').select('*').eq('id', 1).single().then(function (p) { PROFILE = p.data || {}; lockState(); show(location.hash.slice(1) || 'intake'); });
+    });
+  });
+}
+function lockState() {
+  var el = $('lockState');
+  if (!PROFILE || !PROFILE.kdf_salt) { el.innerHTML = '보관함 열쇠 없음'; return; }
+  el.innerHTML = KEY ? '보관함 열림 <button id="lockBtn">잠그기</button>' : '보관함 잠김';
+  if (KEY) $('lockBtn').onclick = function () { KEY = null; lockState(); show(VIEW); };
+}
+
+/* ── 계정 보관함 암호 (대표 화면 안에서만 풀고 잠근다) ── */
+var b64 = { to: function (u) { var s = ''; u = new Uint8Array(u); for (var i = 0; i < u.length; i++) s += String.fromCharCode(u[i]); return btoa(s); }, from: function (s) { var b = atob(s), u = new Uint8Array(b.length); for (var i = 0; i < b.length; i++) u[i] = b.charCodeAt(i); return u; } };
+function deriveKey(pass, saltB64) {
+  var enc = new TextEncoder();
+  return crypto.subtle.importKey('raw', enc.encode(pass), 'PBKDF2', false, ['deriveKey']).then(function (base) {
+    return crypto.subtle.deriveKey({ name: 'PBKDF2', salt: b64.from(saltB64), iterations: 310000, hash: 'SHA-256' }, base, { name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']);
+  });
+}
+function seal(key, text) { var iv = crypto.getRandomValues(new Uint8Array(12)); return crypto.subtle.encrypt({ name: 'AES-GCM', iv: iv }, key, new TextEncoder().encode(text)).then(function (ct) { return { ct: b64.to(ct), iv: b64.to(iv) }; }); }
+function open_(key, ct, iv) { return crypto.subtle.decrypt({ name: 'AES-GCM', iv: b64.from(iv) }, key, b64.from(ct)).then(function (pt) { return new TextDecoder().decode(pt); }); }
+function unlockBox(after) {
+  var box = document.createElement('div'); box.className = 'lock';
+  if (!PROFILE.kdf_salt) {
+    box.innerHTML = '<b>보관함 열쇠 문구를 정하세요.</b> 비밀번호는 이 문구로 잠가서 저장합니다. 서버에는 잠긴 글만 남고, 문구를 잊으면 아무도 풀 수 없습니다.<div class="add"><input type="password" id="k1" placeholder="열쇠 문구(10자 이상)" autocomplete="new-password"><input type="password" id="k2" placeholder="한 번 더" autocomplete="new-password"><button class="p" id="kGo">정하기</button></div>';
+    setTimeout(function () {
+      $('kGo').onclick = function () {
+        var a = $('k1').value, b = $('k2').value;
+        if (a.length < 10) return toast('열쇠 문구는 10자 이상으로 정해 주세요.');
+        if (a !== b) return toast('두 번 적은 문구가 다릅니다.');
+        var salt = b64.to(crypto.getRandomValues(new Uint8Array(16)));
+        deriveKey(a, salt).then(function (k) { return seal(k, 'sojt-ok').then(function (v) {
+          return q(SB.from('sojt_profile').update({ kdf_salt: salt, verifier_ct: v.ct, verifier_iv: v.iv }).eq('id', 1)).then(function () {
+            PROFILE.kdf_salt = salt; PROFILE.verifier_ct = v.ct; PROFILE.verifier_iv = v.iv; KEY = k; audit('열쇠 문구 정함'); lockState(); toast('열쇠 문구를 정했습니다.'); after();
+          });
+        }); });
+      };
+    });
+  } else {
+    box.innerHTML = '보관함이 잠겨 있습니다.<div class="add"><input type="password" id="k1" placeholder="열쇠 문구" autocomplete="current-password"><button class="p" id="kGo">열기</button></div>';
+    setTimeout(function () {
+      var go = function () {
+        deriveKey($('k1').value, PROFILE.kdf_salt).then(function (k) {
+          return open_(k, PROFILE.verifier_ct, PROFILE.verifier_iv).then(function (t) { if (t !== 'sojt-ok') throw 0; KEY = k; audit('보관함 열기'); lockState(); after(); });
+        }).catch(function () { toast('열쇠 문구가 맞지 않습니다.'); });
+      };
+      $('kGo').onclick = go; $('k1').onkeydown = function (e) { if (e.key === 'Enter') go(); };
+    });
+  }
+  return box;
+}
+
+/* ── 화면 전환 ── */
+function show(v) {
+  VIEW = v; location.hash = v;
+  Array.prototype.forEach.call($('nav').children, function (b) { b.classList.toggle('on', b.dataset.v === v); });
+  if (v === 'company') return viewCompany();
+  if (v === 'profile') return viewProfile();
+  return viewIntake();
+}
+
+/* ── 접수 ── */
+function viewIntake() {
+  var V = $('view'); V.innerHTML = '<p class="sub">공개 접수 화면(jipjini.com/sojt/)에서 들어온 것입니다.</p><div id="iq"></div>';
+  q(SB.from('sojt_intake').select('*').order('id', { ascending: false }).limit(200)).then(function (rows) {
+    if (!rows.length) { $('iq').innerHTML = '<p class="empty">아직 들어온 접수가 없습니다. 접수 화면 주소를 업체에 보내 보세요.</p>'; return; }
+    $('iq').innerHTML = '<table><thead><tr><th>들어온 날</th><th>회사</th><th>담당·연락처</th><th>하고 싶은 말</th><th>상태</th><th></th></tr></thead><tbody>' + rows.map(function (x) {
+      return '<tr><td class="n">' + esc(ymd(x.created_at)) + '</td><td><b>' + esc(x.company) + '</b><div class="sub">' + esc([x.industry, x.employees && '근로자 ' + x.employees].filter(Boolean).join(', ')) + '</div></td>' +
+        '<td>' + esc(x.contact || '') + '<div><a href="tel:' + esc(x.phone) + '">' + esc(x.phone) + '</a></div><div class="sub">' + esc(x.email || '') + '</div></td>' +
+        '<td style="max-width:320px">' + esc(x.memo || '') + '</td>' +
+        '<td><select data-st="' + x.id + '">' + ['새 접수', '연락함', '업체 등록', '보류'].map(function (s) { return '<option' + (s === x.status ? ' selected' : '') + '>' + s + '</option>'; }).join('') + '</select></td>' +
+        '<td class="n">' + (x.company_id ? '<button data-go="' + x.company_id + '">업체 보기</button>' : '<button class="p" data-reg="' + x.id + '">업체로 등록</button>') + '</td></tr>';
+    }).join('') + '</tbody></table>';
+    $('iq').onchange = function (e) { var id = e.target.dataset.st; if (id) q(SB.from('sojt_intake').update({ status: e.target.value }).eq('id', id)).then(function () { toast('상태를 바꿨습니다.'); }); };
+    $('iq').onclick = function (e) {
+      var g = e.target.dataset.go, r = e.target.dataset.reg;
+      if (g) { CUR = +g; show('company'); }
+      if (r) {
+        var x = rows.filter(function (y) { return y.id == r; })[0]; e.target.disabled = true;
+        q(SB.from('sojt_company').insert({ name: x.company, contact: x.contact, phone: x.phone, email: x.email, industry: x.industry, employees: x.employees, notes: x.memo, stage: '접수', stage_at: { '접수': ymd(x.created_at) } }).select('id').single()).then(function (c) {
+          return q(SB.from('sojt_intake').update({ company_id: c.id, status: '업체 등록' }).eq('id', x.id)).then(function () { CUR = c.id; toast('업체로 등록했습니다.'); show('company'); });
+        });
+      }
+    };
+  });
+}
+
+/* ── 업체 ── */
+var COMPANIES = [];
+function viewCompany() {
+  var V = $('view');
+  V.innerHTML = '<div class="cols"><div><div class="add" style="margin:0 0 10px"><input id="cq" placeholder="업체 찾기"><button class="p" id="cNew">새 업체</button></div>' +
+    '<label class="sub"><input type="checkbox" id="cArch" style="width:auto"> 끝난 업체도 보기</label><div class="list" id="cl"></div></div><div id="cd"></div></div>';
+  $('cNew').onclick = function () {
+    var n = prompt('업체 이름'); if (!n) return;
+    q(SB.from('sojt_company').insert({ name: n.trim(), stage_at: { '접수': today() } }).select('id').single()).then(function (c) { CUR = c.id; loadList(); });
+  };
+  $('cq').oninput = drawList; $('cArch').onchange = drawList;
+  loadList();
+}
+function loadList() {
+  q(SB.from('sojt_company').select('*').order('updated_at', { ascending: false })).then(function (rows) { COMPANIES = rows; drawList(); if (CUR) detail(CUR); else $('cd').innerHTML = '<p class="empty">왼쪽에서 업체를 고르세요.</p>'; });
+}
+function drawList() {
+  var k = ($('cq').value || '').trim(), arch = $('cArch').checked;
+  var rows = COMPANIES.filter(function (c) { return (arch || !c.archived) && (!k || (c.name + (c.ceo || '') + (c.course || '')).indexOf(k) >= 0); });
+  $('cl').innerHTML = rows.length ? rows.map(function (c) {
+    return '<div class="it' + (c.id === CUR ? ' on' : '') + '" data-id="' + c.id + '"><div class="t">' + esc(c.name) + '</div><div class="s">' + esc(c.year + '년 · ' + c.stage) + (c.course ? ' · ' + esc(c.course) : '') + '</div>' + dueText(c) + '</div>';
+  }).join('') : '<p class="empty">업체가 없습니다.</p>';
+  $('cl').onclick = function (e) { var it = e.target.closest('.it'); if (it) { CUR = +it.dataset.id; drawList(); detail(CUR); } };
+}
+var FIELDS = [
+  ['name', '업체 이름'], ['ceo', '대표자'], ['year', '사업 연도', 'number'],
+  ['biz_no', '사업자등록번호'], ['ins_no', '고용보험 관리번호'], ['industry', '업종'],
+  ['address', '주소', '', 'w2'], ['employees', '상시 근로자 수'],
+  ['contact', '담당자'], ['contact_title', '담당자 직책'], ['phone', '연락처'],
+  ['email', '메일'], ['branch', '관할 지사'], ['branch_staff', '지사 담당자'],
+  ['branch_phone', '지사 연락처'], ['dev_type', '개발 방식'], ['course', '훈련과정명'],
+  ['ncs', '훈련 직무(국가직무능력표준)'], ['inner_teacher', '사내강사'], ['trainees', '훈련 인원'],
+  ['train_start', '훈련 시작', 'date'], ['train_end', '훈련 끝', 'date'], ['train_hours', '총 훈련 시간', 'number'],
+  ['drive_folder', '예전 드라이브 폴더 주소', '', 'w3'], ['notes', '메모', 'area', 'w3']
+];
+function detail(id) {
+  var c = COMPANIES.filter(function (x) { return x.id === id; })[0]; if (!c) return;
+  var a = c.stage_at || {}, ci = STAGES.indexOf(c.stage), D = $('cd');
+  var dl = deadlines(c);
+  D.innerHTML = '<h2>' + esc(c.name) + '</h2><div class="sub">' + esc(c.year + '년') + (c.course ? ' · ' + esc(c.course) : '') + (c.drive_folder ? ' · <a href="' + esc(c.drive_folder) + '" target="_blank" rel="noopener">예전 드라이브 폴더</a>' : '') + '</div>' +
+    '<div class="steps" id="stp">' + STAGES.map(function (s, i) { return '<button data-s="' + s + '" class="' + (i === ci ? 'cur' : i < ci ? 'past' : '') + '">' + s + (a[s] ? '<small>' + a[s].slice(5) + '</small>' : '') + '</button>'; }).join('') + '</div>' +
+    (dl.length ? '<table style="margin-top:12px"><tbody>' + dl.map(function (d) { var n = dleft(d[1]); return '<tr><td>' + esc(d[0]) + '</td><td class="n' + (n <= 5 ? ' due near' : '') + '">' + d[1] + ' (' + (n < 0 ? -n + '일 지남' : n + '일 남음') + ')</td></tr>'; }).join('') + '</tbody></table>' : '') +
+    '<h3>기본 정보<span class="r"><button class="p" id="cSave">저장</button></span></h3><div class="grid" id="cf">' + FIELDS.map(function (f) {
+      var v = c[f[0]] == null ? '' : c[f[0]];
+      var inp = f[2] === 'area' ? '<textarea data-f="' + f[0] + '">' + esc(v) + '</textarea>' : '<input data-f="' + f[0] + '" type="' + (f[2] || 'text') + '" value="' + esc(v) + '">';
+      return '<label class="' + (f[3] || '') + '">' + f[1] + inp + '</label>';
+    }).join('') + '</div>' +
+    '<h3>서류</h3><div id="docs"></div>' +
+    '<h3>계정</h3><div id="sec"></div>' +
+    '<h3>훈련일지</h3><div id="logs"></div>' +
+    '<h3>훈련생과 과정평가</h3><div id="trn"></div>' +
+    '<h3>정리</h3><div class="add" style="justify-content:flex-start"><button id="cArc">' + (c.archived ? '다시 진행 중으로' : '끝난 업체로 넘기기') + '</button><button class="x" id="cDel">업체 지우기</button></div>';
+  $('stp').onclick = function (e) {
+    var b = e.target.closest('button'); if (!b) return;
+    var s = b.dataset.s, na = Object.assign({}, a);
+    if (!na[s]) na[s] = prompt(s + ' 단계에 들어간 날', today()) || today();
+    q(SB.from('sojt_company').update({ stage: s, stage_at: na }).eq('id', id)).then(function () { toast(s + ' 단계로 옮겼습니다.'); loadList(); });
+  };
+  $('cSave').onclick = function () {
+    var up = {}; Array.prototype.forEach.call($('cf').querySelectorAll('[data-f]'), function (el) { var v = el.value.trim(); up[el.dataset.f] = v === '' ? null : v; });
+    if (!up.name) return toast('업체 이름은 비울 수 없습니다.');
+    q(SB.from('sojt_company').update(up).eq('id', id)).then(function () { toast('저장했습니다.'); loadList(); });
+  };
+  $('cArc').onclick = function () { q(SB.from('sojt_company').update({ archived: !c.archived }).eq('id', id)).then(loadList); };
+  $('cDel').onclick = function () {
+    if (prompt('지우면 서류 기록·계정·일지가 모두 사라집니다. 지우려면 업체 이름을 그대로 적으세요.') !== c.name) return;
+    q(SB.from('sojt_company').delete().eq('id', id)).then(function () { audit('업체 지움', c.name); CUR = null; loadList(); });
+  };
+  docs(c); secrets(c); logs(c); trainees(c);
+}
+
+/* 서류: 단계별, 같은 종류는 판 번호가 올라간다 */
+function docs(c) {
+  q(SB.from('sojt_doc').select('*').eq('company_id', c.id).order('created_at', { ascending: false })).then(function (rows) {
+    var h = DOC_STAGES.map(function (st) {
+      var rs = rows.filter(function (r) { return r.stage === st; });
+      return '<div style="margin-top:10px"><b style="font-weight:500">' + st + '</b> <span class="sub">' + rs.length + '건</span>' +
+        (rs.length ? '<table><tbody>' + rs.map(function (r) {
+          return '<tr><td>' + esc(r.kind) + (r.version > 1 ? ' <span class="sub">' + r.version + '판</span>' : '') + '<div class="sub">' + esc(r.title || '') + '</div></td><td class="n sub">' + ymd(r.created_at) + '</td>' +
+            '<td><select data-ds="' + r.id + '">' + ['받음', '확인', '다시', '제출함'].map(function (s) { return '<option' + (s === r.status ? ' selected' : '') + '>' + s + '</option>'; }).join('') + '</select></td>' +
+            '<td class="n">' + (r.path ? '<button data-dl="' + r.id + '">받기</button> ' : '') + (r.link ? '<a href="' + esc(r.link) + '" target="_blank" rel="noopener">열기</a> ' : '') + '<button class="x" data-dx="' + r.id + '">지우기</button></td></tr>';
+        }).join('') + '</tbody></table>' : '') + '</div>';
+    }).join('');
+    h += '<div class="add"><select id="dSt">' + DOC_STAGES.map(function (s) { return '<option>' + s + '</option>'; }).join('') + '</select><select id="dKd"></select><input type="file" id="dF"><input id="dLk" placeholder="또는 드라이브 주소"><button class="p" id="dUp">올리기</button></div>';
+    $('docs').innerHTML = h;
+    var kinds = function () { $('dKd').innerHTML = DOC_KINDS[$('dSt').value].map(function (k) { return '<option>' + k + '</option>'; }).join(''); };
+    $('dSt').onchange = kinds; kinds();
+    $('dUp').onclick = function () {
+      var f = $('dF').files[0], lk = $('dLk').value.trim(), st = $('dSt').value, kd = $('dKd').value;
+      if (!f && !lk) return toast('파일을 고르거나 드라이브 주소를 적어 주세요.');
+      var ver = rows.filter(function (r) { return r.stage === st && r.kind === kd; }).length + 1;
+      $('dUp').disabled = true;
+      var put = f ? (function () {
+        var ext = (f.name.match(/\.([A-Za-z0-9]{1,6})$/) || [, 'bin'])[1].toLowerCase();
+        var path = c.id + '/' + DOC_STAGES.indexOf(st) + '/' + Date.now() + '.' + ext;
+        return SB.storage.from('sojt').upload(path, f, { contentType: f.type || 'application/octet-stream' }).then(function (r) { if (r.error) { toast('파일을 올리지 못했습니다 — ' + r.error.message); throw r.error; } return path; });
+      })() : Promise.resolve(null);
+      put.then(function (path) {
+        return q(SB.from('sojt_doc').insert({ company_id: c.id, stage: st, kind: kd, title: f ? f.name : '드라이브', version: ver, path: path, link: lk || null, size: f ? f.size : null }));
+      }).then(function () { toast('올렸습니다.'); docs(c); }).catch(function () { $('dUp').disabled = false; });
+    };
+    $('docs').onchange = function (e) { var id = e.target.dataset.ds; if (id) q(SB.from('sojt_doc').update({ status: e.target.value }).eq('id', id)); };
+    $('docs').onclick = function (e) {
+      var dl = e.target.dataset.dl, dx = e.target.dataset.dx;
+      var r = rows.filter(function (y) { return y.id == (dl || dx); })[0]; if (!r) return;
+      if (dl) SB.storage.from('sojt').createSignedUrl(r.path, 120, { download: r.title || true }).then(function (s) { if (s.data) location.href = s.data.signedUrl; else toast('받지 못했습니다.'); });
+      if (dx && confirm(r.kind + ' ' + r.version + '판을 지울까요?')) {
+        (r.path ? SB.storage.from('sojt').remove([r.path]) : Promise.resolve()).then(function () { return q(SB.from('sojt_doc').delete().eq('id', r.id)); }).then(function () { audit('서류 지움', c.name + ' ' + r.kind); docs(c); });
+      }
+    };
+  });
+}
+
+/* 계정: 아이디는 보이고 비밀번호는 잠긴 글로만 저장 */
+function secrets(c) {
+  q(SB.from('sojt_secret').select('*').eq('company_id', c.id).order('id')).then(function (rows) {
+    var S = $('sec'); S.innerHTML = '';
+    if (!KEY) { S.appendChild(unlockBox(function () { secrets(c); })); }
+    var t = document.createElement('div');
+    t.innerHTML = (rows.length ? '<table><thead><tr><th>사이트</th><th>아이디</th><th>비밀번호</th><th>메모</th><th></th></tr></thead><tbody>' + rows.map(function (r) {
+      return '<tr><td>' + esc(r.site) + '</td><td>' + esc(r.login_id || '') + '</td><td id="pw' + r.id + '">' + (r.secret_ct ? '잠김' : '<span class="sub">없음</span>') + '</td><td>' + esc(r.note || '') + '</td>' +
+        '<td class="n">' + (KEY && r.secret_ct ? '<button data-see="' + r.id + '">보기</button> <button data-cp="' + r.id + '">복사</button> ' : '') + '<button class="x" data-sx="' + r.id + '">지우기</button></td></tr>';
+    }).join('') + '</tbody></table>' : '<p class="empty">저장한 계정이 없습니다.</p>') +
+      (KEY ? '<div class="add"><select id="sSite">' + SITES.map(function (s) { return '<option>' + s + '</option>'; }).join('') + '</select><input id="sId" placeholder="아이디" autocomplete="off"><input id="sPw" type="password" placeholder="비밀번호" autocomplete="new-password"><input id="sNote" placeholder="메모"><button class="p" id="sAdd">저장</button></div>' : '');
+    S.appendChild(t);
+    if (KEY) $('sAdd').onclick = function () {
+      var pw = $('sPw').value;
+      (pw ? seal(KEY, pw) : Promise.resolve({ ct: null, iv: null })).then(function (v) {
+        return q(SB.from('sojt_secret').insert({ company_id: c.id, site: $('sSite').value, login_id: $('sId').value.trim() || null, secret_ct: v.ct, secret_iv: v.iv, note: $('sNote').value.trim() || null }));
+      }).then(function () { audit('계정 저장', c.name + ' ' + $('sSite').value); toast('잠가서 저장했습니다.'); secrets(c); });
+    };
+    t.onclick = function (e) {
+      var see = e.target.dataset.see, cp = e.target.dataset.cp, sx = e.target.dataset.sx;
+      var r = rows.filter(function (y) { return y.id == (see || cp || sx); })[0]; if (!r) return;
+      if (sx) { if (confirm(r.site + ' 계정을 지울까요?')) q(SB.from('sojt_secret').delete().eq('id', r.id)).then(function () { audit('계정 지움', c.name + ' ' + r.site); secrets(c); }); return; }
+      open_(KEY, r.secret_ct, r.secret_iv).then(function (pw) {
+        audit(see ? '비밀번호 보기' : '비밀번호 복사', c.name + ' ' + r.site);
+        if (cp) { navigator.clipboard.writeText(pw).then(function () { toast('복사했습니다. 30초 뒤 지웁니다.'); setTimeout(function () { navigator.clipboard.writeText('').catch(function () {}); }, 30000); }); return; }
+        var cell = $('pw' + r.id); cell.innerHTML = '<span class="secret">' + esc(pw) + '</span>';
+        setTimeout(function () { cell.textContent = '잠김'; }, 15000);
+      }).catch(function () { toast('풀지 못했습니다. 열쇠 문구가 바뀌었을 수 있습니다.'); });
+    };
+  });
+}
+
+/* 훈련일지와 사진 */
+function logs(c) {
+  q(SB.from('sojt_log').select('*').eq('company_id', c.id).order('day')).then(function (rows) {
+    var tot = rows.reduce(function (s, r) { return s + (+r.hours || 0); }, 0);
+    $('logs').innerHTML = (rows.length ? '<table><thead><tr><th>날짜</th><th>시간</th><th>내용</th><th></th></tr></thead><tbody>' + rows.map(function (r) {
+      return '<tr><td class="n">' + esc(r.day) + '</td><td class="n">' + esc(r.hours || '') + '</td><td style="white-space:pre-wrap">' + esc(r.content || '') + '<div class="thumbs" data-ph="' + r.id + '"></div></td><td class="n"><button class="x" data-lx="' + r.id + '">지우기</button></td></tr>';
+    }).join('') + '<tr><td>합계</td><td class="n"><b>' + tot + '</b></td><td class="sub">' + (c.train_hours ? '계획 ' + esc(c.train_hours) + '시간' : '') + '</td><td></td></tr></tbody></table>' : '<p class="empty">아직 일지가 없습니다.</p>') +
+      '<div class="add"><input type="date" id="lDay" value="' + today() + '"><input type="number" id="lH" step="0.5" placeholder="시간"><input id="lC" placeholder="훈련 내용" style="flex:3 1 260px"><input type="file" id="lP" multiple accept="image/*"><button class="p" id="lAdd">더하기</button></div>';
+    rows.forEach(function (r) {
+      var ph = r.photos || []; if (!ph.length) return;
+      SB.storage.from('sojt').createSignedUrls(ph, 600).then(function (s) { var el = document.querySelector('[data-ph="' + r.id + '"]'); if (el && s.data) el.innerHTML = s.data.map(function (u) { return u.signedUrl ? '<a href="' + esc(u.signedUrl) + '" target="_blank" rel="noopener"><img src="' + esc(u.signedUrl) + '" alt="훈련 사진"></a>' : ''; }).join(''); });
+    });
+    $('lAdd').onclick = function () {
+      var fs = Array.prototype.slice.call($('lP').files), day = $('lDay').value;
+      if (!day) return toast('날짜를 고르세요.');
+      $('lAdd').disabled = true;
+      Promise.all(fs.map(function (f, i) {
+        var ext = (f.name.match(/\.([A-Za-z0-9]{1,6})$/) || [, 'jpg'])[1].toLowerCase(), path = c.id + '/log/' + Date.now() + '_' + i + '.' + ext;
+        return SB.storage.from('sojt').upload(path, f, { contentType: f.type || 'image/jpeg' }).then(function (r) { if (r.error) throw r.error; return path; });
+      })).then(function (paths) {
+        return q(SB.from('sojt_log').insert({ company_id: c.id, day: day, hours: $('lH').value || null, content: $('lC').value.trim() || null, photos: paths }));
+      }).then(function () { toast('일지를 더했습니다.'); logs(c); }).catch(function (e) { $('lAdd').disabled = false; toast('올리지 못했습니다 — ' + (e.message || e)); });
+    };
+    $('logs').onclick = function (e) {
+      var id = e.target.dataset.lx; if (!id || !confirm('이 날 일지를 지울까요?')) return;
+      var r = rows.filter(function (y) { return y.id == id; })[0];
+      (r.photos && r.photos.length ? SB.storage.from('sojt').remove(r.photos) : Promise.resolve()).then(function () { return q(SB.from('sojt_log').delete().eq('id', id)); }).then(function () { logs(c); });
+    };
+  });
+}
+
+/* 훈련생: 이름·연락처만. 평가 4개 기준 5점, 평균 3점 이상 수료 */
+function trainees(c) {
+  q(SB.from('sojt_trainee').select('*').eq('company_id', c.id).order('id')).then(function (rows) {
+    $('trn').innerHTML = (rows.length ? '<table><thead><tr><th>이름</th><th>연락처</th><th>출결 앱</th>' + CRIT.map(function (k) { return '<th>' + k + '</th>'; }).join('') + '<th>평균</th><th></th></tr></thead><tbody>' + rows.map(function (r) {
+      var sc = r.scores || [], avg = sc.length ? sc.reduce(function (s, v) { return s + (+v || 0); }, 0) / CRIT.length : 0;
+      return '<tr data-t="' + r.id + '"><td>' + esc(r.name) + '</td><td>' + esc(r.phone || '') + '</td><td><input type="checkbox" data-app style="width:auto"' + (r.app_ok ? ' checked' : '') + '></td>' +
+        CRIT.map(function (k, i) { return '<td><select data-sc="' + i + '" style="width:58px"><option></option>' + [1, 2, 3, 4, 5].map(function (n) { return '<option' + (+sc[i] === n ? ' selected' : '') + '>' + n + '</option>'; }).join('') + '</select></td>'; }).join('') +
+        '<td class="n">' + (sc.length ? avg.toFixed(1) + (avg >= 3 ? ' 수료' : ' <span class="due near">미달</span>') : '') + '</td><td><button class="x" data-tx>지우기</button></td></tr>';
+    }).join('') + '</tbody></table>' : '<p class="empty">훈련생이 없습니다. 주민등록번호는 적지 않습니다.</p>') +
+      '<div class="add"><input id="tN" placeholder="이름"><input id="tP" placeholder="연락처"><button class="p" id="tAdd">더하기</button></div>';
+    $('tAdd').onclick = function () { var n = $('tN').value.trim(); if (!n) return; q(SB.from('sojt_trainee').insert({ company_id: c.id, name: n, phone: $('tP').value.trim() || null })).then(function () { trainees(c); }); };
+    $('trn').onchange = function (e) {
+      var tr = e.target.closest('tr[data-t]'); if (!tr) return;
+      var id = tr.dataset.t, up = {};
+      if (e.target.hasAttribute('data-app')) up.app_ok = e.target.checked;
+      else { var sc = Array.prototype.map.call(tr.querySelectorAll('[data-sc]'), function (s) { return s.value ? +s.value : null; }); up.scores = sc; var full = sc.every(function (v) { return v; }); up.pass = full ? sc.reduce(function (a, b) { return a + b; }, 0) / sc.length >= 3 : null; }
+      q(SB.from('sojt_trainee').update(up).eq('id', id)).then(function () { if (up.scores) trainees(c); });
+    };
+    $('trn').onclick = function (e) { if (!e.target.hasAttribute('data-tx')) return; var id = e.target.closest('tr').dataset.t; if (confirm('지울까요?')) q(SB.from('sojt_trainee').delete().eq('id', id)).then(function () { trainees(c); }); };
+  });
+}
+
+/* ── 대표 정보 (모든 서식에 들어가는 공통 값) ── */
+var PF = [['name', '이름'], ['org', '소속'], ['title', '직책'], ['mobile', '휴대폰'], ['office_phone', '사무실 전화'], ['email', '메일'], ['address', '주소', 'w3'], ['education', '학력', 'w3'], ['career', '경력', 'w3', 'area'], ['certs', '자격', 'w3', 'area'], ['hrd4u_id', 'HRD4U 아이디']];
+function viewProfile() {
+  SB.from('sojt_profile').select('*').eq('id', 1).single().then(function (r) {
+    var p = PROFILE = r.data || {};
+    var rates = Object.keys(p.rates || {}).map(function (k) { return k + ': ' + p.rates[k]; }).join('\n');
+    $('view').innerHTML = '<div style="max-width:860px"><h2>대표 공통 정보</h2><p class="sub">서식 10~17, 약정서, 결과보고서를 만들 때 자동으로 들어가는 값입니다.</p>' +
+      '<div class="grid" id="pf">' + PF.map(function (f) { var v = esc(p[f[0]] || ''); return '<label class="' + (f[2] || '') + '">' + f[1] + (f[3] ? '<textarea data-f="' + f[0] + '">' + v + '</textarea>' : '<input data-f="' + f[0] + '" value="' + v + '">') + '</label>'; }).join('') +
+      '<label class="w3">수당 단가 (한 줄에 하나, 「항목: 금액」)<textarea id="pRates" placeholder="외부강사: 시간당 금액">' + esc(rates) + '</textarea></label></div>' +
+      '<div class="add" style="justify-content:flex-end"><button class="p" id="pSave">저장</button></div>' +
+      '<h3>서명과 도장</h3><div class="grid"><div class="sig"><div class="sub">서명</div><div id="sigImg" class="empty">없음</div><input type="file" accept="image/png,image/jpeg" id="sigF"></div><div class="sig"><div class="sub">도장</div><div id="stmImg" class="empty">없음</div><input type="file" accept="image/png,image/jpeg" id="stmF"></div></div>' +
+      '<p class="sub">배경이 투명한 그림(PNG)이 서식 위에 자연스럽게 얹힙니다.</p>' +
+      '<h3>보관함 열쇠</h3><div id="kbox"></div>' +
+      '<h3>최근 열람 기록</h3><div id="aud"></div></div>';
+    [['sign_path', 'sigImg'], ['stamp_path', 'stmImg']].forEach(function (x) { if (p[x[0]]) SB.storage.from('sojt').createSignedUrl(p[x[0]], 600).then(function (s) { if (s.data) $(x[1]).innerHTML = '<img src="' + esc(s.data.signedUrl) + '" alt="">'; }); });
+    [['sigF', 'sign_path', 'sign'], ['stmF', 'stamp_path', 'stamp']].forEach(function (x) {
+      $(x[0]).onchange = function (e) {
+        var f = e.target.files[0]; if (!f) return;
+        var path = 'profile/' + x[2] + '_' + Date.now() + (/png/.test(f.type) ? '.png' : '.jpg');
+        SB.storage.from('sojt').upload(path, f, { contentType: f.type }).then(function (u) {
+          if (u.error) return toast('올리지 못했습니다 — ' + u.error.message);
+          var old = p[x[1]], up = {}; up[x[1]] = path;
+          q(SB.from('sojt_profile').update(up).eq('id', 1)).then(function () { if (old) SB.storage.from('sojt').remove([old]); toast('바꿨습니다.'); viewProfile(); });
+        });
+      };
+    });
+    $('pSave').onclick = function () {
+      var up = {}; Array.prototype.forEach.call($('pf').querySelectorAll('[data-f]'), function (el) { up[el.dataset.f] = el.value.trim() || null; });
+      var rt = {}; $('pRates').value.split('\n').forEach(function (l) { var m = l.split(/[:：]/); if (m.length > 1 && m[0].trim()) rt[m[0].trim()] = m.slice(1).join(':').trim(); });
+      up.rates = rt; up.updated_at = new Date().toISOString();
+      q(SB.from('sojt_profile').update(up).eq('id', 1)).then(function () { toast('저장했습니다.'); });
+    };
+    var kb = $('kbox');
+    if (KEY) kb.innerHTML = '<p>지금 열려 있습니다. 화면을 닫거나 「잠그기」를 누르면 다시 잠깁니다.</p>';
+    else kb.appendChild(unlockBox(viewProfile));
+    q(SB.from('sojt_audit').select('*').order('id', { ascending: false }).limit(30)).then(function (rs) {
+      $('aud').innerHTML = rs.length ? '<table><tbody>' + rs.map(function (a) { return '<tr><td class="n sub">' + esc(new Date(a.at).toLocaleString('ko-KR')) + '</td><td>' + esc(a.action) + '</td><td>' + esc(a.target || '') + '</td></tr>'; }).join('') + '</tbody></table>' : '<p class="empty">기록이 없습니다.</p>';
+    });
+  });
+}
+
+/* ── 시작 ── */
+$('nav').onclick = function (e) { var v = e.target.dataset.v; if (v) show(v); };
+$('out').onclick = function () { KEY = null; SB.auth.signOut().then(function () { needLogin(); }); };
+$('lgBtn').onclick = login; $('lgPw').onkeydown = function (e) { if (e.key === 'Enter') login(); }; $('lgMail').onclick = mailLink;
+document.addEventListener('visibilitychange', function () { if (document.hidden && KEY) { clearTimeout(window._lk); window._lk = setTimeout(function () { KEY = null; lockState(); }, 10 * 60 * 1000); } else clearTimeout(window._lk); });
+conf().then(function (c) {
+  SB = window.supabase.createClient(c.url, c.anon, { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true } });
+  SB.auth.onAuthStateChange(function (ev) { if (ev === 'SIGNED_IN' && $('app').hidden) start(); });
+  start();
+}).catch(function () { needLogin('설정을 불러오지 못했습니다. 잠시 뒤 새로 고쳐 주세요.'); });
+})();
+</script>
+</body>
+</html>
