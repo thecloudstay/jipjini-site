@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """다음 블로그 글 주제 고르기 + 글감(숫자·사실) 묶음 만들기 (2026-11-17)
 
-주 2편 번갈아: 도면견적(도면 한 장 → 물량 → 견적 → 턴키 대비 절감) ↔ 셀인대행 → 실견적 → 누수 → 경매 차례
+주 2편, 다섯 종류를 차례로: 도면견적 → 셀인대행 → 누수 → 경매 → 실견적 → 도면견적 …
 같은 주제는 다시 쓰지 않는다(대장의 주제키). 고른 결과를 글감 파일로 남긴다:
   python3 tools/blog/blog_topics.py [종류]   → tools/blog/_facts.json (클로드가 이것만 보고 글을 쓴다)
 """
@@ -18,7 +18,11 @@ from blog_ledger import BlogLedgerManager, ErrorCode  # noqa: E402
 ROOT = Path(__file__).resolve().parents[2]
 KST = timezone(timedelta(hours=9))
 FACTS = Path(__file__).resolve().parent / "_facts.json"
-FRI_ROT = ["셀인대행", "실견적", "누수", "경매"]   # 2026-11-17 대표 「비용 해설보다 셀인·셀인대행 + 도면 자동화 + 30% 절감으로 다각화」
+ROT = ["도면견적", "셀인대행", "누수", "경매", "실견적"]   # 2026-11-19 대표 「주제를 다양하게 — 아파트 누수·경매도 골고루」: 다섯 종류를 한 바퀴씩 차례로
+
+
+# 옛 방식(콘솔 blog/LOG.md)으로 이미 네이버에 쓴 실견적 — 대장에 없어서 따로 막는다
+OLD_CASES = {"3d8a5559", "5f7da306", "ade74177", "33c7d196"}   # 시흥 33평 · 김포 34평 · 김포 24평 · 용인 수지 25평
 
 
 def load(p):
@@ -31,14 +35,15 @@ def won(n):
 
 
 def pick_kind(m, arg=None):
-    """주 2편을 번갈아: 단지 공사비 → (누수 → 경매 → 실견적 차례) → 단지 공사비 …(요일과 무관)"""
+    """다섯 종류를 차례로 한 번씩(요일과 무관): 직전 글 종류의 다음 차례. 옛 이름 「단지공사비」는 도면견적으로 본다."""
     if arg:
         return arg
     live = [r for r in m.records if r.get("상태") != "보류"]
-    if not live or live[-1].get("종류") not in ("도면견적", "단지공사비"):
-        return "도면견적"
-    done_rot = [r for r in live if r.get("종류") in FRI_ROT]
-    return FRI_ROT[len(done_rot) % len(FRI_ROT)]
+    if not live:
+        return ROT[0]
+    last = live[-1].get("종류")
+    last = "도면견적" if last == "단지공사비" else last
+    return ROT[(ROT.index(last) + 1) % len(ROT)] if last in ROT else ROT[0]
 
 
 def complexes():
@@ -138,7 +143,7 @@ def facts_complex(kind, code, ts):
 
 def facts_case(m):
     used = m.used_keys()
-    cs = [c for c in load("data/real-quotes.json")["cases"] if f"case:{c['key']}" not in used and c.get("file")]
+    cs = [c for c in load("data/real-quotes.json")["cases"] if f"case:{c['key']}" not in used and c["key"] not in OLD_CASES and c.get("file")]
     if not cs:
         return None
     c = sorted(cs, key=lambda x: x.get("ymd", ""), reverse=True)[0]
@@ -153,9 +158,7 @@ def facts_case(m):
             "현장관리": won(c.get("pm") or 0), "공종": secs, "쪽": "https://jipjini.com/" + c["file"], "날짜": c.get("ymd")}
 
 
-def main():
-    m = BlogLedgerManager()
-    kind = pick_kind(m, sys.argv[1] if len(sys.argv) > 1 else None)
+def facts_for(m, kind):
     out = None
     if kind in ("도면견적", "단지공사비", "셀인대행"):
         code, ts = pick_complex(m, "apt")
@@ -168,9 +171,18 @@ def main():
         if code: out = facts_complex(kind, code, ts); out["주제키"] = f"auction:{code}"
     elif kind == "실견적":
         out = facts_case(m)
-        if not out:   # 실견적이 바닥나면 누수로
-            code, ts = pick_complex(m, "leak")
-            if code: out = facts_complex("누수", code, ts); out["주제키"] = f"leak:{code}"
+    return out
+
+
+def main():
+    m = BlogLedgerManager()
+    arg = sys.argv[1] if len(sys.argv) > 1 else None
+    kind = pick_kind(m, arg)
+    order = [kind] if arg else [ROT[(ROT.index(kind) + i) % len(ROT)] for i in range(len(ROT))]
+    out = None
+    for k in order:   # 그 차례에 쓸 주제가 바닥나면 다음 차례로
+        out = facts_for(m, k)
+        if out: break
     if not out:
         print(f"[{ErrorCode.ERR_NO_TOPIC.value}] {kind}: 쓸 주제가 없습니다"); return 1
     day = datetime.now(KST).strftime("%Y-%m-%d")
