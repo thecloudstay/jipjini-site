@@ -37,7 +37,7 @@
       var on = !OFF[k], v = T[k].p50 * py; if (on) { lo += T[k].p25 * py; mid += v; hi += T[k].p75 * py; }
       return '<li class="' + (on ? '' : 'is-off') + '"><label><input type="checkbox" data-k="' + esc(k) + '"' + (on ? ' checked' : '') + '>' + esc(k) + '</label><div class="b"><i style="width:' + (T[k].p50 / mx * 100).toFixed(1) + '%"></i></div><div class="v">' + man(v) + '</div></li>';
     });
-    $('tl').innerHTML = rows.join('');
+    if ($('tl')) $('tl').innerHTML = rows.join('');   // 2026-11-19 첫 화면에서는 공종 목록을 뺐다(대표) — 금액 계산은 그대로
     var all = ORDER.every(function (k) { return !T[k] || !OFF[k]; }), n = ORDER.filter(function (k) { return T[k] && !OFF[k]; }).length;
     var offs = Object.keys(OFF).sort().join(','), base = offs === '베란다,샷시,필름';
     $('clab').textContent = (all ? '올수리(샷시 포함)' : base ? '올수리 기본(샷시·필름·베란다 제외)' : '고른 공사 ' + n + '가지') + ' 예상 공사비 · 공급 ' + Math.round(py) + '평';
@@ -69,7 +69,7 @@
   $('a2').addEventListener('click', function () { ev('f1_cta_req', false, { apt: CUR && CUR.c }); });
   if ('IntersectionObserver' in window) new IntersectionObserver(function (es, io) { es.forEach(function (x) { if (x.isIntersecting) { ev('f1_view_result', true); io.disconnect(); } }); }, { threshold: 0.4 }).observe($('res'));
   $('types').addEventListener('click', function (e) { var b = e.target.closest('button'); if (!b) return; TI = +b.dataset.i; pick(); });
-  $('tl').addEventListener('change', function (e) { var k = e.target.dataset.k; if (!k) return; if (e.target.checked) delete OFF[k]; else OFF[k] = 1; calc(); ev('f1_trade', true); });
+  if ($('tl')) $('tl').addEventListener('change', function (e) { var k = e.target.dataset.k; if (!k) return; if (e.target.checked) delete OFF[k]; else OFF[k] = 1; calc(); ev('f1_trade', true); });
 
   // 찾기
   var q = $('q'), sug = $('sug');
