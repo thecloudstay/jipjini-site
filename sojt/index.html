@@ -11,86 +11,181 @@
 <style>
 :root{--ink:#1C1F1B;--sub:#6B7067;--line:#DCDFD8;--acc:#1F5E2E;--bg:#fff}
 *{box-sizing:border-box}
-html,body{margin:0;background:var(--bg);color:var(--ink);font-family:'IBM Plex Sans KR','Apple SD Gothic Neo','Malgun Gothic',sans-serif;font-size:16px;line-height:1.7;word-break:keep-all}
-.wrap{max-width:640px;margin:0 auto;padding:40px 16px 64px}
-.top{font-size:14px;color:var(--sub);border-bottom:1px solid var(--line);padding-bottom:12px;margin-bottom:32px}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:'IBM Plex Sans KR','Apple SD Gothic Neo','Malgun Gothic',sans-serif;font-size:15px;line-height:1.7;word-break:keep-all}
+.wrap{max-width:1080px;margin:0 auto;padding:28px 16px 40px}
+.top{display:flex;justify-content:space-between;gap:12px;font-size:13px;color:var(--sub);border-bottom:1px solid var(--line);padding-bottom:10px;margin-bottom:24px}
 .top a{color:var(--sub);text-decoration:none}
-h1{font-size:26px;line-height:1.4;margin:0 0 12px;font-weight:600}
-.lead{color:var(--sub);margin:0 0 28px}
-table.how{width:100%;border-collapse:collapse;margin:0 0 36px;font-size:15px}
-table.how td{border-top:1px solid var(--line);padding:10px 0;vertical-align:top}
-table.how td:first-child{width:7.5em;color:var(--sub);padding-right:12px}
-h2{font-size:18px;font-weight:600;margin:0 0 14px;padding-top:20px;border-top:2px solid var(--ink)}
-p{margin:0 0 14px}
-.sub2{color:var(--sub);font-size:15px;margin:0 0 36px}
-table.svc td:first-child{width:9.5em;color:var(--ink);font-weight:500}
-label{display:block;margin:0 0 14px;font-size:14px;color:var(--sub)}
+.cols{display:grid;grid-template-columns:1fr 360px;gap:44px;align-items:start}
+h1{font-size:25px;line-height:1.4;margin:0 0 10px;font-weight:600}
+.lead{color:var(--sub);margin:0 0 18px}
+.limit{border-left:3px solid var(--acc);padding:6px 0 6px 12px;margin:0 0 22px;font-size:15px}
+.limit b{font-weight:600}
+h2{font-size:15px;font-weight:600;margin:22px 0 8px;padding-top:12px;border-top:2px solid var(--ink)}
+p{margin:0 0 10px}
+table{width:100%;border-collapse:collapse;font-size:14px}
+td,th{border-top:1px solid var(--line);padding:7px 0;vertical-align:top;text-align:left}
+td:first-child{width:7.5em;color:var(--sub);padding-right:12px}
+table.svc td:first-child{width:10em;color:var(--ink);font-weight:500}
+table.case th{font-weight:500;color:var(--sub);font-size:13px;border-top:0;padding:0 0 4px}
+table.case td{padding:8px 10px 8px 0}
+table.case td:first-child{width:auto;color:var(--ink)}
+table.case .n{white-space:nowrap;font-weight:600;color:var(--acc)}
+table.case .s{display:block;color:var(--sub);font-size:13px}
+.src{font-size:12.5px;color:var(--sub);margin-top:6px}
+.seats{display:flex;gap:14px;align-items:center;border:1px solid var(--line);border-radius:4px;padding:12px 14px;margin:0 0 6px}
+.seats p{margin:0;font-size:14px}.seats b{font-weight:600}
+.boxes{display:grid;grid-template-columns:repeat(5,14px);gap:4px;flex:none}.boxes i{width:14px;height:14px;border:1.5px solid var(--acc);border-radius:2px}
+.why{display:grid;grid-template-columns:1fr auto 1fr auto 1fr;gap:8px;align-items:stretch}
+.why>div:not(.arr){border-top:2px solid var(--acc);padding:6px 0 0;font-size:13.5px;line-height:1.55}
+.why b{display:block;font-weight:600;font-size:14px;margin-bottom:2px}.why span{color:var(--sub)}
+.why .arr{color:var(--sub);align-self:center}
+.flow{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(8,1fr);counter-reset:s}
+.flow li{position:relative;padding:22px 4px 0 0;font-size:13px;line-height:1.45;counter-increment:s}
+.flow li:before{content:counter(s);position:absolute;top:0;left:0;width:18px;height:18px;border-radius:50%;background:var(--acc);color:#fff;font-size:11px;text-align:center;line-height:18px}
+.flow li:after{content:"";position:absolute;top:9px;left:20px;right:2px;border-top:1px solid var(--line)}
+.flow li:last-child:after{display:none}
+.flow b{display:block;font-weight:600}.flow span{color:var(--sub);font-size:12px}
+.calc{display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px}
+.calc div{border:1px solid var(--line);border-radius:4px;padding:6px 10px;text-align:center;line-height:1.35}
+.calc em{display:block;font-style:normal;font-weight:600;font-size:16px}.calc span{font-size:11.5px;color:var(--sub)}
+.calc i{font-style:normal;color:var(--sub)}
+.calc .tot{border-color:var(--acc)}.calc .tot em{color:var(--acc)}
+.cases{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.cs .ct{font-weight:600;font-size:14px;margin-bottom:6px}.cs .ct span{display:block;font-weight:400;font-size:12px;color:var(--sub)}
+.bar{margin:0 0 8px}.bar label{font-size:12px;color:var(--sub);display:block;margin:0 0 2px}
+.tr{height:18px;margin:0 0 2px;background:#F5F6F3;border-radius:2px}
+.tr i{display:block;height:100%;font-style:normal;font-size:11.5px;line-height:18px;padding:0 6px;border-radius:2px;white-space:nowrap;min-width:max-content}
+i.b{background:#C9CDC4;color:var(--ink)}i.a{background:var(--acc);color:#fff}
+i.a.t{background:repeating-linear-gradient(135deg,#1F5E2E 0 6px,#2E7A3F 6px 9px)}
+.big{font-size:13px;font-weight:600;margin-top:6px}.big span{display:block;font-weight:400;color:var(--sub);font-size:11.5px}
+.legend{font-size:12px;color:var(--sub);margin-top:10px;display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.legend i{display:inline-block;width:14px;height:10px;border-radius:2px;margin-left:8px}.legend i:first-child{margin-left:0}
+.jump{display:none;color:var(--acc);font-weight:600}
+@media (max-width:900px){.jump{display:inline}}
+aside{position:sticky;top:16px;border:1px solid var(--line);border-radius:4px;padding:18px 18px 16px}
+aside h2{margin:0 0 4px;padding:0;border:0;font-size:17px}
+aside .sub{color:var(--sub);font-size:13px;margin:0 0 14px}
+label{display:block;margin:0 0 10px;font-size:13px;color:var(--sub)}
 label b{color:var(--acc);font-weight:500}
-input,textarea{display:block;width:100%;margin-top:4px;padding:10px 12px;border:1px solid var(--line);border-radius:4px;font:inherit;font-size:16px;color:var(--ink);background:#fff}
+input,textarea{display:block;width:100%;margin-top:3px;padding:8px 10px;border:1px solid var(--line);border-radius:4px;font:inherit;font-size:15px;color:var(--ink);background:#fff}
 input:focus,textarea:focus{outline:2px solid var(--acc);outline-offset:-1px;border-color:var(--acc)}
-textarea{min-height:110px;resize:vertical}
-.row{display:grid;grid-template-columns:1fr 1fr;gap:0 14px}
+textarea{min-height:72px;resize:vertical}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:0 10px}
 .hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
-.agree{display:flex;gap:8px;align-items:flex-start;font-size:14px;color:var(--sub);margin:4px 0 20px}
-.agree input{width:auto;margin:5px 0 0}
-button{width:100%;padding:14px;border:0;border-radius:4px;background:var(--acc);color:#fff;font:inherit;font-size:16px;font-weight:600;cursor:pointer}
+.agree{display:flex;gap:8px;align-items:flex-start;font-size:12.5px;color:var(--sub);margin:2px 0 12px;line-height:1.55}
+.agree input{width:auto;margin:3px 0 0}
+button{width:100%;padding:12px;border:0;border-radius:4px;background:var(--acc);color:#fff;font:inherit;font-size:15px;font-weight:600;cursor:pointer}
 button:disabled{opacity:.6;cursor:default}
 button:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
-.msg{margin-top:14px;font-size:15px;min-height:1.7em}
+.msg{margin-top:10px;font-size:14px;min-height:1.6em}
 .msg.err{color:#A12C2C}
-.done{padding:20px 0;border-top:2px solid var(--acc)}
 .done p{margin:0 0 8px}
-.foot{margin-top:48px;font-size:13px;color:var(--sub);border-top:1px solid var(--line);padding-top:12px}
-@media (max-width:520px){.row{grid-template-columns:1fr}h1{font-size:22px}}
+@media (max-width:900px){.cols{grid-template-columns:1fr;gap:28px}aside{position:static}.cases{grid-template-columns:1fr}}
+@media (max-width:640px){.flow{grid-template-columns:repeat(4,1fr);row-gap:12px}.flow li:nth-child(4):after{display:none}.why{grid-template-columns:1fr}.why .arr{display:none}}
+@media (max-width:520px){h1{font-size:21px}.row{grid-template-columns:1fr}table.case td{display:block;padding:2px 0}table.case tr td:first-child{padding-top:10px}table.case th{display:none}}
 </style>
 </head>
 <body>
 <div class="wrap">
-  <div class="top"><a href="/">집지니</a> · S-OJT 컨설팅</div>
+  <div class="top"><a href="/">집지니</a><span>체계적 현장훈련 컨설팅 · 박찬영 010-9806-0422</span></div>
 
-  <h1>체계적 현장훈련(S-OJT) 컨설팅</h1>
-  <p class="lead">숙련된 직원이 가진 일의 노하우를 정해진 절차로 동료에게 전하고, 그 과정에서 현장 문제를 함께 풀어 가는 훈련입니다. 고용노동부가 지원하고 한국산업인력공단이 운영합니다.</p>
+  <div class="cols">
+  <main>
+    <h1>체계적 현장훈련(S-OJT) 컨설팅</h1>
+    <p class="lead">우리 회사 일의 노하우를 정해진 절차로 동료에게 전하며 현장 문제를 함께 푸는 훈련. 고용노동부가 비용을 대고 한국산업인력공단이 운영합니다.</p>
 
-  <h2>이 사업이 생긴 까닭</h2>
-  <p>중소기업의 일 노하우는 대부분 선배 머릿속에 있고, 말과 어깨너머로만 전해집니다. 사람이 그만두면 노하우도 같이 사라지고, 강사가 와서 하는 강의식 교육으로는 우리 회사 현장 일을 가르치기 어렵습니다.</p>
-  <p>그래서 정부가 중소기업이 스스로 노하우를 전수할 수 있도록 훈련과정 개발과 훈련 실시를 지원합니다. 회사 안 전문가가 강사가 되어 실제 현장 문제를 과제로 삼아 훈련하고, 그 결과를 문서로 남깁니다. 근거는 고용보험법과 중소기업 직업능력개발 지원사업 실시규정입니다.</p>
-
-  <table class="how">
-    <tr><td>대상</td><td>고용보험에 가입한 중소 사업장. 한 과정에 훈련생 10명 이하, 하루 4시간 이상 훈련합니다.</td></tr>
-    <tr><td>지원</td><td>훈련비(국가직무능력표준 직종별 단가 × 훈련시간 × 인원 × 300%)와 과정개발비·강사 수당. 회사가 낸 고용보험료에 따라 지원 한도가 정해집니다.</td></tr>
-    <tr><td>진행 순서</td><td>기초진단·이음컨설팅 → 참여 신청 → 선정 → 훈련과정 개발 → 과정 인정 → 훈련 → 결과 보고 → 지원금 신청</td></tr>
-  </table>
-
-  <h2>저희가 하는 컨설팅</h2>
-  <table class="how svc">
-    <tr><td>참여 진단·신청</td><td>HRD4U 기업회원 가입, 기초진단과 이음컨설팅 준비, 참여 신청서 작성을 돕습니다.</td></tr>
-    <tr><td>훈련과정 개발</td><td>회사 직무를 분석해 현장 문제를 훈련 과제로 만들고, 훈련과정과 훈련시간표를 짭니다. 과정 인정까지 챙깁니다.</td></tr>
-    <tr><td>현장훈련 강의</td><td>외부강사로 훈련에 참여해 사내강사와 함께 과제 수행을 이끌고, 과정평가를 돕습니다.</td></tr>
-    <tr><td>훈련 서류 관리</td><td>개인정보·정보공유 동의서, 참여서약서, 출석 입력 요청 대장 등 훈련 중 필요한 서류를 준비하고 보관합니다.</td></tr>
-    <tr><td>결과보고서·지원금 신청</td><td>훈련일지와 사진, 평가를 모아 결과보고서를 쓰고, 과정개발비·강사 수당 신청 서류를 마무리합니다.</td></tr>
-  </table>
-  <p class="sub2">접수하시면 적어 주신 연락처로 직접 전화드려 사업장 상황을 여쭙고, 참여가 가능한지 먼저 알려 드립니다.</p>
-
-  <h2>접수</h2>
-  <form id="f" novalidate>
-    <label>회사명 <b>필수</b><input name="company" maxlength="80" autocomplete="organization" required></label>
-    <div class="row">
-      <label>담당자<input name="contact" maxlength="40" autocomplete="name"></label>
-      <label>연락처 <b>필수</b><input name="phone" maxlength="30" inputmode="tel" autocomplete="tel" placeholder="010-0000-0000" required></label>
+    <div class="seats" aria-label="한 해 10개 기업까지">
+      <div class="boxes"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+      <p><b>한 해 10개 기업까지, 접수 순서대로.</b> 과정 개발부터 훈련 강의, 결과보고서까지 직접 하기 때문에 더 받지 않습니다. <a class="jump" href="#f">바로 접수</a></p>
     </div>
-    <div class="row">
-      <label>업종<input name="industry" maxlength="60" placeholder="예: 목재 가공, 건축자재 유통"></label>
-      <label>근로자 수<input name="employees" maxlength="20" inputmode="numeric" placeholder="예: 12명"></label>
-    </div>
-    <label>메일<input name="email" type="email" maxlength="120" autocomplete="email"></label>
-    <label>하고 싶은 말<textarea name="memo" maxlength="1500" placeholder="훈련하고 싶은 직무, 원하는 시기, 예전에 참여한 적이 있는지 등"></textarea></label>
-    <div class="hp" aria-hidden="true"><label>비워 두세요<input name="hp" tabindex="-1" autocomplete="off"></label></div>
-    <label class="agree"><input type="checkbox" id="ok"> 상담을 위해 적어 주신 회사명·담당자·연락처·메일을 받는 데 동의합니다. 상담이 끝나면 요청 시 지웁니다.</label>
-    <button id="go" type="submit">접수하기</button>
-    <div class="msg" id="msg" role="status" aria-live="polite"></div>
-  </form>
 
-  <div class="foot">집지니 · 박찬영 · 010-9806-0422</div>
+    <h2>왜 생긴 사업인가</h2>
+    <div class="why">
+      <div><b>문제</b><span>노하우가 선배 머릿속에만 있다 → 사람이 나가면 같이 사라짐</span></div>
+      <div class="arr">→</div>
+      <div><b>해법</b><span>회사 안 전문가가 현장 문제를 과제로 훈련하고 결과를 문서로 남김</span></div>
+      <div class="arr">→</div>
+      <div><b>정부 지원</b><span>과정 개발과 훈련비를 고용보험에서 지원</span></div>
+    </div>
+
+    <h2>진행 순서와 기한</h2>
+    <ol class="flow">
+      <li><b>진단</b><span>이음컨설팅</span></li>
+      <li><b>참여 신청</b><span>HRD4U</span></li>
+      <li><b>선정</b><span>신청 뒤 10일 안</span></li>
+      <li><b>과정 개발</b><span>선정 뒤 1개월</span></li>
+      <li><b>과정 인정</b><span>훈련 5일 전까지</span></li>
+      <li><b>훈련</b><span>하루 4시간 이상</span></li>
+      <li><b>결과 보고</b><span>끝난 뒤 30일 안</span></li>
+      <li><b>지원금</b><span>훈련비·개발비·수당</span></li>
+    </ol>
+
+    <h2>지원금 계산 예시</h2>
+    <div class="calc">
+      <div><em>7,170원</em><span>직종별 시간당 단가<br>(품질관리)</span></div><i>×</i>
+      <div><em>34시간</em><span>훈련 시간</span></div><i>×</i>
+      <div><em>4명</em><span>훈련생</span></div><i>×</i>
+      <div><em>3배</em><span>체계적 현장훈련 우대</span></div><i>=</i>
+      <div class="tot"><em>약 292만 원</em><span>훈련비</span></div>
+    </div>
+    <div class="src">예시입니다. 직종 단가는 2025년 기준이며, 실제 지원은 회사가 낸 고용보험료로 정해지는 한도 안에서 받습니다. 과정개발비·강사 수당은 따로 지원됩니다.</div>
+
+    <h2>2025년 훈련 사례 — 훈련 전과 후</h2>
+    <div class="cases">
+      <div class="cs">
+        <div class="ct">제과 제조·납품 <span>훈련생 4명 · 5일 34시간 · 물류 개선</span></div>
+        <div class="bar"><label>폐기율</label><div class="tr"><i class="b" style="width:100%">15%</i></div><div class="tr"><i class="a" style="width:56.7%">8.5%</i></div></div>
+        <div class="bar"><label>재고 회전(월)</label><div class="tr"><i class="b" style="width:66.7%">8회</i></div><div class="tr"><i class="a" style="width:100%">12회</i></div></div>
+        <div class="big">연간 약 6,500만 원 절감 <span>(폐기 3,000 + 재고 1,500 + 생산성 2,000, 보고서 추산)</span></div>
+      </div>
+      <div class="cs">
+        <div class="ct">건설자재 시험·검사 <span>직원 13명 · 훈련생 4명 · 5일 · 측정 정밀도</span></div>
+        <div class="bar"><label>측정 오차</label><div class="tr"><i class="b" style="width:100%">±0.5%</i></div><div class="tr"><i class="a t" style="width:40%">±0.2%</i></div></div>
+        <div class="bar"><label>파단 위치 예측</label><div class="tr"><i class="b" style="width:77.8%">70%</i></div><div class="tr"><i class="a t" style="width:100%">90%</i></div></div>
+        <div class="big">오류 진단 시간 절반으로 <span>(시험 고정 장치 표준화)</span></div>
+      </div>
+      <div class="cs">
+        <div class="ct">건축자재 유통 <span>훈련생 3명 · 5일 · 자재 관리</span></div>
+        <div class="bar"><label>자재 식별 오류</label><div class="tr"><i class="b" style="width:100%">7%</i></div><div class="tr"><i class="a t" style="width:42.9%">3%</i></div></div>
+        <div class="bar"><label>고객 불만(월)</label><div class="tr"><i class="b" style="width:100%">20건</i></div><div class="tr"><i class="a t" style="width:50%">10건</i></div></div>
+        <div class="big">재고 정확도 75% → 90% <span>(바코드 관리 도입)</span></div>
+      </div>
+    </div>
+    <div class="legend"><i class="b"></i>훈련 전 <i class="a"></i>훈련 뒤 실제 <i class="a t"></i>훈련 뒤 목표</div>
+    <div class="src">각 업체 훈련 결과보고서(2025년)에서 옮겼습니다. 업체 이름은 밝히지 않습니다.</div>
+
+    <h2>저희가 하는 컨설팅</h2>
+    <table class="svc">
+      <tr><td>참여 진단·신청</td><td>HRD4U 가입, 기초진단·이음컨설팅 준비, 참여 신청서</td></tr>
+      <tr><td>훈련과정 개발</td><td>직무 분석, 현장 문제를 훈련 과제로 설계, 훈련시간표, 과정 인정</td></tr>
+      <tr><td>현장훈련 강의</td><td>외부강사로 참여해 사내강사와 함께 과제 수행, 과정평가</td></tr>
+      <tr><td>훈련 서류 관리</td><td>동의서·참여서약서·출석 대장 등 훈련 중 서류 준비와 보관</td></tr>
+      <tr><td>결과보고서·지원금</td><td>훈련일지·사진·평가를 모아 결과보고서, 과정개발비·수당 신청</td></tr>
+    </table>
+  </main>
+
+  <aside>
+    <h2>컨설팅 접수</h2>
+    <p class="sub">적어 주신 번호로 직접 전화드려 참여 가능 여부부터 알려 드립니다.</p>
+    <form id="f" novalidate>
+      <label>회사명 <b>필수</b><input name="company" maxlength="80" autocomplete="organization" required></label>
+      <div class="row">
+        <label>담당자<input name="contact" maxlength="40" autocomplete="name"></label>
+        <label>연락처 <b>필수</b><input name="phone" maxlength="30" inputmode="tel" autocomplete="tel" placeholder="010-0000-0000" required></label>
+      </div>
+      <div class="row">
+        <label>업종<input name="industry" maxlength="60" placeholder="예: 목재 가공"></label>
+        <label>근로자 수<input name="employees" maxlength="20" inputmode="numeric" placeholder="예: 12명"></label>
+      </div>
+      <label>메일<input name="email" type="email" maxlength="120" autocomplete="email"></label>
+      <label>하고 싶은 말<textarea name="memo" maxlength="1500" placeholder="훈련하고 싶은 직무, 원하는 시기 등"></textarea></label>
+      <div class="hp" aria-hidden="true"><label>비워 두세요<input name="hp" tabindex="-1" autocomplete="off"></label></div>
+      <label class="agree"><input type="checkbox" id="ok"> 상담을 위해 회사명·담당자·연락처·메일을 받는 데 동의합니다. 요청하시면 지웁니다.</label>
+      <button id="go" type="submit">접수하기</button>
+      <div class="msg" id="msg" role="status" aria-live="polite"></div>
+    </form>
+  </aside>
+  </div>
 </div>
 <script>
 (function () {
@@ -108,7 +203,7 @@ button:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
       .then(function (r) { return r.json().catch(function () { return { ok: false }; }); })
       .then(function (j) {
         if (!j.ok) { go.disabled = false; say(j.err || '접수하지 못했습니다. 잠시 뒤 다시 보내 주시거나 010-9806-0422로 전화 주세요.', 1); return; }
-        f.outerHTML = '<div class="done"><p><strong>접수했습니다.</strong></p><p>' + d.company.replace(/[<>&]/g, '') + ' 건은 확인하는 대로 전화드리겠습니다. 급하시면 010-9806-0422로 연락 주세요.</p></div>';
+        f.outerHTML = '<div class="done"><p><strong>접수했습니다.</strong></p><p>' + d.company.replace(/[<>&]/g, '') + ' 건은 접수 순서대로 전화드리겠습니다. 급하시면 010-9806-0422로 연락 주세요.</p></div>';
       })
       .catch(function () { go.disabled = false; say('인터넷 연결을 확인하고 다시 보내 주세요. 계속 안 되면 010-9806-0422로 전화 주세요.', 1); });
   });
