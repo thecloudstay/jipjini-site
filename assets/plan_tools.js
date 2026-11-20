@@ -9,7 +9,7 @@
 (function (root) {
   var BASE = root.JJ_ASSET_BASE || 'https://jipjini.com/assets/', VEN = null, OCR = null, AI = undefined;
   var KW = [[/^(A\.?D|P\.?D|P\.?S|E\.?P\.?S|T\.?P\.?S)(\s*[&·\/]\s*(A\.?D|P\.?D|P\.?S))?$|피트|덕트|^PIT$/i, '피트'], [/거\s*[실설]|가족실|living/i, '거실'], [/[침칩템]\s*실|^심1\d$|안\s*방|^방\s*\d|bed\s*room|^room/i, '방'], [/[욕옥]\s*[실스]|^요스$|화장실|bath|toilet|^w\.?c/i, '욕실'], [/[발빌밥필]\s*코\s*[니나]|베란다|다용도|테\s*라\s*[스쓰]|옥상\s*정원|balcony|terrace/i, '발코니'], [/실외기/i, '실외기실'],
-    [/주\s*방|식\s*당|kitchen|dining/i, '주방'], [/[현협]\s*관|entrance/i, '현관'], [/드\s*[레렐랠]\s*스|^스\s*룸$|파우더|dress/i, '드레스룸'], [/팬트리|창고|알파|세탁|보일러|대피|pantry/i, '기타']];
+    [/주\s*방|식\s*당|kitchen|dining/i, '주방'], [/[현협]\s*관|entrance/i, '현관'], [/드레스|파우더|dress/i, '드레스룸'], [/팬트리|창고|알파|세탁|보일러|대피|pantry/i, '기타']];
   // 조정값(2026-11-11): 대표 컴퓨터의 자동 조정기(plan_tune.py)가 window.JJ_PLAN_TUNE 으로 숫자를 바꿔 시험한다. 없으면 여기 적힌 기본값 그대로.
   function tv(k, dflt) { var T = root.JJ_PLAN_TUNE, v = T ? T[k] : null; return typeof v === 'number' && isFinite(v) ? v : dflt; }
   function script(src) { return new Promise(function (ok, no) { var s = document.createElement('script'); s.src = src; s.onload = function () { ok(); }; s.onerror = function () { no(new Error('불러오지 못했습니다: ' + src)); }; document.head.appendChild(s); }); }
@@ -487,11 +487,8 @@
     // (2.5) 2026-11-11 저녁: 욕조·샤워 칸 합치기 — 욕실 안의 욕조·샤워 칸막이 선(가는 선)에 욕실이 둘로 갈려, 한쪽만 욕실로 남고 나머지는 이름 없는 칸이 됐다.
     //   채점 3단계 150장에서 욕실 모양 겹침이 평균 48%(침실 80·마루 79)였고 「욕실 크기 2~9㎡」가 68장 틀렸다. 가는 선(또는 선 없이)으로 욕실과 맞닿은 이름 없는 작은 칸은 그 욕실에 합친다. 굵은 벽 너머의 칸(피트·대피공간)은 그대로 둔다.
     (function () { var cnt = {}, k, share = {}, gap = {}, thinMax = Math.max(2, Math.round(U * tv('tubLine', 0.07))), look = thinMax + 4;
-      var bx = {}; for (k = 0; k < N; k++) { var l = lab[k]; if (l >= 2) { cnt[l] = (cnt[l] || 0) + 1; var X = k % w, Y = (k / w) | 0, b0 = bx[l] || (bx[l] = [X, Y, X, Y]); if (X < b0[0]) b0[0] = X; if (Y < b0[1]) b0[1] = Y; if (X > b0[2]) b0[2] = X; if (Y > b0[3]) b0[3] = Y; } }
-      // 2026-11-20 안산 59A: 욕실 옆 가위표 피트(대각선 두 줄로 세모 4조각)가 욕실에 합쳐져 욕실이 3.4 → 5.95㎡ 로 커졌다.
-      //   욕조·샤워 칸은 네모(둘레 상자의 70% 이상을 채움)이고 가위표 조각은 세모(절반 남짓)다 → 세모 조각은 합치지 않는다.
-      var boxFill = function (l) { var b0 = bx[l]; if (!b0) return 0; return (cnt[l] || 0) / ((b0[2] - b0[0] + 1) * (b0[3] - b0[1] + 1)); };
-      var cand = function (l) { return l >= 2 && (!kindOf[l] || kindOf[l] === '기타') && (cnt[l] || 0) <= U * U * tv('tubMax', 2.6) && boxFill(l) >= tv('tubFill', 0.7); }, isBath = isBathL;
+      for (k = 0; k < N; k++) { var l = lab[k]; if (l >= 2) cnt[l] = (cnt[l] || 0) + 1; }
+      var cand = function (l) { return l >= 2 && (!kindOf[l] || kindOf[l] === '기타') && (cnt[l] || 0) <= U * U * tv('tubMax', 2.6); }, isBath = isBathL;
       var pass = function (step, lineOf) { for (var p = 0; p < N; p++) { var a = lab[p]; if (a < 2) continue; var q = p + step, t = 0; if (q >= N || lineOf(q) !== lineOf(p)) continue; if (lab[q] === a) continue;
           while (q < N && lineOf(q) === lineOf(p) && lab[q] < 2 && t <= look) { q += step; t++; } if (q >= N || lineOf(q) !== lineOf(p) || t > look) continue; var b = lab[q]; if (b < 2 || b === a) continue;
           var B = isBath(a) && cand(b) ? a : isBath(b) && cand(a) ? b : 0; if (!B) continue; var C = B === a ? b : a, key = B + '|' + C; share[key] = (share[key] || 0) + 1; gap[key] = (gap[key] || 0) + t; } };
@@ -644,29 +641,12 @@
         else if (L >= 1200 && S >= 420 && S <= 850 && L / S >= 2.2) out.push(Object.assign({ k: '싱크대' }, box)); } });
     return out;
   }
-  // 2026-11-20 휴대전화 화면을 갈무리한 그림(위아래 검은 띠·상태 줄·단추 줄)에서 도면 부분만 고른다 (안산 고객: 욕실 0·거실 없음·46㎡ 로 나옴).
-  //   거의 검은 줄(가로·세로)을 경계로 나눈 띠 가운데 가장 큰 것을 도면으로 본다. 검은 띠가 뚜렷하지 않으면 그대로 둔다.
-  function frameRect(img, NW, NH) {
-    try {
-      var k = Math.min(1, 400 / Math.max(NW, NH)), w = Math.max(1, Math.round(NW * k)), h = Math.max(1, Math.round(NH * k)), c = document.createElement('canvas'); c.width = w; c.height = h;
-      var g = c.getContext('2d'); g.drawImage(img, 0, 0, w, h); var d = g.getImageData(0, 0, w, h).data, dark = new Uint8Array(w * h);
-      for (var i = 0; i < w * h; i++) dark[i] = (d[i * 4] * 0.3 + d[i * 4 + 1] * 0.59 + d[i * 4 + 2] * 0.11) < 45 ? 1 : 0;
-      var runs = function (n, m, at) { var best = null, s = -1; for (var a = 0; a <= n; a++) { var black = true; if (a < n) { var cnt = 0; for (var b = 0; b < m; b++) cnt += at(a, b); black = cnt >= m * 0.9; } if (!black && s < 0) s = a; if (black && s >= 0) { if (!best || a - s > best[1] - best[0]) best = [s, a]; s = -1; } } return best; };
-      var ry = runs(h, w, function (y, x) { return dark[y * w + x]; }); if (!ry) return null;
-      var rx = runs(w, ry[1] - ry[0], function (x, yy) { return dark[(ry[0] + yy) * w + x]; }); if (!rx) return null;
-      var bw = rx[1] - rx[0], bh = ry[1] - ry[0];
-      if (bw >= w * 0.92 && bh >= h * 0.92) return null;            // 검은 띠 없음 → 그대로
-      if (bw < w * 0.3 || bh < h * 0.2 || bw < 40 || bh < 40) return null;   // 너무 작게 남으면 잘못 고른 것 → 그대로
-      var pad = 1 / k; return { x: Math.max(0, Math.round(rx[0] / k - pad)), y: Math.max(0, Math.round(ry[0] / k - pad)), w: Math.min(NW, Math.round(bw / k + 2 * pad)), h: Math.min(NH, Math.round(bh / k + 2 * pad)) };
-    } catch (_e) { return null; }
-  }
   function analyze(src, opt) {
     opt = opt || {}; var step0 = opt.onStep || function () {}, step = function (t) { step0('집지니가 ' + t); }, A;   // 안내 문구는 모두 「집지니가 …하고 있습니다」
     return needAuto().then(function () { A = root.JJPlanAuto; return toImage(src); }).then(function (img) {
       var NW = img.naturalWidth || img.width, NH = img.naturalHeight || img.height; if (!NW || !NH) return { ok: false, why: '그림을 읽지 못했습니다.' };
-      var FR = opt.noTrim ? null : frameRect(img, NW, NH), SX = 0, SY = 0; if (FR) { SX = FR.x; SY = FR.y; NW = FR.w; NH = FR.h; }
       var K = Math.min(1, 1600 / Math.max(NW, NH)), W = Math.round(NW * K), H = Math.round(NH * K), keep = document.createElement('canvas'); keep.width = W; keep.height = H;
-      var kg = keep.getContext('2d'); kg.fillStyle = '#fff'; kg.fillRect(0, 0, W, H); kg.drawImage(img, SX, SY, NW, NH, 0, 0, W, H); var dataUrl = keep.toDataURL('image/jpeg', 0.86);
+      var kg = keep.getContext('2d'); kg.fillStyle = '#fff'; kg.fillRect(0, 0, W, H); kg.drawImage(img, 0, 0, W, H); var dataUrl = keep.toDataURL('image/jpeg', 0.86);
       step('도면의 글자와 치수를 읽고 있습니다');
       var ocrJob = opt.ocr === false ? Promise.resolve([]) : readTextScaled(keep).catch(function () { return null; });
       // 2026-11-10 옆으로 누운 그림 바로 세우기: 부동산 사이트 평면도 일부는 90도 돌아간 채 올라와 있어 방 이름이 안 읽힌다(시험 50곳에서 평균 50점).
