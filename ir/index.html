@@ -69,6 +69,23 @@
   .nav2 a.h{display:none}
 }
 </style>
+<style>
+.pat{max-width:1120px;margin:0 auto;padding:96px 20px 0}
+.pat .pt{border-top:1.5px solid var(--ink,#1C1F1B);padding-top:28px;display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:56px}
+.pat .pk{font-size:14px;color:var(--pencil,#6B7067);margin-bottom:10px}
+.pat h2{font-size:clamp(30px,4.4vw,44px);line-height:1.25;letter-spacing:-1px;font-weight:700}
+.pat .pn{margin-top:14px;font-size:17px;font-variant-numeric:tabular-nums;color:var(--g,#1F5E2E);font-weight:600}
+.pat .pm{margin-top:18px;font-size:15px;line-height:1.75;color:var(--pencil,#6B7067)}
+.pat .pm b{color:var(--ink,#1C1F1B);font-weight:600}
+.pat .ptl{font-size:15px;line-height:1.7;color:var(--pencil,#6B7067);padding-bottom:18px;border-bottom:1px solid var(--rule,#DCDFD8)}
+.pat .ptl b{display:block;color:var(--ink,#1C1F1B);font-size:17px;font-weight:600;margin-bottom:4px}
+.pat ol{list-style:none;margin:0;padding:0}
+.pat ol li{display:grid;grid-template-columns:34px 1fr;gap:10px;padding:16px 0;border-bottom:1px solid var(--rule,#DCDFD8);font-size:16px;line-height:1.7}
+.pat ol li i{font-style:normal;color:var(--g,#1F5E2E);font-weight:600;font-variant-numeric:tabular-nums}
+.pat ol li span{color:var(--pencil,#6B7067);display:block;font-size:14.5px}
+.patb{display:inline-block;margin-left:10px;font-size:13px;font-weight:600;color:var(--g,#1F5E2E);border-bottom:1px solid currentColor;line-height:1.3;vertical-align:middle}
+@media(max-width:900px){.pat{padding-top:68px}.pat .pt{grid-template-columns:1fr;gap:28px}}
+</style>
 </head>
 <body>
 <header class="top">
@@ -77,7 +94,7 @@
 </header>
 
 <section class="irh">
-  <p class="ey">투자자께 드리는 안내</p>
+  <p class="ey">투자자께 드리는 안내<a class="patb" href="#patent">특허 출원 중 · 10-2026-0234005</a></p>
   <h1>도면 한 장으로<br>공사비까지.</h1>
   <p class="ld">인테리어 견적의 30%는 보이지 않는 업체 몫이고, 물량은 평수로 어림합니다. 집지니는 그 집의 도면에서 물량과 금액을 바로 셉니다.</p>
   <div class="bt"><a class="btn" href="#try">30초 직접 해 보기</a><a class="btn ghost" href="../files/jipjini-ir.pdf?v=20261120a" download="집지니_IR.pdf" data-ev="ir_pdf">IR 자료 받기 (PDF)</a></div>
@@ -87,7 +104,7 @@
       <div><dt>도면 공개 단지 · 매일 늘어남</dt><dd id="irOpen" data-live="open">78</dd></div>
       <div><dt>도면 · 물량 공개 평형 · 사람 손 없이</dt><dd data-live="types">3,780</dd></div>
       <div><dt>낸 견적 · 2026년 7월부터</dt><dd>39건</dd></div>
-      <div><dt>특허 · 평면도 → 물량 산출</dt><dd>출원 중</dd></div>
+      <div><dt>특허 · 평면도 → 물량 산출</dt><dd><a href="#patent" style="color:inherit">출원 중</a></dd></div>
     </dl>
 </section>
 
@@ -182,6 +199,26 @@
   </div>
   <p class="note" style="margin-top:22px"><b style="color:var(--ink);font-weight:600">앞으로 낼 자료</b> · 보험 누수·하자 복구비 산정 · 하자 범위·보수비 근거 · 장기수선계획·충당금 산정 · 경매·매매 수리비 어림 · 노후 단지 리모델링 통계</p>
   <div class="dact"><a class="btn" href="../data.html#buy" data-ev="home_data_buy">견본·견적 받기</a><a class="btn ghost" href="../data.html#list">자료 12종 전체 보기</a></div>
+</section>
+
+<section class="pat" id="patent">
+  <div class="pt">
+    <div>
+      <p class="pk">기술 보호</p>
+      <h2>평면도 한 장으로 공사비까지,<br>특허로 출원했습니다</h2>
+      <p class="pn">출원번호 10-2026-0234005 · 출원 중</p>
+      <p class="pm"><b>출원일</b> 2026년 11월 20일 · <b>심사청구</b> 완료 · <b>청구항</b> 12개<br>집지니가 직접 만들어 쓰는 계산 방식 그대로입니다.</p>
+    </div>
+    <div>
+      <p class="ptl"><b>발명의 이름</b>공공 건축물 정보와 평면도 이미지를 이용한 인테리어 공종별 물량 자동 산출 및 정정값 기반 자가 보정 방법과 시스템</p>
+      <ol>
+        <li><i>1</i><div>주소 하나 또는 평면도 그림 한 장을 받습니다<span>단지 정보에서 전용면적을 가져오고, 같은 단지 도면은 다음 집에 다시 씁니다</span></div></li>
+        <li><i>2</i><div>열린 문을 닫고 방을 하나씩 갈라냅니다<span>축척이 없어도 전용면적으로 실제 길이를 거꾸로 셉니다</span></div></li>
+        <li><i>3</i><div>바닥 · 천장 · 벽 · 걸레받이 물량과 공사비를 냅니다<span>현장에 가기 전에, 공종마다</span></div></li>
+        <li><i>4</i><div>고객과 코디가 고친 값이 쌓일수록 스스로 정확해집니다<span>고친 값이 많아질수록 기본값보다 실제 값에 맞춰 갑니다</span></div></li>
+      </ol>
+    </div>
+  </div>
 </section>
 
 <section class="tech" id="tech">
