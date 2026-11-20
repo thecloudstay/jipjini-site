@@ -96,7 +96,10 @@ summary::after{content:'＋';color:var(--gray)}details[open] summary::after{cont
   var SB_Q='https://pnqyysuyrovgnmrchrrg.supabase.co/storage/v1/object/public/marketing/quotes/';
   function getJ(u){return fetch(u,{cache:'no-store'}).then(function(r){if(!r.ok)throw 0;return r.json()})}
   function getStatic(){return getJ(SB_Q+encodeURIComponent(id)+'.json').then(function(j){if(!j||!j.ok||!j.sections)throw 0;return j}).catch(function(){return getJ('/q/'+id+'.json')})}
-  function getLive(){if(!QUOTE_API)return Promise.resolve(null);return fetch(QUOTE_API+'?q='+encodeURIComponent(id)+'&v=1',{redirect:'follow'}).then(function(r){return r.json()}).then(function(j){return j&&j.ok?j:null}).catch(function(){return null})}
+  // 2026-11-20 대표 「내가 연 거를 고객이 열었다고 보고 있는 거 아니니?」: 대표·직원이 연 것은 「견적조회기록」에 남기지 않는다(고객 열람 알림·루프 점검에서 빠짐).
+  //   직원 표시 = 콘솔을 연 적 있는 브라우저(localStorage jj_staff) 또는 링크 끝 &pv=1 · &staff=1 · &jj_staff=1 (텔레그램 안 브라우저처럼 저장소가 따로인 곳은 링크로)
+  var JJ_STAFF=false;try{var _q=new URLSearchParams(location.search);if(_q.get('staff')==='1'||_q.get('jj_staff')==='1')localStorage.setItem('jj_staff','1');JJ_STAFF=localStorage.getItem('jj_staff')==='1'||_q.get('pv')==='1'}catch(_e){}
+  function getLive(){if(!QUOTE_API)return Promise.resolve(null);return fetch(QUOTE_API+'?q='+encodeURIComponent(id)+(JJ_STAFF?'':'&v=1'),{redirect:'follow'}).then(function(r){return r.json()}).then(function(j){return j&&j.ok?j:null}).catch(function(){return null})}
   // 2026-10-01: 사이트 JSON을 먼저 그리고(0.3초), 콘솔 실시간 데이터가 오면 다시 그림 — 조회 웹앱이 느려도(첫 호출 수 초) 빈 화면이 없다
   function merge(s,l){
     var d=s||{};
