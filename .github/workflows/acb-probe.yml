@@ -5,8 +5,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - run: |
-          for u in "https://apis.data.go.kr/1613000/AptLtsmRprFeeInfoService/getHsmpMonthUseAmountInfo?serviceKey=x&kaptCode=A10027118&searchDate=202509" \
-                   "https://www.k-apt.go.kr/web/board/webReference/boardView.do?seq=21&boardSecret=0&boardType=03&pageNo=1&keyword=&board_pwd=&scodeT=03" \
-                   "https://www.data.go.kr/data/3039714/fileData.do"; do
-            echo "== $u"; curl -s -m 30 -o /tmp/o -w "%{http_code} %{size_download}\n" "$u"; head -c 400 /tmp/o; echo; done
-          curl -s -m 40 "https://www.k-apt.go.kr/web/board/webReference/boardView.do?seq=21&boardSecret=0&boardType=03&pageNo=1&keyword=&board_pwd=&scodeT=03" | grep -oE "(fileDown[^\"']*|atchFile[^\"']*|\.xlsx[^\"'<]*|download[^\"']{0,120})" | head -40
+          B=https://apis.data.go.kr/1613000
+          for svc in AptCmnuseManageCostServiceV3 AptRepairsCostServiceV3 AptIndvdlzManageCostServiceV3 AptIndvdlzManageCostServiceV2 AptIndvdlzManageCostService; do
+            for f in getHsmpLaborCostInfo getHsmpCleaningCostInfo getHsmpGuardCostInfo getHsmpElevatorMntncCostInfo getHsmpRepairsCostInfo getHsmpConsignManageFeeInfo getHsmpTaxdueInfo getHsmpFacilityMntncCostInfo \
+                     getHsmpMonthUseCostInfo getHsmpMonthUseAmountInfo getHsmpLtsmRepairsBalanceInfo getHsmpBalanceInfo getHsmpAccmRateInfo getHsmpMonthImpCostInfo getHsmpMonthLevyCostInfo getHsmpMonthLevyAmountInfo \
+                     getHsmpHeatCostInfo getHsmpHotWaterCostInfo getHsmpElectricityCostInfo getHsmpWaterCostInfo getHsmpGasRentalFeeInfo getHsmpPurifTankCostInfo getHsmpScrapFeeInfo getHsmpPreMeetCostInfo; do
+              for sfx in "" V3 V2; do
+                r=$(curl -s -m 15 "$B/$svc/$f$sfx?serviceKey=x&kaptCode=A10027118&searchDate=202509" | grep -oE "<returnReasonCode>[0-9]+|resultCode\":\"[0-9]+|SERVICE_KEY_IS_NOT_REGISTERED|NO_OPENAPI_SERVICE" | head -1)
+                case "$r" in *NO_OPENAPI*|*">12") ;; *) echo "$svc/$f$sfx => $r";; esac
+              done; done; done
+          echo 끝
