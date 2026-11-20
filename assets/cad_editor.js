@@ -19,8 +19,8 @@
   var SYMS = {
     dmA: ['철거', '철거 구역', 'a', '철거'], dmL: ['철거', '벽·턱 철거', 'l', '철거'], dmP: ['철거', '철거 품목', 'p', '철'],
     sash: ['창호', '샷시 교체', 'p', '샷'],
-    pipe: ['설비', '배관 이설', 'l', '배관'], wt: ['설비', '수전(급수)', 'p', '수'], dr: ['설비', '배수구', 'p', '배'], trn: ['설비', '트렌치 유가', 'l', '트렌치'], gas: ['설비', '가스·보일러', 'p', '가'], core: ['설비', '타공', 'p', '타공'], wc: ['설비', '양변기', 'p', '변'], bs: ['설비', '세면대', 'p', '세'], tub: ['설비', '욕조·샤워 구역', 'a', '욕조'],
-    wire: ['전기', '배선', 'l', '배선'], db: ['전기', '분전반', 'p', '분'], sw: ['전기', '스위치', 'p', '스'], ol: ['전기', '콘센트', 'p', '콘'], od: ['전기', '전용 콘센트', 'p', '전'], nt: ['전기', '통신·방송', 'p', '통'], dl: ['전기', '매입등', 'p', '매'], cl: ['전기', '직부등(방등)', 'p', '직'], pd: ['전기', '펜던트', 'p', '펜'], ll: ['전기', '간접·줄조명', 'l', '간접'], fan: ['전기', '환풍기', 'p', '환'],
+    pipe: ['설비', '배관 이설', 'l', '배관'], wt: ['설비', '수전(급수)', 'p', '수'], dr: ['설비', '배수구', 'p', '배'], trn: ['설비', '트렌치 유가', 'l', '트렌치'], gas: ['설비', '가스·보일러', 'p', '가'], core: ['설비', '타공', 'p', '타공'], hood: ['설비', '후드', 'p', '후'], duct: ['설비', '배기 덕트', 'l', '덕트'], wc: ['설비', '양변기', 'p', '변'], bs: ['설비', '세면대', 'p', '세'], tub: ['설비', '욕조·샤워 구역', 'a', '욕조'],
+    wire: ['전기', '배선', 'l', '배선'], db: ['전기', '분전반', 'p', '분'], sw: ['전기', '스위치', 'p', '스'], ol: ['전기', '콘센트', 'p', '콘'], od: ['전기', '전용 콘센트', 'p', '전'], nt: ['전기', '통신·방송', 'p', '통'], dl: ['전기', '매입등', 'p', '매'], cfan: ['전기', '실링팬', 'p', '팬'], cl: ['전기', '직부등(방등)', 'p', '직'], pd: ['전기', '펜던트', 'p', '펜'], ll: ['전기', '간접·줄조명', 'l', '간접'], fan: ['전기', '환풍기', 'p', '환'],
     ins: ['목공', '단열', 'l', '단열'], wallN: ['목공', '가벽 신설', 'l', '가벽'], ceil: ['목공', '천장 공사', 'a', '천장'], cbox: ['목공', '커튼박스', 'l', '커튼박스'], art: ['목공', '벽 마감·아트월', 'l', '벽 마감'], doorN: ['목공', '문·문틀', 'p', '문'], mold: ['목공', '몰딩', 'l', '몰딩'],
     wp: ['타일', '방수 구역', 'a', '방수'], zen: ['타일', '젠다이', 'l', '젠다이'], tileW: ['타일', '벽 타일', 'l', '벽 타일'], tileF: ['타일', '바닥 타일', 'a', '바닥 타일'], edge: ['타일', '모서리 마감', 'p', '모'],
     film: ['도장', '필름', 'p', '필'], paint: ['도장', '도장', 'l', '도장'],
@@ -36,7 +36,7 @@
     ['wk', '작업 기호', 'G', 'M12 4.5a7.5 7.5 0 1 0 0 15a7.5 7.5 0 1 0 0-15zM4.5 12h15M12 4.5v15'], '표시',
     ['arrow', '화살표', 'A', 'M5 19L19 5M10 5h9v9'], ['rect', '사각형', 'Q', 'M4 6h16v12H4z'], ['poly', '다각형', 'Y', 'M12 3l8 6-3 10H7L4 9z'], ['circle', '원', 'C', 'M12 4a8 8 0 1 0 0 16a8 8 0 1 0 0-16z'], ['pen', '펜', 'P', 'M4 20l4-1L19.5 7.5l-3-3L5 16z'], ['text', '글자', 'T', 'M5 6h14M12 6v13'], ['erase', '지우개', 'E', 'M4 15.5L13 6.5l6 6-6.5 6.5H8zM12.5 19H20']];
   // 작업지시서·물량표 묶음 = 공사 순서. 넷째 칸은 정밀 의뢰서 공사 이름(대응표의 work) — 의뢰서와는 번호가 아니라 이 이름으로 맞춘다
-  var CATS = [['1', '철거 · 사전준비', ['dmA', 'dmL', 'dmP'], ['preparation', 'demolition']], ['2', '창호', ['sash'], ['window']], ['3', '설비 · 전기', ['pipe', 'wt', 'dr', 'trn', 'gas', 'core', 'wire', 'db', 'sw', 'ol', 'od', 'nt', 'dl', 'cl', 'pd', 'll', 'fan'], ['plumbing', 'lighting', 'balcony']], ['4', '목공 · 단열', ['ins', 'wallN', 'ceil', 'cbox', 'art', 'doorN', 'mold'], ['carpentry']], ['5', '방수 · 타일', ['wp', 'zen', 'tileW', 'tileF', 'edge'], ['tile']], ['6', '욕실', ['wc', 'bs', 'tub'], ['bathroom']],
+  var CATS = [['1', '철거 · 사전준비', ['dmA', 'dmL', 'dmP'], ['preparation', 'demolition']], ['2', '창호', ['sash'], ['window']], ['3', '설비 · 전기', ['pipe', 'wt', 'dr', 'trn', 'gas', 'core', 'hood', 'duct', 'cfan', 'wire', 'db', 'sw', 'ol', 'od', 'nt', 'dl', 'cl', 'pd', 'll', 'fan'], ['plumbing', 'lighting', 'balcony']], ['4', '목공 · 단열', ['ins', 'wallN', 'ceil', 'cbox', 'art', 'doorN', 'mold'], ['carpentry']], ['5', '방수 · 타일', ['wp', 'zen', 'tileW', 'tileF', 'edge'], ['tile']], ['6', '욕실', ['wc', 'bs', 'tub'], ['bathroom']],
     ['7', '필름', ['film'], ['film']], ['8', '도장', ['paint'], ['painting']], ['9', '도배', ['paper'], ['wallpaper']], ['10', '바닥', ['floor', 'base'], ['flooring']], ['11', '가구 · 현관', ['sink', 'fur', 'shoe'], ['sink', 'entrance']], ['12', '기타', [], ['etc']]];
   var LOOPK = /^(mold|base|paint|tileW|art)$/;
   function catOf(k) { for (var i = 0; i < CATS.length; i++) if (CATS[i][2].indexOf(k) >= 0) return i; return 11; }
@@ -208,7 +208,12 @@
     paint: [['prep', '바탕', PUT], ['how', '칠', [['roll', '롤러·붓', ''], ['spray', '뿜칠', '뿜칠']]], ['coat', '횟수', [['2', '2회 칠', ''], ['3', '3회 칠', '3회']]]],
     paper: [['area', '범위', [['both', '벽 + 천장', ''], ['wall', '벽만', '벽만'], ['ceil', '천장만', '천장만']]], ['old', '기존 벽지', [['strip', '기존 벽지 제거', ''], ['over', '덧방', '덧방']]], ['prep', '바탕', PUT], ['fix', '바탕 보수', [['no', '없음', ''], ['mold', '곰팡이 제거·방지 처리', '곰팡이'], ['joint', '석고 이음 보강(망사테이프)', '']]], ['bead', '모서리', [['no', '각대 없음', ''], ['yes', '코너비드(각대)', '각대']]], ['lining', '초배', [['float', '부직포 띄움', '띄움'], ['tri', '삼중지', '삼중지'], ['neba', '네바리', '네바리'], ['none', '초배 없음(밀착)', '밀착']], null, function (key) { return /hapji/.test(key) ? 'none' : 'float'; }]],
     floor: [['sub', '바탕', [['asis', '그대로', ''], ['strip', '기존 철거·본드 갈아내기', '철거'], ['level', '수평 몰탈', '수평']]], ['lay', '장판 붙임', [['edge', '가장자리 본드', ''], ['full', '온통 접착', '온통']], /janpan/], ['weld', '장판 이음', [['no', '맞댐', ''], ['yes', '이음 용착', '용착']], /janpan/], ['skirt', '장판 가장자리', [['base', '걸레받이로 마감', ''], ['up', '굽도리 꺾어올림', '굽도리']], /janpan/], ['mk', '마루 종류', [['gang', '강마루', ''], ['won', '원목마루', '원목'], ['ganghwa', '강화마루', '강화'], ['spc', '돌마루(SPC)', '돌마루']], /maru/], ['pat', '마루 깔기 무늬', [['line', '일자 깔기', ''], ['herr', '헤링본', '헤링본'], ['chev', '쉐브론', '쉐브론'], ['diag', '사선 깔기', '사선'], ['block', '바둑판(파케이)', '바둑판']], /maru/], ['fix', '마루 시공', [['glue', '접착 시공', '접착'], ['click', '조립 시공(깔개 깔고)', '조립']], /maru/, function (key) { return 'glue'; }]],
-    base: [['kind', '방식', [['std', '일반', ''], ['minus', '마이너스 걸레받이', '마이너스']]]]
+    base: [['kind', '방식', [['std', '일반', ''], ['minus', '마이너스 걸레받이', '마이너스'], ['semi', '반매립 걸레받이(벽 하단 석고 따내고 알루미늄 걸레받이 반만 묻음)', '반매립']]], ['when', '시점', [['after', '마루 깐 뒤', ''], ['before', '마루 전(석고 따내기만 목공 때)', '']]]],
+    // 2026-11-20 새 기호(대표 「요청한 부분 기호가 없으면 새로 만들어 반영하고 작업 방법도 알아서 더해」) — 공법은 시공 안내 글 조사·현장 관행으로 정리
+    mold: [['kind', '방식', [['std', '일반 몰딩', ''], ['none', '무몰딩(몰딩 없이 천장·벽 모서리를 석고·비드로 곧게)', '무몰딩']]]],
+    cfan: [['fix', '보강', [['wood', '천장 속 각재 보강(목공 때, 위치 표시)', '각재 보강'], ['anchor', '콘크리트 슬래브 앵커 직결', '앵커']]], ['wire', '전원', [['sep', '기존 등 회로에서 분기 + 벽 스위치', ''], ['remote', '리모컨형(상시 전원)', '리모컨']]]],
+    hood: [['kind', '형식', [['island', '아일랜드 천장형', '아일랜드'], ['wall', '벽부형', '벽부'], ['built', '빌트인(상부장 속)', '빌트인']]], ['h', '높이', [['650', '상판에서 650~750mm', ''], ['etc', '제품 설명서 높이', '']]]],
+    duct: [['how', '덕트', [['ceil', '천장 속 알루미늄 주름관 Ø100~125', '천장 속'], ['box', '노출 덕트 박스(목공 마감)', '박스']]], ['damper', '역류방지', [['yes', '역류방지 댐퍼 달기', '댐퍼'], ['no', '없음', '']]]]
   };
   function mOpts(k, key) { return (METH[k] || []).filter(function (o) { return !o[3] || o[3].test(key || ''); }); }
   function mVal(q, o, key) { var v = (q.m && q.m[o[0]]) || mdef[q.k + '.' + o[0]] || (o[4] ? o[4](key || '') : o[2][0][0]); return o[2].some(function (c) { return c[0] === v; }) ? v : o[2][0][0]; }
@@ -426,10 +431,21 @@
   }
   function qtSpread(R, n) { var A = R.map(function (r) { return Math.max(0.5, rM2(r) || pxArea(r.pts)); }), S = A.reduce(function (a, b) { return a + b; }, 0) || 1, k = A.map(function (a) { return Math.floor(n * a / S); }), left = n - k.reduce(function (a, b) { return a + b; }, 0);
     var ord = A.map(function (a, i) { return [n * a / S - k[i], i]; }).sort(function (x, y) { return y[0] - x[0]; }); for (var i = 0; i < left && i < ord.length; i++) k[ord[i][1]]++; return k; }
+  // 2026-11-20 문 하나에 기호 하나: 문 양쪽 방 가운데 앞에 적은 종류(욕실 > 드레스룸 > 방)를 골라 그 방 쪽으로 조금 넣는다(한 문이 두 번 잡히던 것 — 안방 문·욕실 문이 두 번씩 잡힘)
+  // 2026-11-20 방 안에서 가장 큰 네모(ㄱ자 거실의 복도 쪽을 빼고 본 공간 가운데를 잡을 때) — 꼭짓점 좌표 조합으로 찾는다
+  function bigRect(r) { var P = r.pts, xs = P.map(function (p) { return p[0]; }).filter(function (v, i, a) { return a.indexOf(v) === i; }).sort(function (a, b) { return a - b; }), ys = P.map(function (p) { return p[1]; }).filter(function (v, i, a) { return a.indexOf(v) === i; }).sort(function (a, b) { return a - b; }), best = null, ba = 0;
+    var ok = function (x0, y0, x1, y1) { for (var t = 0; t <= 6; t++) for (var u = 0; u <= 6; u++) { var x = x0 + (x1 - x0) * (0.02 + 0.96 * t / 6), y = y0 + (y1 - y0) * (0.02 + 0.96 * u / 6); if (!inPoly([x, y], P)) return false; } return true; };
+    for (var a = 0; a < xs.length; a++) for (var b = a + 1; b < xs.length; b++) for (var c = 0; c < ys.length; c++) for (var d = c + 1; d < ys.length; d++) { var ar = (xs[b] - xs[a]) * (ys[d] - ys[c]); if (ar > ba && ok(xs[a], ys[c], xs[b], ys[d])) { ba = ar; best = [xs[a], ys[c], xs[b], ys[d]]; } }
+    return best; }
+  function rectPts(b) { return [[b[0], b[1]], [b[2], b[1]], [b[2], b[3]], [b[0], b[3]]]; }
+  function qtDoorsAll(kinds) { var R = rooms(), out = [];
+    shapes.forEach(function (d) { if (d.t !== 'door') return; var mx = (d.x1 + d.x2) / 2, my = (d.y1 + d.y2) / 2, dx = d.x2 - d.x1, dy = d.y2 - d.y1, L = Math.hypot(dx, dy) || 1, nx = -dy / L, ny = dx / L, best = null;
+      [-U(), U()].forEach(function (o) { R.forEach(function (r) { if (!inPoly([mx + nx * o, my + ny * o], r.pts)) return; var pr = kinds.indexOf(rk(r)); if (pr >= 0 && (!best || pr < best.pr)) best = { pr: pr, o: o }; }); });
+      if (best) out.push([mx + nx * best.o * 0.55, my + ny * best.o * 0.55]); }); return out; }
   function qtDoors(kind, n) { var R = rooms(), out = [];
     shapes.forEach(function (d) { if (d.t !== 'door' || out.length >= n) return; var mx = (d.x1 + d.x2) / 2, my = (d.y1 + d.y2) / 2, dx = d.x2 - d.x1, dy = d.y2 - d.y1, L = Math.hypot(dx, dy) || 1, nx = -dy / L, ny = dx / L, hit = false;
-      [-U(), U()].forEach(function (o) { R.forEach(function (r) { if (inPoly([mx + nx * o, my + ny * o], r.pts) && rk(r) === kind) hit = true; }); });
-      if (hit) out.push([mx, my]); }); return out; }
+      var side = 0; [-U(), U()].forEach(function (o) { R.forEach(function (r) { if (inPoly([mx + nx * o, my + ny * o], r.pts) && rk(r) === kind) { hit = true; side = o; } }); });
+      if (hit) out.push([mx + nx * side * 0.55, my + ny * side * 0.55]); }); return out; }
   function qtInPts(r, n) { if (n <= 0) return []; var c = Math.max(1, Math.round(Math.sqrt(n))), best = ptsIn(r, n); for (var t = 0; t < 6 && best.length < n; t++) { var xs = r.pts.map(function (p) { return p[0]; }), ys = r.pts.map(function (p) { return p[1]; }), x0 = Math.min.apply(0, xs), x1 = Math.max.apply(0, xs), y0 = Math.min.apply(0, ys), y1 = Math.max.apply(0, ys), cols = c + t + 1, rows = Math.ceil(n / cols) + t + 1, o = []; for (var j = 0; j < rows; j++) for (var i = 0; i < cols; i++) { var p = [x0 + (x1 - x0) * (i + 0.5) / cols, y0 + (y1 - y0) * (j + 0.5) / rows]; if (inPoly(p, r.pts)) o.push(p); } if (o.length >= n) { var st = o.length / n; best = []; for (var k = 0; k < n; k++) best.push(o[Math.floor(k * st)]); } } return best.slice(0, n); }
   function qtWallPts(r, n) { if (n <= 0) return []; var P = r.pts, E = [], tot = 0, C = centroid(P), u = U(); P.forEach(function (a, i) { var b = P[(i + 1) % P.length], L = Math.hypot(b[0] - a[0], b[1] - a[1]); E.push([a, b, L]); tot += L; }); var out = [], step = tot / n;
     for (var k = 0; k < n; k++) { var d = step * (k + 0.5), j = 0; while (j < E.length - 1 && d > E[j][2]) { d -= E[j][2]; j++; } var a = E[j][0], b = E[j][1], f = E[j][2] ? d / E[j][2] : 0, m = [a[0] + (b[0] - a[0]) * f, a[1] + (b[1] - a[1]) * f], dd = Math.hypot(C[0] - m[0], C[1] - m[1]) || 1, p = [m[0] + (C[0] - m[0]) / dd * u * 0.7, m[1] + (C[1] - m[1]) / dd * u * 0.7]; out.push(inPoly(p, P) ? p : centroid(P)); } return out; }
@@ -443,13 +459,13 @@
     if (/콘센트/.test(t) && /개|곳/.test(u)) return 'ol';
     if (/스위치/.test(t) && !/실링팬|일괄/.test(t) && /개|곳/.test(u)) return 'sw';
     if (/환풍기/.test(t)) return 'fan';
-    if (/(방문|욕실문|도어|문짝)/.test(t) && /짝/.test(u) && !/(가스켓|베란다|중문|현관문)/.test(t)) return /욕실/.test(t) ? 'doorB' : 'doorR';
+    if (/(방문|욕실문|도어|문짝)/.test(t) && /짝/.test(u) && !/(가스켓|베란다|중문|현관문)/.test(t)) return /욕실/.test(t) && !/방문/.test(t) ? 'doorB' : 'doorR';
     if (/강마루|마루|장판|바닥재/.test(t) && /㎡|m2/.test(u)) return 'floor';
     if (/걸레받이/.test(t) && /^m$/.test(u)) return 'base';
     if (/몰딩/.test(t) && !/몰딩\s*없/.test(t) && /^m$/.test(u)) return 'mold';
     if (/벽지|도배/.test(t) && /롤|㎡/.test(u)) return 'paper';
     if (/방수/.test(t) && /욕실/.test(t)) return 'wp';
-    if (/(타일|포세린)/.test(t) && /욕실/.test(t) && !/줄눈/.test(t)) return 'tileB';
+    if (/(타일|포세린)/.test(t) && (/욕실/.test(t) || /덧방/.test(t)) && !/줄눈|아트월/.test(t)) return 'tileB';
     if (/(타일|포세린|디딤석)/.test(t) && /현관/.test(t)) return 'tileE';
     if (/타일/.test(t) && /(발코니|베란다|세탁실|실외기)/.test(t)) return 'tileV';
     if (/양변기/.test(t)) return 'wc';
@@ -459,6 +475,11 @@
     if (/신발장/.test(t)) return 'shoe';
     if (/우물\s*천장/.test(t) && /거실/.test(t)) return 'ceil';
     if (/철거/.test(t) && /품|식/.test(u) && /(전체|인력)/.test(t)) return 'dmA';
+    if (/실링\s*팬/.test(t) && /대|개/.test(u) && !/결선|설치|보강/.test(nm)) return 'cfan';
+    if (/후드/.test(t) && !/덕트|배기/.test(nm) && /개|식|대/.test(u)) return 'hood';
+    if (/(덕트|배기관)/.test(t) && /연장|이설|신설/.test(t)) return 'duct';
+    if (/인덕션/.test(t) && /(회로|전용)/.test(t)) return 'od';
+    if (/아트월/.test(t) && /㎡|m/.test(u)) return 'art';
     return ''; }
   function qtPlace(lines) {
     snap(); shapes = shapes.filter(function (q) { return q.au !== 'quote'; });
@@ -466,14 +487,14 @@
     var noMoldLiving = /거실[^\n]{0,14}무몰딩/.test(all), noPaperLivingWall = /거실\s*(벽)?[^\n]{0,10}제외/.test(all);
     var put = function (o, i) { o.au = 'quote'; o.qi = i; rqStamp(o); add.push(o); };
     // 같은 기호를 여러 줄이 가리키면(예: 콘센트 교체 34 + 증설 6 + 홈파기 2) 수량이 가장 큰 줄 하나로 놓고 나머지는 「포함」
-    var main = {}; lines.forEach(function (x, i) { x.kind = qtKind(x); x.hit = ''; x.incl = null; if (!x.kind) return; var m = main[x.kind]; if (m == null || (lines[m].q || 0) < (x.q || 0)) main[x.kind] = i; });
+    var ceilPoly = null, main = {}; lines.forEach(function (x, i) { x.kind = qtKind(x); x.hit = ''; x.incl = null; if (!x.kind) return; var m = main[x.kind]; if (m == null || (lines[m].q || 0) < (x.q || 0)) main[x.kind] = i; });
     lines.forEach(function (x, i) { if (x.kind && main[x.kind] !== i) { x.hit = 'incl'; x.incl = main[x.kind] + 1; } });
     Object.keys(main).forEach(function (kd) { var i = main[kd], x = lines[i], n = Math.round(x.q || 0), t = x.t; x.hit = kd;
-      if (kd === 'dl' && n) { var T = dry.concat(bath), K = qtSpread(T, n); T.forEach(function (r, j) { qtInPts(r, K[j]).forEach(function (p) { put(aPt('dl', p), i); }); }); }
+      if (kd === 'dl' && n) { var T = dry.concat(bath), only = T.filter(function (r) { return new RegExp(rk(r)).test(x.n || ''); }); if (only.length) T = only.slice(0, 1); if (ceilPoly && /평탄/.test(x.t) && only.length && rk(only[0]) === '거실') T = [{ pts: ceilPoly, name: only[0].name, kind: '거실' }]; var K = qtSpread(T, n); T.forEach(function (r, j) { qtInPts(r, K[j]).forEach(function (p) { put(aPt('dl', p), i); }); }); }
       else if (kd === 'swAll') by('현관').slice(0, 1).forEach(function (r) { var q = aPt('sw', ptsWall(r, 1)[0] || centroid(r.pts)); q.note = '일괄소등'; put(q, i); });
       else if ((kd === 'ol' || kd === 'sw') && n) { var T2 = dry.concat(bath), K2 = qtSpread(T2, n); T2.forEach(function (r, j) { qtWallPts(r, K2[j]).forEach(function (p) { put(aPt(kd, p), i); }); }); }
       else if (kd === 'fan') bath.forEach(function (r) { put(aPt('fan', centroid(r.pts)), i); });
-      else if ((kd === 'doorR' || kd === 'doorB') && n) qtDoors(kd === 'doorB' ? '욕실' : '방', 99).filter(function (p) { return !usedDoor.some(function (u) { return Math.hypot(u[0] - p[0], u[1] - p[1]) < 2; }); }).slice(0, n).forEach(function (p) { usedDoor.push(p); doorPts.push(p); var q = aPt('doorN', p); q.note = '견적 ' + (i + 1) + '번 줄'; put(q, i); });
+      else if ((kd === 'doorR' || kd === 'doorB') && n) (kd === 'doorB' ? qtDoorsAll(['욕실']) : qtDoorsAll([].concat(/욕실문/.test(x.t) ? ['욕실'] : [], /드레스룸/.test(x.t) ? ['드레스룸'] : [], ['방']))).filter(function (p) { return !usedDoor.some(function (u) { return Math.hypot(u[0] - p[0], u[1] - p[1]) < 2; }); }).slice(0, n).forEach(function (p) { usedDoor.push(p); doorPts.push(p); var q = aPt('doorN', p); q.note = '견적 ' + (i + 1) + '번 줄'; put(q, i); });
       else if (kd === 'floor') dry.forEach(function (r) { put(aArea('floor', r), i); });
       else if (kd === 'base') dry.forEach(function (r) { put(aLoop('base', r), i); });
       else if (kd === 'mold') dry.forEach(function (r) { if (noMoldLiving && rk(r) === '거실') return; put(aLoop('mold', r), i); });
@@ -487,10 +508,23 @@
       else if (kd === 'paint') bal.forEach(function (r) { put(aLoop('paint', r), i); });
       else if (kd === 'sink') by('주방').slice(0, 1).forEach(function (r) { var P = r.pts, b = 0, bl = 0; P.forEach(function (a, j) { var c = P[(j + 1) % P.length], L = Math.hypot(c[0] - a[0], c[1] - a[1]); if (L > bl) { bl = L; b = j; } }); var C = centroid(P), off = function (p) { return [p[0] + (C[0] - p[0]) * 0.12, p[1] + (C[1] - p[1]) * 0.12]; }; put({ t: 'wk', k: 'sink', st: 'new', f: 'l', pts: [off(P[b]), off(P[(b + 1) % P.length]), off(P[(b + 2) % P.length])], note: '견적 ' + (i + 1) + '번 줄' }, i); });
       else if (kd === 'shoe') by('현관').slice(0, 1).forEach(function (r) { var xs = r.pts.map(function (p) { return p[0]; }), ys = r.pts.map(function (p) { return p[1]; }), x1 = Math.max.apply(0, xs), y0 = Math.min.apply(0, ys), y1 = Math.max.apply(0, ys), w = (x1 - Math.min.apply(0, xs)) * 0.3; put({ t: 'wk', k: 'shoe', st: 'new', f: 'a', pts: [[x1 - w, y0], [x1, y0], [x1, y1], [x1 - w, y1]] }, i); });
-      else if (kd === 'ceil') by('거실').slice(0, 1).forEach(function (r) { var C = centroid(r.pts); put({ t: 'wk', k: 'ceil', st: 'new', f: 'a', pts: r.pts.map(function (p) { return [p[0] + (C[0] - p[0]) * 0.15, p[1] + (C[1] - p[1]) * 0.15]; }), note: '우물천장' }, i); });
+      else if (kd === 'ceil') by('거실').slice(0, 1).forEach(function (r0) { var br = bigRect(r0), r = br ? { pts: rectPts(br) } : r0, C = centroid(r.pts), mm2 = mmpp(), A = mm2 ? pxArea(r.pts) * mm2 * mm2 / 1e6 : 0, f = (/㎡/.test(x.u) && x.q > 0 && A > x.q) ? 1 - Math.sqrt(x.q / A) : 0.15; var ceilQ = { t: 'wk', k: 'ceil', st: 'new', f: 'a', pts: r.pts.map(function (p) { return [p[0] + (C[0] - p[0]) * f, p[1] + (C[1] - p[1]) * f]; }), note: /평탄/.test(x.t) ? '우물천장 평탄화' : '우물천장' }; put(ceilQ, i); ceilPoly = ceilQ.pts; });
       else if (kd === 'dmA') dry.concat(bath).forEach(function (r) { put(aArea('dmA', r, 'remove'), i); });
+      else if (kd === 'cfan' && n) { var T3 = dry.slice().sort(function (a, b) { return pxArea(b.pts) - pxArea(a.pts); }).filter(function (r) { return rk(r) !== '주방' && rk(r) !== '드레스룸'; }).slice(0, n); T3.forEach(function (r) { var br = bigRect(r); put(aPt('cfan', br ? [(br[0] + br[2]) / 2, (br[1] + br[3]) / 2 + (rk(r) === '거실' ? (br[3] - br[1]) * 0.12 : 0)] : centroid(r.pts)), i); }); }
+      else if (kd === 'hood') by('주방').slice(0, 1).forEach(function (r) { var C = centroid(r.pts), q = aPt('hood', C); if (/아일랜드/.test(all)) { q.m = { kind: 'island' }; q.note = '아일랜드 위 · 인덕션 가운데'; } put(q, i); });
+      else if (kd === 'duct') by('주방').slice(0, 1).forEach(function (r) { var C = centroid(r.pts), ys = r.pts.map(function (p) { return p[1]; }), y0 = Math.min.apply(0, ys) + U(); put({ t: 'wk', k: 'duct', st: 'new', f: 'l', pts: [[C[0], C[1]], [C[0], y0]], note: '후드 ▶ 기존 배기구(현장 확인)' }, i); });
+      else if (kd === 'od') by('주방').slice(0, 1).forEach(function (r) { var C = centroid(r.pts), q = aPt('od', [C[0] + U() * 1.5, C[1]]); q.note = '인덕션 전용 회로 · 분전반에서 바닥 홈파기(마루 전)'; put(q, i); });
+      else if (kd === 'art') by('거실').slice(0, 1).forEach(function (r) { var P = r.pts, b = 0, bl = 0; P.forEach(function (a, j) { var c2 = P[(j + 1) % P.length], L = Math.hypot(c2[0] - a[0], c2[1] - a[1]), vert = Math.abs(c2[0] - a[0]) < Math.abs(c2[1] - a[1]); if (vert && L > bl) { bl = L; b = j; } }); var a2 = P[b], c3 = P[(b + 1) % P.length], C2 = centroid(P), off = function (p) { var d = Math.hypot(C2[0] - p[0], C2[1] - p[1]) || 1; return [p[0] + (C2[0] - p[0]) / d * U() * 0.4, p[1] + (C2[1] - p[1]) / d * U() * 0.4]; }; put({ t: 'wk', k: 'art', st: 'new', f: 'l', pts: [off([a2[0], a2[1] + (c3[1] - a2[1]) * 0.15]), off([c3[0], a2[1] + (c3[1] - a2[1]) * 0.85])], note: x.t.slice(0, 40) }, i); });
     });
-    if (/필름/.test(all) && main.doorR != null) doorPts.forEach(function (p) { var q = aPt('film', [p[0], p[1] + U() * 0.6]); q.note = '문선 필름'; put(q, -1); });
+    if (/필름/.test(all) && main.doorR != null) doorPts.forEach(function (p) { var q = aPt('film', [p[0], p[1]]); q.note = /문틀/.test(all) ? '문틀 필름' : '문선 필름'; put(q, -1); });
+    if (/샷시[^\n]{0,12}필름|필름[^\n]{0,30}샷시/.test(all)) shapes.filter(function (w) { return w.t === 'win'; }).forEach(function (w) { var mx = (w.x1 + w.x2) / 2, my = (w.y1 + w.y2) / 2, rm = roomAt(mx, my) || R.filter(function (r) { return polyD(mx, my, r.pts, true) < U() * 1.2; })[0]; if (!rm || !isDry(rm)) return; var q = aPt('film', [mx, my]); q.note = '샷시 안쪽 틀 필름'; put(q, -1); });
+    if (/철거/.test(all)) { var dmp = function (item, p, note) { var q = aPt('dmP', p); q.st = 'remove'; q.m = { item: item }; if (note) q.note = note; put(q, -1); };
+      if (/주방\s*가구|싱크/.test(all)) by('주방').slice(0, 1).forEach(function (r) { var C = centroid(r.pts); dmp('sink', [C[0] - U(), C[1] - U()], '상·하부장·아일랜드·후드'); });
+      if (/도기/.test(all)) bath.forEach(function (r) { var C = centroid(r.pts); dmp('wc', [C[0], C[1] + U() * 0.8], /덧방/.test(all) ? '도기·수전·천장재 (타일은 남김)' : ''); });
+      if (/행거/.test(all)) by('드레스룸').slice(0, 1).forEach(function (r) { dmp('closet', centroid(r.pts), '행거 떼어 보관(재설치)'); }); }
+    var floorStrip = /(강마루|마루)\s*철거/.test(all);
+    var noMold = /무몰딩/.test(all), semiBase = /반매립/.test(all), over = /덧방/.test(all), nine = /9\s*mm\s*문선|9mm/.test(all), frameFilm = /문틀[^\n]{0,8}필름|필름[^\n]{0,12}문틀/.test(all);
+    add.forEach(function (q) { if (q.k === 'floor' && floorStrip) q.m = Object.assign({}, q.m, { sub: 'strip' }); if (q.k === 'mold' && noMold) { q.m = Object.assign({}, q.m, { kind: 'none' }); } if (q.k === 'base' && semiBase) q.m = Object.assign({}, q.m, { kind: 'semi' }); if ((q.k === 'tileW' || q.k === 'tileF') && over) q.m = Object.assign({}, q.m, { old: 'over' }); if (q.k === 'doorN') q.m = Object.assign({}, q.m, nine ? { trim: '9' } : {}, frameFilm ? { frame: 'film' } : {}); });
     add.forEach(function (q) { shapes.push(q); }); touch(); sideDraw();
     return { n: add.length, hit: lines.filter(function (x) { return x.hit && x.hit !== 'incl'; }).length, incl: lines.filter(function (x) { return x.hit === 'incl'; }).length };
   }
