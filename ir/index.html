@@ -50,7 +50,7 @@
 .fun span{display:block;margin-top:4px;font-size:14px;line-height:1.65;color:var(--pencil)}
 .fun .wait em{color:var(--pencil);font-size:24px;font-weight:500;letter-spacing:0;line-height:1.9}
 .rev{border-top:1.5px solid var(--ink)}
-.rev li{list-style:none;display:grid;grid-template-columns:44px 210px 1fr;gap:14px;align-items:baseline;padding:16px 0;border-bottom:1px solid var(--rule)}
+.rev li{list-style:none;display:grid;grid-template-columns:72px 230px 1fr;gap:14px;align-items:baseline;padding:16px 0;border-bottom:1px solid var(--rule)}
 .rev i{font-style:normal;font-size:14px;color:var(--pencil);font-variant-numeric:tabular-nums}
 .rev b{font-size:17px;font-weight:600}
 .rev span{font-size:15.5px;line-height:1.65;color:var(--pencil)}
@@ -73,21 +73,21 @@
 <body>
 <header class="top">
   <a href="../" class="brand"><span class="mark">집</span>집지니<small class="btag">인테리어 데이터 솔루션</small></a>
-  <nav class="nav2"><a class="h" href="#try">직접 해 보기</a><a class="h" href="#asset">데이터</a><a class="h" href="#tech">기술</a><a class="h" href="#num">실적</a><a class="btn" href="../files/jipjini-ir.pdf?v=20261113e" download="집지니_IR.pdf" data-ev="ir_pdf">IR 자료 받기</a></nav>
+  <nav class="nav2"><a class="h" href="#try">직접 해 보기</a><a class="h" href="#asset">데이터</a><a class="h" href="#tech">기술</a><a class="h" href="#num">실적</a><a class="btn" href="../files/jipjini-ir.pdf?v=20261120a" download="집지니_IR.pdf" data-ev="ir_pdf">IR 자료 받기</a></nav>
 </header>
 
 <section class="irh">
   <p class="ey">투자자께 드리는 안내</p>
   <h1>도면 한 장으로<br>공사비까지.</h1>
   <p class="ld">인테리어 견적의 30%는 보이지 않는 업체 몫이고, 물량은 평수로 어림합니다. 집지니는 그 집의 도면에서 물량과 금액을 바로 셉니다.</p>
-  <div class="bt"><a class="btn" href="#try">30초 직접 해 보기</a><a class="btn ghost" href="../files/jipjini-ir.pdf?v=20261113e" download="집지니_IR.pdf" data-ev="ir_pdf">IR 자료 받기 (PDF)</a></div>
+  <div class="bt"><a class="btn" href="#try">30초 직접 해 보기</a><a class="btn ghost" href="../files/jipjini-ir.pdf?v=20261120a" download="집지니_IR.pdf" data-ev="ir_pdf">IR 자료 받기 (PDF)</a></div>
   <dl class="irn">
       <div><dt>지도에 올린 수도권 단지</dt><dd data-live="all">10,242</dd></div>
-      <div><dt>모은 평면도</dt><dd>8,311</dd></div>
+      <div><dt>모은 평면도 원본</dt><dd>31,661</dd></div>
       <div><dt>도면 공개 단지 · 매일 늘어남</dt><dd id="irOpen" data-live="open">78</dd></div>
-      <div><dt>벽 인식률 · 표본 77장</dt><dd>98.8%</dd></div>
-      <div><dt>단가 공개 실견적</dt><dd>15</dd></div>
-      <div><dt>노하우를 모은 시간 · 2013년부터</dt><dd>13년</dd></div>
+      <div><dt>도면 · 물량 공개 평형 · 사람 손 없이</dt><dd data-live="types">3,780</dd></div>
+      <div><dt>낸 견적 · 2026년 7월부터</dt><dd>39건</dd></div>
+      <div><dt>특허 · 평면도 → 물량 산출</dt><dd>출원 중</dd></div>
     </dl>
 </section>
 
@@ -140,6 +140,7 @@
   <div class="mapf"><iframe src="../apt.html?embed=1" title="집지니 아파트 지도" loading="lazy"></iframe></div>
   <p class="mapn">지도가 안 보이면 <a href="../apt.html" style="text-decoration:underline">지도 쪽을 따로 여세요.</a></p>
   <div class="grow" id="grow" aria-label="날마다 열린 평형 수"></div>
+  <p class="growc" id="growx" style="font-size:17px;color:var(--ink);font-weight:600"></p>
   <p class="growc">도면이 열린 평형 수입니다. 평면을 자동으로 변환하고 채점해, 기준을 넘긴 것만 날마다 올립니다.</p>
 </section>
 
@@ -194,7 +195,7 @@
     <div class="ly"><div class="k">현장<small>시공 관리</small></div><div class="v"><span class="me">공정별 작업지시서</span><span class="me">공정표·사진</span><span class="me">알림톡 6종</span><span class="me">노무비 청구·지급</span></div></div>
     <div class="ly"><div class="k">거래<small>견적·계약·돈</small></div><div class="v"><span class="me">자동 견적·자가 점검</span><span class="me">단가 근거 공개</span><span class="me">전자 계약</span><span class="me">입금·정산 장부</span><span>자재 수수료 주문</span></div></div>
     <div class="ly"><div class="k">설계<small>도면·물량</small></div><div class="v"><span class="me">집지니 CAD</span><span class="me">오토캐드 파일 읽고 쓰기</span><span class="me">물량 자동 산출 17공종</span><span class="me">공법 선택</span></div></div>
-    <div class="ly base"><div class="k">데이터<small>바닥</small></div><div class="v"><span class="me">수도권 <b data-live="all" style="font-weight:inherit">10,242</b>단지</span><span class="me">평면도 8,311장 수집</span><span class="me">도면 자동 변환·채점</span><span class="me">자가 학습 고리</span></div></div>
+    <div class="ly base"><div class="k">데이터<small>바닥</small></div><div class="v"><span class="me">수도권 <b data-live="all" style="font-weight:inherit">10,242</b>단지</span><span class="me">평면도 31,661장 수집</span><span class="me">도면 자동 변환·채점</span><span class="me">자가 학습 고리</span></div></div>
   
     </div>
     <div class="cmp"><h3>흔한 인테리어 서비스와 비교</h3><p class="cap0">● 있음 ◐ 일부 ○ 없음 · 일반적인 경우 기준</p>
@@ -219,24 +220,35 @@
 
 <section class="irx" id="num">
   <h2>지금까지의 숫자</h2>
-  <p class="sub">계약 실적은 아직 적습니다. 숨기지 않고 그대로 적습니다.</p>
+  <p class="sub">공개한 지 열흘입니다. 계약은 아직 적지만, 들어오는 속도는 매달 빨라지고 있습니다.</p>
   <div class="fun">
-    <div><em>15건</em><b>최근 90일 견적</b><span>2026년 11월 11일 콘솔 기준</span></div>
-    <div><em>2건</em><b>그중 계약</b><span>견적에서 계약까지 13%</span></div>
-    <div><em id="fq">15건</em><b>단가를 공개한 실견적</b><span>줄마다 자재·단가 근거 공개</span></div>
-    <div class="wait"><em>계측 시작</em><b>찾기 → 단지 고름 → 맡기기</b><span>첫 화면 단계별 숫자는 <span style="white-space:nowrap">2026년 11월 16일부터</span> 잽니다</span></div>
+    <div><em>39건</em><b>낸 견적 · 공사금액 12.2억 원</b><span>2026년 7월 첫 견적부터, 11월 20일 콘솔 기준</span></div>
+    <div><em>+133%</em><b>월 견적 9월 6건 → 10월 14건</b><span>11월은 20일까지 17건으로 이미 10월을 넘었습니다</span></div>
+    <div><em>3건</em><b>계약</b><span>보낸 견적 23건 중 · 숨기지 않고 그대로 적습니다</span></div>
+    <div><em>71배</em><b>공개 평형 8일 성장</b><span>11월 12일 53개 → 20일 3,780개, 사람 손 없이</span></div>
   </div>
 </section>
 
 <section class="irx" id="rev">
-  <h2>돈이 들어오는 길</h2>
-  <p class="sub">무료 도면 도구로 들어와 상담과 계약으로 이어집니다. 수익은 거래에서 납니다.</p>
+  <h2>엔진 두 개로 갑니다</h2>
+  <p class="sub">거래로 현금과 실제 공사 자료를 쌓고, 그 자료와 프로그램을 업계에 팝니다. 투자는 두 번째 엔진에 씁니다.</p>
   <ul class="rev">
-    <li><i>01</i><b>코디 계약</b><span>반셀프 고객의 견적·자재·기술자 연결. 코디비는 견적서에 따로 한 줄로 적습니다.</span></li>
-    <li><i>02</i><b>현장관리 추가</b><span>현장관리자가 공정 중 매일 현장에 갑니다. 코디비에 더해 받습니다.</span></li>
-    <li><i>03</i><b>자재 소개 수수료</b><span>도면에서 나온 물량을 자재상 주문으로 잇습니다. 공급가액의 10%, 고객에게 공지합니다.</span></li>
-    <li><i>04</i><b>복구 공사비 산정서</b><span>누수 복구와 경매 낙찰 전 수리비를 도면 기준으로 냅니다.</span></li>
-    <li class="nx"><i>다음</i><b>업체용 도구 · 자료 공급</b><span>손해사정 사무소용 산정 도구, 단지·평형별 표준 물량 자료.</span></li>
+    <li><i>거래</i><b>코디 계약 · 누수 복구 정액</b><span>공사비의 약 7% 코디비, 자재 소개 수수료(공급가액 10%, 고객에게 공지). 목적은 이익보다 실제 공사의 물량 · 단가 · 하자 자료입니다.</span></li>
+    <li><i>프로그램</i><b>콘솔 월 구독</b><span>대표가 현장에 쓰며 다듬은 도면 → 물량 → 견적 → 공정 → 정산 프로그램을 소형 인테리어 업체 · 1인 코디네이터에게 빌려줍니다.</span></li>
+    <li><i>프로그램</i><b>복구 공사비 산정서</b><span>누수 · 화재 복구비를 도면 기준으로 냅니다. 손해사정 사무소 · 관리사무소용.</span></li>
+    <li class="nx"><i>자료</i><b>단지 · 평형 물량 자료</b><span>보험 · 금융(경매 · 담보) · 공공이 「이 집 고치는 데 얼마」를 셀 때 쓰는 기준 자료.</span></li>
+  </ul>
+</section>
+
+<section class="irx" id="team">
+  <h2>세 사람이 공사 회사 30명 몫을 합니다</h2>
+  <p class="sub">사람을 늘려 크는 회사가 아니라, 시스템이 일하고 사람은 판단만 하는 회사로 짭니다.</p>
+  <ul class="rev">
+    <li><i>대표</i><b>박찬영</b><span>방향 · 큰 계약 · 투자 · 단가와 공법 기준</span></li>
+    <li><i>첫 채용</i><b>운영 1명</b><span>견적 검토 · 발송, 고객 상담, 샘플실</span></li>
+    <li><i>파트너</i><b>기술 1명</b><span>도면 엔진 · 콘솔 관리, 연구개발 책임 (지분 파트너)</span></li>
+    <li><i>협력</i><b>현장관리</b><span>현장별 협력 계약 — 고정 인원 없음</span></li>
+    <li class="nx"><i>자동</i><b>시스템이 하는 일</b><span>평면도 → 도면 · 물량 공개(하루 466개 평형), 견적 초안 · 공정별 작업지시서, 고객 전용 페이지, 발송 · 열람 · 이상 징후 보고</span></li>
   </ul>
 </section>
 
@@ -262,7 +274,7 @@
 
 <section class="ask" id="ask">
   <h2>더 궁금하신 점은 바로 물어 주세요</h2>
-  <div class="bt" style="display:flex;flex-wrap:wrap;gap:10px;margin-top:24px"><a class="btn" href="../files/jipjini-ir.pdf?v=20261113e" download="집지니_IR.pdf" data-ev="ir_pdf">IR 자료 받기 (PDF)</a><a class="btn ghost" href="https://pf.kakao.com/_NjpxhC/chat" target="_blank" rel="noopener" data-ev="ir_kakao">카톡으로 문의</a></div>
+  <div class="bt" style="display:flex;flex-wrap:wrap;gap:10px;margin-top:24px"><a class="btn" href="../files/jipjini-ir.pdf?v=20261120a" download="집지니_IR.pdf" data-ev="ir_pdf">IR 자료 받기 (PDF)</a><a class="btn ghost" href="https://pf.kakao.com/_NjpxhC/chat" target="_blank" rel="noopener" data-ev="ir_kakao">카톡으로 문의</a></div>
 </section>
 
 <footer class="foot" style="margin-top:96px"><p>집지니 · 박찬영 · 사업자번호 874-10-00088<br>서울 강서구 공항대로41길 66 세신종합상가 지하 1층 B156호 · 카카오톡 @집지니</p></footer>
@@ -272,7 +284,8 @@
 <script>
 (function () {
   fetch('../data/plans/opened.json', { cache: 'no-cache' }).then(function (r) { return r.json(); }).then(function (L) {
-    L = L.slice(-10); var mx = Math.max.apply(0, L.map(function (x) { return x['평형']; })) || 1;
+    L = L.slice(-12); var mx = Math.max.apply(0, L.map(function (x) { return x['평형']; })) || 1;
+    var A = L[0], Z = L[L.length - 1], dd = (new Date(Z['날']) - new Date(A['날'])) / 864e5; if (dd > 0) document.getElementById('growx').textContent = '첫 공개 ' + Number(A['날'].slice(5, 7)) + '월 ' + Number(A['날'].slice(8)) + '일 ' + A['평형'] + '개 → 지금 ' + Number(Z['평형']).toLocaleString('ko-KR') + '개 · ' + dd + '일 만에 ' + Math.round(Z['평형'] / A['평형']) + '배, 하루 평균 ' + Math.round((Z['평형'] - A['평형']) / dd) + '개';
     document.getElementById('grow').innerHTML = L.map(function (x) { var d = String(x['날']).split('-'); return '<div><b>' + Number(x['평형']).toLocaleString('ko-KR') + '</b><i style="height:' + Math.max(2, x['평형'] / mx * 100).toFixed(1) + '%"></i><span>' + Number(d[1]) + '월 ' + Number(d[2]) + '일</span></div>'; }).join('');
   }).catch(function () {});
   fetch('../data/repair-prices.json').then(function (r) { return r.json(); }).then(function (p) { var m = String(p.source || '').match(/실견적\s*(\d+)건/); if (m) document.getElementById('fq').textContent = m[1] + '건'; }).catch(function () {});
