@@ -64,7 +64,14 @@ body.loading .jl .k{opacity:.15;animation:jp 1.6s ease-in-out infinite}
       '<label class="f"><input id="lgPw" type="password" autocomplete="current-password" placeholder="비밀번호"></label>' +
       '<button class="btn" id="lgBtn">로그인</button><div class="err" id="lgErr"></div>' +
       '<button class="btn ghost" id="lgMail">비밀번호가 없으면 — 메일로 로그인 링크 받기</button>' +
-      '<a class="sub" href="/console/google/">예전 구글 콘솔</a>';
+      '<div id="lgKakaoBox"></div><a class="sub" href="/console/google/">예전 구글 콘솔</a>';
+    // 2026-11-20 카카오 간편 로그인 — 슈퍼베이스에 카카오 로그인이 켜져 있을 때만 단추를 보인다(대표가 카카오 열쇠를 넣기 전에는 안 보임).
+    //   카카오 계정 메일이 콘솔 구성원(org_members) 메일과 같아야 들어가진다.
+    try { var cf = ls.get('jjf_conf') || {}; if (cf.url && cf.anon) fetch(cf.url + '/auth/v1/settings', { headers: { apikey: cf.anon } }).then(function (r) { return r.json(); }).then(function (st) {
+      if (!st || !st.external || !st.external.kakao || !$('lgKakaoBox')) return;
+      $('lgKakaoBox').innerHTML = '<button class="btn" id="lgKakao" style="background:#FEE500;color:#191600;border-color:#FEE500">카카오로 로그인</button>';
+      $('lgKakao').onclick = function () { SB.auth.signInWithOAuth({ provider: 'kakao', options: { redirectTo: location.origin + '/console/', scopes: 'account_email' } }); };
+    }).catch(function () {}); } catch (_k) {}
     var go = function () {
       var em = $('lgEmail').value.trim(), pw = $('lgPw').value; if (!em || !pw) { $('lgErr').textContent = '메일과 비밀번호를 적어 주세요.'; return; }
       $('lgBtn').disabled = true; $('lgErr').textContent = '';
