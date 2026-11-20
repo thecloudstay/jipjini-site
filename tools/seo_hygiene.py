@@ -25,17 +25,17 @@ GROUPS = [
     ("가이드", [("banself-interior.html", "반셀프 코디"), ("jikyoung-interior.html", "직영 인테리어"), ("interior-margin-30.html", "마진 30%"), ("interior-estimate-compare.html", "견적서 비교"), ("apt-olsuri-cost.html", "32평 올수리"), ("bathroom-remodel-cost.html", "욕실 리모델링"), ("interior-scam-types.html", "사기 유형")]),
     ("회사", [("about.html", "회사소개"), ("faq.html", "자주 묻는 질문"), ("ai-answers.html", "AI에게 물어볼 때"), ("sitemap.html", "사이트 지도")]),
 ]
-NAV_CSS = ('<style>.jj-map{max-width:900px;margin:32px auto 0;padding:22px 16px 26px;border-top:2px solid #d9d2c0;font-family:Pretendard,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;color:#2a2a2a;word-break:keep-all}'
-           '.jj-map .ttl{font-size:14px;font-weight:800;letter-spacing:1px;color:#1e4d3a;margin-bottom:10px;text-align:center}'
-           '.jj-map .grp{display:flex;flex-wrap:wrap;gap:6px 8px;align-items:center;margin:6px 0;font-size:14px}'
-           '.jj-map .grp b{min-width:70px;color:#555;font-weight:700;font-size:13px}'
-           '.jj-map .grp a{display:inline-block;padding:6px 12px;border:1px solid #cfc8b8;border-radius:16px;background:#fff;color:#2a2a2a;text-decoration:none;font-size:14px;font-weight:500}'
-           '.jj-map .grp a:hover{border-color:#1e4d3a;color:#1e4d3a}'
-           '.jj-map .grp a[aria-current=page]{background:#1e4d3a;color:#fff;border-color:#1e4d3a;font-weight:800}'
-           '.jj-map .grp a[aria-current=page]::before{content:"▶ ";font-size:11px}'
-           '.jj-map .ft{font-size:13px;color:#555;margin-top:12px;text-align:center;line-height:1.8}'
-           '.jj-where{max-width:1200px;margin:0 auto;padding:8px 16px;font-size:14px;color:#2a2a2a;background:#efe9db;border-bottom:1px solid #d9d2c0;display:flex;gap:6px;align-items:center;flex-wrap:wrap;word-break:keep-all}'
-           '.jj-where a{color:#1e4d3a;text-decoration:none;font-weight:600}.jj-where .now{background:#1e4d3a;color:#fff;padding:2px 10px;border-radius:12px;font-weight:700;font-size:13px}'
+NAV_CSS = ('<style>.jj-map{max-width:900px;margin:32px auto 0;padding:22px 16px 26px;border-top:1px solid #1C1F1B;font-family:"IBM Plex Sans KR",-apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;color:#1C1F1B;word-break:keep-all;line-height:1.7}'
+           '.jj-map .ttl{font-size:15px;font-weight:700;color:#1C1F1B;margin-bottom:14px}'
+           '.jj-map .grp{display:flex;flex-wrap:wrap;gap:4px 18px;align-items:baseline;padding:8px 0;border-top:1px solid #DCDFD8;font-size:15px}'
+           '.jj-map .grp b{min-width:84px;color:#6B7067;font-weight:600;font-size:14px}'
+           '.jj-map .grp a{display:inline-block;padding:2px 0;color:#1C1F1B;text-decoration:underline;text-decoration-color:#C9CDC4;text-underline-offset:3px;font-size:15px;font-weight:400}'
+           '.jj-map .grp a:hover{color:#1F5E2E;text-decoration-color:#1F5E2E}'
+           '.jj-map .grp a[aria-current=page]{color:#1F5E2E;font-weight:700;text-decoration:none}'
+           '.jj-map .grp a[aria-current=page]::after{content:" (지금 보는 쪽)";font-size:13px;font-weight:400;color:#6B7067}'
+           '.jj-map .ft{font-size:14px;color:#6B7067;margin-top:14px;padding-top:12px;border-top:1px solid #DCDFD8;line-height:1.8}'
+           '.jj-where{max-width:1200px;margin:0 auto;padding:8px 16px;font-size:14px;color:#2a2a2a;background:#fff;border-bottom:1px solid #DCDFD8;display:flex;gap:6px;align-items:center;flex-wrap:wrap;word-break:keep-all}'
+           '.jj-where a{color:#1F5E2E;text-decoration:none;font-weight:600}.jj-where .now{color:#1C1F1B;font-weight:700;font-size:14px}'
            '.nav-item.is-current>.nav-top{color:#1e4d3a!important;font-weight:800!important;box-shadow:inset 0 -3px 0 #1e4d3a}'
            '.nav-dropdown a.is-current{background:#e6efe9!important;color:#1e4d3a!important;font-weight:700!important}'
            '@media(max-width:640px){.jj-map .grp b{min-width:100%}}</style>')
@@ -53,10 +53,10 @@ var hdr=document.querySelector("header, .site-header, nav.site-nav, .navbar, .na
 
 def nav_block(depth):
     r = "../" * depth
-    rows = "".join('<div class="grp"><b>' + g + ' ·</b>' + "".join(f'<a href="{r}{h}">{t}</a>' for h, t in items) + '</div>' for g, items in GROUPS)
-    return (f'{START}{NAV_CSS}<div class="jj-map"><div class="ttl">집지니 사이트 지도 — 지금 보는 쪽은 ▶ 짙은 녹색</div>{rows}'
+    rows = "".join('<div class="grp"><b>' + g + '</b>' + "".join(f'<a href="{r}{h}">{t}</a>' for h, t in items) + '</div>' for g, items in GROUPS)
+    return (f'{START}{NAV_CSS}<div class="jj-map"><div class="ttl">집지니 사이트 지도</div>{rows}'
             f'<div class="ft">서울·경기·인천 수도권 전역 · 자재상·기술자 직거래 · 정찰제 코디비 · 부가세 10% 별도<br>'
-            f'샘플실: <a href="{r}showroom.html" style="color:#1e4d3a;font-weight:600">서울 강서구 공항대로41길 66 세신종합상가 지하 1층 B156호 (가양동)</a> · 상담 예약 010-9806-0422</div></div>{NAV_JS}{END}')
+            f'샘플실: <a href="{r}showroom.html" style="color:#1F5E2E;font-weight:600">서울 강서구 공항대로41길 66 세신종합상가 지하 1층 B156호 (가양동)</a> · 상담 예약 010-9806-0422</div></div>{NAV_JS}{END}')
 
 def main():
     files = []

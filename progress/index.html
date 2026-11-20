@@ -6,7 +6,7 @@
 <meta name="robots" content="noindex, nofollow">
 <meta name="referrer" content="no-referrer">
 <meta name="theme-color" content="#4F6B2C">
-<title>우리 집 공사 한눈에 | 집지니</title>
+<title>우리 집 공사 진행표 | 집지니</title>
 <style>
 :root{--g:#4F6B2C;--g2:#2c7a5c;--gl:#E8EEDC;--bg:#fbf8f1;--card:#fff;--ink:#22262a;--mute:#6f7479;--line:#e7e1d4;--warn:#b5562b;--warnl:#f8e7dc;--wait:#8a8f94;--waitl:#eeeeec}
 *{box-sizing:border-box;margin:0;padding:0}
@@ -196,13 +196,93 @@ table.plm td.r,table.plm th.r{padding-left:10px}
 .ntmore{margin-top:6px;border-top:1px solid var(--line,#eee)}.ntmore>summary{cursor:pointer;font-weight:600;font-size:15px;padding:12px 0;display:flex;justify-content:space-between}.ntmore>summary span{font-weight:400;color:var(--mute,#888);font-size:13px}
 </style>
 <meta property="og:image" content="https://jipjini.com/og-cover.png"><meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="/assets/jj-tokens.css">
+<style id="docform">
+/* 2026-11-20 대표 「법원 서면처럼 읽기 쉽게, AI 티 빼고」 — 둥근 상자 줄세우기·색 띠·알약 꼬리표를 걷고 종이 문서 양식으로.
+   대항목(1. 2. …) 19px 굵게 → 소항목 16px 굵게 + 가는 밑줄 → 본문 16px 줄 간격 1.75. 색은 먹·연필·가는 선, 초록은 핵심에만. */
+:root{--g:#1F5E2E;--g2:#1F5E2E;--gl:#F3F6F1;--bg:#FFFFFF;--card:#FFFFFF;--ink:#1C1F1B;--mute:#5F645B;--line:#DCDFD8;--waitl:#F1F2EF;--wait:#8E9389}
+html,body{background:#fff}
+body{font-family:var(--jjf,"IBM Plex Sans KR",sans-serif);font-size:16px;line-height:1.75;letter-spacing:0;color:var(--ink)}
+.wrap{max-width:680px;padding:0 20px 56px;counter-reset:sec}
+header{background:#fff;color:var(--ink);padding:28px 20px 22px;border-bottom:2px solid var(--ink)}
+header .in{max-width:640px}
+.brand{color:var(--g);font-weight:700;letter-spacing:0;font-size:15px;opacity:1}
+header h1{font-size:26px;font-weight:700;margin-top:10px;line-height:1.35;letter-spacing:-.3px}
+header .who{font-size:16px;opacity:1;margin-top:8px}
+header .site{font-size:14px;color:var(--mute);opacity:1;margin-top:2px}
+/* 각 구역 = 대항목. 상자 대신 위쪽 가는 선으로만 나눈다 */
+.card,section.card{background:none;border:0;border-top:1px solid var(--line);border-radius:0;padding:32px 0 8px;margin-top:0}
+.wrap>.card:first-child,.top{margin-top:0;border-top:0}
+.card h2,section.card h2{font-size:19px;font-weight:700;color:var(--ink);margin-bottom:18px;line-height:1.45;text-wrap:balance}
+.card h2{counter-increment:sec}
+.card h2:before{content:counter(sec) ". ";color:var(--g)}
+/* 소항목 — 1pt 이상 차이 + 가는 회색 밑줄 */
+.grp h3,#pvm h3,.plup>summary,.ntmore>summary,.plmore>summary{font-size:16.5px;font-weight:700;color:var(--ink);padding-bottom:6px;border-bottom:1px solid #999;margin:24px 0 12px}
+.grp+.grp{margin-top:8px}
+/* 본문·보조 글씨: 13.5px 아래로 내리지 않고 줄 간격 넉넉히 */
+p,dd,li{line-height:1.75}
+.chain .tx p,.ph .nm small,.pp .hd small,.doc .tt small,.nlast,.plnote,.vat,.soonl span,.meta,.empty,table.pay small,.chain .tx .dt,.sum small,.hero small{font-size:14px;line-height:1.65;color:var(--mute)}
+footer{font-size:13.5px;line-height:1.8;color:var(--mute);margin-top:40px;border-top:1px solid var(--line);padding-top:18px}
+/* 요지 — 맨 위 「지금 단계 · 다음 단계」를 한 칸짜리 표처럼 */
+.hero{gap:0;border:1px solid var(--ink);border-radius:0;margin-bottom:22px}
+.hero div{background:none;border-radius:0;padding:14px 16px}
+.hero div+div{border-left:1px solid var(--line)}
+.hero b{font-size:18px;color:var(--ink)}
+.hero div:first-child b{color:var(--g)}
+/* 알약·색 꼬리표 → 글자만 */
+.tag,.tag.now,.tag.nx,.bd,.stage,.selok,#sel .selok{background:none!important;border:0!important;border-radius:0!important;padding:0!important;font-size:13.5px!important;font-weight:600;color:var(--g)!important}
+.tag:before,.bd:before{content:"("}.tag:after,.bd:after{content:")"}
+.s-wait .bd,.s-late .bd{color:var(--mute)!important}
+/* 진행 줄: 동그라미 번호는 작게·선으로, 지금 단계는 초록 바탕 대신 왼쪽 굵은 선 */
+.chain li{padding-bottom:18px}
+.chain .dot,.no{border-radius:50%;font-size:12px}
+.c-now .dot{box-shadow:none}
+.c-now .tx{background:none;border-left:3px solid var(--g);border-radius:0;padding:0 0 0 12px;margin-top:0}
+.chain .tx b,.ph .nm b,.pp .hd b{font-size:16px}
+/* 숫자 묶음 칸(요약·금액) → 가는 선 표 */
+.sum{gap:0;border-top:1px solid var(--ink);border-bottom:1px solid var(--line)}
+.sum div{background:none;border-radius:0;padding:12px 4px}
+.sum div+div{border-left:1px solid var(--line)}
+table.pay,table.plm{font-size:15px}
+table.pay td,table.plm td{padding:10px 0}
+table.plm th{font-size:13.5px;border-bottom:1px solid var(--ink)}
+table.plm tr.tot td{color:var(--ink);border-top:1px solid var(--ink)}
+/* 코디에게 답하기: 초록 바탕 상자 → 인용 줄 */
+.ntop{background:none;border-left:3px solid var(--g);border-radius:0;padding:2px 0 2px 14px;font-size:16px}
+.nq{padding:22px 0 8px}
+.nq p{font-size:16.5px;margin-bottom:14px}
+.nq .cs button,#sel .selq button{border-radius:4px!important;font-size:15px;padding:10px 14px}
+.nq .cs button.on{background:#fff}
+/* 서류함·계약 뒤 열리는 것 — 상자 → 줄 목록 */
+.doc{border:0;border-top:1px solid var(--line);border-radius:0;padding:14px 0;background:none}
+.doc[disabled]{background:none}
+.doc .ic{background:none!important;width:auto;flex-basis:auto}
+.soonl{display:block}
+.soonl li{border:0;border-top:1px solid var(--line);border-radius:0;padding:12px 0;flex-direction:row;justify-content:space-between;align-items:baseline}
+details.sample{border:0;border-top:1px solid var(--line);border-radius:0;padding:0}
+.pp .who span{background:none;border:1px solid var(--line)}
+.pp .prep{background:none;border-left:3px solid var(--line);border-radius:0}
+/* 단추는 그대로 두되 모서리 4px, 초록 테두리 */
+.btn{border-radius:4px}
+.plsub button,.pltabs button{border-radius:4px}
+.plsvg{background:#fff}
+.pvbar{background:#F6F7F4;color:var(--ink)}
+@media (min-width:900px){
+  .wrap{max-width:800px}header .in{max-width:760px}
+  body{font-size:17px}
+  section.card{padding:36px 0 10px}
+  section.card h2{font-size:21px}
+  header h1{font-size:30px}
+}
+@media (min-width:1300px){.wrap{max-width:800px}header .in{max-width:760px}}
+</style>
 <style>body,p,li,td,th,h1,h2,h3,h4,dd,dt,blockquote,figcaption{word-break:keep-all;overflow-wrap:break-word}</style>
 </head>
 <body>
 <div id="pvb" class="pvbar hide">미리보기 화면입니다 — 열람 수에 들어가지 않고, 접수·확인 버튼은 눌리지 않습니다.</div>
 <header><div class="in">
   <div class="brand">집지니</div>
-  <h1>우리 집 공사 한눈에</h1>
+  <h1>우리 집 공사 진행표</h1>
   <div class="who" id="who"></div>
   <div class="site" id="site"></div>
 </div></header>

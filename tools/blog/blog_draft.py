@@ -63,6 +63,81 @@ def local(url):
     return url.replace(SITE, "") if url and url.startswith(SITE) else (url or "")
 
 
+# ── 본문 그리기 (2026-11-20 대표 「법원 서면처럼 — 따닥따닥 붙고 AI 티 나는 글 못 봐주겠다」) ──
+#  · 맨 위 요지 상자(1칸 표): 이 글이 무엇인지 3~4줄            · 소제목은 「1.」 「2.」 번호를 붙인 서술형
+#  · 문단은 두 문장씩 끊어 줄 사이를 넓게                         · 「- 」 줄은 목록, 목록 바로 위 짧은 줄은 굵은 머리
+#  · 숫자 근거는 내용을 함께 적어 맨 끝 「숫자 근거」 줄에          · 네이버 편집기에 붙여도 남도록 꾸밈은 모두 줄 안 style
+import re as _re
+_SENT = _re.compile(r'(?<=[다요죠까]\.)\s+|(?<=[다요죠]\?)\s+')
+P = 'font-size:16px;line-height:1.95;margin:0 0 18px;color:#1C1F1B'
+
+
+def _paras(text):
+    out = []
+    for para in str(text).split("\n\n"):
+        lines = para.split("\n")
+        if any(l.strip().startswith(("- ", "· ")) for l in lines):
+            out.append(("list", lines))
+            continue
+        sents = [x for x in _SENT.split(para.strip()) if x]
+        if len(sents) <= 2:
+            out.append(("p", para.strip()))
+        else:
+            for i in range(0, len(sents), 2):
+                out.append(("p", " ".join(sents[i:i + 2])))
+    return out
+
+
+def render_body(post, pid, made):
+    e = html.escape
+    body = []
+    yoji = post.get("요지") or []
+    if yoji:
+        cell = "".join(f'<p style="font-size:16px;line-height:1.85;margin:0 0 6px">{e(x)}</p>' for x in yoji)
+        body.append('<table style="border-collapse:collapse;width:100%;margin:6px 0 30px"><tr>'
+                    f'<td style="border:1px solid #1C1F1B;padding:16px 18px"><p style="font-size:14px;font-weight:700;color:#1F5E2E;margin:0 0 8px">요지</p>{cell}</td></tr></table>')
+    no = 0
+    for blk in post["본문"]:
+        if "소제목" in blk:
+            t = str(blk["소제목"]).strip()
+            if not _re.match(r"^\d+[.단]", t):
+                no += 1
+                t = f"{no}. {t}"
+            body.append(f'<p style="font-size:20px;font-weight:700;line-height:1.5;margin:46px 0 14px;padding-bottom:8px;border-bottom:1px solid #999999">{e(t)}</p>')
+        elif "글" in blk:
+            for kind, v in _paras(blk["글"]):
+                if kind == "p":
+                    body.append(f'<p style="{P}">{e(v)}</p>')
+                    continue
+                for l in v:
+                    l = l.strip()
+                    if not l:
+                        continue
+                    if l.startswith(("- ", "· ")):
+                        body.append(f'<p style="font-size:16px;line-height:1.85;margin:0 0 8px;padding-left:16px">·&nbsp;{e(l[2:])}</p>')
+                    else:
+                        body.append(f'<p style="font-size:16.5px;font-weight:700;line-height:1.7;margin:22px 0 8px">{e(l)}</p>')
+        elif ("그림" in blk or "그림파일" in blk) and blk.get("_파일") in made:
+            src = f"{SITE}blog-draft/{pid}/{blk['_파일']}"
+            body.append(f'<p style="margin:24px 0 8px"><img src="{src}" alt="{e(blk.get("설명", ""))}" style="max-width:100%"></p>'
+                        + (f'<p style="font-size:14px;line-height:1.7;color:#6B7067;margin:0 0 26px">그림. {e(blk["설명"])}</p>' if blk.get("설명") else ""))
+        elif "표" in blk:
+            rows = blk["표"]
+            t = ['<table style="border-collapse:collapse;width:100%;font-size:15px;line-height:1.6;margin:14px 0 28px;border-top:1px solid #1C1F1B">']
+            for i, r in enumerate(rows):
+                tag = "th" if i == 0 else "td"
+                t.append("<tr>" + "".join(f'<{tag} style="border-bottom:1px solid #DCDFD8;padding:10px 8px;vertical-align:top;'
+                                          f'text-align:{"left" if j == 0 else "right"};{"font-weight:700;" if i == 0 else ""}">{e(str(c))}</{tag}>'
+                                          for j, c in enumerate(r)) + "</tr>")
+            t.append("</table>")
+            body.append("".join(t))
+    basis = post.get("근거") or []
+    if basis:
+        body.append('<p style="font-size:14px;font-weight:700;margin:40px 0 6px;color:#6B7067">숫자 근거</p>'
+                    + "".join(f'<p style="font-size:14px;line-height:1.75;color:#6B7067;margin:0 0 4px">·&nbsp;{e(x)}</p>' for x in basis))
+    return body
+
+
 def build(post_path):
     post = json.loads(Path(post_path).read_text(encoding="utf-8"))
     facts = {}
@@ -75,6 +150,10 @@ def build(post_path):
     srv = serve()
     jobs, n = [], 0
     for blk in post["본문"]:
+        if "그림파일" in blk:          # 이미 찍어 둔 그림을 다시 쓸 때(다시 그리기)
+            n += 1
+            blk["_파일"] = blk["그림파일"]
+            continue
         if "그림" in blk:
             n += 1
             key, sel = SHOT.get(blk["그림"], ("대표쪽", "main"))
@@ -84,27 +163,10 @@ def build(post_path):
             blk["_파일"] = f"{n}.png"
             jobs.append([page, sel, str(out / f"{n}.png")])
     made = set(Path(x).name for x in shoot(jobs, srv.server_address[1]))
+    made |= set(b["_파일"] for b in post["본문"] if "그림파일" in b and (out / b["그림파일"]).exists())
     srv.shutdown()
 
-    body = []
-    for blk in post["본문"]:
-        if "소제목" in blk:
-            body.append(f'<p style="font-size:19px;font-weight:700;margin:34px 0 10px">{html.escape(blk["소제목"])}</p>')
-        elif "글" in blk:
-            for para in str(blk["글"]).split("\n\n"):
-                body.append(f'<p style="font-size:16px;line-height:1.9;margin:0 0 16px">{html.escape(para).replace(chr(10), "<br>")}</p>')
-        elif "그림" in blk and blk.get("_파일") in made:
-            src = f"{SITE}blog-draft/{pid}/{blk['_파일']}"
-            body.append(f'<p style="margin:18px 0 6px"><img src="{src}" alt="{html.escape(blk.get("설명", ""))}" style="max-width:100%"></p>'
-                        + (f'<p style="font-size:13px;color:#6B7067;margin:0 0 18px">{html.escape(blk["설명"])}</p>' if blk.get("설명") else ""))
-        elif "표" in blk:
-            rows = blk["표"]
-            t = ['<table style="border-collapse:collapse;width:100%;font-size:15px;margin:10px 0 20px">']
-            for i, r in enumerate(rows):
-                tag = "th" if i == 0 else "td"
-                t.append("<tr>" + "".join(f'<{tag} style="border-bottom:1px solid #DCDFD8;padding:8px 6px;text-align:{"left" if j == 0 else "right"}">{html.escape(str(c))}</{tag}>' for j, c in enumerate(r)) + "</tr>")
-            t.append("</table>")
-            body.append("".join(t))
+    body = render_body(post, pid, made)
     link = post.get("집지니주소") or facts.get("대표쪽") or SITE
     body.append(f'<p style="font-size:16px;line-height:1.9;margin:28px 0 0">우리 집 평형으로 바로 보기: <a href="{html.escape(link)}">{html.escape(link)}</a></p>')
     article = "\n".join(body)
@@ -144,6 +206,8 @@ function sel(id){{var r=document.createRange();r.selectNodeContents(document.get
 function cpHtml(){{var a=document.getElementById('a');try{{navigator.clipboard.write([new ClipboardItem({{'text/html':new Blob([a.innerHTML],{{type:'text/html'}}),'text/plain':new Blob([a.innerText],{{type:'text/plain'}})}})]).then(function(){{done('본문 복사함')}},function(){{sel('a')}})}}catch(e){{sel('a')}}}}
 </script></body></html>"""
     (out / "index.html").write_text(page, encoding="utf-8")
+    keep = [{k: v for k, v in b.items() if k != "_파일"} | ({"그림파일": b["_파일"]} if b.get("_파일") in made else {}) for b in post["본문"]]
+    (out / "post.json").write_text(json.dumps(dict(post, 본문=keep), ensure_ascii=False, indent=1), encoding="utf-8")   # 다시 그리기용 원본(그림은 찍어 둔 파일을 다시 씀)
     m = BlogLedgerManager()
     url = f"{SITE}blog-draft/{pid}/"
     rec = next((r for r in m.records if r.get("글번호") == pid), None)
