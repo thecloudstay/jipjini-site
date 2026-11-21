@@ -1,0 +1,22 @@
+name: 아관비 관리비 받기
+on:
+  workflow_dispatch: {}
+  push:
+    branches: [main]
+    paths: ['tools/acb_api.py']
+permissions:
+  contents: write
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: 견본 받기
+        env:
+          DATA_GO_KR_KEY: ${{ secrets.DATA_GO_KR_KEY }}
+        run: python3 tools/acb_api.py
+      - name: 올리기
+        run: |
+          git config user.name "jipjini-bot"; git config user.email "bot@jipjini.com"
+          git add data/acb/api_sample.json
+          git diff --cached --quiet || (git commit -m "아관비: 관리비 연결 견본" && git pull --rebase -q && git push)

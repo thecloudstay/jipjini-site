@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>아관비 — 옆 아파트 관리비는 얼마나 나올까? | 집지니</title>
+<meta name="description" content="수도권 아파트 9,620단지 관리비 비교. 우리 단지 ㎡당 관리비를 연식·세대수·평형·난방 방식이 비슷한 10곳과 견주어 다섯 얼굴로 보여 줍니다. 국토교통부 공개 자료.">
+<meta name="keywords" content="아파트 관리비 비교, 관리비 조회, 관리비 많이 나오는 아파트, 관리비 평균, 장기수선충당금, 아관비, 집지니">
+<link rel="canonical" href="https://jipjini.com/acb/">
+<meta property="og:type" content="website"><meta property="og:site_name" content="집지니 · 인테리어 데이터 솔루션">
+<meta property="og:title" content="아관비 — 옆 아파트 관리비는 얼마나 나올까?"><meta property="og:description" content="우리 단지 관리비, 비슷한 집 10곳보다 비쌀까? 수도권 9,620단지 비교.">
+<meta property="og:url" content="https://jipjini.com/acb/"><meta property="og:image" content="https://jipjini.com/og-cover.png">
+<meta name="theme-color" content="#FFFFFF">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/home/home.css?v=20261116c">
+<link rel="stylesheet" href="../assets/apt/apt.css?v=20261117c">
+<link rel="stylesheet" href="../assets/acb/acb.css?v=20261121a">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-35EM7T3M9W"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());(function(){try{if(localStorage.getItem('jj_staff'))window['ga-disable-G-35EM7T3M9W']=true}catch(e){}})();gtag('config','G-35EM7T3M9W');</script>
+<style>
+.acbq{margin-top:22px}
+.acbq input{width:100%;font:inherit;font-size:18px;padding:14px 16px;border:1.5px solid var(--jj-ink,#1C1F1B);border-radius:4px}
+.acbq ul{list-style:none;margin:0;padding:0;border:1px solid var(--jj-rule,#DCDFD8);border-top:0;border-radius:0 0 4px 4px}
+.acbq ul:empty{display:none}
+.acbq li a{display:grid;grid-template-columns:34px 1fr auto;gap:12px;align-items:center;padding:9px 14px;text-decoration:none;border-top:1px solid var(--jj-grid,#EEF0EB);font-variant-numeric:tabular-nums}
+.acbq li a:hover{background:#F6F7F4}
+.acbq li small{color:var(--jj-pencil,#6B7067);margin-left:8px;font-size:13px}
+.acbq li b{font-weight:600}
+.acbs{display:grid;grid-template-columns:repeat(5,1fr);margin-top:30px;border-top:1px solid var(--jj-ink,#1C1F1B)}
+.acbs div{text-align:center;padding:16px 4px;border-right:1px solid var(--jj-rule,#DCDFD8);font-size:13px;color:var(--jj-pencil,#6B7067)}
+.acbs div:last-child{border-right:0}
+.acbs b{display:block;font-size:16px;margin-top:4px}
+.acbs svg{display:block;margin:0 auto}
+#acbOut{margin-top:10px}
+</style>
+</head>
+<body>
+<header class="top">
+  <a href="../" class="brand"><span class="mark">집</span>집지니<small class="btag">인테리어 데이터 솔루션</small></a>
+  <nav class="links"><a href="../#f1">우리 집 공사비</a><a href="../apt/">아파트별 공사비</a><a href="./">관리비 비교</a><a href="../req/" class="go">무료 견적</a></nav>
+</header>
+<main class="ap">
+<h1>옆 아파트 관리비는 얼마나 나올까?</h1>
+<p class="sub">집지니 아관비 · 수도권 <span id="acbN">9,620</span>단지 · 국토교통부 공개 관리비 2026년 1~9월</p>
+<div class="acbq"><input id="acbIn" type="search" placeholder="아파트 이름이나 구 이름 (예: 래미안, 서대문구)" autocomplete="off" aria-label="아파트 찾기"><ul id="acbList"></ul></div>
+<div class="acbs" id="acbScale"></div>
+<section class="acb" id="acbOut"></section>
+<p class="note">비슷한 집은 같은 시·도에서 난방 방식·분양 형태가 같고 준공 연도·세대수·평균 전용면적이 가장 가까운 10곳입니다. 얼굴은 비슷한 집 가운데값을 100으로 놓은 지수로 정합니다.</p>
+</main>
+<footer class="foot">
+  <div class="fl"><a href="../apt/">아파트별 공사비</a><a href="../pricing.html">가격</a><a href="../cases/">견적 사례</a><a href="../showroom.html">샘플실</a><a href="../faq.html">자주 묻는 질문</a></div>
+  <p class="fid"><b>집지니 — 인테리어 데이터 솔루션 기업.</b> 아파트 평면도를 도면·공정별 물량·공사 자료로 바꾸고, 그 자료로 견적부터 시공 관리까지 합니다.</p>
+  <p>© 2026 집지니. 서울, 경기, 인천. 대표 박찬영, 사업자등록번호 874-10-00088</p>
+</footer>
+<script src="../assets/acb/acb.js?v=20261121a"></script>
+<script>
+(function(){
+  var A=window.JJacb, IDX=null, inp=document.getElementById('acbIn'), ul=document.getElementById('acbList'), out=document.getElementById('acbOut');
+  var R={1:'85 미만',2:'85~95',3:'95~105',4:'105~115',5:'115 이상'}, sc=document.getElementById('acbScale');
+  [1,2,3,4,5].forEach(function(t){var d=document.createElement('div');d.appendChild(A.faceSvg(t,52));d.insertAdjacentHTML('beforeend','<b style="color:'+A.C[t]+'">'+A.NAME[t]+'</b>지수 '+R[t]);sc.appendChild(d);});
+  function idx(){return IDX?Promise.resolve(IDX):fetch('../data/acb/index.json').then(function(r){return r.json()}).then(function(j){IDX=j;document.getElementById('acbN').textContent=Object.keys(j).length.toLocaleString('ko-KR');return j});}
+  function show(c){idx().then(function(j){var e=j[c];if(!e)return;out.setAttribute('data-c',c);out.setAttribute('data-f',e[5]);out.setAttribute('data-root','../');A.load(out);sc.style.display='none';ul.innerHTML='';inp.value=e[0];document.title=e[0]+' 관리비 — 아관비 | 집지니';});}
+  var t;inp.addEventListener('input',function(){clearTimeout(t);t=setTimeout(function(){var q=inp.value.replace(/\s/g,'');if(q.length<2){ul.innerHTML='';return}
+    idx().then(function(j){var hit=[];for(var c in j){var e=j[c];if((e[0]+e[1]).replace(/\s/g,'').indexOf(q)>=0)hit.push([c,e]);if(hit.length>=30)break}
+      ul.innerHTML='';hit.forEach(function(h){var li=document.createElement('li'),a=document.createElement('a');a.href='?c='+h[0];a.appendChild(A.faceSvg(h[1][4],30));
+        a.insertAdjacentHTML('beforeend','<span><b></b><small></small></span><span>㎡당 '+h[1][2].toLocaleString('ko-KR')+'원</span>');a.querySelector('b').textContent=h[1][0];a.querySelector('small').textContent=h[1][1];
+        a.onclick=function(ev){ev.preventDefault();history.pushState(null,'','?c='+h[0]);show(h[0]);};li.appendChild(a);ul.appendChild(li);});});},150);});
+  var c=new URLSearchParams(location.search).get('c'); if(c)show(c); else idx();
+  window.addEventListener('popstate',function(){var c=new URLSearchParams(location.search).get('c');if(c)show(c)});
+})();
+</script>
+</body>
+</html>

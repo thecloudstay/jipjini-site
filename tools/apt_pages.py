@@ -439,6 +439,26 @@ def type_page(code, row, d, t, pr, nq, siblings, cases=()):
     return url, head(url, title, desc, ld, 2, kw) + body + foot(2), rec
 
 
+ACB = None
+def acb_key(code):
+    """아관비(관리비 비교) 자료 파일 이름 — data/acb/index.json (2026-11-21)"""
+    global ACB
+    if ACB is None:
+        p = os.path.join(ROOT, "data", "acb", "index.json")
+        ACB = json.load(open(p, encoding="utf-8")) if os.path.exists(p) else {}
+    e = ACB.get(code)
+    return e[5] if e else None
+
+
+def acb_html(code, depth):
+    k = acb_key(code)
+    if not k:
+        return ""
+    up = "../" * depth
+    return (f'<section class="acb" data-c="{code}" data-f="{esc(k)}" data-root="{up}"></section>'
+            f'<link rel="stylesheet" href="{up}assets/acb/acb.css?v=20261121a"><script src="{up}assets/acb/acb.js?v=20261121a" defer></script>')
+
+
 def apt_page(code, row, d, pr, nq):
     name, loc, dong, year, hh = d['단지'], row[2], row[3], row[4], row[5]
     ts = d['평형']
@@ -467,6 +487,7 @@ def apt_page(code, row, d, pr, nq):
   <p class="note">올수리 기본은 샷시·필름·베란다를 뺀 금액, 부가세 10% 별도. 평형을 누르면 도면과 공종별 금액, 셀인(셀프 인테리어)·반셀인(반셀프)·직영 인테리어로 할 때의 비용이 나옵니다.</p>
   <div class="cta"><a class="go" href="../../req/?apt={code}">우리 집 견적서 받기<small>무료 · 24시간 안에</small></a><a href="../../?apt={code}#f1">첫 화면 계산기에서 공사 빼 보기</a></div>
 </section>
+{acb_html(code, 2)}
 <section>
   <h2>{esc(name)} 공사 전에 먼저 볼 곳</h2>
   <ul class="pts">{"".join(f"<li>{esc(x)}</li>" for x in age_notes(year, hh))}</ul>

@@ -1,0 +1,31 @@
+/* 아관비 — 아파트 관리비 비교 (2026-11-21). 색·글꼴은 jj-tokens. 얼굴 5단계 색만 따로 */
+.acb{--l1:#14532D;--l2:#1F5E2E;--l3:#6B7067;--l4:#C2410C;--l5:#B3261E;font-variant-numeric:tabular-nums}
+.acb .ahead{display:grid;grid-template-columns:96px 1fr;gap:20px;align-items:center;padding:18px 0 20px;border-top:1px solid var(--jj-ink,#1C1F1B);border-bottom:1px solid var(--jj-rule,#DCDFD8)}
+.acb .ahead svg{display:block}
+.acb .lvn{margin:0;font-size:24px;font-weight:700;line-height:1.3}
+.acb .lvn small{font-size:15px;font-weight:500;margin-left:10px;color:var(--jj-pencil,#6B7067)}
+.acb .say{margin:6px 0 0;font-size:16px;line-height:1.75}
+.acb .say b{font-weight:700}
+.acb .scale5{display:grid;grid-template-columns:repeat(5,1fr);margin-top:14px;font-size:12.5px;color:var(--jj-pencil,#6B7067);text-align:center}
+.acb .scale5 span{padding:6px 2px;border-top:3px solid var(--jj-rule,#DCDFD8)}
+.acb .scale5 span.on{font-weight:700;color:var(--jj-ink,#1C1F1B)}
+.acb h3{font-size:16px;margin:30px 0 8px}
+.acb h3 small{font-weight:400;font-size:13px;color:var(--jj-pencil,#6B7067);margin-left:8px}
+.acb .achart{border:0;padding:0;margin:0;background:none;height:auto}.acb .achart svg{display:block;width:100%;height:auto}
+.acb .lg{display:flex;flex-wrap:wrap;gap:16px;font-size:13px;color:var(--jj-pencil,#6B7067);margin-top:6px}
+.acb .lg i{display:inline-block;width:18px;height:0;border-top:2.5px solid;vertical-align:middle;margin-right:6px}
+.acb .lg i.p{border-top:2px dashed var(--jj-pencil,#6B7067)}
+.acb .br{width:100%;border-collapse:collapse;font-size:15px}
+.acb .br td,.acb .br th{padding:9px 6px;border-bottom:1px solid var(--jj-rule,#DCDFD8);text-align:right}
+.acb .br th{font-size:13px;font-weight:600;color:var(--jj-pencil,#6B7067);border-bottom:1px solid var(--jj-ink,#1C1F1B)}
+.acb .br td:first-child,.acb .br th:first-child{text-align:left}
+.acb .br .bar{width:38%}
+.acb .br .bar i{display:block;height:8px;border-radius:2px}
+.acb .peer td{vertical-align:middle}
+.acb .peer td.nm{text-align:left}
+.acb .peer a{text-decoration:none}.acb .peer a:hover{text-decoration:underline}
+.acb .peer small{display:block;font-size:12.5px;color:var(--jj-pencil,#6B7067)}
+.acb .peer tr.me td{font-weight:700;background:#F6F7F4}
+.acb .anote{margin-top:22px;font-size:13px;line-height:1.8;color:var(--jj-pencil,#6B7067)}
+.acb .up{color:var(--l5)}.acb .dn{color:var(--l2)}
+@media (max-width:760px){.acb .ahead{grid-template-columns:72px 1fr;gap:14px}.acb .br .bar{display:none}.acb .peer .hide{display:none}}
