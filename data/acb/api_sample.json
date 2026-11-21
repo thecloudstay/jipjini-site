@@ -1,7 +1,218 @@
 {
- "때": "2026-11-21 09:31",
- "키": false,
+ "때": "2026-11-21 09:42",
+ "키": true,
  "단지": "A10027118",
- "결과": {},
- "알림": "깃허브 비밀값 DATA_GO_KR_KEY 가 비어 있음"
+ "결과": {
+  "AptCmnuseManageCostServiceV3/getHsmpLaborCostInfoV3": {
+   "response": {
+    "body": {
+     "item": {
+      "kaptCode": "A10027118",
+      "kaptName": "경희궁자이2단지 아파트",
+      "pay": 41616209,
+      "sundryCost": 6436991,
+      "bonus": 0,
+      "pension": 4949289,
+      "accidentPremium": 447874,
+      "employPremium": 538728,
+      "nationalPension": 1361327,
+      "healthPremium": 1931821,
+      "welfareBenefit": 1832860
+     }
+    },
+    "header": {
+     "resultCode": "00",
+     "resultMsg": "NORMAL SERVICE."
+    }
+   }
+  },
+  "AptCmnuseManageCostServiceV3/getHsmpCleaningCostInfoV3": {
+   "response": {
+    "body": {
+     "item": {
+      "kaptCode": "A10027118",
+      "kaptName": "경희궁자이2단지 아파트",
+      "cleanCost": 40187274
+     }
+    },
+    "header": {
+     "resultCode": "00",
+     "resultMsg": "NORMAL SERVICE."
+    }
+   }
+  },
+  "AptCmnuseManageCostServiceV3/getHsmpGuardCostInfoV3": {
+   "response": {
+    "body": {
+     "item": {
+      "kaptCode": "A10027118",
+      "kaptName": "경희궁자이2단지 아파트",
+      "guardCost": 45215719
+     }
+    },
+    "header": {
+     "resultCode": "00",
+     "resultMsg": "NORMAL SERVICE."
+    }
+   }
+  },
+  "AptCmnuseManageCostServiceV3/getHsmpElevatorMntncCostInfoV3": {
+   "response": {
+    "body": {
+     "item": {
+      "kaptCode": "A10027118",
+      "kaptName": "경희궁자이2단지 아파트",
+      "elevCost": 6279700
+     }
+    },
+    "header": {
+     "resultCode": "00",
+     "resultMsg": "NORMAL SERVICE."
+    }
+   }
+  },
+  "AptCmnuseManageCostServiceV3/getHsmpRepairsCostInfoV3": {
+   "response": {
+    "body": {
+     "item": {
+      "kaptCode": "A10027118",
+      "kaptName": "경희궁자이2단지 아파트",
+      "lrefCost1": 4210010
+     }
+    },
+    "header": {
+     "resultCode": "00",
+     "resultMsg": "NORMAL SERVICE."
+    }
+   }
+  },
+  "AptCmnuseManageCostServiceV3/getHsmpConsignManageFeeInfoV3": {
+   "response": {
+    "body": {
+     "item": {
+      "kaptCode": "A10027118",
+      "kaptName": "경희궁자이2단지 아파트",
+      "manageCost": 2868866
+     }
+    },
+    "header": {
+     "resultCode": "00",
+     "resultMsg": "NORMAL SERVICE."
+    }
+   }
+  },
+  "AptCmnuseManageCostServiceV3/getHsmpTaxdueInfoV3": {
+   "response": {
+    "body": {
+     "item": {
+      "kaptCode": "A10027118",
+      "kaptName": "경희궁자이2단지 아파트",
+      "electCost": 0,
+      "telCost": 374790,
+      "postageCost": 8250,
+      "taxrestCost": 0
+     }
+    },
+    "header": {
+     "resultCode": "00",
+     "resultMsg": "NORMAL SERVICE."
+    }
+   }
+  },
+  "AptCmnuseManageCostServiceV3/getHsmpFacilityMntncCostInfoV3": {
+   "response": {
+    "body": {
+     "item": {
+      "kaptCode": "A10027118",
+      "kaptName": "경희궁자이2단지 아파트",
+      "lrefCost2": 11985705
+     }
+    },
+    "header": {
+     "resultCode": "00",
+     "resultMsg": "NORMAL SERVICE."
+    }
+   }
+  },
+  "AptIndvdlzManageCostServiceV3/getHsmpHeatCostInfoV3": {
+   "response": {
+    "body": {
+     "item": {
+      "kaptCode": "A10027118",
+      "kaptName": "경희궁자이2단지 아파트",
+      "heatC": "0",
+      "heatP": "0"
+     }
+    },
+    "header": {
+     "resultCode": "00",
+     "resultMsg": "NORMAL SERVICE."
+    }
+   }
+  },
+  "AptIndvdlzManageCostServiceV3/getHsmpHotWaterCostInfoV3": {
+   "response": {
+    "body": {
+     "item": {
+      "kaptCode": "A10027118",
+      "kaptName": "경희궁자이2단지 아파트",
+      "waterHotC": "0",
+      "waterHotP": "0"
+     }
+    },
+    "header": {
+     "resultCode": "00",
+     "resultMsg": "NORMAL SERVICE."
+    }
+   }
+  },
+  "AptIndvdlzManageCostServiceV3/getHsmpElectricityCostInfoV3": {
+   "response": {
+    "body": {
+     "item": {
+      "kaptCode": "A10027118",
+      "kaptName": "경희궁자이2단지 아파트",
+      "electC": "20268619",
+      "electP": "64656090"
+     }
+    },
+    "header": {
+     "resultCode": "00",
+     "resultMsg": "NORMAL SERVICE."
+    }
+   }
+  },
+  "AptIndvdlzManageCostServiceV3/getHsmpWaterCostInfoV3": {
+   "response": {
+    "body": {
+     "item": {
+      "kaptCode": "A10027118",
+      "kaptName": "경희궁자이2단지 아파트",
+      "waterCoolC": "3068910",
+      "waterCoolP": "26041860"
+     }
+    },
+    "header": {
+     "resultCode": "00",
+     "resultMsg": "NORMAL SERVICE."
+    }
+   }
+  },
+  "AptIndvdlzManageCostServiceV3/getHsmpGasRentalFeeInfoV3": {
+   "response": {
+    "body": {
+     "item": {
+      "kaptCode": "A10027118",
+      "kaptName": "경희궁자이2단지 아파트",
+      "gasC": "0",
+      "gasP": "0"
+     }
+    },
+    "header": {
+     "resultCode": "00",
+     "resultMsg": "NORMAL SERVICE."
+    }
+   }
+  }
+ }
 }
