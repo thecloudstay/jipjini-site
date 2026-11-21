@@ -1,0 +1,13 @@
+name: 아관비 입찰 연결 찾기
+on:
+  push:
+    branches: [main]
+    paths: ['tools/acb_bid_probe.py']
+  workflow_dispatch: {}
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - env: {DATA_GO_KR_KEY: "${{ secrets.DATA_GO_KR_KEY }}"}
+        run: python3 tools/acb_bid_probe.py
