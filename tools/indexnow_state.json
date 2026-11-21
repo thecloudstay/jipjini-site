@@ -1,9 +1,9 @@
 {
-"at": "2026-11-21T00:43:40.871880",
-"sent": 1504,
+"at": "2026-11-21T02:58:44.707345",
+"sent": 1,
 "results": {
 "https://api.indexnow.org/indexnow": 200,
-"https://searchadvisor.naver.com/indexnow": 200
+"https://searchadvisor.naver.com/indexnow": 422
 },
 "urls": {
 "https://jipjini.com/about.html": "2026-11-20",
@@ -58,7 +58,7 @@
 "https://jipjini.com/cases/seoul-52py-window.html": "2026-11-20",
 "https://jipjini.com/gimpo-interior.html": "2026-10-24",
 "https://jipjini.com/incheon-interior.html": "2026-10-25",
-"https://jipjini.com/": "2026-11-20",
+"https://jipjini.com/": "2026-11-21",
 "https://jipjini.com/interior-estimate-compare.html": "2026-11-20",
 "https://jipjini.com/interior-margin-30.html": "2026-11-20",
 "https://jipjini.com/interior-price-table.html": "2026-11-20",
