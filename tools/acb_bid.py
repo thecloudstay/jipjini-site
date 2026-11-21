@@ -137,7 +137,7 @@ def main():
     n0 = len(bd); tried = got = 0
     for a, num in won:
         if calls >= MAXCALL: break
-        raw = get("getBidEntrpsInfoSearchV3", bidNum=num)
+        raw = get("getBidEntrpsInfoSearchV3", bidNum=num, pageNo=1, numOfRows=100)
         it, _ = items(raw)
         tried += 1
         if it:
