@@ -59,11 +59,47 @@ def slim(r):
     return s
 
 
+def list_one(y, kw):
+    """나눠 받기 한 조각: 한 해 × 한 낱말 → data/acb/bid/part/{y}_{kw}.json.gz"""
+    out = {}
+    page, got = 1, 0
+    while True:
+        it, tot = items(get("getBidPblAncNmSearchV3", bidTitle=kw, searchYear=str(y), pageNo=page, numOfRows=1000))
+        if it is None: break
+        for r in it: out[r["bidNum"]] = slim(r)
+        got += len(it)
+        print(y, kw, got, "/", tot, flush=True)
+        if not it or got >= tot: break
+        page += 1
+    os.makedirs(os.path.join(OUT, "part"), exist_ok=True)
+    wr(os.path.join(OUT, "part", f"{y}_{kw}.json.gz"), list(out.values()))
+
+
+def merge_parts():
+    import glob
+    for y in YEARS:
+        f = os.path.join(OUT, f"all_{y}.json.gz")
+        allr = {r["bidNum"]: r for r in rd(f, [])}
+        for pth in glob.glob(os.path.join(OUT, "part", "**", f"{y}_*.json.gz"), recursive=True):
+            for r in rd(pth, []): allr[r["bidNum"]] = r
+        wr(f, list(allr.values()))
+        print("합침", y, len(allr), flush=True)
+
+
 def main():
     if not K: print("키 없음"); return
+    mode = os.environ.get("MODE", "")
+    if mode == "list":
+        return list_one(int(os.environ["YEAR"]), os.environ["KWD"])
+    if mode == "merge":
+        merge_parts()
+        st = rd(os.path.join(OUT, "state.json.gz"), {})
+        for y in YEARS: st[f"done_{y}"] = 1
+        wr(os.path.join(OUT, "state.json.gz"), st)
+        return
     os.makedirs(OUT, exist_ok=True)
     st = rd(os.path.join(OUT, "state.json.gz"), {})
-    for y in YEARS:
+    for y in ([] if mode == "bidders" else YEARS):
         f = os.path.join(OUT, f"all_{y}.json.gz")
         allr = {r["bidNum"]: r for r in rd(f, [])}
         # 지난해 이전은 한 번 다 받으면 다시 받지 않는다
@@ -98,6 +134,8 @@ def main():
         it, _ = items(get("getBidEntrpsInfoSearchV3", bidNum=num))
         if it is not None:
             bd[num] = [[p.get("companyName"), (p.get("bidSuccessfulYn") or "")[:1]] for p in it]
+            if len(bd) % 500 == 0:
+                wr(bf, bd); print("응찰", len(bd), flush=True)
     wr(bf, bd)
     wr(os.path.join(OUT, "state.json.gz"), st)
     print("응찰 붙임", len(bd) - n0, "남은 낙찰", max(0, len(won) - (len(bd) - n0)), "부른 횟수", calls)

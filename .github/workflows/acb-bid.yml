@@ -6,17 +6,52 @@ permissions:
   contents: write
 concurrency: {group: acb-bid, cancel-in-progress: false}
 jobs:
-  run:
+  list:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      max-parallel: 20
+      matrix:
+        year: [2024, 2025, 2026]
+        kw: [선정, 공고, 입찰, 공사, 용역, 업체, 계약, 매각, 모집, 교체, 보수]
+    steps:
+      - uses: actions/checkout@v4
+        with: {sparse-checkout: tools}
+      - env: {DATA_GO_KR_KEY: "${{ secrets.DATA_GO_KR_KEY }}", MODE: list, YEAR: "${{ matrix.year }}", KWD: "${{ matrix.kw }}"}
+        run: python3 tools/acb_bid.py
+      - uses: actions/upload-artifact@v4
+        with: {name: "part-${{ matrix.year }}-${{ strategy.job-index }}", path: data/acb/bid/part/, retention-days: 2}
+  merge:
+    needs: list
+    if: always()
     runs-on: ubuntu-latest
     timeout-minutes: 300
     steps:
       - uses: actions/checkout@v4
-      - env: {DATA_GO_KR_KEY: "${{ secrets.DATA_GO_KR_KEY }}"}
+      - uses: actions/download-artifact@v4
+        with: {pattern: "part-*", path: data/acb/bid/part/}
+      - env: {DATA_GO_KR_KEY: "${{ secrets.DATA_GO_KR_KEY }}", MODE: merge}
         run: python3 tools/acb_bid.py
-      - if: always()
-        run: python3 tools/acb_bid_build.py
+      - run: python3 tools/acb_bid_build.py
+      - run: |
+          git config user.name "jipjini-bot"; git config user.email "bot@jipjini.com"
+          rm -rf data/acb/bid/part
+          git add data/acb/bid
+          git diff --cached --quiet || (git commit -m "아관비: 입찰 목록 합침·분석 [skip ci]" && git pull --rebase -q && git push)
+  bidders:
+    needs: merge
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 330
+    steps:
+      - uses: actions/checkout@v4
+      - run: git pull -q
+      - env: {DATA_GO_KR_KEY: "${{ secrets.DATA_GO_KR_KEY }}", MODE: bidders}
+        run: timeout 300m python3 tools/acb_bid.py || true
+      - run: python3 tools/acb_bid_build.py
       - if: always()
         run: |
           git config user.name "jipjini-bot"; git config user.email "bot@jipjini.com"
-          git add data/acb/bid data/acb/units.json
-          git diff --cached --quiet || (git commit -m "아관비: 입찰 자료 [skip ci]" && git pull --rebase -q && git push)
+          git add data/acb/bid
+          git diff --cached --quiet || (git commit -m "아관비: 응찰 업체·분석 [skip ci]" && git pull --rebase -q && git push)
