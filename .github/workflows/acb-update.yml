@@ -1,6 +1,7 @@
 name: 아관비 관리비 받기
 on:
   workflow_dispatch: {}
+  schedule: [{cron: '20 21 * * *'}]
   push:
     branches: [main]
     paths: ['tools/acb_api.py']
