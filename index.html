@@ -127,6 +127,17 @@
 </div>
 
 <!-- 바로 가기 (2026-11-16 대표 「고객 그루핑 다 모아서, 주요 기능을 바로바로」) — 탭으로 숨기던 「어떤 분이세요?」를 한눈에 보이는 목록으로 바꿈 -->
+<!-- 단지 입체 (2026-11-22 대표 「메인에 크게, 보여주기 먼저」) -->
+<section class="d3h" id="d3">
+  <div class="d3hh">
+    <div><h2>우리 단지를 입체로 봅니다</h2>
+    <p class="d3hs">동마다 실제 높이로 세웠습니다. 끌면 돌아가고, 동을 누르면 층수가 나옵니다.</p></div>
+    <div class="d3hq"><input id="d3in" type="search" placeholder="아파트 이름 (예: 잠실엘스)" autocomplete="off" aria-label="단지 찾기"><ul id="d3list"></ul></div>
+  </div>
+  <div class="a3d d3big" id="d3box"></div>
+  <p class="d3hf"><b id="d3name">잠실엘스아파트</b><span id="d3msg">서울 송파구 · 수도권 5,393단지 준비됨</span><a id="d3go" href="acb/?c=A13822004" data-ev="home_d3">이 단지 관리비 보기</a><small>자료: 국토교통부 건물통합정보</small></p>
+</section>
+
 <section class="go4" id="go">
   <h2>무슨 일로 오셨어요?</h2>
   <p class="go4s">해당하는 줄을 누르면 바로 시작합니다. 아래 도구는 모두 무료이고 가입 없이 씁니다.</p>
@@ -742,6 +753,24 @@ var hdr=document.querySelector("header, .site-header, nav.site-nav, .navbar, .na
 <script src="assets/live_stats.js?v=20261113a" defer></script>
 <script src="assets/home/fold.js?v=1" defer></script>
 <style>
+.d3h{max-width:1080px;margin:0 auto;padding:56px 20px 40px;border-top:1px solid var(--jj-rule,#DCDFD8)}
+.d3hh{display:flex;flex-wrap:wrap;gap:16px 32px;align-items:end;justify-content:space-between;margin-bottom:18px}
+.d3h h2{margin:0 0 8px}
+.d3hs{margin:0;color:var(--jj-pencil,#6B7067);line-height:1.75}
+.d3hq{position:relative;flex:0 1 320px;min-width:240px}
+.d3hq input{width:100%;box-sizing:border-box;font:inherit;font-size:16px;padding:11px 14px;border:1.5px solid var(--jj-ink,#1C1F1B);border-radius:4px;background:#fff}
+.d3hq ul{position:absolute;z-index:5;left:0;right:0;top:100%;list-style:none;margin:0;padding:0;background:#fff;border:1px solid var(--jj-rule,#DCDFD8);border-top:0;max-height:300px;overflow:auto}
+.d3hq ul:empty{display:none}
+.d3hq li button{display:block;width:100%;text-align:left;font:inherit;background:none;border:0;border-top:1px solid #EEF0EB;padding:9px 14px;cursor:pointer}
+.d3hq li button:hover{background:#F6F7F4}
+.d3hq li small{color:var(--jj-pencil,#6B7067);margin-left:8px;font-size:13px}
+.a3d.d3big canvas{height:560px}
+.d3hf{display:flex;flex-wrap:wrap;gap:6px 16px;align-items:baseline;margin:12px 0 0;font-size:14.5px}
+.d3hf b{font-size:17px}
+.d3hf span,.d3hf small{color:var(--jj-pencil,#6B7067)}
+.d3hf small{margin-left:auto;font-size:12.5px}
+.d3hf a{font-weight:600;color:var(--jj-green,#1F5E2E)}
+@media (max-width:760px){.a3d.d3big canvas{height:400px}.d3hf small{margin-left:0;width:100%}}
 .acbh{max-width:1080px;margin:0 auto;padding:56px 20px;border-top:1px solid var(--jj-rule,#DCDFD8)}
 .acbh h2{margin:0 0 10px}
 .acbhs{margin:0 0 24px;color:var(--jj-pencil,#6B7067);line-height:1.75;max-width:640px}
@@ -753,7 +782,24 @@ var hdr=document.querySelector("header, .site-header, nav.site-nav, .navbar, .na
 .acbhb{display:inline-block;margin-top:22px;padding:13px 22px;background:var(--jj-ink,#1C1F1B);color:#fff;border-radius:4px;text-decoration:none;font-weight:600}
 @media (max-width:640px){.acbhf .r{display:none}.acbhf svg{width:40px;height:40px}.acbhf em{font-size:16px}.acbhf b{font-size:13px}}
 </style>
-<link rel="stylesheet" href="assets/acb/acb.css?v=20261121d"><script src="assets/acb/acb.js?v=20261121d" defer></script>
+<link rel="stylesheet" href="assets/acb/acb.css?v=20261122a"><script src="assets/acb/acb.js?v=20261122a" defer></script>
+<script src="assets/acb/d3.js?v=20261122a" defer></script>
+<script>
+document.addEventListener('DOMContentLoaded',function(){
+  var box=document.getElementById('d3box'); if(!box||!window.JJd3) return;
+  var IDX=null,inp=document.getElementById('d3in'),ul=document.getElementById('d3list'),nm=document.getElementById('d3name'),msg=document.getElementById('d3msg'),go=document.getElementById('d3go');
+  function show(c,name,gu,spin){ JJd3.mount(box,c,'',{spin:spin,done:function(){nm.textContent=name;msg.textContent=gu;go.href='acb/?c='+c;go.hidden=false;},
+    fail:function(){msg.textContent=name+' 단지는 입체 자료를 준비하고 있습니다';}}); }
+  show('A13822004','잠실엘스아파트','서울 송파구 · 수도권 5,393단지 준비됨',true);
+  function idx(){return IDX?Promise.resolve(IDX):fetch('data/acb/index.json').then(function(r){return r.json()}).then(function(j){IDX=j;return j});}
+  var t; inp.addEventListener('input',function(){clearTimeout(t);t=setTimeout(function(){var q=inp.value.replace(/\s/g,'');if(q.length<2){ul.textContent='';return}
+    idx().then(function(j){ul.textContent='';var n=0;for(var c in j){var e=j[c];if((e[0]+e[1]).replace(/\s/g,'').indexOf(q)<0)continue;
+      (function(c,e){var li=document.createElement('li'),b=document.createElement('button'),s=document.createElement('small');b.type='button';b.textContent=e[0];s.textContent=e[1];b.appendChild(s);
+        b.onclick=function(){ul.textContent='';inp.value=e[0];show(c,e[0],e[1],false);if(window.gtag)gtag('event','home_d3_pick');};li.appendChild(b);ul.appendChild(li);})(c,e);
+      if(++n>=20)break;}});},150);});
+});
+</script>
+
 <script>
 addEventListener('DOMContentLoaded',function(){var A=window.JJacb,b=document.getElementById('acbhf');if(!A||!b)return;
 var P={1:12,2:21,3:33,4:18,5:16},R={1:'85 미만',2:'85~95',3:'95~105',4:'105~115',5:'115 이상'};

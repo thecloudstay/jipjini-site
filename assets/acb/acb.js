@@ -85,6 +85,7 @@
     h += '<h3>비슷한 집 10곳<small>' + esc(o.n) + '은 11곳 가운데 싼 순서로 ' + rank + '번째</small></h3><table class="br peer"><thead><tr><th></th><th style="text-align:left">단지</th><th class="hide">준공</th><th class="hide">세대</th><th>㎡당</th><th>지수</th></tr></thead><tbody>' + rows.map(function (r) {
       return '<tr' + (r.me ? ' class="me"' : '') + '><td data-f="' + r.lv + '" style="width:40px"></td><td class="nm">' + (r.me ? esc(r.n) : '<a href="' + root + 'acb/?c=' + r.c + '">' + esc(r.n) + '</a>') + '<small>' + esc(r.g) + '</small></td><td class="hide">' + r.y + '</td><td class="hide">' + r.h.toLocaleString('ko-KR') + '</td><td>' + won(r.m2) + '</td><td style="color:' + C[r.lv] + '">' + r.ix + '</td></tr>';
     }).join('') + '</tbody></table>';
+    h += '<div data-d3wrap><h3>우리 단지 입체<small>동마다 실제 높이로 세웠습니다. 동을 누르면 층수가 나옵니다</small></h3><div class="a3d"></div><p class="a3dsrc">자료: 국토교통부 건물통합정보</p></div>';
     h += '<h3>옆 아파트 지도<small>얼굴을 누르면 단지 이름과 관리비가 나옵니다</small></h3><div class="amap"></div>';
     h += '<details class="how"><summary>계산 방법과 자료</summary><ul>' +
       '<li>비슷한 집: 같은 시·도에서 난방 방식(' + esc(o.heat || '') + ')·분양 형태가 같고, 준공 연도·세대수·평균 전용면적이 가장 가까운 10곳</li>' +
@@ -97,6 +98,7 @@
     box.querySelector('.fbig').appendChild(faceSvg(o.lv, box.clientWidth < 500 ? 72 : 92));
     box.querySelector('.achart').appendChild(chart(o, box.querySelector('.achart').clientWidth));
     box.querySelectorAll('[data-f]').forEach(function (td) { td.appendChild(faceSvg(+td.getAttribute('data-f'), 30)); });
+    draw3d(box, o, root);
     drawMap(box, o, root);
     watch(box);
   }
@@ -115,6 +117,12 @@
     });
   }
   function dist(a, b, c, d) { var x = (d - b) * Math.cos((a + c) / 2 * Math.PI / 180) * 111.32, y = (c - a) * 110.57; return Math.sqrt(x * x + y * y); }
+  function draw3d(box, o, root) {
+    var el = box.querySelector('.a3d'); if (!el) return;
+    function go() { window.JJd3.mount(el, o.c, root, {}); }
+    if (window.JJd3) return go();
+    var sc = document.createElement('script'); sc.src = root + 'assets/acb/d3.js?v=20261122a'; sc.onload = go; sc.onerror = function () { el.parentNode.hidden = true; }; document.head.appendChild(sc);
+  }
   function drawMap(box, o, root) {
     var m = box.querySelector('.amap'); if (!m) return;
     getIdx(root).then(function (I) {
