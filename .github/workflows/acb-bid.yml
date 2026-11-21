@@ -1,0 +1,20 @@
+name: 아관비 입찰 자료
+on:
+  workflow_dispatch: {}
+  schedule: [{cron: '40 19 * * *'}]
+permissions:
+  contents: write
+concurrency: {group: acb-bid, cancel-in-progress: false}
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    steps:
+      - uses: actions/checkout@v4
+      - env: {DATA_GO_KR_KEY: "${{ secrets.DATA_GO_KR_KEY }}"}
+        run: python3 tools/acb_bid.py
+      - if: always()
+        run: |
+          git config user.name "jipjini-bot"; git config user.email "bot@jipjini.com"
+          git add data/acb/bid
+          git diff --cached --quiet || (git commit -m "아관비: 입찰 자료 [skip ci]" && git pull --rebase -q && git push)
