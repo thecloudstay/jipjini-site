@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex,nofollow">
+<title>아관비 실험실 — 승강기 | 집지니</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../assets/home/home.css?v=20261116c">
+<link rel="stylesheet" href="../../assets/apt/apt.css?v=20261117c">
+<style>
+.lab{font-variant-numeric:tabular-nums}
+.lab .tabs{display:flex;gap:0;border-bottom:1px solid var(--jj-ink,#1C1F1B);margin:20px 0 0}
+.lab .tabs button{font:inherit;font-weight:600;padding:10px 16px;border:0;background:none;cursor:pointer;color:var(--jj-pencil,#6B7067);border-bottom:3px solid transparent}
+.lab .tabs button.on{color:var(--jj-ink,#1C1F1B);border-color:var(--jj-ink,#1C1F1B)}
+.lab section{display:none;padding-top:10px}.lab section.on{display:block}
+.lab table{width:100%;border-collapse:collapse;font-size:14px}
+.lab th,.lab td{padding:8px 6px;border-bottom:1px solid var(--jj-rule,#DCDFD8);text-align:right;vertical-align:top}
+.lab th{font-size:12.5px;color:var(--jj-pencil,#6B7067);border-bottom:1px solid var(--jj-ink,#1C1F1B)}
+.lab td:first-child,.lab th:first-child{text-align:left}
+.lab td small{display:block;color:var(--jj-pencil,#6B7067);font-size:12px}
+.lab .sg{color:#B3261E}
+.lab .bar{display:inline-block;height:8px;background:#1C1F1B;border-radius:2px;vertical-align:middle;margin-left:6px;opacity:.55}
+.lab .note{font-size:13px;color:var(--jj-pencil,#6B7067);line-height:1.8;margin:8px 0 14px}
+.lab .gu{padding:14px 0;border-bottom:1px solid var(--jj-rule,#DCDFD8)}
+.lab .gu b{display:block;margin-bottom:6px}
+.lab .gu div{display:grid;grid-template-columns:1fr 70px;font-size:14px;line-height:1.9}
+</style>
+</head>
+<body>
+<header class="top"><a href="../../" class="brand"><span class="mark">집</span>집지니<small class="btag">아관비 실험실 · 내부용</small></a></header>
+<main class="ap lab">
+<h1>승강기 교체 — 내부용 분석</h1>
+<p class="sub" id="meta">-</p>
+<div class="tabs"><button data-t="fc" class="on">공고 전 예측 명단</button><button data-t="who">누가 이기나</button><button data-t="sg">짬짜미 신호</button></div>
+<section id="fc" class="on"><p class="note">교체 공고 이력이 없는 준공 18년 넘은 단지. 점수 = 나이(최대 60점) + 같은 구에서 연식 ±3년 단지가 교체한 건수 × 10(최대 40점). 예상 공사비 = 승강기 대수 × 대당 가운데값. 단지 단위 공개 정보만 씁니다.</p>
+<table><thead><tr><th>단지</th><th>준공</th><th>대수</th><th>예상 공사비</th><th>옆 단지 교체</th><th>점수</th></tr></thead><tbody></tbody></table></section>
+<section id="who"><p class="note">시·구별 승강기 교체 낙찰 업체 (건수 많은 순, 상위 5곳).</p><div id="wl"></div></section>
+<section id="sg"><p class="note">확인이 필요한 신호일 뿐, 위법을 뜻하지 않습니다. 응찰 1~2곳 / 같은 업체 묶음이 3번 이상 함께 응찰 / 대당 단가가 가운데값보다 35% 넘게 높음.</p>
+<table><thead><tr><th>단지</th><th>공고일</th><th>대수</th><th>대당</th><th>응찰</th><th>신호</th></tr></thead><tbody></tbody></table>
+<h3 style="margin-top:30px">유찰이 2번 넘은 단지</h3><table id="fl"><thead><tr><th>단지</th><th>유찰</th></tr></thead><tbody></tbody></table></section>
+</main>
+<script>
+(function(){
+function won(n){n=Math.round(n);if(n>=1e8)return (Math.round(n/1e7)/10)+'억';return Math.round(n/1e4).toLocaleString('ko-KR')+'만';}
+function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+document.querySelectorAll('.tabs button').forEach(function(b){b.onclick=function(){document.querySelectorAll('.tabs button,.lab section').forEach(function(x){x.classList.remove('on')});b.classList.add('on');document.getElementById(b.dataset.t).classList.add('on')}});
+fetch('../../data/acb/bid/out/ev.json').then(function(r){return r.json()}).then(function(d){
+  document.getElementById('meta').textContent=d.기간+' · 승강기 교체 공고 '+d['전체 승강기 교체 공고'].toLocaleString('ko-KR')+'건 · 낙찰 '+d.낙찰+'건 · 대당 가운데값 '+won(d['대당 가운데값'])+'원 · 갱신 '+d.갱신;
+  document.querySelector('#fc tbody').innerHTML=d.예측.slice(0,150).map(function(x){return '<tr><td><a href="../?c='+x.c+'">'+esc(x.n)+'</a><small>'+esc(x.s+' '+x.g)+' · '+x.세대.toLocaleString('ko-KR')+'세대</small></td><td>'+x.y+'</td><td>'+x.대수+'</td><td>'+won(x.예상)+'</td><td>'+x.옆단지교체+'</td><td><b>'+x.점수+'</b><span class="bar" style="width:'+x.점수/2+'px"></span></td></tr>'}).join('');
+  var wl='';Object.keys(d.지도).slice(0,40).forEach(function(k){var v=d.지도[k];wl+='<div class="gu"><b>'+esc(k)+'</b>'+v.map(function(p){return '<div><span>'+esc(p[0])+'</span><span style="text-align:right">'+p[1]+'건</span></div>'}).join('')+'</div>'});
+  document.getElementById('wl').innerHTML=wl||'<p class="note">응찰 업체 자료를 모으는 중입니다.</p>';
+  document.querySelector('#sg tbody').innerHTML=d.신호.map(function(x){return '<tr><td>'+esc(x.n)+'<small>'+esc(x.g)+'</small></td><td>'+x.d+'</td><td>'+x.대수+'</td><td>'+won(x.대당)+'</td><td>'+(x.응찰||'-')+'</td><td class="sg">'+x.신호.map(esc).join('<br>')+'</td></tr>'}).join('')||'<tr><td colspan="6">신호 없음</td></tr>';
+  document.querySelector('#fl tbody').innerHTML=d['유찰 많은 단지'].map(function(x){return '<tr><td><a href="../?c='+x[0]+'">'+esc(x[1]||x[0])+'</a></td><td>'+x[2]+'번</td></tr>'}).join('');
+});
+})();
+</script>
+</body>
+</html>

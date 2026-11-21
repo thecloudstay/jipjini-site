@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>승강기 교체 낙찰 단가 — 대당 얼마에 바꿨나 | 집지니 아관비</title>
+<meta name="description" content="공동주택 승강기 전면 교체 공사 낙찰가를 대수로 나눈 대당 단가 기준표와, 우리 단지 승강기 교체 예상 공사비 계산. 국토교통부 공동주택 입찰결과 공개 자료.">
+<link rel="canonical" href="https://jipjini.com/acb/ev/">
+<meta property="og:title" content="승강기 교체, 대당 얼마에 낙찰됐나"><meta property="og:description" content="낙찰 단가 기준표와 우리 단지 교체 예상 공사비">
+<meta property="og:url" content="https://jipjini.com/acb/ev/"><meta property="og:image" content="https://jipjini.com/og-cover.png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../assets/home/home.css?v=20261116c">
+<link rel="stylesheet" href="../../assets/apt/apt.css?v=20261117c">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-35EM7T3M9W"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());(function(){try{if(localStorage.getItem('jj_staff'))window['ga-disable-G-35EM7T3M9W']=true}catch(e){}})();gtag('config','G-35EM7T3M9W');</script>
+<style>
+.ev{font-variant-numeric:tabular-nums}
+.ev .big{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--jj-ink,#1C1F1B);border-bottom:1px solid var(--jj-rule,#DCDFD8);margin-top:24px}
+.ev .big div{padding:18px 4px;text-align:center;color:var(--jj-pencil,#6B7067);font-size:13px}
+.ev .big b{display:block;font-size:26px;color:var(--jj-ink,#1C1F1B);margin-top:4px}
+.ev .big div:nth-child(2) b{color:var(--jj-green,#1F5E2E)}
+.ev h2{margin-top:44px}
+.ev .strip svg{display:block;width:100%;height:auto}
+.ev table{width:100%;border-collapse:collapse;font-size:14.5px}
+.ev th,.ev td{padding:9px 6px;border-bottom:1px solid var(--jj-rule,#DCDFD8);text-align:right}
+.ev th{font-size:13px;font-weight:600;color:var(--jj-pencil,#6B7067);border-bottom:1px solid var(--jj-ink,#1C1F1B)}
+.ev td:first-child,.ev th:first-child{text-align:left}
+.ev td small{display:block;color:var(--jj-pencil,#6B7067);font-size:12.5px}
+.ev .q{margin-top:14px}
+.ev .q input{width:100%;font:inherit;font-size:17px;padding:13px 15px;border:1.5px solid var(--jj-ink,#1C1F1B);border-radius:4px}
+.ev .q ul{list-style:none;margin:0;padding:0;border:1px solid var(--jj-rule,#DCDFD8);border-top:0}
+.ev .q ul:empty{display:none}
+.ev .q li a{display:flex;justify-content:space-between;padding:9px 14px;border-top:1px solid #EEF0EB;text-decoration:none}
+.ev .q li small{color:var(--jj-pencil,#6B7067)}
+.ev .res{margin-top:18px;padding:20px 0;border-top:1px solid var(--jj-ink,#1C1F1B);border-bottom:1px solid var(--jj-rule,#DCDFD8);display:none}
+.ev .res h3{margin:0 0 6px;font-size:18px}
+.ev .res p{margin:4px 0;line-height:1.8}
+.ev .res b.m{font-size:28px;color:var(--jj-green,#1F5E2E)}
+.ev .how{margin-top:30px;font-size:13.5px;color:var(--jj-pencil,#6B7067);line-height:1.9}
+.ev .hide{}
+@media (max-width:640px){.ev .big b{font-size:20px}.ev .hide{display:none}}
+</style>
+</head>
+<body>
+<header class="top">
+  <a href="../../" class="brand"><span class="mark">집</span>집지니<small class="btag">인테리어 데이터 솔루션</small></a>
+  <nav class="links"><a href="../../apt/">아파트별 공사비</a><a href="../">관리비 비교</a><a href="./">승강기 교체 단가</a><a href="../../req/" class="go">무료 견적</a></nav>
+</header>
+<main class="ap ev">
+<h1>승강기 교체, 대당 얼마에 낙찰됐나</h1>
+<p class="sub">공동주택 승강기 전면 교체 공사 낙찰가 ÷ 대수 · <span id="per">2024~2026</span> · <span id="cnt">-</span>건</p>
+
+<div class="big">
+  <div>싸게 한 쪽 4분의 1<b id="p25">-</b></div>
+  <div>가운데값<b id="p50">-</b></div>
+  <div>비싸게 한 쪽 4분의 1<b id="p75">-</b></div>
+</div>
+
+<h2>우리 단지 승강기 교체하면 얼마?</h2>
+<p class="sub">단지 이름을 넣으면 공개된 승강기 대수 × 대당 가운데값으로 계산합니다. 장기수선계획 다시 짤 때 예산 잡는 용도입니다.</p>
+<div class="q"><input id="qi" type="search" placeholder="아파트 이름 (예: 래미안, 주공)" autocomplete="off" aria-label="단지 찾기"><ul id="ql"></ul></div>
+<div class="res" id="res"></div>
+
+<h2>대당 낙찰가 분포</h2>
+<p class="sub">점 하나가 공사 한 건입니다. 가운데 굵은 선이 가운데값.</p>
+<div class="strip" id="strip"></div>
+
+<h2>연식·지역별</h2>
+<table id="tb"><thead><tr><th>구분</th><th>건</th><th>하위 25%</th><th>가운데값</th><th>상위 25%</th></tr></thead><tbody></tbody></table>
+
+<h2>최근 낙찰</h2>
+<table id="rc"><thead><tr><th>단지</th><th class="hide">공고일</th><th>대수</th><th>낙찰가</th><th>대당</th><th class="hide">응찰</th></tr></thead><tbody></tbody></table>
+
+<p class="how">자료: 국토교통부 공동주택 입찰결과공지(공동주택관리정보시스템 전자입찰). 제목에 승강기·교체(리모델링)가 들어간 낙찰 건에서 부품·로프·도어·폐자재 매각 같은 부분 공사를 뺐습니다. 대수는 공고문에 적힌 대수를 먼저 쓰고, 없으면 단지 공개 승강기 수를 씁니다. 대당 2,500만~1억 6천만 원 밖은 계산에서 뺐습니다. 실제 공사비는 층수·속도·기계실 유무에 따라 달라집니다.</p>
+</main>
+<footer class="foot">
+  <div class="fl"><a href="../">관리비 비교</a><a href="../../apt/">아파트별 공사비</a><a href="../../pricing.html">가격</a><a href="../../faq.html">자주 묻는 질문</a></div>
+  <p>© 2026 집지니. 대표 박찬영, 사업자등록번호 874-10-00088</p>
+</footer>
+<script>
+(function(){
+  var E=null,I=null,EST=null;
+  function won(n){n=Math.round(n);if(n>=1e8)return (Math.round(n/1e7)/10)+'억';return Math.round(n/1e4).toLocaleString('ko-KR')+'만';}
+  function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+  fetch('../../data/acb/bid/out/ev.json').then(function(r){return r.json()}).then(function(d){E=d;var t=d.기준표.전체;
+    document.getElementById('cnt').textContent=t.건.toLocaleString('ko-KR');document.getElementById('per').textContent=d.기간;
+    document.getElementById('p25').textContent=won(t.하위25)+' 원';document.getElementById('p50').textContent=won(t.가운데)+' 원';document.getElementById('p75').textContent=won(t.상위25)+' 원';
+    var rows=[['전체',t]];['20년 미만','20~25년','25~30년','30년 이상'].forEach(function(k){if(d.기준표.연식[k]&&d.기준표.연식[k].건)rows.push(['준공 '+k,d.기준표.연식[k]])});
+    Object.keys(d.기준표.지역).sort(function(a,b){return d.기준표.지역[b].건-d.기준표.지역[a].건}).forEach(function(k){if(d.기준표.지역[k].건>=3)rows.push([k,d.기준표.지역[k]])});
+    document.querySelector('#tb tbody').innerHTML=rows.map(function(r){var s=r[1];return '<tr><td>'+esc(r[0])+'</td><td>'+s.건+'</td><td>'+won(s.하위25)+'</td><td><b>'+won(s.가운데)+'</b></td><td>'+won(s.상위25)+'</td></tr>'}).join('');
+    document.querySelector('#rc tbody').innerHTML=d.건.slice(0,30).map(function(x){return '<tr><td>'+esc(x.n.replace(/\(입대의\)/,''))+'<small>'+esc((x.s||'')+' '+(x.g||''))+(x.y?' · '+x.y+'년':'')+'</small></td><td class="hide">'+x.d+'</td><td>'+x.대수+'</td><td>'+won(x.금액)+'</td><td><b>'+won(x.대당)+'</b></td><td class="hide">'+(x.응찰||'-')+'</td></tr>'}).join('');
+    // 점 분포
+    var W=720,H=120,v=d.건.map(function(x){return x.대당}),lo=2.5e7,hi=1.6e8,X=function(a){return 20+(W-40)*(a-lo)/(hi-lo)};
+    var s='<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="대당 낙찰가 분포">';
+    for(var g=3;g<=15;g+=3){var x=X(g*1e7);s+='<line x1="'+x+'" x2="'+x+'" y1="10" y2="'+(H-24)+'" stroke="#EEF0EB"/><text x="'+x+'" y="'+(H-6)+'" font-size="12" fill="#8E9389" text-anchor="middle">'+g+'천만</text>'}
+    v.forEach(function(a,i){s+='<circle cx="'+X(a)+'" cy="'+(22+((i*37)%60))+'" r="4" fill="#1C1F1B" opacity=".45"/>'});
+    var m=X(t.가운데);s+='<line x1="'+m+'" x2="'+m+'" y1="6" y2="'+(H-24)+'" stroke="#1F5E2E" stroke-width="3"/></svg>';
+    document.getElementById('strip').innerHTML=s;
+  });
+  var qi=document.getElementById('qi'),ql=document.getElementById('ql'),res=document.getElementById('res'),tm;
+  function idx(){return Promise.all([I||fetch('../../data/acb/index.json').then(function(r){return r.json()}).then(function(j){I=j;return j}),EST||fetch('../../data/acb/bid/out/ev_est.json').then(function(r){return r.json()}).then(function(j){EST=j;return j})]);}
+  function show(c){if(!E)return setTimeout(function(){show(c)},300);idx().then(function(){var e=I[c],x=EST[c],t=E.기준표.전체;if(!e)return;ql.innerHTML='';qi.value=e[0];res.style.display='block';
+    if(!x){res.innerHTML='<h3>'+esc(e[0])+'</h3><p>공개된 승강기 대수가 없어 계산하지 못했습니다.</p>';return}
+    var done=E.건.filter(function(d){return d.c===c})[0];
+    res.innerHTML='<h3>'+esc(e[0])+' <small style="color:#6B7067;font-weight:400">'+esc(e[1])+'</small></h3>'+
+      '<p>승강기 '+x[0]+'대 전면 교체 예상</p><p><b class="m">약 '+won(x[1])+' 원</b></p>'+
+      '<p>범위 '+won(t.하위25*x[0])+' ~ '+won(t.상위25*x[0])+' 원 (대당 하위 25% ~ 상위 25%)</p>'+
+      (done?'<p>이 단지는 '+done.d+'에 대당 '+won(done.대당)+' 원으로 낙찰된 교체 공사가 있습니다.</p>':'')+
+      '<p><a href="../?c='+c+'">이 단지 관리비 보기</a></p>';});}
+  qi.addEventListener('input',function(){clearTimeout(tm);tm=setTimeout(function(){var q=qi.value.replace(/\s/g,'');if(q.length<2){ql.innerHTML='';return}
+    idx().then(function(){var h=[];for(var c in I){if((I[c][0]+I[c][1]).replace(/\s/g,'').indexOf(q)>=0)h.push(c);if(h.length>=20)break}
+      ql.innerHTML=h.map(function(c){return '<li><a href="?c='+c+'" data-c="'+c+'"><span>'+esc(I[c][0])+'</span><small>'+esc(I[c][1])+'</small></a></li>'}).join('');
+      ql.querySelectorAll('a').forEach(function(a){a.onclick=function(ev){ev.preventDefault();history.replaceState(null,'','?c='+a.dataset.c);show(a.dataset.c)}})})},150)});
+  var c0=new URLSearchParams(location.search).get('c');if(c0)show(c0);
+})();
+</script>
+</body>
+</html>
