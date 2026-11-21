@@ -19,10 +19,17 @@ EV_OFF = re.compile(r"폐자재|매각|고철|로프|벨트|쉬브|시브|부품
 
 
 def load():
+    import gzip
     rows = {}
-    for f in glob.glob(os.path.join(R, "data/acb/bid/*_20*.json")):
-        for r in json.load(open(f, encoding="utf-8")):
-            rows[r["bidNum"]] = r
+    for f in glob.glob(os.path.join(R, "data/acb/bid/all_20*.json.gz")):
+        with gzip.open(f, "rt", encoding="utf-8") as fh:
+            for r in json.load(fh): rows[r["bidNum"]] = r
+    try:
+        with gzip.open(os.path.join(R, "data/acb/bid/bidders.json.gz"), "rt", encoding="utf-8") as fh: bd = json.load(fh)
+    except Exception:
+        bd = {}
+    for k, v in bd.items():
+        if k in rows: rows[k]["응찰"] = v
     return list(rows.values())
 
 

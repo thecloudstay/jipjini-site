@@ -1,17 +1,21 @@
-"""아관비 입찰 자료 모으기 — 국토교통부 공동주택 입찰결과공지 (2026-11-21)
-공종 낱말 × 연도로 결과를 받고, 낙찰 건은 응찰 업체(회사 이름·낙찰 여부만)를 붙인다.
-담당자 이름·전화는 저장하지 않는다. 이미 받은 응찰은 다시 부르지 않는다(이어 받기).
-키: 깃허브 비밀값 DATA_GO_KR_KEY"""
-import os, sys, json, time, re, urllib.request, urllib.parse
+"""아관비 입찰 자료 모으기 — 국토교통부 공동주택 입찰결과공지 전체 (2026-11-21)
+1단계: 연도별로 흔한 낱말(선정·공고·입찰·공사·용역·업체·계약·매각·모집)로 전국 전체 입찰을 받아 합친다.
+       → data/acb/bid/all_YYYY.json.gz (필요한 칸만)
+2단계: 낙찰 건 중 금액 큰 순서로 응찰 업체(회사 이름·낙찰 여부만)를 붙인다. 하루 한도 안에서 이어 받기.
+       → data/acb/bid/bidders.json.gz  {입찰번호: [[회사, 낙찰Y/N], ...]}
+담당자 이름·전화는 저장하지 않는다. 키: 깃허브 비밀값 DATA_GO_KR_KEY"""
+import os, json, gzip, time, re, urllib.request, urllib.parse, datetime
 
 K = os.environ.get("DATA_GO_KR_KEY", "").strip()
 B = "https://apis.data.go.kr/1613000/ApHusBidResultNoticeInfoOfferServiceV3"
 OUT = os.path.join(os.path.dirname(__file__), "..", "data", "acb", "bid")
-KW = ["승강기", "도장", "방수", "배관", "급수", "옥상", "주차장", "창호", "LED", "변압기", "수배전", "소방", "보일러", "외벽", "지붕", "놀이터", "CCTV", "전기차"]
-YEARS = [int(y) for y in os.environ.get("YEARS", "2024,2025,2026").split(",")]
-MAXCALL = int(os.environ.get("MAXCALL", "8000"))
+KW = ["선정", "공고", "입찰", "공사", "용역", "업체", "계약", "매각", "모집", "교체", "보수"]
+THIS = datetime.date.today().year
+YEARS = [int(y) for y in os.environ.get("YEARS", f"{THIS-2},{THIS-1},{THIS}").split(",")]
+MAXCALL = int(os.environ.get("MAXCALL", "9000"))
+KEEP = ["bidNum", "aptCode", "bidArea", "bidTitle", "bidRegdate", "bidDeadline", "bidState", "bidKaptname", "codeAuth", "codeKind",
+        "codeClassifyType1", "codeClassifyType2", "codeClassifyType3", "codeWay", "codeSucWay", "bidEmrgYn", "amount", "contractPeriodSdate", "contractPeriodEdate"]
 calls = 0
-DROP = {"bidFileSeq", "bidFieldDesLoc", "bidReqDocs", "bidTermsOfPayment", "bidMngCertYn", "bidGuaranteeYn", "bidCreditConfYn"}
 
 
 def get(op, **p):
@@ -21,10 +25,10 @@ def get(op, **p):
     u = f"{B}/{op}?serviceKey={urllib.parse.quote(K, safe='')}&{urllib.parse.urlencode(p)}"
     for t in range(4):
         try:
-            with urllib.request.urlopen(u, timeout=60) as r:
+            with urllib.request.urlopen(u, timeout=90) as r:
                 return json.loads(r.read().decode("utf-8", "replace"))
         except Exception:
-            time.sleep(3 * (t + 1))
+            time.sleep(4 * (t + 1))
     return None
 
 
@@ -37,43 +41,65 @@ def items(d):
     return it, int(b.get("totalCount") or 0)
 
 
+def rd(p, default):
+    try:
+        with gzip.open(p, "rt", encoding="utf-8") as f: return json.load(f)
+    except Exception:
+        return default
+
+
+def wr(p, obj):
+    with gzip.open(p, "wt", encoding="utf-8") as f: json.dump(obj, f, ensure_ascii=False, separators=(",", ":"))
+
+
 def slim(r):
-    r = {k: v for k, v in r.items() if k not in DROP}
-    c = r.get("bidContent") or ""
-    m = re.findall(r"(\d{1,3})\s*대", c)
-    if m: r["대수"] = max(int(x) for x in m)
-    r["bidContent"] = re.sub(r"\s+", " ", c)[:300]
-    return r
+    s = {k: r.get(k) for k in KEEP if r.get(k) not in (None, "")}
+    m = re.findall(r"(\d{1,3})\s*대", r.get("bidContent") or "")
+    if m: s["대수"] = max(int(x) for x in m)
+    return s
 
 
 def main():
     if not K: print("키 없음"); return
     os.makedirs(OUT, exist_ok=True)
+    st = rd(os.path.join(OUT, "state.json.gz"), {})
     for y in YEARS:
+        f = os.path.join(OUT, f"all_{y}.json.gz")
+        allr = {r["bidNum"]: r for r in rd(f, [])}
+        # 지난해 이전은 한 번 다 받으면 다시 받지 않는다
+        if y < THIS and st.get(f"done_{y}"): continue
         for kw in KW:
-            f = os.path.join(OUT, f"{kw}_{y}.json")
-            old = {r["bidNum"]: r for r in json.load(open(f, encoding="utf-8"))} if os.path.exists(f) else {}
-            rows, page = [], 1
+            page, got = 1, 0
             while calls < MAXCALL:
                 it, tot = items(get("getBidPblAncNmSearchV3", bidTitle=kw, searchYear=str(y), pageNo=page, numOfRows=1000))
                 if it is None: break
-                rows += it
-                if not it or len(rows) >= tot: break
+                for r in it: allr[r["bidNum"]] = slim(r)
+                got += len(it)
+                if not it or got >= tot: break
                 page += 1
-            new = {}
-            for r in rows:
-                s = slim(r); o = old.get(s["bidNum"])
-                if o and "응찰" in o: s["응찰"] = o["응찰"]
-                new[s["bidNum"]] = s
-            for s in new.values():
-                if str(s.get("bidState")) == "5" and "응찰" not in s and calls < MAXCALL:
-                    it, _ = items(get("getBidEntrpsInfoSearchV3", bidNum=s["bidNum"]))
-                    if it is not None:
-                        s["응찰"] = [[p.get("companyName"), (p.get("bidSuccessfulYn") or "")[:1]] for p in it]
-            L = list(new.values()) or list(old.values())
-            json.dump(L, open(f, "w", encoding="utf-8"), ensure_ascii=False, separators=(",", ":"))
-            print(y, kw, "건", len(L), "응찰 붙음", sum(1 for s in L if s.get("응찰")), "부른 횟수", calls)
-            if calls >= MAXCALL: print("오늘 한도"); return
+            print(y, kw, "누적", len(allr), "부른 횟수", calls)
+        wr(f, list(allr.values()))
+        if calls < MAXCALL: st[f"done_{y}"] = 1
+    # 2단계: 응찰 업체 (낙찰 건, 금액 큰 순)
+    bf = os.path.join(OUT, "bidders.json.gz")
+    bd = rd(bf, {})
+    won = []
+    for y in YEARS:
+        for r in rd(os.path.join(OUT, f"all_{y}.json.gz"), []):
+            if str(r.get("bidState")) == "5" and r["bidNum"] not in bd:
+                try: a = float(r.get("amount") or 0)
+                except Exception: a = 0
+                won.append((a, r["bidNum"]))
+    won.sort(reverse=True)
+    n0 = len(bd)
+    for a, num in won:
+        if calls >= MAXCALL: break
+        it, _ = items(get("getBidEntrpsInfoSearchV3", bidNum=num))
+        if it is not None:
+            bd[num] = [[p.get("companyName"), (p.get("bidSuccessfulYn") or "")[:1]] for p in it]
+    wr(bf, bd)
+    wr(os.path.join(OUT, "state.json.gz"), st)
+    print("응찰 붙임", len(bd) - n0, "남은 낙찰", max(0, len(won) - (len(bd) - n0)), "부른 횟수", calls)
 
 
 if __name__ == "__main__":
