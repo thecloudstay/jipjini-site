@@ -62,6 +62,7 @@
   <nav class="links">
     <a href="#f1">우리 집 공사비</a>
     <a href="apt/">아파트별 공사비</a>
+    <a href="acb/">관리비 비교</a>
     <a href="#claim">사고·경매</a>
     <a href="compare/">견적서 검토</a>
     <a href="#go">무료 도구</a>
@@ -74,7 +75,7 @@
 <!-- 첫 화면 (2026-11-16 개편): 아파트 이름 하나 → 우리 집 도면과 올수리 예상 공사비. 양식 assets/home/first.css, 동작 assets/home/first.js -->
 <div class="f1" id="f1">
   <div class="fh">
-    <nav class="doors" aria-label="무슨 일로 오셨나요"><a class="is-on" href="#f1" aria-current="true">인테리어</a><a href="leak/">누수·보험</a><a href="auction/">경매</a></nav>
+    <nav class="doors" aria-label="무슨 일로 오셨나요"><a class="is-on" href="#f1" aria-current="true">인테리어</a><a href="leak/">누수·보험</a><a href="auction/">경매</a><a href="acb/">관리비</a></nav>
     <p class="fk"><span class="fnb">인테리어 데이터 솔루션 기업 <b>집지니</b></span><a class="patb" href="#patent">특허 출원 중</a></p>
     <h1>우리 집 공사비,<br>30초 안에 <span class="fnb">30% 줄여드립니다.</span></h1>
     <p>아파트 이름만 넣으세요.<br>우리 집 도면과 올수리 예상 금액이 <span class="fnb">바로 나옵니다.</span></p>
@@ -142,6 +143,7 @@
         <li><a href="request.html" data-ev="home_go_request"><b>무료 견적 신청</b><span>24시간 안에</span></a></li>
         <li><a href="banself-interior.html" data-ev="home_go_banself"><b>셀인·반셀인 코디 받기</b><span>마진 0</span></a></li>
         <li><a href="jikyoung-interior.html" data-ev="home_go_jik"><b>직영 인테리어 하는 법</b><span>순서 안내</span></a></li>
+        <li><a href="acb/" data-ev="home_go_acb"><b>우리 단지 관리비 비교</b><span>얼굴 5단계</span></a></li>
         <li><a href="compare/" data-ev="home_go_compare"><b>받은 견적서 검토</b><span>바로</span></a></li>
         <li><a href="cad.html" data-ev="home_go_cad"><b>도면에 바꿀 곳 찍어 보기</b><span>5분</span></a></li>
         <li><a href="kitchen/" data-ev="home_go_kitchen"><b>싱크대 설계</b><span>1분</span></a></li>
@@ -175,6 +177,14 @@
       </ul>
     </div>
   </div>
+</section>
+
+<!-- 아관비 — 아파트 관리비 비교 (2026-11-21) -->
+<section class="acbh" id="acb">
+  <h2>옆 아파트 관리비는 얼마나 나올까?</h2>
+  <p class="acbhs">수도권 9,620단지 관리비를 연식·세대수·평형·난방 방식이 비슷한 10곳과 견주어 얼굴로 보여 드립니다. 국토교통부 공개 자료, 2026년 1~9월.</p>
+  <div class="acbhf" id="acbhf"></div>
+  <a class="acbhb" href="acb/" data-ev="home_acb">우리 단지 관리비 보기</a>
 </section>
 
 <!-- 사고 접수 · 경매 분석 (2026-11-16 대표 「보험 처리·경매 고객 칸을 따로, 가시성 있게」) -->
@@ -731,5 +741,23 @@ var hdr=document.querySelector("header, .site-header, nav.site-nav, .navbar, .na
 }catch(e){}})();</script><!--/SITENAV-->
 <script src="assets/live_stats.js?v=20261113a" defer></script>
 <script src="assets/home/fold.js?v=1" defer></script>
+<style>
+.acbh{max-width:1080px;margin:0 auto;padding:56px 20px;border-top:1px solid var(--jj-rule,#DCDFD8)}
+.acbh h2{margin:0 0 10px}
+.acbhs{margin:0 0 24px;color:var(--jj-pencil,#6B7067);line-height:1.75;max-width:640px}
+.acbhf{display:grid;grid-template-columns:repeat(5,1fr);border-top:1px solid var(--jj-ink,#1C1F1B);border-bottom:1px solid var(--jj-rule,#DCDFD8)}
+.acbhf div{text-align:center;padding:18px 4px 14px;font-size:13px;color:var(--jj-pencil,#6B7067)}
+.acbhf svg{display:block;margin:0 auto 6px}
+.acbhf b{display:block;font-size:15px}
+.acbhf em{display:block;font-style:normal;font-size:20px;font-weight:700;color:var(--jj-ink,#1C1F1B);margin-top:2px;font-variant-numeric:tabular-nums}
+.acbhb{display:inline-block;margin-top:22px;padding:13px 22px;background:var(--jj-ink,#1C1F1B);color:#fff;border-radius:4px;text-decoration:none;font-weight:600}
+@media (max-width:640px){.acbhf .r{display:none}.acbhf svg{width:40px;height:40px}.acbhf em{font-size:16px}.acbhf b{font-size:13px}}
+</style>
+<script src="assets/acb/acb.js?v=20261121c" defer></script>
+<script>
+addEventListener('DOMContentLoaded',function(){var A=window.JJacb,b=document.getElementById('acbhf');if(!A||!b)return;
+var P={1:12,2:21,3:33,4:18,5:16},R={1:'85 미만',2:'85~95',3:'95~105',4:'105~115',5:'115 이상'};
+[1,2,3,4,5].forEach(function(t){var d=document.createElement('div');d.appendChild(A.faceSvg(t,56));d.insertAdjacentHTML('beforeend','<b style="color:'+A.C[t]+'">'+A.NAME[t]+'</b><em>'+P[t]+'%</em><span class="r">지수 '+R[t]+'</span>');b.appendChild(d);});});
+</script>
 </body>
 </html>
