@@ -62,6 +62,15 @@
     var h = '<h2>' + esc(o.n) + ' 관리비 <small>집지니 아관비 지수</small></h2>';
     h += '<div class="ahead"><div class="fbig"></div><div><p class="lvn" style="color:' + C[o.lv] + '">' + NAME[o.lv] + '<small>지수 ' + o.ix + '</small></p><p class="say">' + say + '</p></div></div>';
     h += '<div class="scale5">' + [1, 2, 3, 4, 5].map(function (t) { return '<span' + (t == o.lv ? ' class="on" style="border-color:' + C[t] + '"' : ' style="border-color:' + C[t] + '55"') + '>' + NAME[t] + '<br>' + RANGE[t] + '</span>'; }).join('') + '</div>';
+    if (o.ga && o.pf && o.pf.length) {
+      var hiM = o.s.reduce(function (a, x) { return x[1] > a[1] ? x : a; }), loM = o.s.reduce(function (a, x) { return x[1] < a[1] ? x : a; });
+      h += '<h3>평형별 한 달 관리비<small>2026년 1~9월 평균 · 세대 몫 어림</small></h3><table class="br ptype"><thead><tr><th>전용</th><th class="hide">세대</th><th>면적대로 나뉘는 몫</th><th>쓰는 만큼 (평균)</th><th>합계</th><th class="hide">가장 싼 달 ~ 비싼 달</th></tr></thead><tbody>' +
+        o.pf.slice().sort(function (a, b) { return a[0] - b[0]; }).map(function (p) {
+          var sp = p[0] * (o.k || 1.3);
+          return '<tr><td>' + Math.round(p[0]) + '㎡ <small>약 ' + Math.round(sp / 3.3058) + '평</small></td><td class="hide">' + p[1].toLocaleString('ko-KR') + '</td><td>' + man(o.ga * sp) + '</td><td>' + man(o.iu * sp) + '</td><td><b>' + man((o.ga + o.iu) * sp) + '</b></td><td class="hide">' + man(o.lo * sp) + ' ~ ' + man(o.hi * sp) + '</td></tr>';
+        }).join('') + '</tbody></table>' +
+        '<p class="anote" style="margin-top:8px">면적대로 나뉘는 몫(공용관리비·장기수선충당금)은 관리비 부과면적에 따라 세대마다 거의 똑같이 나옵니다. 쓰는 만큼(전기·수도·난방 등 개별사용료)은 단지 평균이라 집마다 다릅니다. 가장 비싼 달은 ' + (+hiM[0].slice(2)) + '월, 가장 싼 달은 ' + (+loM[0].slice(2)) + '월입니다.</p>';
+    }
     h += '<h3>달마다 ㎡당 관리비<small>우리 단지와 비슷한 집 가운데값</small></h3><div class="achart"></div><div class="lg"><span><i style="border-color:' + C[o.lv] + '"></i>' + esc(o.n) + '</span><span><i class="p"></i>비슷한 집 10곳 가운데값</span></div>';
     var keys = Object.keys(o.b).filter(function (k) { return o.b[k] || o.pb[k]; }), mx = 1;
     keys.forEach(function (k) { mx = Math.max(mx, o.b[k], o.pb[k]); });
@@ -76,6 +85,7 @@
     h += '<h3>비슷한 집 10곳<small>' + esc(o.n) + '은 11곳 가운데 싼 순서로 ' + rank + '번째</small></h3><table class="br peer"><thead><tr><th></th><th style="text-align:left">단지</th><th class="hide">준공</th><th class="hide">세대</th><th>㎡당</th><th>지수</th></tr></thead><tbody>' + rows.map(function (r) {
       return '<tr' + (r.me ? ' class="me"' : '') + '><td data-f="' + r.lv + '" style="width:40px"></td><td class="nm">' + (r.me ? esc(r.n) : '<a href="' + root + 'acb/?c=' + r.c + '">' + esc(r.n) + '</a>') + '<small>' + esc(r.g) + '</small></td><td class="hide">' + r.y + '</td><td class="hide">' + r.h.toLocaleString('ko-KR') + '</td><td>' + won(r.m2) + '</td><td style="color:' + C[r.lv] + '">' + r.ix + '</td></tr>';
     }).join('') + '</tbody></table>';
+    h += '<h3>옆 아파트 지도<small>얼굴을 누르면 그 단지 관리비로 갑니다 · 굵은 테두리는 비슷한 집</small></h3><div class="amap"></div>';
     h += '<p class="anote">비슷한 집: 같은 시·도, 같은 난방 방식(' + esc(o.heat || '') + ')·분양 형태에서 준공 연도, 세대수, 평균 전용면적이 가장 가까운 10곳. 같은 구를 먼저 고릅니다. 개별난방 단지는 도시가스 난방비가 관리비에 들어가지 않아 개별난방끼리만 비교합니다.<br>' +
       '지수 = 우리 단지 ㎡당 월 관리비(공용관리비 + 개별사용료 + 장기수선충당금 ÷ 관리비 부과면적) ÷ 비슷한 집 가운데값 × 100. 얼굴은 2026년 1~9월 평균으로 정합니다.' +
       (o.ltsm ? '<br>장기수선충당금 쌓인 돈: ' + man(o.ltsm) + '.' : '') +
@@ -85,6 +95,46 @@
     box.querySelector('.fbig').appendChild(faceSvg(o.lv, box.clientWidth < 500 ? 72 : 92));
     box.querySelector('.achart').appendChild(chart(o, box.querySelector('.achart').clientWidth));
     box.querySelectorAll('[data-f]').forEach(function (td) { td.appendChild(faceSvg(+td.getAttribute('data-f'), 30)); });
+    drawMap(box, o, root);
+  }
+
+  var IDXP = null;
+  function getIdx(root) { return IDXP || (IDXP = fetch(root + 'data/acb/index.json').then(function (r) { return r.json(); })); }
+  function getKakao(root) {
+    return new Promise(function (ok, no) {
+      if (window.kakao && window.kakao.maps && window.kakao.maps.LatLng) return ok(window.kakao.maps);
+      function go() {
+        if (!window.JJ_KAKAO_KEY) return no('열쇠 없음');
+        var s = document.createElement('script'); s.src = 'https://dapi.kakao.com/v2/maps/sdk.js?autoload=false&appkey=' + encodeURIComponent(window.JJ_KAKAO_KEY);
+        s.onload = function () { window.kakao.maps.load(function () { ok(window.kakao.maps); }); }; s.onerror = no; document.head.appendChild(s);
+      }
+      if (window.JJ_KAKAO_KEY) go(); else { var c = document.createElement('script'); c.src = root + 'assets/site_config.js'; c.onload = go; c.onerror = no; document.head.appendChild(c); }
+    });
+  }
+  function dist(a, b, c, d) { var x = (d - b) * Math.cos((a + c) / 2 * Math.PI / 180) * 111.32, y = (c - a) * 110.57; return Math.sqrt(x * x + y * y); }
+  function drawMap(box, o, root) {
+    var m = box.querySelector('.amap'); if (!m) return;
+    getIdx(root).then(function (I) {
+      var me = I[o.c]; if (!me || me.length < 8) { m.previousElementSibling.remove(); m.remove(); return; }
+      var lat = me[6], lng = me[7], peer = {}; o.pl.forEach(function (p) { peer[p[0]] = 1; });
+      var pts = [];
+      for (var c in I) { var e = I[c]; if (e.length < 8) continue; var d = dist(lat, lng, e[6], e[7]); if (c === o.c || peer[c] || d < 1.6) pts.push([c, e, d]); }
+      pts.sort(function (a, b) { return a[2] - b[2]; }); pts = pts.slice(0, 60);
+      return getKakao(root).then(function (K) {
+        m.style.height = (box.clientWidth < 600 ? 340 : 440) + 'px';
+        var map = new K.Map(m, { center: new K.LatLng(lat, lng), level: 5 }), bounds = new K.LatLngBounds();
+        pts.forEach(function (p) {
+          var c = p[0], e = p[1], mine = c === o.c, pr = peer[c], near = p[2] < 1.6;
+          if (!near && !mine) return;            // 먼 비슷한 집은 표에만
+          var a = document.createElement('a'); a.className = 'mk' + (mine ? ' me' : '') + (pr ? ' pr' : ''); a.href = mine ? '#' : root + 'acb/?c=' + c;
+          a.appendChild(faceSvg(e[4], mine ? 40 : 28));
+          var t = document.createElement('span'); t.textContent = e[0] + (mine ? '' : ' ' + e[2].toLocaleString('ko-KR') + '원'); a.appendChild(t);
+          new K.CustomOverlay({ position: new K.LatLng(e[6], e[7]), content: a, yAnchor: .5, xAnchor: .2, zIndex: mine ? 9 : pr ? 5 : 1 }).setMap(map);
+          bounds.extend(new K.LatLng(e[6], e[7]));
+        });
+        if (pts.length > 1) map.setBounds(bounds, 30, 30, 30, 30);
+      });
+    }).catch(function () { var h = m.previousElementSibling; if (h) h.remove(); m.remove(); });
   }
 
   function load(box) {
