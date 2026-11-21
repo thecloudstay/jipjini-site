@@ -1,9 +1,11 @@
-name: 아관비 입찰 연결 찾기
+name: 아관비 입찰 견본
 on:
   push:
     branches: [main]
     paths: ['tools/acb_bid_probe.py']
   workflow_dispatch: {}
+permissions:
+  contents: write
 jobs:
   run:
     runs-on: ubuntu-latest
@@ -11,3 +13,7 @@ jobs:
       - uses: actions/checkout@v4
       - env: {DATA_GO_KR_KEY: "${{ secrets.DATA_GO_KR_KEY }}"}
         run: python3 tools/acb_bid_probe.py
+      - run: |
+          git config user.name "jipjini-bot"; git config user.email "bot@jipjini.com"
+          git add data/acb/lab
+          git diff --cached --quiet || (git commit -m "아관비: 승강기 입찰 견본" && git pull --rebase -q && git push)
