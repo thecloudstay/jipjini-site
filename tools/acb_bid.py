@@ -16,6 +16,7 @@ MAXCALL = int(os.environ.get("MAXCALL", "9000"))
 KEEP = ["bidNum", "aptCode", "bidArea", "bidTitle", "bidRegdate", "bidDeadline", "bidState", "bidKaptname", "codeAuth", "codeKind",
         "codeClassifyType1", "codeClassifyType2", "codeClassifyType3", "codeWay", "codeSucWay", "bidEmrgYn", "amount", "contractPeriodSdate", "contractPeriodEdate"]
 calls = 0
+FIN = re.compile(r"도장|페인트|방수|에폭시|우레탄|균열|크랙|코킹|누수")
 
 
 def get(op, **p):
@@ -56,6 +57,10 @@ def slim(r):
     s = {k: r.get(k) for k in KEEP if r.get(k) not in (None, "")}
     m = re.findall(r"(\d{1,3})\s*대", r.get("bidContent") or "")
     if m: s["대수"] = max(int(x) for x in m)
+    # 마감 공사(도장·방수·바닥·균열)는 사양·면적이 본문에 있어 앞 900자를 남긴다 (2026-11-21)
+    if FIN.search(r.get("bidTitle") or ""):
+        c = re.sub(r"\s+", " ", re.sub(r"<[^>]+>|&nbsp;", " ", r.get("bidContent") or "")).strip()
+        if c: s["본문"] = c[:900]
     return s
 
 
