@@ -133,14 +133,24 @@ def main():
                 except Exception: a = 0
                 won.append((a, r["bidNum"]))
     won.sort(reverse=True)
-    n0 = len(bd)
+    bd = {k: v for k, v in bd.items() if v}   # 예전에 저장된 빈 답은 버린다
+    n0 = len(bd); tried = got = 0
     for a, num in won:
         if calls >= MAXCALL: break
-        it, _ = items(get("getBidEntrpsInfoSearchV3", bidNum=num))
-        if it is not None:
+        raw = get("getBidEntrpsInfoSearchV3", bidNum=num)
+        it, _ = items(raw)
+        tried += 1
+        if it:
+            # 빈 답은 저장하지 않는다(다음에 다시 받게). 2026-11-22: 3,500건이 모두 빈 답으로 저장된 원인 추적
             bd[num] = [[p.get("companyName"), (p.get("bidSuccessfulYn") or "")[:1]] for p in it]
+            got += 1
+            if got == 1: print("응찰 첫 답 칸", sorted(it[0].keys()), flush=True)
             if len(bd) % 500 == 0:
                 wr(bf, bd); print("응찰", len(bd), flush=True)
+        elif tried <= 3:
+            print("빈 답 원문", num, json.dumps(raw, ensure_ascii=False)[:600], flush=True)
+        if tried >= 40 and got == 0:
+            print("응찰 답이 모두 비어 멈춤 — 한도 아끼기", flush=True); break
     wr(bf, bd)
     wr(os.path.join(OUT, "state.json.gz"), st)
     print("응찰 붙임", len(bd) - n0, "남은 낙찰", max(0, len(won) - (len(bd) - n0)), "부른 횟수", calls)
