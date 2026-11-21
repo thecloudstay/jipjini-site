@@ -39,6 +39,7 @@
 .ev .res b.m{font-size:28px;color:var(--jj-green,#1F5E2E)}
 .ev .how{margin-top:30px;font-size:13.5px;color:var(--jj-pencil,#6B7067);line-height:1.9}
 .ev .hide{}
+@media (prefers-reduced-motion:no-preference){@keyframes evIn{from{opacity:0;transform:translateY(-8px)}to{opacity:.45;transform:none}}.ev .strip circle{opacity:0;animation:evIn .4s ease-out forwards}.ev .big b{animation:evIn2 .6s ease-out}@keyframes evIn2{from{opacity:0;transform:translateY(6px)}to{opacity:1}}}
 @media (max-width:640px){.ev .big b{font-size:20px}.ev .hide{display:none}}
 </style>
 </head>
@@ -94,7 +95,7 @@
     var W=720,H=120,v=d.건.map(function(x){return x.대당}),lo=2.5e7,hi=1.6e8,X=function(a){return 20+(W-40)*(a-lo)/(hi-lo)};
     var s='<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="대당 낙찰가 분포">';
     for(var g=3;g<=15;g+=3){var x=X(g*1e7);s+='<line x1="'+x+'" x2="'+x+'" y1="10" y2="'+(H-24)+'" stroke="#EEF0EB"/><text x="'+x+'" y="'+(H-6)+'" font-size="12" fill="#8E9389" text-anchor="middle">'+g+'천만</text>'}
-    v.forEach(function(a,i){s+='<circle cx="'+X(a)+'" cy="'+(22+((i*37)%60))+'" r="4" fill="#1C1F1B" opacity=".45"/>'});
+    v.forEach(function(a,i){s+='<circle cx="'+X(a)+'" cy="'+(22+((i*37)%60))+'" r="4" fill="#1C1F1B" opacity=".45" style="animation-delay:'+(i*12)+'ms"/>'});
     var m=X(t.가운데);s+='<line x1="'+m+'" x2="'+m+'" y1="6" y2="'+(H-24)+'" stroke="#1F5E2E" stroke-width="3"/></svg>';
     document.getElementById('strip').innerHTML=s;
   });

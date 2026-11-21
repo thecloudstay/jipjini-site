@@ -753,11 +753,11 @@ var hdr=document.querySelector("header, .site-header, nav.site-nav, .navbar, .na
 .acbhb{display:inline-block;margin-top:22px;padding:13px 22px;background:var(--jj-ink,#1C1F1B);color:#fff;border-radius:4px;text-decoration:none;font-weight:600}
 @media (max-width:640px){.acbhf .r{display:none}.acbhf svg{width:40px;height:40px}.acbhf em{font-size:16px}.acbhf b{font-size:13px}}
 </style>
-<script src="assets/acb/acb.js?v=20261121c" defer></script>
+<link rel="stylesheet" href="assets/acb/acb.css?v=20261121d"><script src="assets/acb/acb.js?v=20261121d" defer></script>
 <script>
 addEventListener('DOMContentLoaded',function(){var A=window.JJacb,b=document.getElementById('acbhf');if(!A||!b)return;
 var P={1:12,2:21,3:33,4:18,5:16},R={1:'85 미만',2:'85~95',3:'95~105',4:'105~115',5:'115 이상'};
-[1,2,3,4,5].forEach(function(t){var d=document.createElement('div');d.appendChild(A.faceSvg(t,56));d.insertAdjacentHTML('beforeend','<b style="color:'+A.C[t]+'">'+A.NAME[t]+'</b><em>'+P[t]+'%</em><span class="r">지수 '+R[t]+'</span>');b.appendChild(d);});});
+[1,2,3,4,5].forEach(function(t){var d=document.createElement('div');d.appendChild(A.faceSvg(t,56));d.insertAdjacentHTML('beforeend','<b style="color:'+A.C[t]+'">'+A.NAME[t]+'</b><em>'+P[t]+'%</em><span class="r">지수 '+R[t]+'</span>');b.appendChild(d);});A.watch&&A.watch(document);});
 </script>
 </body>
 </html>

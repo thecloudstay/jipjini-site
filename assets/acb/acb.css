@@ -41,3 +41,33 @@
 .acb .how ul{margin:10px 0 0;padding-left:18px;line-height:1.9}
 .acb .up{color:var(--l5)}.acb .dn{color:var(--l2)}
 @media (max-width:760px){.acb .ahead{grid-template-columns:72px 1fr;gap:14px}.acb .br .bar{display:none}.acb .peer .hide{display:none}}
+
+/* 움직임 (2026-11-21): 화면에 들어올 때 한 번. 움직임 줄이기 설정이면 모두 끔 */
+@keyframes jfPop{0%{transform:scale(.6);opacity:0}70%{transform:scale(1.08);opacity:1}100%{transform:scale(1)}}
+@keyframes jfJoy{0%,100%{transform:translateY(0)}30%{transform:translateY(-6px)}60%{transform:translateY(0)}75%{transform:translateY(-3px)}}
+@keyframes jfShake{0%,100%{transform:translateX(0)}20%{transform:translateX(-3px) rotate(-4deg)}40%{transform:translateX(3px) rotate(4deg)}60%{transform:translateX(-2px)}80%{transform:translateX(2px)}}
+@keyframes jfTear{0%{transform:translateY(0);opacity:0}15%{opacity:1}80%{transform:translateY(9px);opacity:1}100%{transform:translateY(12px);opacity:0}}
+@keyframes jfDraw{from{stroke-dashoffset:1}to{stroke-dashoffset:0}}
+@keyframes jfFade{from{opacity:0}to{opacity:.12}}
+@keyframes jfGrow{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@keyframes jfRise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:no-preference){
+ .acb .ahead .fbig svg{opacity:0}
+ .acb .ahead.in .fbig svg{animation:jfPop .55s cubic-bezier(.2,.9,.3,1.3) forwards}
+ .acb .ahead.in .jf1,.acbhf.in .jf1{animation:jfPop .55s cubic-bezier(.2,.9,.3,1.3) forwards,jfJoy 1.1s .6s ease-in-out 2}
+ .acb .ahead.in .jf5,.acbhf.in .jf5{animation:jfPop .55s cubic-bezier(.2,.9,.3,1.3) forwards,jfShake .5s .6s ease-in-out 2}
+ .jf4 .tear{transform-box:fill-box;animation:jfTear 2.2s 1s ease-in infinite}
+ .acb .achart .draw{stroke-dasharray:1;stroke-dashoffset:1}
+ .acb .achart.in .draw{animation:jfDraw 1.4s .1s ease-out forwards}
+ .acb .achart .band{opacity:0}
+ .acb .achart.in .band{animation:jfFade .6s 1.2s forwards}
+ .acb .br .bar i{transform-origin:left;transform:scaleX(0)}
+ .acb .br.in .bar i{animation:jfGrow .7s ease-out forwards}
+ .acb .br.in tr:nth-child(2) .bar i{animation-delay:.06s}.acb .br.in tr:nth-child(3) .bar i{animation-delay:.12s}.acb .br.in tr:nth-child(4) .bar i{animation-delay:.18s}
+ .acb .br.in tr:nth-child(5) .bar i{animation-delay:.24s}.acb .br.in tr:nth-child(6) .bar i{animation-delay:.3s}.acb .br.in tr:nth-child(7) .bar i{animation-delay:.36s}
+ .acbhf div{opacity:0}
+ .acbhf.in div{animation:jfRise .5s ease-out forwards}
+ .acbhf.in div:nth-child(2){animation-delay:.08s}.acbhf.in div:nth-child(3){animation-delay:.16s}.acbhf.in div:nth-child(4){animation-delay:.24s}.acbhf.in div:nth-child(5){animation-delay:.32s}
+ .acb .acbm{opacity:0}.acb .acbm.in{animation:jfPop .45s ease-out forwards}
+ .acb .acbm:hover svg{transform:scale(1.15);transition:transform .15s}
+}

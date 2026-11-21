@@ -77,7 +77,8 @@ def main():
                 got += len(it)
                 if not it or got >= tot: break
                 page += 1
-            print(y, kw, "누적", len(allr), "부른 횟수", calls)
+            print(y, kw, "누적", len(allr), "부른 횟수", calls, flush=True)
+            wr(f, list(allr.values()))
         wr(f, list(allr.values()))
         if calls < MAXCALL: st[f"done_{y}"] = 1
     # 2단계: 응찰 업체 (낙찰 건, 금액 큰 순)

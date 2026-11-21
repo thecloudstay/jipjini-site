@@ -18,11 +18,11 @@
     if (t == 1) el(svg, 'path', { d: 'M' + (cx - w) + ',' + (y - r * .12) + ' Q' + cx + ',' + (y + r * .42) + ' ' + (cx + w) + ',' + (y - r * .12) + ' Z', fill: c, stroke: c, 'stroke-width': sw, 'stroke-linejoin': 'round' });
     if (t == 2) el(svg, 'path', Object.assign({ d: 'M' + (cx - w) + ',' + (y - r * .08) + ' Q' + cx + ',' + (y + r * .32) + ' ' + (cx + w) + ',' + (y - r * .08) }, cap));
     if (t == 3) el(svg, 'line', Object.assign({ x1: cx - w, x2: cx + w, y1: y, y2: y }, cap));
-    if (t == 4) { el(svg, 'path', Object.assign({ d: 'M' + (cx - w) + ',' + (y + r * .14) + ' Q' + cx + ',' + (y - r * .26) + ' ' + (cx + w) + ',' + (y + r * .14) }, cap)); el(svg, 'path', { d: 'M' + (cx + ex) + ',' + (cy - r * .02) + ' q ' + (-r * .08) + ',' + (r * .18) + ' 0,' + (r * .22) + ' q ' + (r * .08) + ',' + (-r * .04) + ' 0,' + (-r * .22), fill: '#7FA7C9' }); }
+    if (t == 4) { el(svg, 'path', Object.assign({ d: 'M' + (cx - w) + ',' + (y + r * .14) + ' Q' + cx + ',' + (y - r * .26) + ' ' + (cx + w) + ',' + (y + r * .14) }, cap)); el(svg, 'path', { d: 'M' + (cx + ex) + ',' + (cy - r * .02) + ' q ' + (-r * .08) + ',' + (r * .18) + ' 0,' + (r * .22) + ' q ' + (r * .08) + ',' + (-r * .04) + ' 0,' + (-r * .22), fill: '#7FA7C9', class: 'tear' }); }
     if (t == 5) el(svg, 'path', Object.assign({ d: 'M' + (cx - w) + ',' + (y + r * .12) + ' L' + (cx - w * .5) + ',' + (y - r * .02) + ' L' + cx + ',' + (y + r * .12) + ' L' + (cx + w * .5) + ',' + (y - r * .02) + ' L' + (cx + w) + ',' + (y + r * .12), 'stroke-linejoin': 'round' }, cap));
     return svg;
   }
-  function faceSvg(t, size) { var s = document.createElementNS(NS, 'svg'); s.setAttribute('width', size); s.setAttribute('height', size); s.setAttribute('viewBox', '0 0 ' + size + ' ' + size); s.setAttribute('role', 'img'); s.setAttribute('aria-label', NAME[t]); return face(s, t, size / 2, size / 2, size / 2 - 3); }
+  function faceSvg(t, size) { var s = document.createElementNS(NS, 'svg'); s.setAttribute('width', size); s.setAttribute('height', size); s.setAttribute('viewBox', '0 0 ' + size + ' ' + size); s.setAttribute('role', 'img'); s.setAttribute('aria-label', NAME[t]); s.setAttribute('class', 'jf jf' + t); return face(s, t, size / 2, size / 2, size / 2 - 3); }
   function won(n) { return Math.round(n).toLocaleString('ko-KR') + '원'; }
   function man(n) { n = Math.abs(n); if (n >= 1e8) return (Math.round(n / 1e7) / 10) + '억 원'; n = Math.round(n / 1000) * 1000; if (n >= 10000) { var m = Math.floor(n / 10000), r = (n % 10000) / 1000; return m + '만' + (r ? ' ' + r + '천' : '') + ' 원'; } return (n / 1000) + '천 원'; }
   function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
@@ -42,11 +42,11 @@
     for (var i = 0; i < n - 1; i++) {
       var a = s[i][1], b = s[i + 1][1], pa = pm[i], pb = pm[i + 1]; if (!pa || !pb) continue;
       var up = (a + b) / 2 > (pa + pb) / 2;
-      el(svg, 'path', { d: 'M' + X(i) + ',' + Y(a) + 'L' + X(i + 1) + ',' + Y(b) + 'L' + X(i + 1) + ',' + Y(pb) + 'L' + X(i) + ',' + Y(pa) + 'Z', fill: up ? '#B3261E' : '#1F5E2E', opacity: .12 });
+      el(svg, 'path', { d: 'M' + X(i) + ',' + Y(a) + 'L' + X(i + 1) + ',' + Y(b) + 'L' + X(i + 1) + ',' + Y(pb) + 'L' + X(i) + ',' + Y(pa) + 'Z', fill: up ? '#B3261E' : '#1F5E2E', opacity: .12, class: 'band' });
     }
     s.forEach(function (x, i) { d1 += (i ? 'L' : 'M') + X(i) + ',' + Y(x[1]); });
     el(svg, 'path', { d: d2, fill: 'none', stroke: '#6B7067', 'stroke-width': 2, 'stroke-dasharray': '5 4' });
-    el(svg, 'path', { d: d1, fill: 'none', stroke: C[o.lv], 'stroke-width': 3, 'stroke-linejoin': 'round' });
+    el(svg, 'path', { d: d1, fill: 'none', stroke: C[o.lv], 'stroke-width': 3, 'stroke-linejoin': 'round', pathLength: 1, class: 'draw' });
     var li = n - 1; el(svg, 'circle', { cx: X(li), cy: Y(s[li][1]), r: 4.5, fill: C[o.lv] });
     return svg;
   }
@@ -98,6 +98,7 @@
     box.querySelector('.achart').appendChild(chart(o, box.querySelector('.achart').clientWidth));
     box.querySelectorAll('[data-f]').forEach(function (td) { td.appendChild(faceSvg(+td.getAttribute('data-f'), 30)); });
     drawMap(box, o, root);
+    watch(box);
   }
 
   var IDXP = null;
@@ -138,6 +139,7 @@
           var c = p[0], e = p[1], mine = c === o.c;
           var b = document.createElement('button'); b.type = 'button'; b.className = 'acbm' + (mine ? ' me' : '') + (peer[c] ? ' pr' : '');
           b.setAttribute('aria-label', e[0]); b.appendChild(faceSvg(e[4], mine ? 38 : 24));
+          b.classList.add('in'); b.style.animationDelay = (Math.min(p[2], 1) * 600) + 'ms';
           if (mine) { var t = document.createElement('span'); t.textContent = e[0]; b.appendChild(t); }
           b.onclick = function () { card(c, e); };
           new K.CustomOverlay({ position: new K.LatLng(e[6], e[7]), content: b, yAnchor: .5, xAnchor: mine ? .12 : .5, zIndex: mine ? 9 : 1 }).setMap(map);
@@ -157,6 +159,9 @@
       if (o) render(box, o, root); else box.remove();
     }).catch(function (e) { if (window.console) console.warn('아관비', e); box.remove(); });
   }
-  window.JJacb = { load: load, render: render, faceSvg: faceSvg, NAME: NAME, C: C };
+  // 화면에 들어올 때 한 번만 움직임 (움직임 줄이기 설정이면 안 함)
+  var io = ('IntersectionObserver' in window) ? new IntersectionObserver(function (es) { es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }); }, { threshold: .25 }) : null;
+  function watch(root) { (root || document).querySelectorAll('.acb .ahead, .acb .achart, .acb .br, .acbhf, .acbm').forEach(function (n) { if (io) io.observe(n); else n.classList.add('in'); }); }
+  window.JJacb = { watch: watch, load: load, render: render, faceSvg: faceSvg, NAME: NAME, C: C };
   document.querySelectorAll('section.acb[data-c]').forEach(load);
 })();
