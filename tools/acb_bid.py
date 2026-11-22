@@ -16,6 +16,7 @@ MAXCALL = int(os.environ.get("MAXCALL", "9000"))
 KEEP = ["bidNum", "aptCode", "bidArea", "bidTitle", "bidRegdate", "bidDeadline", "bidState", "bidKaptname", "codeAuth", "codeKind",
         "codeClassifyType1", "codeClassifyType2", "codeClassifyType3", "codeWay", "codeSucWay", "bidEmrgYn", "amount", "contractPeriodSdate", "contractPeriodEdate"]
 calls = 0
+errs = 0
 FIN = re.compile(r"도장|페인트|방수|에폭시|우레탄|균열|크랙|코킹|누수")
 
 
@@ -28,7 +29,15 @@ def get(op, **p):
         try:
             with urllib.request.urlopen(u, timeout=90) as r:
                 return json.loads(r.read().decode("utf-8", "replace"))
-        except Exception:
+        except Exception as e:
+            # 2026-11-22 실패 까닭을 삼키지 않는다(응찰 조회가 왜 비는지 몰라 두 번 헛돌았다). 열쇠가 든 주소는 찍지 않는다.
+            global errs
+            errs += 1
+            if errs <= 6:
+                body = ''
+                try: body = e.read().decode('utf-8', 'replace')[:300]
+                except Exception: pass
+                print('요청 실패', op, type(e).__name__, str(getattr(e, 'code', '')), str(getattr(e, 'reason', ''))[:80], body.replace(K, '***'), flush=True)
             time.sleep(4 * (t + 1))
     return None
 

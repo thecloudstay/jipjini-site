@@ -1,12 +1,15 @@
 name: 아관비 입찰 자료
 on:
-  workflow_dispatch: {}
+  workflow_dispatch:
+    inputs:
+      only_bidders: {description: '목록 받기를 건너뛰고 응찰 업체만 (true/false)', default: 'false'}
   schedule: [{cron: '40 19 * * *'}]
 permissions:
   contents: write
 concurrency: {group: acb-bid, cancel-in-progress: false}
 jobs:
   list:
+    if: ${{ inputs.only_bidders != 'true' }}
     runs-on: ubuntu-latest
     timeout-minutes: 120
     strategy:
@@ -24,7 +27,7 @@ jobs:
         with: {name: "part-${{ matrix.year }}-${{ strategy.job-index }}", path: data/acb/bid/part/, retention-days: 2}
   merge:
     needs: list
-    if: always()
+    if: ${{ always() && inputs.only_bidders != 'true' }}
     runs-on: ubuntu-latest
     timeout-minutes: 300
     steps:
