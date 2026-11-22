@@ -13,6 +13,8 @@ for f in glob.glob(os.path.join(ROOT, "**", "*.html"), recursive=True) + glob.gl
     if f.endswith("staff_optout.py"): continue
     s = open(f, encoding="utf-8", errors="ignore").read()
     if "G-35EM7T3M9W" not in s or GUARD in s: continue
+    # 2026-11-22 쪽을 찍어 내는 생성기(.py)가 이미 제외 코드를 갖고 있으면 건드리지 않는다 — 중괄호를 두 겹으로 쓰는 틀에 한 겹 코드를 끼워 넣어 생성기 문법이 깨졌다(11-17부터 매일 자동화 실패)
+    if f.endswith(".py") and "ga-disable-G-35EM7T3M9W" in s: continue
     t = PAT.sub(lambda m: GUARD + m.group(0), s)
     if t != s:
         open(f, "w", encoding="utf-8").write(t); n += 1
