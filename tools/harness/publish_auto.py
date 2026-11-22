@@ -35,6 +35,29 @@ def sh(args, check=True, t=240):
     return p.stdout
 
 
+def sync_code():
+    """변환 코드 맞추기 (2026-11-22): 저장소에서 고친 검사·고침 코드가 이 컴퓨터로 내려오는 길이 없어, 컴퓨터는 11-13 판으로 돌고 있었다
+    (현관문 고침이 29,110장에 한 번도 적용되지 않음). 방금 내려받은 누리집 저장소(tools)와 다르면 문법을 확인한 뒤 바꾸고, 옛 것은 _보관 에 둔다."""
+    tools = os.path.dirname(HERE); src = os.path.join(REPO, "tools")
+    pairs = [("plan_check.py", os.path.join(tools, "plan_check.py")), ("plan_trace.py", os.path.join(tools, "plan_trace.py")),
+             ("harness/game_check_pc.py", os.path.join(os.path.dirname(os.path.dirname(tools)), "game_check.py"))]
+    for n in ("pc_convert.py", "pipeline.py", "discover.py", "answer_key.py", "rerender.py", "trend.py", "알려진모양.json"):
+        pairs.append(("harness/" + n, os.path.join(HERE, n)))
+    done = []
+    for rel, dst in pairs:
+        try:
+            new = open(os.path.join(src, *rel.split("/")), "rb").read()
+            old = open(dst, "rb").read() if os.path.exists(dst) else b""
+            if not new or new.replace(b"\r\n", b"\n") == old.replace(b"\r\n", b"\n"): continue
+            if dst.endswith(".py"): compile(new.decode("utf-8"), dst, "exec")
+            keep = os.path.join(os.path.dirname(dst), "_보관"); os.makedirs(keep, exist_ok=True)
+            if old: open(os.path.join(keep, os.path.basename(dst) + time.strftime(".%Y%m%d_%H%M")), "wb").write(old)
+            open(dst, "wb").write(new); done.append(os.path.basename(dst))
+        except Exception as e:
+            log("코드 맞추기 건너뜀 %s: %s" % (rel, str(e)[:120]))
+    if done: log("코드 맞춤(저장소 → 컴퓨터): " + ", ".join(done))
+
+
 def main():
     if os.path.exists(LOCK) and time.time() - os.path.getmtime(LOCK) < 3600:
         log("건너뜀: 앞 회차가 아직 도는 중(잠금 %d분째)" % ((time.time() - os.path.getmtime(LOCK)) // 60)); return 0
@@ -49,6 +72,8 @@ def main():
         if _auth:
             log("설정 필요: 깃허브 로그인이 안 됐습니다 — D:\\croll\\실행\\깃허브_설정.bat 을 한 번 실행"); return 1
         sh(["git", "checkout", "-q", "main"]); sh(["git", "reset", "-q", "--hard", "origin/main"]); sh(["git", "pull", "-q", "--ff-only"])
+        try: sync_code()
+        except Exception as e: log("코드 맞추기 실패: " + str(e)[:150])
         # 변환 중인 여러 줄의 조각 결과까지 합친 상태로 고른다(원본 상태.json 은 건드리지 않음)
         st = json.load(open(os.path.join(OUT, "상태.json"), encoding="utf-8"))
         for f in glob.glob(os.path.join(OUT, "상태_조각*.json")):
