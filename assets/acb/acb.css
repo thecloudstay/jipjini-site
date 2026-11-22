@@ -43,7 +43,7 @@
 @media (max-width:760px){.acb .ahead{grid-template-columns:72px 1fr;gap:14px}.acb .br .bar{display:none}.acb .peer .hide{display:none}}
 
 /* 움직임 (2026-11-21): 화면에 들어올 때 한 번. 움직임 줄이기 설정이면 모두 끔 */
-@keyframes jfPop{0%{transform:scale(.6);opacity:0}70%{transform:scale(1.08);opacity:1}100%{transform:scale(1)}}
+@keyframes jfPop{0%{transform:scale(.6);opacity:0}70%{transform:scale(1.08);opacity:1}100%{transform:scale(1);opacity:1}}
 @keyframes jfJoy{0%,100%{transform:translateY(0)}30%{transform:translateY(-6px)}60%{transform:translateY(0)}75%{transform:translateY(-3px)}}
 @keyframes jfShake{0%,100%{transform:translateX(0)}20%{transform:translateX(-3px) rotate(-4deg)}40%{transform:translateX(3px) rotate(4deg)}60%{transform:translateX(-2px)}80%{transform:translateX(2px)}}
 @keyframes jfTear{0%{transform:translateY(0);opacity:0}15%{opacity:1}80%{transform:translateY(9px);opacity:1}100%{transform:translateY(12px);opacity:0}}
@@ -80,3 +80,19 @@
 .a3d .d3tip[hidden]{display:none}
 .a3dsrc{margin:6px 0 0;font-size:12.5px;color:var(--jj-pencil,#6B7067)}
 @media (max-width:760px){.a3d canvas{height:340px}}
+
+/* 집지니 지도 (2026-11-22): 남의 지도 그림 없이 단지 점·눈금선만으로 그린다 */
+.acb .omap{position:relative;overflow:hidden;background:#fff;border:1px solid var(--jj-ink,#1C1F1B);border-radius:4px;touch-action:none;cursor:grab;user-select:none;-webkit-user-select:none}
+.acb .omap.drag{cursor:grabbing}
+.acb .omap canvas{display:block;width:100%;height:100%}
+.acb .omap .olay{position:absolute;inset:0;pointer-events:none}
+.acb .omap .olay>*{position:absolute;pointer-events:auto;transform:translate(-50%,-50%)}
+.acb .omap .olay .acbtip{transform:translate(-50%,-100%);margin-top:-16px;z-index:5}
+.acb .omap .oz{position:absolute;right:10px;top:10px;display:flex;flex-direction:column;border:1px solid var(--jj-ink,#1C1F1B);border-radius:4px;overflow:hidden;background:#fff}
+.acb .omap .oz button{width:34px;height:34px;border:0;background:#fff;font:inherit;font-size:19px;line-height:1;cursor:pointer;color:var(--jj-ink,#1C1F1B)}
+.acb .omap .oz button+button{border-top:1px solid var(--jj-rule,#DCDFD8)}
+.acb .omap .oz button:hover{background:#F6F7F4}
+.acb .omapbar{display:flex;height:8px;margin:10px 0 6px;border-radius:2px;overflow:hidden;background:var(--jj-rule,#DCDFD8)}
+.acb .omapbar i{display:block;height:100%;transition:width .25s}
+.acb .omapleg{display:flex;flex-wrap:wrap;gap:4px 16px;margin:0;font-size:13px;color:var(--jj-pencil,#6B7067);font-variant-numeric:tabular-nums}
+.acb .omapleg b{font-weight:600}

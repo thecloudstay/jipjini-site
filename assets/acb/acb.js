@@ -121,41 +121,15 @@
     var el = box.querySelector('.a3d'); if (!el) return;
     function go() { window.JJd3.mount(el, o.c, root, {}); }
     if (window.JJd3) return go();
-    var sc = document.createElement('script'); sc.src = root + 'assets/acb/d3.js?v=20261122c'; sc.onload = go; sc.onerror = function () { el.parentNode.hidden = true; }; document.head.appendChild(sc);
+    var sc = document.createElement('script'); sc.src = root + 'assets/acb/d3.js?v=20261122d'; sc.onload = go; sc.onerror = function () { el.parentNode.hidden = true; }; document.head.appendChild(sc);
   }
   function drawMap(box, o, root) {
     var m = box.querySelector('.amap'); if (!m) return;
     getIdx(root).then(function (I) {
       var me = I[o.c]; if (!me || me.length < 8) { m.previousElementSibling.remove(); m.remove(); return; }
-      var lat = me[6], lng = me[7], peer = {}; o.pl.forEach(function (p) { peer[p[0]] = 1; });
-      var pts = [];
-      for (var c in I) { var e = I[c]; if (e.length < 8) continue; var d = dist(lat, lng, e[6], e[7]); if (c === o.c || d < 1.0) pts.push([c, e, d]); }
-      pts.sort(function (a, b) { return a[2] - b[2]; }); pts = pts.slice(0, 31);
-      return getKakao(root).then(function (K) {
-        m.style.height = (box.clientWidth < 600 ? 320 : 400) + 'px';
-        var map = new K.Map(m, { center: new K.LatLng(lat, lng), level: 5 }), bounds = new K.LatLngBounds(), tip = null;
-        function card(c, e) {
-          if (tip) tip.setMap(null);
-          var d = document.createElement('div'); d.className = 'acbtip';
-          d.innerHTML = '<b></b><span></span>' + (c === o.c ? '' : '<a>관리비 보기</a>');
-          d.querySelector('b').textContent = e[0];
-          d.querySelector('span').textContent = '㎡당 ' + e[2].toLocaleString('ko-KR') + '원 · ' + NAME[e[4]] + ' ' + e[3];
-          var a = d.querySelector('a'); if (a) a.href = root + 'acb/?c=' + c;
-          tip = new K.CustomOverlay({ position: new K.LatLng(e[6], e[7]), content: d, yAnchor: 1.35, zIndex: 20 }); tip.setMap(map);
-        }
-        pts.forEach(function (p) {
-          var c = p[0], e = p[1], mine = c === o.c;
-          var b = document.createElement('button'); b.type = 'button'; b.className = 'acbm' + (mine ? ' me' : '') + (peer[c] ? ' pr' : '');
-          b.setAttribute('aria-label', e[0]); b.appendChild(faceSvg(e[4], mine ? 38 : 24));
-          b.classList.add('in'); b.style.animationDelay = (Math.min(p[2], 1) * 600) + 'ms';
-          if (mine) { var t = document.createElement('span'); t.textContent = e[0]; b.appendChild(t); }
-          b.onclick = function () { card(c, e); };
-          new K.CustomOverlay({ position: new K.LatLng(e[6], e[7]), content: b, yAnchor: .5, xAnchor: mine ? .12 : .5, zIndex: mine ? 9 : 1 }).setMap(map);
-          bounds.extend(new K.LatLng(e[6], e[7]));
-        });
-        if (pts.length > 1) map.setBounds(bounds, 24, 24, 24, 24);
-        K.event.addListener(map, 'click', function () { if (tip) { tip.setMap(null); tip = null; } });
-      });
+      var peer = {}; o.pl.forEach(function (p) { peer[p[0]] = 1; });
+      m.style.height = (box.clientWidth < 600 ? 320 : 420) + 'px';
+      ownMap(m, I, root, { center: [me[6], me[7]], me: o.c, peer: peer });
     }).catch(function () { var h = m.previousElementSibling; if (h) h.remove(); m.remove(); });
   }
 
@@ -170,37 +144,104 @@
   // 화면에 들어올 때 한 번만 움직임 (움직임 줄이기 설정이면 안 함)
   var io = ('IntersectionObserver' in window) ? new IntersectionObserver(function (es) { es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }); }, { threshold: .25 }) : null;
   function watch(root) { (root || document).querySelectorAll('.acb .ahead, .acb .achart, .acb .br, .acbhf, .acbm').forEach(function (n) { if (io) io.observe(n); else n.classList.add('in'); }); }
-  // 관리비 지도(첫 화면, 2026-11-22): 보이는 범위 안 단지를 얼굴로. 지도를 옮기면 다시 그린다.
-  function bigMap(m, root, onPick) {
-    return Promise.all([getIdx(root), getKakao(root)]).then(function (r) {
-      var I = r[0], K = r[1], all = [], shown = {}, tip = null;
-      for (var c in I) { var e = I[c]; if (e.length >= 8 && e[6]) all.push([c, e]); }
-      var map = new K.Map(m, { center: new K.LatLng(37.5126, 127.0590), level: 6 });
-      function card(c, e) {
-        if (tip) tip.setMap(null);
-        var d = document.createElement('div'); d.className = 'acbtip'; d.innerHTML = '<b></b><span></span><a>관리비 보기</a>';
-        d.querySelector('b').textContent = e[0]; d.querySelector('span').textContent = '㎡당 ' + e[2].toLocaleString('ko-KR') + '원 · ' + NAME[e[4]] + ' ' + e[3];
-        var a = d.querySelector('a'); a.href = root + 'acb/?c=' + c; a.onclick = function (ev) { if (onPick) { ev.preventDefault(); onPick(c); } };
-        tip = new K.CustomOverlay({ position: new K.LatLng(e[6], e[7]), content: d, yAnchor: 1.35, zIndex: 20 }); tip.setMap(map);
-      }
-      function redraw() {
-        var b = map.getBounds(), sw = b.getSouthWest(), ne = b.getNorthEast(), ct = map.getCenter(), la = ct.getLat(), ln = ct.getLng();
-        var inb = all.filter(function (p) { var e = p[1]; return e[6] >= sw.getLat() && e[6] <= ne.getLat() && e[7] >= sw.getLng() && e[7] <= ne.getLng(); });
-        if (inb.length > 140) { inb.sort(function (x, y) { return dist(la, ln, x[1][6], x[1][7]) - dist(la, ln, y[1][6], y[1][7]); }); inb = inb.slice(0, 140); }
-        var keep = {}; inb.forEach(function (p) { keep[p[0]] = 1; });
-        for (var k in shown) if (!keep[k]) { shown[k].setMap(null); delete shown[k]; }
-        inb.forEach(function (p) {
-          var c = p[0], e = p[1]; if (shown[c]) return;
-          var bt = document.createElement('button'); bt.type = 'button'; bt.className = 'acbm in'; bt.setAttribute('aria-label', e[0]); bt.appendChild(faceSvg(e[4], 24));
-          bt.onclick = function () { card(c, e); };
-          shown[c] = new K.CustomOverlay({ position: new K.LatLng(e[6], e[7]), content: bt, yAnchor: .5, xAnchor: .5, zIndex: 1 }); shown[c].setMap(map);
-        });
-        var n = m.parentNode.querySelector('.amapn'); if (n) n.textContent = '보이는 범위 ' + inb.length + '단지';
-      }
-      K.event.addListener(map, 'idle', redraw); K.event.addListener(map, 'click', function () { if (tip) { tip.setMap(null); tip = null; } });
-      redraw(); return map;
+  // 집지니 지도 (2026-11-22 대표 「우리식 지도로, 아이덴티티」): 남의 지도 그림을 쓰지 않고 단지 점·눈금선·구 이름만으로 그린다.
+  //   opt.center=[위도,경도] 이면 그 둘레 약 1km, 없으면 수도권 전체. opt.me=내 단지 번호, opt.peer={번호:1}, opt.pick=단지 고르면 부를 함수
+  function ownMap(m, I, root, opt) {
+    opt = opt || {};
+    var KX = 0.7934, pts = [], lab = {}, c, e;
+    for (c in I) { e = I[c]; if (e.length < 8 || !e[6]) continue; pts.push({ c: c, e: e }); var L = lab[e[5]] || (lab[e[5]] = { n: e[1], x: 0, y: 0, k: 0 }); L.x += e[7]; L.y += e[6]; L.k++; }
+    var labs = Object.keys(lab).map(function (k) { var l = lab[k]; return { n: l.n, x: l.x / l.k, y: l.y / l.k, k: l.k }; }).sort(function (a, b) { return b.k - a.k; });
+    m.textContent = ''; m.classList.add('omap');
+    var cv = document.createElement('canvas'), lay = document.createElement('div'), oz = document.createElement('div'), g = cv.getContext('2d');
+    lay.className = 'olay'; oz.className = 'oz'; oz.innerHTML = '<button type="button" aria-label="크게">+</button><button type="button" aria-label="작게">−</button>';
+    m.appendChild(cv); m.appendChild(lay); m.appendChild(oz);
+    var bar = document.createElement('div'), leg = document.createElement('p'); bar.className = 'omapbar'; leg.className = 'omapleg';
+    [1, 2, 3, 4, 5].forEach(function (t) { var s = document.createElement('i'); s.style.background = C[t]; bar.appendChild(s); });
+    m.parentNode.insertBefore(bar, m.nextSibling); m.parentNode.insertBefore(leg, bar.nextSibling);
+    var W = 0, H = 0, dpr = 1, cx, cy, z, zmin, face = {}, tip = null, tipP = null;
+    function X(lng) { return (lng - cx) * z * KX + W / 2; } function Y(lat) { return (cy - lat) * z + H / 2; }
+    function fit() {
+      if (opt.center) { cy = opt.center[0]; cx = opt.center[1]; z = (H / 2) / 0.0105; zmin = z / 40; return; }
+      var a = 1e9, b = -1e9, d = 1e9, f = -1e9; pts.forEach(function (p) { a = Math.min(a, p.e[7]); b = Math.max(b, p.e[7]); d = Math.min(d, p.e[6]); f = Math.max(f, p.e[6]); });
+      cx = (a + b) / 2; cy = (d + f) / 2; z = Math.min(W / ((b - a) * KX), H / (f - d)) * 0.94; zmin = z * 0.8;
+    }
+    function size() { var r = m.getBoundingClientRect(); if (!r.width) return false; dpr = Math.min(window.devicePixelRatio || 1, 2); W = r.width; H = r.height; cv.width = W * dpr; cv.height = H * dpr; return true; }
+    function card(p) {
+      if (tip) tip.remove(); tip = document.createElement('div'); tip.className = 'acbtip'; tipP = p;
+      tip.innerHTML = '<b></b><span></span>' + (p.c === opt.me ? '' : '<a>관리비 보기</a>');
+      tip.querySelector('b').textContent = p.e[0]; tip.querySelector('span').textContent = '㎡당 ' + p.e[2].toLocaleString('ko-KR') + '원 · ' + NAME[p.e[4]] + ' ' + p.e[3];
+      var a = tip.querySelector('a'); if (a) { a.href = root + 'acb/?c=' + p.c; a.onclick = function (ev) { if (opt.pick) { ev.preventDefault(); opt.pick(p.c); } }; }
+      lay.appendChild(tip); place();
+    }
+    function place() { if (tip && tipP) { tip.style.left = X(tipP.e[7]) + 'px'; tip.style.top = Y(tipP.e[6]) + 'px'; } }
+    function draw() {
+      g.setTransform(dpr, 0, 0, dpr, 0, 0); g.clearRect(0, 0, W, H); g.fillStyle = '#fff'; g.fillRect(0, 0, W, H);
+      // 눈금선 (도면 느낌): 간격은 화면에서 90px 안팎
+      var st = [1, .5, .2, .1, .05, .02, .01, .005, .002].filter(function (s) { return s * z >= 90; }).pop() || 1;
+      g.strokeStyle = '#EEF0EB'; g.lineWidth = 1; g.fillStyle = '#A9AEA5'; g.font = '10px "IBM Plex Sans KR",sans-serif'; g.beginPath();
+      var la0 = cy - H / 2 / z, la1 = cy + H / 2 / z, lo0 = cx - W / 2 / z / KX, lo1 = cx + W / 2 / z / KX, v;
+      for (v = Math.ceil(la0 / st) * st; v <= la1; v += st) { var yy = Math.round(Y(v)) + .5; g.moveTo(0, yy); g.lineTo(W, yy); g.fillText(v.toFixed(st < .01 ? 3 : 2) + '°', 4, yy - 3); }
+      for (v = Math.ceil(lo0 / st) * st; v <= lo1; v += st) { var xx = Math.round(X(v)) + .5; g.moveTo(xx, 0); g.lineTo(xx, H); g.fillText(v.toFixed(st < .01 ? 3 : 2) + '°', xx + 3, H - 5); }
+      g.stroke();
+      var vis = pts.filter(function (p) { return p.e[7] >= lo0 && p.e[7] <= lo1 && p.e[6] >= la0 && p.e[6] <= la1; }), cnt = [0, 0, 0, 0, 0, 0];
+      vis.forEach(function (p) { cnt[p.e[4]]++; });
+      var faces = vis.length <= 90 && z >= 6000, r = z < 900 ? 1.7 : z < 2500 ? 2.6 : z < 6000 ? 3.8 : 5, keep = {};
+      if (!faces) vis.forEach(function (p) { g.fillStyle = C[p.e[4]]; g.globalAlpha = z < 900 ? .75 : .9; g.beginPath(); g.arc(X(p.e[7]), Y(p.e[6]), r, 0, 6.2832); g.fill(); });
+      g.globalAlpha = 1;
+      if (faces) vis.forEach(function (p) {
+        keep[p.c] = 1; var b = face[p.c], mine = p.c === opt.me;
+        if (!b) { b = face[p.c] = document.createElement('button'); b.type = 'button'; b.className = 'acbm in' + (mine ? ' me' : '') + (opt.peer && opt.peer[p.c] ? ' pr' : ''); b.setAttribute('aria-label', p.e[0]);
+          b.appendChild(faceSvg(p.e[4], mine ? 38 : 24)); if (mine) { var t = document.createElement('span'); t.textContent = p.e[0]; b.appendChild(t); b.style.zIndex = 3; }
+          b.onclick = function () { card(p); }; lay.appendChild(b); }
+        b.style.left = X(p.e[7]) + 'px'; b.style.top = Y(p.e[6]) + 'px';
+      });
+      for (var k in face) if (!keep[k]) { face[k].remove(); delete face[k]; }
+      // 가까이 보면 단지 이름을 얼굴 아래에
+      if (faces && vis.length <= 40) { g.font = '11.5px "IBM Plex Sans KR",sans-serif'; g.textAlign = 'center'; g.lineJoin = 'round';
+        vis.forEach(function (p) { if (p.c === opt.me) return; var x = X(p.e[7]), y = Y(p.e[6]) + 25, t = p.e[0].replace(/아파트$/, '').slice(0, 12);
+          g.strokeStyle = 'rgba(255,255,255,.95)'; g.lineWidth = 3.5; g.strokeText(t, x, y); g.fillStyle = '#6B7067'; g.fillText(t, x, y); }); g.textAlign = 'start'; }
+      // 구 이름: 넓게 볼 때는 큰 구만
+      if (z < 9000) { var need = z < 500 ? 120 : z < 900 ? 60 : z < 2000 ? 25 : 1, used = [];
+        g.font = '600 12.5px "IBM Plex Sans KR",sans-serif'; g.textAlign = 'center'; g.lineJoin = 'round';
+        labs.forEach(function (l) { if (l.k < need) return; var x = X(l.x), y = Y(l.y); if (x < 20 || x > W - 20 || y < 14 || y > H - 14) return;
+          for (var i = 0; i < used.length; i++) if (Math.abs(used[i][0] - x) < 62 && Math.abs(used[i][1] - y) < 18) return; used.push([x, y]);
+          g.strokeStyle = 'rgba(255,255,255,.92)'; g.lineWidth = 4; g.strokeText(l.n, x, y + 4); g.fillStyle = '#1C1F1B'; g.fillText(l.n, x, y + 4); });
+        g.textAlign = 'start'; }
+      // 축척 막대
+      var km = [50, 20, 10, 5, 2, 1, .5, .2, .1].filter(function (k) { return k / 111 * z <= 120; })[0] || .1, px = km / 111 * z;
+      g.strokeStyle = '#1C1F1B'; g.lineWidth = 1.5; g.beginPath(); g.moveTo(14, H - 22.5); g.lineTo(14 + px, H - 22.5); g.moveTo(14.5, H - 27); g.lineTo(14.5, H - 18); g.moveTo(14 + px - .5, H - 27); g.lineTo(14 + px - .5, H - 18); g.stroke();
+      g.fillStyle = '#1C1F1B'; g.font = '600 11.5px "IBM Plex Sans KR",sans-serif'; g.fillText(km >= 1 ? km + 'km' : km * 1000 + 'm', 20 + px, H - 18);
+      g.fillStyle = '#6B7067'; g.font = '11px "IBM Plex Sans KR",sans-serif'; g.textAlign = 'right'; g.fillText('집지니 지도 · 국토교통부 관리비 2026년 1~9월', W - 10, H - 18); g.textAlign = 'start';
+      var n = vis.length; [1, 2, 3, 4, 5].forEach(function (t) { bar.children[t - 1].style.width = (n ? cnt[t] / n * 100 : 0) + '%'; });
+      leg.textContent = ''; var hd = document.createElement('b'); hd.textContent = '보이는 범위 ' + n.toLocaleString('ko-KR') + '단지'; leg.appendChild(hd);
+      [1, 2, 3, 4, 5].forEach(function (t) { var s = document.createElement('span'); s.style.color = C[t]; s.textContent = NAME[t] + ' ' + (n ? Math.round(cnt[t] / n * 100) : 0) + '%'; leg.appendChild(s); });
+      place();
+    }
+    function zoom(f, px, py) { var nz = Math.max(zmin, Math.min(90000, z * f)); if (nz === z) return; var lng = cx + (px - W / 2) / z / KX, lat = cy - (py - H / 2) / z; z = nz; cx = lng - (px - W / 2) / z / KX; cy = lat + (py - H / 2) / z; draw(); }
+    var ptr = {}, moved = 0, pinch = 0;
+    m.addEventListener('pointerdown', function (ev) { if (ev.target.closest('.oz,.acbtip,.acbm')) return; ptr[ev.pointerId] = [ev.clientX, ev.clientY]; moved = 0; m.classList.add('drag'); try { m.setPointerCapture(ev.pointerId); } catch (x) {} });
+    m.addEventListener('pointermove', function (ev) {
+      var p = ptr[ev.pointerId]; if (!p) return; var ids = Object.keys(ptr);
+      if (ids.length === 2) { ptr[ev.pointerId] = [ev.clientX, ev.clientY]; var a = ptr[ids[0]], b = ptr[ids[1]], d = Math.hypot(a[0] - b[0], a[1] - b[1]), r = m.getBoundingClientRect();
+        if (pinch) zoom(d / pinch, (a[0] + b[0]) / 2 - r.left, (a[1] + b[1]) / 2 - r.top); pinch = d; moved = 99; return; }
+      var dx = ev.clientX - p[0], dy = ev.clientY - p[1]; moved += Math.abs(dx) + Math.abs(dy); cx -= dx / z / KX; cy += dy / z; ptr[ev.pointerId] = [ev.clientX, ev.clientY]; draw();
     });
+    function up(ev) {
+      if (!ptr[ev.pointerId]) return; delete ptr[ev.pointerId]; pinch = 0; if (!Object.keys(ptr).length) m.classList.remove('drag');
+      if (moved > 6 || ev.type !== 'pointerup') return;
+      var r = m.getBoundingClientRect(), mx = ev.clientX - r.left, my = ev.clientY - r.top, best = null, bd = 14;
+      pts.forEach(function (p) { var d = Math.hypot(X(p.e[7]) - mx, Y(p.e[6]) - my); if (d < bd) { bd = d; best = p; } });
+      if (best) card(best); else if (tip) { tip.remove(); tip = null; tipP = null; }
+    }
+    m.addEventListener('pointerup', up); m.addEventListener('pointercancel', up);
+    m.addEventListener('wheel', function (ev) { ev.preventDefault(); var r = m.getBoundingClientRect(); zoom(Math.exp(-ev.deltaY * 0.0016), ev.clientX - r.left, ev.clientY - r.top); }, { passive: false });
+    m.addEventListener('dblclick', function (ev) { if (ev.target.closest('.oz')) return; var r = m.getBoundingClientRect(); zoom(2, ev.clientX - r.left, ev.clientY - r.top); });
+    oz.children[0].onclick = function () { zoom(1.6, W / 2, H / 2); }; oz.children[1].onclick = function () { zoom(1 / 1.6, W / 2, H / 2); };
+    function boot() { if (!size()) return; fit(); draw(); }
+    if ('ResizeObserver' in window) { var first = true; new ResizeObserver(function () { if (first) { first = false; boot(); } else if (size()) draw(); }).observe(m); } else boot();
+    return { zoomTo: function (lat, lng, nz) { cy = lat; cx = lng; z = nz || 12000; draw(); } };
   }
+  function bigMap(m, root, onPick) { return getIdx(root).then(function (I) { return ownMap(m, I, root, { pick: onPick }); }); }
   window.JJacb = { watch: watch, load: load, render: render, faceSvg: faceSvg, NAME: NAME, C: C, bigMap: bigMap };
   document.querySelectorAll('section.acb[data-c]').forEach(load);
 })();
