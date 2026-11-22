@@ -160,7 +160,7 @@
     m.parentNode.insertBefore(bar, m.nextSibling); m.parentNode.insertBefore(leg, bar.nextSibling);
     var W = 0, H = 0, dpr = 1, cx, cy, z, zmin, face = {}, tip = null, tipP = null;
     var base = ownMap.base || null;   // 2026-11-22 바탕(땅·시도·시군구 경계) — 점만 떠 있어 지도로 안 보인다는 지적
-    if (!base && !ownMap.wait) ownMap.wait = fetch(root + 'data/acb/basemap.json?v=20261122a').then(function (r) { return r.json(); }).then(function (j) { ownMap.base = j; return j; }).catch(function () { return null; });
+    if (!base && !ownMap.wait) ownMap.wait = fetch(root + 'data/acb/basemap.json?v=20261122b').then(function (r) { return r.json(); }).then(function (j) { ownMap.base = j; return j; }).catch(function () { return null; });
     if (!base && ownMap.wait) ownMap.wait.then(function (j) { if (j) { base = j; if (W) draw(); } });
     function ring(f) { g.moveTo(X(f[0]), Y(f[1])); for (var i = 2; i < f.length; i += 2) g.lineTo(X(f[i]), Y(f[i + 1])); g.closePath(); }
     function X(lng) { return (lng - cx) * z * KX + W / 2; } function Y(lat) { return (cy - lat) * z + H / 2; }
@@ -188,6 +188,8 @@
         g.beginPath(); base.sgg.forEach(function (s) { s.r.forEach(ring); }); g.strokeStyle = '#D3D8CE'; g.lineWidth = z < 900 ? .6 : 1; g.lineJoin = 'round'; g.stroke();   // 시군구 경계
         g.beginPath(); base.sido.forEach(ring); g.strokeStyle = '#8E9489'; g.lineWidth = z < 900 ? 1.1 : 1.6; g.stroke();   // 시도 경계
         g.beginPath(); base.land.forEach(ring); g.strokeStyle = '#B9C4C8'; g.lineWidth = .8; g.stroke();   // 바닷가 선
+        if (base.han) { g.beginPath(); base.han.forEach(function (f) { g.moveTo(X(f[0]), Y(f[1])); for (var i = 2; i < f.length; i += 2) g.lineTo(X(f[i]), Y(f[i + 1])); }); g.strokeStyle = '#C9D9DF'; g.lineCap = 'round'; g.lineWidth = Math.max(2.5, Math.min(60, 0.009 * z)); g.stroke(); g.lineCap = 'butt';
+          if (z > 1500 && z < 9000) { var hm = base.han.reduce(function (u, v) { return v.length > u.length ? v : u; }, []), hi = (hm.length >> 2) * 2; g.font = '500 11.5px "IBM Plex Sans KR",sans-serif'; g.fillStyle = '#7C97A1'; g.textAlign = 'center'; g.fillText('한강', X(hm[hi]), Y(hm[hi + 1]) + 4); g.textAlign = 'start'; } }   // 한강(강을 낀 구 경계에서 뽑은 줄기, 폭 약 1km)
       }
       var vis = pts.filter(function (p) { return p.e[7] >= lo0 && p.e[7] <= lo1 && p.e[6] >= la0 && p.e[6] <= la1; }), cnt = [0, 0, 0, 0, 0, 0];
       vis.forEach(function (p) { cnt[p.e[4]]++; });

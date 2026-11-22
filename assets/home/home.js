@@ -31,7 +31,7 @@
   fetch('data/apt/index.json').then(function (r) { return r.json(); }).then(function (d) {
     IDX = d; var t = d.합계, all = t[0] + t[1] + t[2];
     if ($('nAll')) $('nAll').textContent = num(all); if ($('nAll2')) $('nAll2').textContent = num(all); $('nHave').textContent = num(t[1] + t[2]); $('nOpen').textContent = num(t[2]); if ($('irOpen')) $('irOpen').textContent = num(t[2]);
-    if (window.JJ_KAKAO_KEY) kakao();
+    init();
   });
   fetch('data/plans/opened.json', { cache: 'no-cache' }).then(function (r) { return r.json(); }).then(function (L) {
     try { var _l = L[L.length - 1]; ['dh1', 'dh2'].forEach(function (id) { var e = document.getElementById(id); if (e && _l) e.textContent = Number(_l.평형).toLocaleString('ko-KR'); }); } catch (_d) {}
@@ -56,40 +56,76 @@
   }).catch(function () {});
 
   /* ── 지도 ── */
-  function kakao() {
-    var s = document.createElement('script');
-    s.src = 'https://dapi.kakao.com/v2/maps/sdk.js?autoload=false&appkey=' + encodeURIComponent(window.JJ_KAKAO_KEY);
-    s.onload = function () { if (window.kakao && window.kakao.maps) window.kakao.maps.load(init); };
-    document.head.appendChild(s);
-  }
+  // 2026-11-22 집지니 지도 — 남의 지도(카카오) 대신 우리 바탕(바다·땅·시군구 경계·한강)을 직접 그린다. 「우리식 지도로, 아이덴티티」
+  //   KMAP 은 예전 쓰던 이름 그대로(단계 getLevel·범위 getBounds·옮기기 setLevel/panTo/setCenter)라 아래 표시 코드는 그대로 돈다.
   function init() {
-    K = window.kakao.maps; var narrow = innerWidth < 860;
-    KMAP = new K.Map($('hmap'), { center: new K.LatLng(37.48, narrow ? 126.75 : 126.8), level: narrow ? 10 : 9 }); KMAP.addControl(new K.ZoomControl(), K.ControlPosition.LEFT);
-    KMAP.setMaxLevel(11); KMAP.setZoomable(true);
-    IDX.구역.forEach(function (r) {
-      var on = r.수 && r.수[2] > 0;
-      if (on) r.경계.forEach(function (ring) {
-        new K.Polygon({ map: KMAP, path: ring.map(function (q) { return new K.LatLng(q[1], q[0]); }), strokeWeight: 1.6, strokeColor: '#1F5E2E', strokeOpacity: .8, fillColor: '#1F5E2E', fillOpacity: .12 });
-      });
-    });
-    K.event.addListener(KMAP, 'idle', function () { clearTimeout(KT); KT = setTimeout(draw, 80); });
-    draw();
+    var box = $('hmap'), cv = document.createElement('canvas'), lay = document.createElement('div'), zb = document.createElement('div'), g = cv.getContext('2d');
+    box.textContent = ''; lay.className = 'hlay'; zb.className = 'hzoom'; zb.innerHTML = '<button type="button" aria-label="크게">+</button><button type="button" aria-label="작게">−</button>';
+    box.appendChild(cv); box.appendChild(lay); box.appendChild(zb);
+    var KX = 0.7934, W = 0, H = 0, dpr = 1, narrow = innerWidth < 860, cy = 37.48, cx = narrow ? 126.75 : 126.8, base = null;
+    var ZL = function (l) { return 111000 / (0.26 * Math.pow(2, l)); }, z = ZL(narrow ? 10 : 9), ZMIN = ZL(11), ZMAX = ZL(2);
+    var X = function (lng) { return (lng - cx) * z * KX + W / 2; }, Y = function (lat) { return (cy - lat) * z + H / 2; };
+    function size() { var r = box.getBoundingClientRect(); if (!r.width) return; dpr = Math.min(window.devicePixelRatio || 1, 2); W = r.width; H = r.height; cv.width = W * dpr; cv.height = H * dpr; cv.style.width = W + 'px'; cv.style.height = H + 'px'; }
+    function ring(f) { g.moveTo(X(f[0]), Y(f[1])); for (var i = 2; i < f.length; i += 2) g.lineTo(X(f[i]), Y(f[i + 1])); g.closePath(); }
+    function paint() {
+      g.setTransform(dpr, 0, 0, dpr, 0, 0); g.fillStyle = base ? '#E6ECEE' : '#fff'; g.fillRect(0, 0, W, H);
+      if (base) {
+        g.beginPath(); base.land.forEach(ring); g.fillStyle = '#FBFBF8'; g.fill('evenodd');
+        g.beginPath(); base.sgg.forEach(function (s) { s.r.forEach(ring); }); g.strokeStyle = '#D3D8CE'; g.lineWidth = z < 900 ? .6 : 1; g.lineJoin = 'round'; g.stroke();
+      }
+      // 도면이 열린 구역: 초록 테두리와 옅은 칠
+      g.beginPath(); IDX.구역.forEach(function (r) { if (r.수 && r.수[2] > 0) r.경계.forEach(function (q) { q.forEach(function (c, k) { k ? g.lineTo(X(c[0]), Y(c[1])) : g.moveTo(X(c[0]), Y(c[1])); }); g.closePath(); }); });
+      g.fillStyle = 'rgba(31,94,46,.12)'; g.fill(); g.strokeStyle = 'rgba(31,94,46,.8)'; g.lineWidth = 1.6; g.stroke();
+      if (base) {
+        g.beginPath(); base.sido.forEach(ring); g.strokeStyle = '#8E9489'; g.lineWidth = 1.2; g.stroke();
+        g.beginPath(); base.land.forEach(ring); g.strokeStyle = '#B9C4C8'; g.lineWidth = .8; g.stroke();
+        if (base.han) { g.beginPath(); base.han.forEach(function (f) { g.moveTo(X(f[0]), Y(f[1])); for (var i = 2; i < f.length; i += 2) g.lineTo(X(f[i]), Y(f[i + 1])); }); g.strokeStyle = '#C9D9DF'; g.lineCap = 'round'; g.lineWidth = Math.max(2.5, Math.min(60, 0.009 * z)); g.stroke(); g.lineCap = 'butt'; }
+      }
+      var km = [50, 20, 10, 5, 2, 1, .5, .2, .1].filter(function (k) { return k / 111 * z <= 120; })[0] || .1, px = km / 111 * z;
+      g.strokeStyle = '#1C1F1B'; g.lineWidth = 1.5; g.beginPath(); g.moveTo(14, H - 16.5); g.lineTo(14 + px, H - 16.5); g.moveTo(14.5, H - 21); g.lineTo(14.5, H - 12); g.moveTo(13.5 + px, H - 21); g.lineTo(13.5 + px, H - 12); g.stroke();
+      g.fillStyle = '#1C1F1B'; g.font = '600 11.5px "IBM Plex Sans KR",sans-serif'; g.fillText(km >= 1 ? km + 'km' : km * 1000 + 'm', 20 + px, H - 12);
+      g.fillStyle = '#6B7067'; g.font = '11px "IBM Plex Sans KR",sans-serif'; g.textAlign = 'right'; g.fillText('집지니 지도', W - 10, H - 12); g.textAlign = 'start';
+      OV.forEach(place);
+    }
+    function place(o) { o.el.style.left = X(o.lng) + 'px'; o.el.style.top = Y(o.lat) + 'px'; }
+    function idle() { paint(); clearTimeout(KT); KT = setTimeout(draw, 120); }
+    function zoomAt(nz, px, py) { nz = Math.max(ZMIN, Math.min(ZMAX, nz)); var lng = cx + (px - W / 2) / z / KX, lat = cy - (py - H / 2) / z; z = nz; cx = lng - (px - W / 2) / z / KX; cy = lat + (py - H / 2) / z; idle(); }
+    KMAP = {
+      lay: lay, place: place,
+      getLevel: function () { return Math.max(1, Math.round(Math.log(111000 / z / 0.26) / Math.LN2)); },
+      getBounds: function () { return { s: cy - H / 2 / z, n: cy + H / 2 / z, w: cx - W / 2 / z / KX, e: cx + W / 2 / z / KX }; },
+      setLevel: function (l, o) { z = ZL(l); if (o && o.anchor) { cy = o.anchor[0]; cx = o.anchor[1]; } idle(); },
+      setCenter: function (c) { cy = c[0]; cx = c[1]; idle(); }, panTo: function (c) { cy = c[0]; cx = c[1]; idle(); }
+    };
+    var ptr = {}, moved = 0, pd = 0;
+    box.addEventListener('pointerdown', function (e) { if (e.target.closest('button')) return; ptr[e.pointerId] = [e.clientX, e.clientY]; moved = 0; box.classList.add('drag'); try { box.setPointerCapture(e.pointerId); } catch (_e) {} });
+    box.addEventListener('pointermove', function (e) { var p = ptr[e.pointerId]; if (!p) return; var ids = Object.keys(ptr);
+      if (ids.length === 2) { ptr[e.pointerId] = [e.clientX, e.clientY]; var a = ptr[ids[0]], b = ptr[ids[1]], d = Math.hypot(a[0] - b[0], a[1] - b[1]), r = box.getBoundingClientRect(); if (pd) zoomAt(z * d / pd, (a[0] + b[0]) / 2 - r.left, (a[1] + b[1]) / 2 - r.top); pd = d; return; }
+      cx -= (e.clientX - p[0]) / z / KX; cy += (e.clientY - p[1]) / z; moved += Math.abs(e.clientX - p[0]) + Math.abs(e.clientY - p[1]); ptr[e.pointerId] = [e.clientX, e.clientY]; paint(); });
+    var up = function (e) { if (!ptr[e.pointerId]) return; delete ptr[e.pointerId]; pd = 0; box.classList.remove('drag'); if (moved > 3) idle(); };
+    box.addEventListener('pointerup', up); box.addEventListener('pointercancel', up);
+    box.addEventListener('wheel', function (e) { if (!(e.ctrlKey || e.metaKey)) return; e.preventDefault(); var r = box.getBoundingClientRect(); zoomAt(z * Math.exp(-e.deltaY * 0.0016), e.clientX - r.left, e.clientY - r.top); }, { passive: false });   // 쪽을 내리다 지도에 걸리지 않게: 바퀴는 Ctrl 과 함께일 때만 확대
+    box.addEventListener('dblclick', function (e) { if (e.target.closest('button')) return; var r = box.getBoundingClientRect(); zoomAt(z * 2, e.clientX - r.left, e.clientY - r.top); });
+    zb.children[0].onclick = function () { zoomAt(z * 2, W / 2, H / 2); }; zb.children[1].onclick = function () { zoomAt(z / 2, W / 2, H / 2); };
+    window.addEventListener('resize', function () { size(); idle(); });
+    size(); paint(); draw();
+    fetch('data/acb/basemap.json?v=20261122b').then(function (r) { return r.json(); }).then(function (j) { base = j; paint(); }).catch(function () {});
   }
-  function put(el, lat, lng, z, ya) { var o = new K.CustomOverlay({ position: new K.LatLng(lat, lng), content: el, yAnchor: ya == null ? 1 : ya, zIndex: z || 1 }); o.setMap(KMAP); OV.push(o); }
-  function clear() { OV.forEach(function (o) { o.setMap(null); }); OV = []; }
-  function inView(b, lat, lng) { return lat > b.getSouthWest().getLat() && lat < b.getNorthEast().getLat() && lng > b.getSouthWest().getLng() && lng < b.getNorthEast().getLng(); }
+  function put(el, lat, lng, zi, ya) { el.style.position = 'absolute'; el.style.transform = 'translate(-50%,' + (-(ya == null ? 1 : ya) * 100) + '%)'; el.style.zIndex = zi || 1; var o = { el: el, lat: lat, lng: lng }; KMAP.place(o); KMAP.lay.appendChild(el); OV.push(o); }
+  function clear() { OV.forEach(function (o) { o.el.remove(); }); OV = []; }
+  function inView(b, lat, lng) { return lat > b.s && lat < b.n && lng > b.w && lng < b.e; }
   function draw() {
     if (!KMAP) return; clear(); var lv = KMAP.getLevel(), b = KMAP.getBounds();
     if (lv >= 10) {   // 시도
       var S = {}; IDX.구역.forEach(function (r) { var s = S[r.짧은시도] = S[r.짧은시도] || { n: 0, o: 0, x: 0, y: 0, k: 0 }; var t = r.수[0] + r.수[1] + r.수[2]; s.n += t; s.o += r.수[2]; s.x += r.가운데[0] * t; s.y += r.가운데[1] * t; s.k += t; });
       Object.keys(S).forEach(function (k) { var s = S[k]; if (!s.k) return; var d = mk('mk big' + (s.o ? ' has' : ''), '<b>' + k + '</b><span>' + num(s.n) + '</span>' + (s.o ? '<em>도면 ' + s.o + '</em>' : ''));
-        d.onclick = function () { KMAP.setLevel(8, { anchor: new K.LatLng(s.y / s.k, s.x / s.k) }); }; put(d, s.y / s.k, s.x / s.k, 5); });
+        d.onclick = function () { KMAP.setLevel(8, { anchor: [s.y / s.k, s.x / s.k] }); }; put(d, s.y / s.k, s.x / s.k, 5); });
       return;
     }
     if (lv >= 7) {   // 구역
       IDX.구역.forEach(function (r) { var la = r.가운데[1], ln = r.가운데[0]; if (!inView(b, la, ln)) return; var t = r.수[0] + r.수[1] + r.수[2], o = r.수[2];
         var d = mk('mk' + (o ? ' has' : ''), '<b>' + esc(r.이름) + '</b>' + (o ? '<em>' + o + '</em>' : '<span>' + num(t) + '</span>'));
-        d.onclick = function () { KMAP.setLevel(5, { anchor: new K.LatLng(la, ln) }); }; put(d, la, ln, o ? 6 : 4); });
+        d.onclick = function () { KMAP.setLevel(5, { anchor: [la, ln] }); }; put(d, la, ln, o ? 6 : 4); });
       return;
     }
     // 단지 — 화면 안 구역만 불러온다
@@ -127,7 +163,7 @@
       $('cardPv').innerHTML = '<p class="none">' + (x.s === 1 ? '평면도를 확보했습니다.<br>다시 그려 원본과 대조한 뒤 곧 엽니다.' : '아직 도면이 없습니다.<br>평면 사진을 올리시면 먼저 그려 드립니다.') + '</p>';
       $('cardM').textContent = x.a || '';
     }
-    if (KMAP) { KMAP.panTo(new K.LatLng(x.ll[0], x.ll[1])); draw(); }
+    if (KMAP) { KMAP.panTo([x.ll[0], x.ll[1]]); draw(); }
   }
   $('cardX').onclick = function () { $('card').hidden = true; OPEN = ''; draw(); };
 
@@ -142,7 +178,7 @@
     ul.innerHTML = r.length ? r.map(function (x, i) { return '<li data-i="' + i + '" class="' + (x.s === 2 ? 'on' : '') + '">' + esc(x.n) + '<small>' + esc(x.g) + ' · ' + ['예정', '평면 확보', '도면 열림'][x.s] + '</small></li>'; }).join('') : '<li>찾는 단지가 없습니다</li>';
     ul.hidden = false;
     [].forEach.call(ul.querySelectorAll('li[data-i]'), function (li) { li.onclick = function () { var x = r[+li.dataset.i]; ul.hidden = true; $('q').value = x.n; track('home_find', { apt: x.c });
-      if (KMAP && x.ll) { KMAP.setLevel(4); KMAP.setCenter(new K.LatLng(x.ll[0], x.ll[1])); } pick(x); }; });
+      if (KMAP && x.ll) { KMAP.setLevel(4); KMAP.setCenter([x.ll[0], x.ll[1]]); } pick(x); }; });
   }
   document.addEventListener('click', function (e) { if (!$('find').contains(e.target)) $('hits').hidden = true; });
 

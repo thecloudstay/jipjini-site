@@ -805,3 +805,10 @@ section.go4{padding-top:88px}
 .gop{margin-top:10px;font-size:14.5px;line-height:1.7;color:var(--pencil)}
 .gop b{color:var(--g);font-weight:600}
 .gop button{font:inherit;font-size:13.5px;color:var(--g);background:none;border:0;text-decoration:underline;text-underline-offset:3px;cursor:pointer;padding:0 0 0 6px}
+/* 2026-11-22 집지니 지도(자체 바탕) */
+.hmap{touch-action:none;cursor:grab;user-select:none;-webkit-user-select:none}.hmap.drag{cursor:grabbing}
+.hmap canvas{position:absolute;inset:0;display:block}
+.hlay{position:absolute;inset:0;overflow:hidden;pointer-events:none}.hlay>*{pointer-events:auto}
+.hzoom{position:absolute;left:12px;top:12px;display:flex;flex-direction:column;border:1px solid var(--ink);border-radius:4px;overflow:hidden;background:#fff;z-index:20}
+.hzoom button{width:34px;height:34px;border:0;background:#fff;font:400 19px/1 var(--f);color:var(--ink);cursor:pointer}
+.hzoom button+button{border-top:1px solid var(--line)}.hzoom button:hover{background:#F3F5F0}
