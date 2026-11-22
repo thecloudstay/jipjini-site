@@ -1,0 +1,89 @@
+/* 셀인대행 (2026-11-22 다시 짬): 글을 줄이고 숫자·막대·표로. 줄·문단 간격 넉넉히 */
+.sia{max-width:980px;margin:0 auto;padding:44px 20px 80px;font-variant-numeric:tabular-nums;line-height:1.85}
+.sia .crumb{font-size:13px;color:var(--jj-pencil,#6B7067);margin:0 0 26px}
+.sia h1{font-size:clamp(28px,4.6vw,42px);line-height:1.32;margin:0 0 18px;font-weight:700;text-wrap:balance}
+.sia h1 b{color:var(--jj-green,#1F5E2E)}
+.sia .ld{font-size:18px;line-height:1.9;margin:0 0 10px;max-width:680px}
+.sia .ld2{font-size:15.5px;color:var(--jj-pencil,#6B7067);margin:0 0 30px;max-width:680px}
+.sia .bt{display:flex;flex-wrap:wrap;gap:10px;margin:0 0 8px}
+.sia .bt a{display:inline-block;padding:13px 20px;border:1.5px solid var(--jj-ink,#1C1F1B);border-radius:4px;font-weight:600;text-decoration:none;color:var(--jj-ink,#1C1F1B)}
+.sia .bt a.p{background:var(--jj-green,#1F5E2E);border-color:var(--jj-green,#1F5E2E);color:#fff}
+.sia section{margin:76px 0 0;padding:0;max-width:none;border:0;background:none}
+.sia h2{max-width:none;width:auto;display:block;font-size:24px;line-height:1.45;margin:0 0 10px;padding-top:22px;border-top:1.5px solid var(--jj-ink,#1C1F1B)}
+.sia .cap{margin:0 0 28px;color:var(--jj-pencil,#6B7067);font-size:15px}
+.sia .src{margin:16px 0 0;font-size:13px;color:var(--jj-pencil,#6B7067);line-height:1.8}
+/* 비용 막대 */
+.cost{display:grid;gap:22px}
+.cost .r{display:grid;grid-template-columns:170px 1fr;gap:6px 20px;align-items:center}
+.cost .nm{font-weight:600}.cost .nm small{display:block;font-weight:400;font-size:13px;color:var(--jj-pencil,#6B7067)}
+.cost .bar{display:flex;align-items:center;gap:12px}
+.cost .bar i{display:block;height:30px;border-radius:2px;background:var(--jj-rule,#DCDFD8)}
+.cost .bar i.g{background:var(--jj-green,#1F5E2E)}
+.cost .bar i.k{background:#8FB39A;margin-left:-10px;border-radius:0 2px 2px 0}
+.cost .bar b{font-size:20px;white-space:nowrap}
+.cost .tm{grid-column:2;font-size:13.5px;color:var(--jj-pencil,#6B7067)}
+.gap{display:grid;grid-template-columns:repeat(3,1fr);margin-top:34px;border-top:1px solid var(--jj-ink,#1C1F1B);border-bottom:1px solid var(--jj-rule,#DCDFD8)}
+.gap div{padding:18px 16px 16px 0}.gap div+div{padding-left:18px;border-left:1px solid var(--jj-rule,#DCDFD8)}
+.gap em{display:block;font-style:normal;font-size:30px;font-weight:700;line-height:1.25;color:var(--jj-green,#1F5E2E)}
+.gap span{font-size:13.5px;color:var(--jj-pencil,#6B7067)}
+/* 표 */
+.sia .tw{overflow-x:auto}
+.sia table{width:100%;border-collapse:collapse;font-size:15px;min-width:620px}
+.sia th{font-size:13px;font-weight:600;color:var(--jj-pencil,#6B7067);text-align:left;padding:10px 14px 10px 0;border-bottom:1px solid var(--jj-ink,#1C1F1B)}
+.sia td{padding:16px 14px 16px 0;border-bottom:1px solid var(--jj-rule,#DCDFD8);vertical-align:top;line-height:1.75}
+.sia tr.me td{background:#F3F7F3;font-weight:500}.sia tr.me td:first-child{color:var(--jj-green,#1F5E2E);font-weight:700}
+.sia td.c{text-align:center;white-space:nowrap}.sia th.c{text-align:center}
+.sia .sdot{display:inline-block;width:12px;height:12px;padding:0;margin:0;box-sizing:border-box;border-radius:50%;border:1.5px solid var(--jj-ink,#1C1F1B);vertical-align:-1px}
+.sia .sdot.f{background:var(--jj-ink,#1C1F1B)}.sia .sdot.h{background:linear-gradient(90deg,var(--jj-ink,#1C1F1B) 50%,transparent 50%)}
+.sia .lv{display:inline-flex;gap:3px;vertical-align:middle}.sia .lv i{width:14px;height:8px;background:var(--jj-rule,#DCDFD8);border-radius:1px}.sia .lv i.on{background:var(--jj-ink,#1C1F1B)}
+/* 역할 나누기 */
+.role{display:grid;grid-template-columns:150px 1fr 1fr;border-top:1px solid var(--jj-ink,#1C1F1B)}
+.role>div{padding:16px 16px 16px 0;border-bottom:1px solid var(--jj-rule,#DCDFD8);line-height:1.75;font-size:15px}
+.role .hd{font-size:13px;font-weight:600;color:var(--jj-pencil,#6B7067);padding:10px 16px 10px 0;border-bottom:1px solid var(--jj-ink,#1C1F1B)}
+.role .st{font-weight:600}.role .jj{background:#F3F7F3;padding-left:16px}
+.sia .why{margin:22px 0 0;padding:16px 0 0;font-size:15px;border-top:1px solid var(--jj-rule,#DCDFD8)}
+/* 변수 · 진행 */
+.risk{display:grid;grid-template-columns:repeat(2,1fr);gap:0 40px;border-top:1px solid var(--jj-ink,#1C1F1B)}
+.risk div{padding:20px 0;border-bottom:1px solid var(--jj-rule,#DCDFD8)}
+.risk b{display:block;font-size:16.5px;margin-bottom:6px}.risk span{font-size:15px;color:var(--jj-pencil,#6B7067);line-height:1.8}
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border-top:1px solid var(--jj-ink,#1C1F1B);counter-reset:s}
+.steps div{padding:18px 16px 20px 0;counter-increment:s}.steps div+div{padding-left:18px;border-left:1px solid var(--jj-rule,#DCDFD8)}
+.steps div:before{content:counter(s);display:block;font-size:30px;font-weight:700;color:var(--jj-green,#1F5E2E);line-height:1.2;margin-bottom:8px}
+.steps b{display:block;margin-bottom:6px}.steps span{font-size:14.5px;color:var(--jj-pencil,#6B7067);line-height:1.75}
+/* 묻고 답하기 */
+.faq details{border-bottom:1px solid var(--jj-rule,#DCDFD8)}.faq details:first-of-type{border-top:1px solid var(--jj-ink,#1C1F1B)}
+.faq summary{cursor:pointer;padding:18px 0;font-weight:600;font-size:16.5px;list-style:none;display:flex;justify-content:space-between;gap:16px}
+.faq summary::-webkit-details-marker{display:none}.faq summary:after{content:"+";font-weight:400;font-size:22px;line-height:1;color:var(--jj-pencil,#6B7067)}
+.faq details[open] summary:after{content:"−"}
+.faq p{margin:0 0 22px;line-height:1.9;max-width:720px}
+.sia .more{display:flex;flex-wrap:wrap;gap:8px 22px;margin:0;padding:0;list-style:none}.sia .more a{font-weight:600;color:var(--jj-green,#1F5E2E)}
+.sia .end{margin-top:76px;padding:34px 0 0;border-top:1.5px solid var(--jj-ink,#1C1F1B)}
+.sia .end h2{border:0;padding:0;margin-bottom:8px}
+@media (max-width:760px){.sia section{margin-top:58px}.cost .r{grid-template-columns:1fr}.cost .tm{grid-column:1}.gap{grid-template-columns:1fr}.gap div+div{padding-left:0;border-left:0;border-top:1px solid var(--jj-rule,#DCDFD8)}
+ .role{grid-template-columns:1fr}.role .hd{display:none}.role .st{border-bottom:0;padding-bottom:0;padding-top:20px}.role .me:before,.role .jj:before{display:block;font-size:12.5px;font-weight:600;color:var(--jj-pencil,#6B7067);margin-bottom:2px}.role .me:before{content:"내가 하는 일"}.role .jj:before{content:"집지니가 하는 일"}.role .me{border-bottom:0;padding-bottom:8px}.role .jj{padding:12px 14px;margin-bottom:6px}
+ .risk{grid-template-columns:1fr}.steps{grid-template-columns:1fr 1fr}.steps div:nth-child(3){padding-left:0;border-left:0}.steps div:nth-child(n+3){border-top:1px solid var(--jj-rule,#DCDFD8)}}
+
+/* 안내 쪽 공통 본문 (2026-11-22): 옛 글을 그대로 살리되 간격을 넉넉히 */
+.sia .body h2{margin-top:76px}
+.sia .body h3{font-size:18px;margin:34px 0 10px}
+.sia .body p{margin:0 0 18px;max-width:760px;line-height:1.95}
+.sia .body ul,.sia .body ol{margin:0 0 22px;padding-left:22px;max-width:760px}
+.sia .body li{margin:0 0 12px;line-height:1.9}
+.sia .body table{margin:6px 0 10px}
+.sia .body .tw{margin:0 0 22px}
+.sia .body .callout{margin:30px 0;padding:20px 0 20px 20px;border-left:3px solid var(--jj-green,#1F5E2E);line-height:1.9;max-width:760px}
+.sia .body .cta-inline{display:flex;flex-wrap:wrap;gap:10px;margin:30px 0}
+.sia .body .cta-inline a{display:inline-block;padding:13px 20px;border:1.5px solid var(--jj-ink,#1C1F1B);border-radius:4px;font-weight:600;text-decoration:none;color:var(--jj-ink,#1C1F1B);background:#fff}
+.sia .body .cta-inline a:first-child{background:var(--jj-green,#1F5E2E);border-color:var(--jj-green,#1F5E2E);color:#fff}
+.sia .body .related{display:flex;flex-wrap:wrap;gap:8px 22px;margin:20px 0 0;font-size:15px}
+.sia .body .related a{font-weight:600;color:var(--jj-green,#1F5E2E)}
+.sia .body a{color:var(--jj-green,#1F5E2E)}
+.sia .hbar{display:grid;gap:16px;margin:0}
+.sia .hbar .r{display:grid;grid-template-columns:150px 1fr;gap:4px 18px;align-items:center}
+.sia .hbar .nm{font-weight:600;font-size:15px}
+.sia .hbar .bar{display:flex;align-items:center;gap:12px}
+.sia .hbar .bar i{display:block;height:22px;border-radius:2px;background:var(--jj-rule,#DCDFD8);min-width:3px}
+.sia .hbar .bar i.g{background:var(--jj-green,#1F5E2E)}
+.sia .hbar .bar b{font-size:16px;white-space:nowrap}
+.sia .concl{font-size:17px;font-weight:600;margin:0 0 30px}
+@media (max-width:760px){.sia .hbar .r{grid-template-columns:1fr}}
