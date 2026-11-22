@@ -1,6 +1,6 @@
 {
-"at": "2026-11-22T09:37:53.837004",
-"sent": 80,
+"at": "2026-11-22T11:08:11.711383",
+"sent": 4,
 "results": {
 "https://api.indexnow.org/indexnow": 200,
 "https://searchadvisor.naver.com/indexnow": 200
@@ -160,11 +160,11 @@
 "https://jipjini.com/classic.html": "2026-11-22",
 "https://jipjini.com/data.html": "2026-11-22",
 "https://jipjini.com/auction/": "2026-11-22",
-"https://jipjini.com/compare/": "2026-11-20",
-"https://jipjini.com/disaster/": "2026-11-20",
-"https://jipjini.com/leak/": "2026-11-20",
+"https://jipjini.com/compare/": "2026-11-22",
+"https://jipjini.com/disaster/": "2026-11-22",
+"https://jipjini.com/leak/": "2026-11-22",
 "https://jipjini.com/privacy.html": "2026-11-20",
-"https://jipjini.com/calc/": "2026-11-20",
+"https://jipjini.com/calc/": "2026-11-22",
 "https://jipjini.com/cases/20261115-entrance-door-cost.html": "2026-11-20",
 "https://jipjini.com/cases/q-20261115-siheung-33py.html": "2026-11-22",
 "https://jipjini.com/kitchen/": "2026-11-20",
