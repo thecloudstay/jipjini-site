@@ -264,7 +264,15 @@ def plan_svg(p):
     return "".join(s)
 
 
-def head(url, title, desc, ld, depth, kw=""):
+def yh(year, hh, sep, mode):
+    """사용승인 연도·세대수 글 — 자료가 빈 단지에서 「년 · 0세대」가 찍히던 것 막음(2026-11-22). mode 1: 뒤에 구분자 / 2: 괄호 / 3: 앞에 구분자"""
+    b = [x for x in ((str(year).strip() + "년") if str(year or "").strip() else "", (format(int(hh), ",") + "세대") if int(hh or 0) else "") if x]
+    if not b: return ""
+    j = sep.join(b)
+    return j + sep if mode == 1 else "(" + j + ")" if mode == 2 else sep + j
+
+
+def head(url, title, desc, ld, depth, kw="", canon=None):
     up = "../" * depth
     return f"""<!DOCTYPE html>
 <html lang="ko">
@@ -274,7 +282,7 @@ def head(url, title, desc, ld, depth, kw=""):
 <title>{esc(title)}</title>
 <meta name="description" content="{esc(desc)}">
 <meta name="keywords" content="{esc(kw)}">
-<link rel="canonical" href="{url}">
+<link rel="canonical" href="{canon or url}">
 <meta property="og:type" content="website"><meta property="og:site_name" content="집지니 · 집에서 나가는 돈을 줄입니다">
 <meta property="og:title" content="{esc(title)}"><meta property="og:description" content="{esc(desc)}"><meta property="og:url" content="{url}">
 <meta property="og:image" content="{SITE}og-cover.png"><meta name="twitter:card" content="summary_large_image">
@@ -393,7 +401,7 @@ def type_page(code, row, d, t, pr, nq, siblings, cases=()):
 <nav class="crumb"><a href="../">아파트별 공사비</a> › <span>{esc(loc)}</span> › <a href="./">{esc(name)}</a> › <span>{esc(tn)}</span></nav>
 <h1>{esc(name)} {esc(tn)} 인테리어 비용</h1>
 <p class="kw">올수리 · 리모델링 · 셀인 · 셀인대행 · 반셀프 인테리어 · 직영 · 누수 복구 · 경매 수리비</p>
-<p class="sub">{esc(loc)} {esc(dong)} · {esc(year)}년 · {int(hh or 0):,}세대 · 전용 {e:.1f}㎡ · 공급 약 {py:.0f}평 · 방 {sm.get('방', '-')} · 욕실 {sm.get('욕실', '-')}</p>
+<p class="sub">{esc(loc)} {esc(dong)} · {yh(year, hh, ' · ', 1)}전용 {e:.1f}㎡ · 공급 약 {py:.0f}평 · 방 {sm.get('방', '-')} · 욕실 {sm.get('욕실', '-')}</p>
 <p class="ans">{esc(ans)}</p>
 <div class="types">{sib}</div>
 <section class="hero">
@@ -471,16 +479,29 @@ def apt_page(code, row, d, pr, nq):
     url = f"{SITE}apt/{code}/"
     rng = man(lo) if lo == hi else f"{man(lo)} ~ {man(hi)}"
     title = f"{name} 인테리어 비용 {rng} — 평형별 셀인대행·반셀프 인테리어 | 집지니"
-    desc = f"{loc} {dong} {name}({year}년, {int(hh or 0):,}세대) 평형별 올수리 리모델링 예상 공사비 {rng}(부가세 별도). 셀인·셀인대행·반셀프 인테리어·직영 비용, 누수 복구비·경매 수리비와 집지니 도면."
+    desc = f"{loc} {dong} {name}{yh(year, hh, ', ', 2)} 평형별 올수리 리모델링 예상 공사비 {rng}(부가세 별도). 셀인·셀인대행·반셀프 인테리어·직영 비용, 누수 복구비·경매 수리비와 집지니 도면."
     kw = ", ".join([f"{name} 인테리어", f"{name} 인테리어 비용", f"{name} 올수리", f"{name} 리모델링", f"{name} 셀인", f"{name} 셀인대행", f"{name} 반셀인", f"{name} 반셀프 인테리어", f"{name} 누수", f"{name} 경매", f"{name} 도면", f"{name} 평면도"] + [f"{name} {t['이름']} 인테리어" for t in ts[:6]] + ["셀인", "셀인대행", "반셀인", "반셀프 인테리어", "셀프 인테리어", "직영 인테리어", "올수리 비용"])
-    ans = f"{name}({loc} {dong}, {year}년, {int(hh or 0):,}세대)은 집지니 도면이 있는 평형 {len(ts)}개의 올수리 기본 예상 공사비가 {rng}입니다(샷시·필름·베란다 제외, 부가세 별도). 셀인대행(반셀프 인테리어)으로 직접 거래하면 업체 턴키보다 약 30% 적게 듭니다."
+    ans = f"{name}({loc} {dong}{yh(year, hh, ', ', 3)})은 집지니 도면이 있는 평형 {len(ts)}개의 올수리 기본 예상 공사비가 {rng}입니다(샷시·필름·베란다 제외, 부가세 별도). 셀인대행(반셀프 인테리어)으로 직접 거래하면 업체 턴키보다 약 30% 적게 듭니다."
     ld = [crumb([("집지니", SITE), ("아파트별 공사비", SITE + "apt/"), (name, url)]), complex_ld(name, loc, dong, hh, url)]
     tr = "".join(f'<tr><td><a href="{slug(t["이름"])}.html"><b>{esc(t["이름"])}</b></a></td><td class=n>{float(t.get("전용") or 0):.1f}㎡</td><td class=n>{sm.get("방", "-")} / {sm.get("욕실", "-")}</td><td class=n><b>{man(b[1])}</b></td><td class=n>{man(f[1])}</td></tr>' for t, b, f, sm in items)
+    # 2026-11-22 대표 승인(방안 가): 구글이 단지별 경매·누수 쪽을 닮은꼴로 보고 색인을 거절 → 그 숫자를 대문 한 쪽에 합쳐 대문을 두껍게 하고,
+    #   따로 있던 auction.html·leak.html 은 대문을 대표 주소(canonical)로 가리킨다.
+    arows = [(t, {g: auction_calc(t, pr, year, g) for g in ('rent', 'basic', 'full')}) for t in ts]
+    atr = "".join(f'<tr><td><b>{esc(t["이름"])}</b> <small>{float(t.get("전용") or 0):.0f}㎡</small></td>'
+                  + "".join(f'<td class=n>{man(x[g]["mid"])}<small>{man(x[g]["lo"])}~{man(x[g]["hi"])}</small></td>' for g in ('rent', 'basic', 'full'))
+                  + f'<td class=n><a href="../../auction/?apt={code}&amp;t={esc(str(t["이름"]))}">계산</a></td></tr>' for t, x in arows)
+    ltr = ""
+    for t in ts:
+        LK = leak_cases(t, pr['items'])
+        if not LK: continue
+        mn = min(LK, key=lambda z: z[2]['tot']); mx = max(LK, key=lambda z: z[2]['tot'])
+        ltr += (f'<tr><td><b>{esc(t["이름"])}</b> <small>{float(t.get("전용") or 0):.0f}㎡</small></td><td class=n>{man(mn[2]["tot"])}<small>{esc(mn[0])} · 약 {mn[2]["days"]}일</small></td>'
+                f'<td class=n>{man(mx[2]["tot"])}<small>{esc(mx[0])} · 약 {mx[2]["days"]}일</small></td><td class=n><a href="../../leak/?apt={code}&amp;t={esc(str(t["이름"]))}">산정서</a></td></tr>')
     body = f"""<main class="ap">
 <nav class="crumb"><a href="../">아파트별 공사비</a> › <span>{esc(loc)}</span> › <span>{esc(name)}</span></nav>
 <h1>{esc(name)} 인테리어 비용</h1>
 <p class="kw">평형별 올수리 · 리모델링 · 셀인 · 셀인대행 · 반셀프 인테리어 · 직영 · 누수 · 경매 수리비</p>
-<p class="sub">{esc(loc)} {esc(dong)} · {esc(year)}년 · {int(hh or 0):,}세대 · 집지니 도면 {len(ts)}개 평형</p>
+<p class="sub">{esc(loc)} {esc(dong)} · {yh(year, hh, ' · ', 1)}집지니 도면 {len(ts)}개 평형</p>
 <p class="ans">{esc(ans)}</p>
 <section>
   <table class="tb"><thead><tr><th>평형</th><th class=n>전용</th><th class=n>방 / 욕실</th><th class=n>올수리 기본</th><th class=n>샷시 포함</th></tr></thead><tbody>{tr}</tbody></table>
@@ -492,13 +513,12 @@ def apt_page(code, row, d, pr, nq):
   <h2>{esc(name)} 공사 전에 먼저 볼 곳</h2>
   <ul class="pts">{"".join(f"<li>{esc(x)}</li>" for x in age_notes(year, hh))}</ul>
 </section>
-<section>
-  <h2>누수 · 경매</h2>
-  <table class="tb way"><tbody>
-    {('<tr><th><a href="leak.html">누수 복구 비용</a></th><td>' + esc(name) + ' 평형마다 윗집 누수, 원인 모를 누수, 마루까지 젖은 경우, 우리 욕실 방수 불량일 때의 복구 비용.</td></tr>') if has_leak(d, pr) else ""}
-    <tr><th><a href="auction.html">경매 수리비</a></th><td>{esc(name)}을 경매로 낙찰받을 때 임대 놓기·기본 수리·올수리 단계별 수리비 범위.</td></tr>
-  </tbody></table>
+<section id="auction">
+  <h2>{esc(name)} 경매 수리비</h2>
+  <div style="overflow-x:auto"><table class="tb"><thead><tr><th>평형</th><th class=n>임대 놓기 · {A_DAYS['rent']}</th><th class=n>기본 수리 · {A_DAYS['basic']}</th><th class=n>올수리 · {A_DAYS['full']}</th><th class=n></th></tr></thead><tbody>{atr}</tbody></table></div>
+  <p class="note">경매로 낙찰받을 때의 수리비입니다. 가운데 값 아래 작은 글씨는 범위. 상태 「보통」 기준, 입주 청소 포함, 부가세 10% 별도. 안을 못 봤다면 높은 쪽 값으로 입찰 상한을 잡으세요.</p>
 </section>
+{('<section id="leak"><h2>' + esc(name) + ' 누수 복구 비용</h2><div style="overflow-x:auto"><table class="tb"><thead><tr><th>평형</th><th class=n>가장 가벼운 경우</th><th class=n>가장 큰 경우</th><th class=n></th></tr></thead><tbody>' + ltr + '</tbody></table></div><p class="note">이 단지 평형 도면의 방 크기로 계산했습니다. 원인 세대의 일상생활배상책임 보험에 낼 산정서를 바로 만들 수 있습니다. 부가세 10% 별도.</p></section>') if ltr else ""}
 </main>
 """
     return url, head(url, title, desc, ld, 2, kw) + body + foot(2)
@@ -538,7 +558,7 @@ def leak_apt_page(code, row, d, pr):
 <nav class="crumb"><a href="../">아파트별 공사비</a> › <span>{esc(loc)}</span> › <a href="./">{esc(name)}</a> › <span>누수 복구 비용</span></nav>
 <h1>{esc(name)} 누수 복구 비용</h1>
 <p class="kw">천장 누수 · 벽 곰팡이 · 마루 교체 · 욕실 방수 · 누수 탐지 · 보험 산정서</p>
-<p class="sub">{esc(loc)} {esc(dong)} · {esc(year)}년 · {int(hh or 0):,}세대 · 평형 {len(rows)}개</p>
+<p class="sub">{esc(loc)} {esc(dong)} · {yh(year, hh, ' · ', 1)}평형 {len(rows)}개</p>
 <p class="ans">{esc(ans)}</p>
 <section>{"".join(parts)}</section>
 <section class="qa"><h2>자주 묻는 질문</h2>{"".join(f"<h3>{esc(q)}</h3><p>{esc(a)}</p>" for q, a in qa)}</section>
@@ -546,7 +566,7 @@ def leak_apt_page(code, row, d, pr):
 <p class="note">집지니 실견적 단가(도배 기술자 {I['wallpaper_day']['price']:,}원/품, 강마루 {I['floor_maru']['price']:,}원/㎡, 건조기 {I['dry_day']['price']:,}원/일 등)로 이 단지 평형 도면의 방 크기를 넣어 계산했습니다. 현장 상태에 따라 달라지며 부가세 10% 별도. {TODAY} 기준.</p>
 </main>
 """
-    return url, head(url, title, desc, ld, 2, kw) + body + foot(2)
+    return url, head(url, title, desc, ld, 2, kw, canon=f"{SITE}apt/{code}/") + body + foot(2)
 
 
 def auction_apt_page(code, row, d, pr):
@@ -556,7 +576,7 @@ def auction_apt_page(code, row, d, pr):
     b = [x['basic']['mid'] for _t, x in rows]; lo, hi = min(b), max(b); age = rows[0][1]['basic']['age']
     rng = man(lo) if man(lo) == man(hi) else f"{man(lo)}~{man(hi)}"
     title = f"{name} 경매 수리비 {rng} — 낙찰 전 임대·기본·올수리 비용 | 집지니"
-    desc = f"{loc} {dong} {name}({year}년, {age}년 차) 경매 물건 낙찰 전 수리비. 평형별 임대 놓기·기본 수리·올수리 범위와 입찰 상한 계산(부가세 별도)."
+    desc = f"{loc} {dong} {name}{("(" + str(year) + "년, " + str(age) + "년 차)") if str(year or "").strip() else ""} 경매 물건 낙찰 전 수리비. 평형별 임대 놓기·기본 수리·올수리 범위와 입찰 상한 계산(부가세 별도)."
     kw = ", ".join([f"{name} 경매", f"{name} 경매 수리비", f"{name} 낙찰", f"{name} 인테리어 비용", "경매 수리비", "낙찰 후 인테리어", "경매 아파트 수리비", "입찰가 계산", "명도 후 수리"])
     ans = f"{name}을 경매로 낙찰받아 기본 수리(도배·바닥·욕실·주방·전기·필름)를 하면 평형에 따라 약 {rng}입니다(상태 보통, 입주 청소 포함, 부가세 별도). 안을 못 봤다면 높은 쪽 값으로 입찰 상한을 잡으세요."
     qa = [(f"{name} 경매 물건은 수리비를 얼마로 잡아야 하나요?", "안을 볼 수 없으니 한 값이 아니라 임대 놓기·기본 수리·올수리 세 단계 범위로 보고, 입찰 상한에는 높은 쪽 값을 넣습니다."),
@@ -570,10 +590,10 @@ def auction_apt_page(code, row, d, pr):
 <nav class="crumb"><a href="../">아파트별 공사비</a> › <span>{esc(loc)}</span> › <a href="./">{esc(name)}</a> › <span>경매 수리비</span></nav>
 <h1>{esc(name)} 경매 수리비</h1>
 <p class="kw">경매 낙찰 전 수리비 · 임대 놓기 · 기본 수리 · 올수리 · 입찰 상한 · 총 취득원가</p>
-<p class="sub">{esc(loc)} {esc(dong)} · {esc(year)}년 사용승인 · {age}년 차 · {int(hh or 0):,}세대</p>
+<p class="sub">{esc(loc)} {esc(dong)} · {(esc(year) + '년 사용승인 · ' + str(age) + '년 차') if str(year or '').strip() else '사용승인 연도 미확인'}{(' · ' + format(int(hh), ',') + '세대') if int(hh or 0) else ''}</p>
 <p class="ans">{esc(ans)}</p>
 <section>
-  <table class="tb"><thead><tr><th>평형</th><th class=n>임대 놓기 · {A_DAYS['rent']}</th><th class=n>기본 수리 · {A_DAYS['basic']}</th><th class=n>올수리 · {A_DAYS['full']}</th><th class=n></th></tr></thead><tbody>{tr}</tbody></table>
+  <div style="overflow-x:auto"><table class="tb"><thead><tr><th>평형</th><th class=n>임대 놓기 · {A_DAYS['rent']}</th><th class=n>기본 수리 · {A_DAYS['basic']}</th><th class=n>올수리 · {A_DAYS['full']}</th><th class=n></th></tr></thead><tbody>{tr}</tbody></table></div>
   <p class="note">가운데 값 아래 작은 글씨는 범위입니다. 상태 「보통」 기준, 입주 청소 포함, 부가세 10% 별도.</p>
 </section>
 <section>
@@ -585,7 +605,7 @@ def auction_apt_page(code, row, d, pr):
 <p class="note">집지니 실견적 공종별 평당 금액(낮은 4분의 1·가운데·높은 4분의 1)에 공급 평수(전용 ÷ 2.5)를 곱한 값입니다. {TODAY} 기준.</p>
 </main>
 """
-    return url, head(url, title, desc, ld, 2, kw) + body + foot(2)
+    return url, head(url, title, desc, ld, 2, kw, canon=f"{SITE}apt/{code}/") + body + foot(2)
 
 
 def index_page(groups, n_apt, n_type):
