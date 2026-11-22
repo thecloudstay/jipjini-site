@@ -335,6 +335,35 @@ def complex_ld(name, loc, dong, hh, url):
     return x
 
 
+ACBF = {}
+def acb_row(code):
+    """관리비 단지 자료 한 줄(data/acb/시도_시군구.json) — 평형 쪽에 이 평형 한 달 관리비를 싣는다(2026-11-22, 쪽끼리 같은 글 줄이기)"""
+    k = acb_key(code)
+    if not k: return None
+    if k not in ACBF:
+        try: ACBF[k] = {x['c']: x for x in json.load(open(os.path.join(ROOT, "data", "acb", k + ".json"), encoding="utf-8")) if isinstance(x, dict)}
+        except Exception: ACBF[k] = {}
+    return ACBF[k].get(code)
+
+
+ACB_NAME = {1: '신나는 집', 2: '웃는 집', 3: '보통 집', 4: '우는 집', 5: '화난 집'}
+def acb_type_html(code, name, tn, e):
+    o = acb_row(code)
+    if not o or not o.get('ga') or not e: return ""
+    sup = e * (o.get('k') or 1.3); mon = (o['ga'] + (o.get('iu') or 0)) * sup
+    lo, hi = (o.get('lo') or 0) * sup, (o.get('hi') or 0) * sup
+    lv = o.get('lv'); m2, pm = o.get('m2'), o.get('pmed')
+    vs = ""
+    if m2 and pm:
+        df = round((m2 - pm) / pm * 100)
+        vs = f"비슷한 10곳보다 ㎡당 {abs(df)}% {'더' if df > 0 else '덜'} 냅니다." if abs(df) >= 3 else "비슷한 10곳과 거의 같습니다."
+    return (f'<section><h2>{esc(name)} {esc(tn)} 한 달 관리비</h2><table class="tb"><tbody>'
+            f'<tr><td>한 달 평균 (세대 몫 어림)</td><td class=n><b>{man(mon)}</b></td></tr>'
+            + (f'<tr><td>가장 싼 달 ~ 비싼 달</td><td class=n>{man(lo)} ~ {man(hi)}</td></tr>' if lo and hi else '')
+            + (f'<tr><td>집지니 아관비 지수</td><td class=n>{esc(ACB_NAME.get(lv, ""))} {esc(str(o.get("ix", "")))}</td></tr>' if lv else '')
+            + f'</tbody></table><p class="note">{esc(vs)} 국토교통부 공개 관리비 2026년 1~9월, 전용 {e:.0f}㎡ 기준. <a href="../../acb/?c={code}">항목별로 보기</a></p></section>')
+
+
 def type_page(code, row, d, t, pr, nq, siblings, cases=()):
     name, loc, dong, year, hh = d['단지'], row[2], row[3], row[4], row[5]
     tn = str(t['이름']); e = float(t.get('전용') or 0); sm = (t.get('plan') or {}).get('sum') or {}
@@ -357,13 +386,10 @@ def type_page(code, row, d, t, pr, nq, siblings, cases=()):
            f"업체에 통째로 맡기는 턴키는 약 {man(turn)}로 추정되고, 셀인대행(반셀프 인테리어)으로 기술자·자재상과 직접 거래하면 공사비 {man(base[1])}에 코디비 약 {man(codi)}만 더 듭니다.")
     if LK: ans += f" 누수 복구는 {LK[0][0]} 기준 약 {man(LK[0][2]['tot'])}, 경매 낙찰 뒤 기본 수리는 약 {man(AU['basic']['mid'])}입니다."
     qa = [(f"{name} {tn} 올수리 인테리어 비용은 얼마인가요?", f"샷시·필름·베란다를 뺀 올수리 기본은 약 {man(base[1])}(낮게 {man(base[0])} ~ 높게 {man(base[2])}), 샷시까지 포함하면 약 {man(full[1])}입니다. 집지니 실제 견적 {nq}건의 평당 금액 가운데값에 공급 약 {py:.0f}평을 곱한 어림값이며 부가세 10% 별도입니다."),
-          (f"{name} {tn} 도면은 어디서 보나요?", "이 쪽 위의 도면은 집지니가 단지 평면도를 다시 그린 것입니다. 집지니 CAD에서 같은 도면으로 도배·바닥·타일 물량을 직접 뽑아 볼 수 있습니다."),
           (f"{name} {tn} 셀인(셀프 인테리어)으로 하면 어떻게 하나요?", f"셀인은 기술자·자재를 직접 구해 진행하는 방식입니다. 집지니 CAD에서 이 집 도면으로 도배·바닥·타일 물량을 무료로 뽑고, 공종별 예상 금액({man(base[1])} 기준)을 보며 업체 견적과 비교할 수 있습니다."),
           (f"{name} {tn} 반셀인(반셀프)은 비용이 얼마인가요?", f"반셀인은 공사비를 기술자·자재상에게 직접 내고 집지니에는 코디비만 내는 방식입니다. 이 집 올수리 기본 {man(base[1])}이면 코디비는 정찰제로 약 {man(codi)}({rate * 100:.1f}%)입니다. 견적·업체 연결·공정표를 집지니가 맡습니다."),
-          (f"{name} {tn} 셀인대행은 무엇이고 반셀프 인테리어와 같은가요?", "셀인대행은 셀프 인테리어를 대신 챙겨 주는 방식으로, 반셀프 인테리어(반셀인)와 같은 뜻으로 씁니다. 공사비는 기술자·자재상에게 바로 내고, 집지니는 견적 검증·업체 연결·공정 관리를 맡아 정찰제 코디비만 받습니다. 업체 마진(보통 30% 안팎)이 빠집니다."),
           ] + ([(f"{name} {tn} 누수 복구 비용은 얼마인가요?", f"이 평형 도면 기준으로 {LK[0][0]}이면 약 {man(LK[0][2]['tot'])}, " + (f"{LK[1][0]}이면 약 {man(LK[1][2]['tot'])}" if len(LK) > 1 else "") + "입니다(부가세 별도). 건조·석고·도배·바닥을 실제 단가로 계산한 값이며, 윗집 원인이면 그 집 보험(일상배상책임)으로 처리하는 경우가 많습니다.")] if LK else []) + [
-          (f"{name} {tn} 경매로 낙찰받으면 수리비가 얼마나 드나요?", f"안을 못 본 상태(보통)로 잡으면 임대 놓기 {man(AU['rent']['lo'])}~{man(AU['rent']['hi'])}, 기본 수리 {man(AU['basic']['lo'])}~{man(AU['basic']['hi'])}, 올수리 {man(AU['full']['lo'])}~{man(AU['full']['hi'])}입니다(부가세 별도, 입주 청소 포함). 입찰 상한은 수리 뒤 시세에서 높은 쪽 수리비를 빼서 정하세요."),
-          ("정확한 견적서는 어떻게 받나요?", "무료 견적을 신청하시면 이 집 도면 기준으로 공종별 견적서를 24시간 안에 보내 드립니다. 실측 뒤 금액을 확정합니다.")]
+          (f"{name} {tn} 경매로 낙찰받으면 수리비가 얼마나 드나요?", f"안을 못 본 상태(보통)로 잡으면 임대 놓기 {man(AU['rent']['lo'])}~{man(AU['rent']['hi'])}, 기본 수리 {man(AU['basic']['lo'])}~{man(AU['basic']['hi'])}, 올수리 {man(AU['full']['lo'])}~{man(AU['full']['hi'])}입니다(부가세 별도, 입주 청소 포함). 입찰 상한은 수리 뒤 시세에서 높은 쪽 수리비를 빼서 정하세요.")]
     ld = [crumb([("집지니", SITE), ("아파트별 공사비", SITE + "apt/"), (name, f"{SITE}apt/{code}/"), (tn, url)]), faq(qa),
           complex_ld(name, loc, dong, hh, f"{SITE}apt/{code}/"),
           {"@context": "https://schema.org", "@type": "Service", "name": f"{name} {tn} 인테리어 올수리 (셀인대행·반셀프 인테리어)", "serviceType": "아파트 인테리어 리모델링",
@@ -381,17 +407,17 @@ def type_page(code, row, d, t, pr, nq, siblings, cases=()):
     leak_html = ""
     if LK:
         leak_html = (f'<section><h2>{esc(name)} {esc(tn)} 누수 복구 비용</h2>'
-                     f'<p class="note" style="margin-top:0">이 평형 도면의 방 크기로 흔한 누수 네 경우를 계산했습니다. 건조·석고보드·도배·바닥·폐기물까지 집지니 실견적 단가, 부가세 별도.</p>'
+                     f'<p class="note" style="margin-top:0">{esc(tn)} 방 크기 기준, 부가세 별도.</p>'
                      '<table class="tb"><thead><tr><th>경우</th><th class=n>기간</th><th class=n>복구 비용</th></tr></thead><tbody>'
                      + "".join(f'<tr><td>{esc(a)} <small>{esc(b)}</small></td><td class=n>약 {x["days"]}일</td><td class=n><b>{man(x["tot"])}</b></td></tr>' for a, b, x in LK)
-                     + f'</tbody></table><div class="cta"><a href="../../leak/?apt={code}&amp;t={tq}">우리 집 젖은 곳으로 다시 계산<small>누수 복구 공사비 산정서 · 무료</small></a><a href="leak.html">{esc(name)} 평형별 누수 비용</a></div></section>')
+                     + f'</tbody></table><div class="cta"><a href="../../leak/?apt={code}&amp;t={tq}">우리 집 젖은 곳으로 다시 계산<small>누수 복구 공사비 산정서 · 무료</small></a><a href="./#leak">{esc(name)} 평형별 누수 비용</a></div></section>')
     auc_html = (f'<section><h2>{esc(name)} {esc(tn)} 경매 낙찰 전 수리비</h2>'
-                f'<p class="note" style="margin-top:0">안을 못 본 경매 물건은 한 값이 아니라 범위로 봅니다. 상태 「보통」, 입주 청소 포함, 부가세 별도. {AU["basic"]["age"]}년 차 기준.</p>'
+                f'<p class="note" style="margin-top:0">{AU["basic"]["age"]}년 차 · 상태 보통 · 부가세 별도.</p>'
                 '<table class="tb"><thead><tr><th>수리 단계</th><th class=n>기간</th><th class=n>가운데 값</th><th class=n>범위</th></tr></thead><tbody>'
                 + "".join(f'<tr><td>{A_GOAL[g]}</td><td class=n>{A_DAYS[g]}</td><td class=n><b>{man(AU[g]["mid"])}</b></td><td class=n>{man(AU[g]["lo"])} ~ {man(AU[g]["hi"])}</td></tr>' for g in ('rent', 'basic', 'full'))
                 + '</tbody></table>'
                 + (f'<p class="note">{AU["basic"]["age"]}년 차라 기본 수리에 설비를 넣었습니다. 샷시를 바꾸면 약 {man(AU["basic"]["sash"])}이 더 듭니다.</p>' if AU['basic']['sash'] else '')
-                + f'<div class="cta"><a href="../../auction/?apt={code}&amp;t={tq}">입찰 상한·총 취득원가 계산<small>감정평가서 올리면 자동 · 무료</small></a><a href="auction.html">{esc(name)} 평형별 경매 수리비</a></div></section>')
+                + f'<div class="cta"><a href="../../auction/?apt={code}&amp;t={tq}">입찰 상한·총 취득원가 계산<small>감정평가서 올리면 자동 · 무료</small></a><a href="./#auction">{esc(name)} 평형별 경매 수리비</a></div></section>')
     case_html = ""
     if cs:
         case_html = ('<section><h2>가까운 지역 집지니 실제 견적</h2><table class="tb"><tbody>'
@@ -400,7 +426,6 @@ def type_page(code, row, d, t, pr, nq, siblings, cases=()):
     body = f"""<main class="ap">
 <nav class="crumb"><a href="../">아파트별 공사비</a> › <span>{esc(loc)}</span> › <a href="./">{esc(name)}</a> › <span>{esc(tn)}</span></nav>
 <h1>{esc(name)} {esc(tn)} 인테리어 비용</h1>
-<p class="kw">올수리 · 리모델링 · 셀인 · 셀인대행 · 반셀프 인테리어 · 직영 · 누수 복구 · 경매 수리비</p>
 <p class="sub">{esc(loc)} {esc(dong)} · {yh(year, hh, ' · ', 1)}전용 {e:.1f}㎡ · 공급 약 {py:.0f}평 · 방 {sm.get('방', '-')} · 욕실 {sm.get('욕실', '-')}</p>
 <p class="ans">{esc(ans)}</p>
 <div class="types">{sib}</div>
@@ -426,19 +451,20 @@ def type_page(code, row, d, t, pr, nq, siblings, cases=()):
   <h2>{esc(name)} 공사 전에 먼저 볼 곳</h2>
   <ul class="pts">{"".join(f"<li>{esc(x)}</li>" for x in notes)}</ul>
 </section>
+{acb_type_html(code, name, tn, e)}
 {leak_html}
 {auc_html}
 {case_html}
 <section>
-  <h2>셀인·셀인대행(반셀프 인테리어)·직영 비용 비교</h2>
-  <table class="tb way"><tbody>
-    <tr><th>셀인 (셀프 인테리어)</th><td>집지니 CAD로 이 도면의 도배·바닥·타일 물량을 직접 뽑고 자재를 사서 진행합니다. 도구는 무료입니다.</td></tr>
-    <tr><th>셀인대행 · 반셀인 (반셀프 인테리어)</th><td>공사비 {man(base[1])}은 기술자·자재상에게 직접 내고, 집지니에는 코디비 약 {man(codi)}({rate * 100:.1f}%, 정찰제)만 냅니다. 견적·업체 연결·공정표를 집지니가 맡습니다.</td></tr>
-    <tr><th>직영 인테리어 (맡기기)</th><td>현장관리(PM)까지 맡기시면 공사 기간 매일 현장을 챙깁니다. 금액은 견적서에서 따로 보여 드립니다.</td></tr>
+  <h2>{esc(tn)} 방식별 총액</h2>
+  <table class="tb"><thead><tr><th>방식</th><th class=n>공사비</th><th class=n>코디비·마진</th><th class=n>합계</th></tr></thead><tbody>
+    <tr><td>턴키 업체 (추정)</td><td class=n>{man(base[1])}</td><td class=n>{man(turn - base[1])}</td><td class=n>{man(turn)}</td></tr>
+    <tr class="me"><td><b>반셀인 · 셀인대행</b></td><td class=n>{man(base[1])}</td><td class=n>{man(codi)} ({rate * 100:.1f}%)</td><td class=n><b>{man(base[1] + codi)}</b></td></tr>
+    <tr><td>셀인 (직접)</td><td class=n>{man(base[1])}</td><td class=n>0원 · 본인 시간</td><td class=n>{man(base[1])}</td></tr>
   </tbody></table>
 </section>
 <section class="qa"><h2>자주 묻는 질문</h2>{"".join(f"<h3>{esc(q)}</h3><p>{esc(a)}</p>" for q, a in qa)}</section>
-<p class="note"><a href="../../self-interior-agency.html">셀인대행이란</a> · <a href="../../pricing.html">코디비 정찰가</a><br>금액은 집지니 실제 견적 {nq}건의 공종별 평당 금액 가운데값에 이 집 공급 평수(공급 면적 또는 전용 × 1.32)를 곱한 어림값입니다. 자재 등급·현장 상태에 따라 달라지며 실측 뒤 확정합니다. 턴키 금액은 같은 범위를 업체에 맡길 때를 30% 높게 본 추정입니다. 도면은 단지 평면도를 집지니 방식으로 다시 그린 것입니다. {TODAY} 기준.</p>
+<p class="note">집지니 실견적 {nq}건의 공종별 평당 가운데값 × 공급 {py:.0f}평. 실측 뒤 확정, 부가세 10% 별도. {TODAY} 기준.</p>
 </main>
 """
     rec = {"url": url, "단지": name, "평형": tn, "전용": e, "공급평": round(py, 1), "올수리기본": int(round(base[1], -4)), "낮게": int(round(base[0], -4)), "높게": int(round(base[2], -4)),
