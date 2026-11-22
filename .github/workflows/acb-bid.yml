@@ -3,13 +3,15 @@ on:
   workflow_dispatch:
     inputs:
       only_bidders: {description: '목록 받기를 건너뛰고 응찰 업체만 (true/false)', default: 'false'}
-  schedule: [{cron: '40 19 * * *'}]
+  # 2026-11-22 응찰 조회가 비던 까닭은 하루 호출 한도(429)였다 — 목록 받기 33줄이 한도를 먼저 다 썼다.
+  #   응찰 업체는 한도가 새로 차는 자정 직후에 날마다, 목록 받기는 주 1회(월요일 새벽)만.
+  schedule: [{cron: '10 15 * * *'}, {cron: '40 19 * * 0'}]
 permissions:
   contents: write
 concurrency: {group: acb-bid, cancel-in-progress: false}
 jobs:
   list:
-    if: ${{ inputs.only_bidders != 'true' }}
+    if: ${{ (github.event_name == 'schedule' && github.event.schedule == '40 19 * * 0') || (github.event_name == 'workflow_dispatch' && inputs.only_bidders != 'true') }}
     runs-on: ubuntu-latest
     timeout-minutes: 120
     strategy:
@@ -27,7 +29,7 @@ jobs:
         with: {name: "part-${{ matrix.year }}-${{ strategy.job-index }}", path: data/acb/bid/part/, retention-days: 2}
   merge:
     needs: list
-    if: ${{ always() && inputs.only_bidders != 'true' }}
+    if: ${{ always() && ((github.event_name == 'schedule' && github.event.schedule == '40 19 * * 0') || (github.event_name == 'workflow_dispatch' && inputs.only_bidders != 'true')) }}
     runs-on: ubuntu-latest
     timeout-minutes: 300
     steps:

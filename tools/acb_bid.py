@@ -17,6 +17,7 @@ KEEP = ["bidNum", "aptCode", "bidArea", "bidTitle", "bidRegdate", "bidDeadline",
         "codeClassifyType1", "codeClassifyType2", "codeClassifyType3", "codeWay", "codeSucWay", "bidEmrgYn", "amount", "contractPeriodSdate", "contractPeriodEdate"]
 calls = 0
 errs = 0
+quota_out = False
 FIN = re.compile(r"도장|페인트|방수|에폭시|우레탄|균열|크랙|코킹|누수")
 
 
@@ -30,6 +31,11 @@ def get(op, **p):
             with urllib.request.urlopen(u, timeout=90) as r:
                 return json.loads(r.read().decode("utf-8", "replace"))
         except Exception as e:
+            if getattr(e, 'code', 0) == 429:   # 하루 호출 한도 — 더 불러도 소용없다
+                global quota_out
+                if not quota_out: print('하루 호출 한도(429)에 걸림 — 여기서 멈춤', flush=True)
+                quota_out = True
+                return None
             # 2026-11-22 실패 까닭을 삼키지 않는다(응찰 조회가 왜 비는지 몰라 두 번 헛돌았다). 열쇠가 든 주소는 찍지 않는다.
             global errs
             errs += 1
@@ -150,6 +156,7 @@ def main():
     for a, num in won:
         if calls >= MAXCALL: break
         raw = get("getBidEntrpsInfoSearchV3", bidNum=num, pageNo=1, numOfRows=100)
+        if quota_out: break
         it, _ = items(raw)
         tried += 1
         if it:
