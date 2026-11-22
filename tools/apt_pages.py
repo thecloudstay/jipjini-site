@@ -275,7 +275,7 @@ def head(url, title, desc, ld, depth, kw=""):
 <meta name="description" content="{esc(desc)}">
 <meta name="keywords" content="{esc(kw)}">
 <link rel="canonical" href="{url}">
-<meta property="og:type" content="website"><meta property="og:site_name" content="집지니 · 인테리어 데이터 솔루션">
+<meta property="og:type" content="website"><meta property="og:site_name" content="집지니 · 아파트 시공 데이터">
 <meta property="og:title" content="{esc(title)}"><meta property="og:description" content="{esc(desc)}"><meta property="og:url" content="{url}">
 <meta property="og:image" content="{SITE}og-cover.png"><meta name="twitter:card" content="summary_large_image">
 <meta name="theme-color" content="#FFFFFF">
@@ -289,7 +289,7 @@ def head(url, title, desc, ld, depth, kw=""):
 </head>
 <body>
 <header class="top">
-  <a href="{up}" class="brand"><span class="mark">집</span>집지니<small class="btag">인테리어 데이터 솔루션</small></a>
+  <a href="{up}" class="brand"><span class="mark">집</span>집지니<small class="btag">아파트 시공 데이터</small></a>
   <nav class="links"><a href="{up}#f1">우리 집 공사비</a><a href="{up}apt/">아파트별 공사비</a><a href="{up}compare/">견적서 검토</a><a href="{up}req/" class="go">무료 견적</a></nav>
 </header>
 """
@@ -299,7 +299,7 @@ def foot(depth):
     up = "../" * depth
     return f"""<footer class="foot">
   <div class="fl"><a href="{up}apt/">아파트별 공사비</a><a href="{up}pricing.html">가격</a><a href="{up}cases/">견적 사례</a><a href="{up}showroom.html">샘플실</a><a href="{up}faq.html">자주 묻는 질문</a></div>
-  <p class="fid"><b>집지니 — 인테리어 데이터 솔루션 기업.</b> 아파트 평면도를 도면·공정별 물량·공사 자료로 바꾸고, 그 자료로 견적부터 시공 관리까지 합니다.</p>
+  <p class="fid"><b>집지니 — 아파트 시공 데이터 기업.</b> 평면도와 건물 도형에서 물량을 세고, 인테리어 견적·단지 관리비·공용부 공사비·사고 복구비를 숫자로 냅니다.</p>
   <p>© {TODAY[:4]} 집지니. 서울, 경기, 인천. 대표 박찬영, 사업자등록번호 874-10-00088</p>
 </footer>
 </body>
