@@ -139,7 +139,11 @@ def game_pause(busy=None):
         out = subprocess.run(["tasklist", "/FO", "CSV", "/NH"], capture_output=True, text=True, errors="replace").stdout
     except Exception:
         return
-    if not any(('"' + g.lower() + '"') in out.lower() for g in GAMES): return
+    try:   # 2026-11-22 판과 판 사이(대기실)·게임모드 표시도 게임으로 본다 — 코드\game_check.py
+        import game_check; hit = game_check.gaming(out)
+    except Exception:
+        hit = any(('"' + g.lower() + '"') in out.lower() for g in GAMES)
+    if not hit: return
     print("게임이 켜져 있어 변환을 끝냅니다(램을 돌려줌). 게임을 끄면 다음 정시에 이어 갑니다.", flush=True)
     try:
         with open(r"D:\croll\기록\게임_멈춤.txt", "a", encoding="utf-8") as f: f.write(time.strftime("%Y-%m-%d %H:%M:%S ") + "변환 끝냄\n")
