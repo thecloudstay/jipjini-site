@@ -299,7 +299,7 @@ def foot(depth):
     up = "../" * depth
     return f"""<footer class="foot">
   <div class="fl"><a href="{up}apt/">아파트별 공사비</a><a href="{up}pricing.html">가격</a><a href="{up}cases/">견적 사례</a><a href="{up}showroom.html">샘플실</a><a href="{up}faq.html">자주 묻는 질문</a></div>
-  <p class="fid"><b>집지니 — 집에서 나가는 돈을 줄여 주는 지니.</b> 공사비·관리비·수선비를 데이터로 계산하고 비교해서 줄입니다. 평면도와 건물 도형에서 물량을 세고, 그 숫자대로 공사까지 진행합니다.</p>
+  <p class="fid"><b>집지니 — 집에서 나가는 돈을 줄여 주는 지니.</b> 공사비·관리비·수선비를 데이터로 계산하고 비교해서 줄입니다. 평면도와 건물 도형에서 물량을 세고, 그 숫자대로 코디방식으로 공사까지 진행합니다. <a href="{up}interior-coordinator.html">* 코디방식이란?</a></p>
   <p>© {TODAY[:4]} 집지니. 서울, 경기, 인천. 대표 박찬영, 사업자등록번호 874-10-00088</p>
 </footer>
 </body>
