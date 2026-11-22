@@ -38,7 +38,7 @@ def sh(args, check=True, t=240):
 def sync_code():
     """변환 코드 맞추기 (2026-11-22): 저장소에서 고친 검사·고침 코드가 이 컴퓨터로 내려오는 길이 없어, 컴퓨터는 11-13 판으로 돌고 있었다
     (현관문 고침이 29,110장에 한 번도 적용되지 않음). 방금 내려받은 누리집 저장소(tools)와 다르면 문법을 확인한 뒤 바꾸고, 옛 것은 _보관 에 둔다."""
-    tools = os.path.dirname(HERE); src = os.path.join(REPO, "tools")
+    HERE = os.path.dirname(os.path.abspath(__file__)); tools = os.path.dirname(HERE); src = os.path.join(REPO, "tools")
     pairs = [("plan_check.py", os.path.join(tools, "plan_check.py")), ("plan_trace.py", os.path.join(tools, "plan_trace.py")),
              ("harness/game_check_pc.py", os.path.join(os.path.dirname(os.path.dirname(tools)), "game_check.py"))]
     for n in ("pc_convert.py", "pipeline.py", "discover.py", "answer_key.py", "rerender.py", "trend.py", "알려진모양.json"):
