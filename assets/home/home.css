@@ -812,3 +812,20 @@ section.go4{padding-top:88px}
 .hzoom{position:absolute;left:12px;top:12px;display:flex;flex-direction:column;border:1px solid var(--ink);border-radius:4px;overflow:hidden;background:#fff;z-index:20}
 .hzoom button{width:34px;height:34px;border:0;background:#fff;font:400 19px/1 var(--f);color:var(--ink);cursor:pointer}
 .hzoom button+button{border-top:1px solid var(--line)}.hzoom button:hover{background:#F3F5F0}
+/* 2026-11-22 특허 구역 그림 */
+.pflow{display:grid;grid-template-columns:repeat(4,1fr);gap:0;margin-top:22px;border-top:1px solid var(--ink);border-bottom:1px solid var(--line)}
+.pflow figure{margin:0;padding:18px 14px 20px;position:relative}.pflow figure+figure{border-left:1px solid var(--line)}
+.pflow figure+figure::before{content:'';position:absolute;left:-7px;top:62px;width:12px;height:12px;background:var(--paper,#FBFBF8);border-top:1.5px solid var(--g);border-right:1.5px solid var(--g);transform:rotate(45deg)}
+.pflow svg{display:block;width:100%;height:auto;max-height:120px}
+.pflow figcaption{margin-top:12px;display:grid;grid-template-columns:22px 1fr;gap:2px 6px;font-size:14px;line-height:1.6}
+.pflow figcaption i{font-style:normal;color:var(--g);font-weight:700;grid-row:span 2}
+.pflow figcaption b{font-weight:600}.pflow figcaption span{color:var(--pencil);font-size:13px;line-height:1.65}
+.pback{margin-top:12px;font-size:13.5px;color:var(--pencil);padding-left:14px;border-left:2px dashed var(--g)}.pback span{color:var(--g);font-weight:600}
+.pstat{display:grid;grid-template-columns:repeat(4,auto);justify-content:start;gap:0 44px;margin:34px 0 0;padding-top:18px;border-top:1px solid var(--line)}
+.pstat dt{font-size:13px;color:var(--pencil)}.pstat dd{margin:2px 0 0;font-size:19px;font-weight:600;font-variant-numeric:tabular-nums}
+@media(max-width:900px){.pflow{grid-template-columns:1fr 1fr}.pflow figure:nth-child(3){border-left:0}.pflow figure:nth-child(n+3){border-top:1px solid var(--line)}.pflow figure:nth-child(3)::before{display:none}.pstat{grid-template-columns:1fr 1fr;gap:16px 24px}}
+.pat .pt.v2{grid-template-columns:1fr;gap:26px}
+.pat .pt.v2 .ptl{max-width:760px}
+.pat .pt.v2 .pflow svg{max-height:190px}.pat .pt.v2 .pflow figure{padding:26px 22px 26px}.pat .pt.v2 .pflow figure+figure::before{top:104px}
+.pat .pt.v2 .pflow figcaption{font-size:16px;margin-top:18px}.pat .pt.v2 .pflow figcaption span{font-size:14px}
+@media(max-width:900px){.pat .pt.v2 .pflow figure{padding:18px 12px}.pat .pt.v2 .pflow figure+figure::before{top:70px}.pat .pt.v2 .pflow figcaption{font-size:14.5px}}
