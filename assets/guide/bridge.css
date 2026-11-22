@@ -23,3 +23,17 @@ body.jjb h2{line-height:1.45;margin-top:1.9em;margin-bottom:.7em}
 body.jjb h3{line-height:1.5;margin-top:1.5em}
 body.jjb section{padding-top:clamp(48px,7vw,84px);padding-bottom:clamp(48px,7vw,84px)}
 body.jjb table{font-variant-numeric:tabular-nums}
+/* 쪽 첫머리: 왜 → 어떻게 → 그래서 집지니 (2026-11-22) */
+.jjhero{max-width:960px;margin:0 auto;padding:clamp(44px,7vw,84px) 24px 8px;font-family:"IBM Plex Sans KR",sans-serif;color:#1C1F1B;text-align:left;word-break:keep-all}
+.jjhero h1{font-size:clamp(27px,4.4vw,42px);line-height:1.34;font-weight:700;margin:0 0 26px;letter-spacing:-.4px;text-wrap:balance}
+.jjhero h1 b{color:#1F5E2E}
+.jjhero dl{margin:0;max-width:720px}
+.jjhero dl div{display:grid;grid-template-columns:76px 1fr;gap:6px 18px;padding:15px 0;border-top:1px solid #DCDFD8}
+.jjhero dt{font-size:14px;color:#6B7067;padding-top:3px}
+.jjhero dd{margin:0;font-size:17px;line-height:1.9}
+.jjhero dl div:last-child{border-top-color:#1C1F1B}.jjhero dl div:last-child dt{color:#1F5E2E;font-weight:600}.jjhero dl div:last-child dd{font-weight:600}
+.jjhero .gap{display:grid;grid-template-columns:repeat(3,1fr);margin-top:30px;border-top:1px solid #1C1F1B;border-bottom:1px solid #DCDFD8}
+.jjhero .gap div{padding:18px 16px 16px 0}.jjhero .gap div+div{padding-left:18px;border-left:1px solid #DCDFD8}
+.jjhero .gap em{display:block;font-style:normal;font-size:30px;font-weight:700;line-height:1.25;color:#1F5E2E;font-variant-numeric:tabular-nums}
+.jjhero .gap span{font-size:13.5px;color:#6B7067;line-height:1.6}
+@media(max-width:760px){.jjhero{padding-left:18px;padding-right:18px}.jjhero dl div{grid-template-columns:1fr;gap:2px}.jjhero .gap{grid-template-columns:1fr}.jjhero .gap div+div{padding-left:0;border-left:0;border-top:1px solid #DCDFD8}}
