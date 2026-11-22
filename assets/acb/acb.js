@@ -146,10 +146,14 @@
   function load(box) {
     var c = box.getAttribute('data-c'), f = box.getAttribute('data-f'), root = box.getAttribute('data-root') || '/';
     if (!c || !f) return;
-    fetch(root + 'data/acb/' + encodeURIComponent(f) + '.json').then(function (r) { return r.ok ? r.json() : []; }).then(function (L) {
+    fetch(root + 'data/acb/' + encodeURIComponent(f) + '.json?v=20261122a').then(function (r) { return r.ok ? r.json() : []; }).then(function (L) {
       var o = L.filter(function (x) { return x.c === c; })[0];
       if (o) render(box, o, root); else box.remove();
-    }).catch(function (e) { if (window.console) console.warn('아관비', e); box.remove(); });
+    }).catch(function (e) {
+      // 2026-11-22 자료 파일이 깨져 있으면 화면이 통째로 비던 것(24개 구) — 비우지 않고 까닭을 적는다
+      if (window.console) console.warn('아관비', e);
+      if (box.hasAttribute('data-keep')) { box.innerHTML = '<p class="anote">이 단지의 관리비 자료를 불러오지 못했습니다. 잠시 뒤 다시 열어 주세요.</p>'; } else box.remove();
+    });
   }
   // 화면에 들어올 때 한 번만 움직임 (움직임 줄이기 설정이면 안 함)
   var io = ('IntersectionObserver' in window) ? new IntersectionObserver(function (es) { es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }); }, { threshold: .25 }) : null;

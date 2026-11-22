@@ -55,14 +55,14 @@
   <p class="fid"><b>집지니 — 집에서 나가는 돈을 줄여 주는 지니.</b> 공사비·관리비·수선비를 데이터로 계산하고 비교해서 줄입니다. 평면도와 건물 도형에서 물량을 세고, 그 숫자대로 코디방식으로 공사까지 진행합니다. <a href="../interior-coordinator.html">* 코디방식이란?</a></p>
   <p>© 2026 집지니. 서울, 경기, 인천. 대표 박찬영, 사업자등록번호 874-10-00088</p>
 </footer>
-<script src="../assets/acb/acb.js?v=20261122g"></script>
+<script src="../assets/acb/acb.js?v=20261122h"></script>
 <script>
 (function(){
   var A=window.JJacb, IDX=null, inp=document.getElementById('acbIn'), ul=document.getElementById('acbList'), out=document.getElementById('acbOut');
   var R={1:'85 미만',2:'85~95',3:'95~105',4:'105~115',5:'115 이상'}, sc=document.getElementById('acbScale');
   [1,2,3,4,5].forEach(function(t){var d=document.createElement('div');d.appendChild(A.faceSvg(t,52));d.insertAdjacentHTML('beforeend','<b style="color:'+A.C[t]+'">'+A.NAME[t]+'</b>지수 '+R[t]);sc.appendChild(d);});
   function idx(){return IDX?Promise.resolve(IDX):fetch('../data/acb/index.json').then(function(r){return r.json()}).then(function(j){IDX=j;document.getElementById('acbN').textContent=Object.keys(j).length.toLocaleString('ko-KR');return j});}
-  function show(c){idx().then(function(j){var e=j[c];if(!e)return;out.setAttribute('data-c',c);out.setAttribute('data-f',e[5]);out.setAttribute('data-root','../');A.load(out);sc.style.display='none';document.getElementById('acbMapWrap').hidden=true;ul.innerHTML='';inp.value=e[0];document.title=e[0]+' 관리비 — 아관비 | 집지니';});}
+  function show(c){idx().then(function(j){var e=j[c];if(!e)return;out.setAttribute('data-c',c);out.setAttribute('data-f',e[5]);out.setAttribute('data-root','../');out.setAttribute('data-keep','1');A.load(out);sc.style.display='none';document.getElementById('acbMapWrap').hidden=true;ul.innerHTML='';inp.value=e[0];document.title=e[0]+' 관리비 — 아관비 | 집지니';});}
   var t;inp.addEventListener('input',function(){clearTimeout(t);t=setTimeout(function(){var q=inp.value.replace(/\s/g,'');if(q.length<2){ul.innerHTML='';return}
     idx().then(function(j){var hit=[];for(var c in j){var e=j[c];if((e[0]+e[1]).replace(/\s/g,'').indexOf(q)>=0)hit.push([c,e]);if(hit.length>=30)break}
       ul.innerHTML='';hit.forEach(function(h){var li=document.createElement('li'),a=document.createElement('a');a.href='?c='+h[0];a.appendChild(A.faceSvg(h[1][4],30));
