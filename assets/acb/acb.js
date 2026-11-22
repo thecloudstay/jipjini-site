@@ -121,7 +121,7 @@
     var el = box.querySelector('.a3d'); if (!el) return;
     function go() { window.JJd3.mount(el, o.c, root, {}); }
     if (window.JJd3) return go();
-    var sc = document.createElement('script'); sc.src = root + 'assets/acb/d3.js?v=20261122b'; sc.onload = go; sc.onerror = function () { el.parentNode.hidden = true; }; document.head.appendChild(sc);
+    var sc = document.createElement('script'); sc.src = root + 'assets/acb/d3.js?v=20261122c'; sc.onload = go; sc.onerror = function () { el.parentNode.hidden = true; }; document.head.appendChild(sc);
   }
   function drawMap(box, o, root) {
     var m = box.querySelector('.amap'); if (!m) return;
@@ -170,6 +170,37 @@
   // 화면에 들어올 때 한 번만 움직임 (움직임 줄이기 설정이면 안 함)
   var io = ('IntersectionObserver' in window) ? new IntersectionObserver(function (es) { es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }); }, { threshold: .25 }) : null;
   function watch(root) { (root || document).querySelectorAll('.acb .ahead, .acb .achart, .acb .br, .acbhf, .acbm').forEach(function (n) { if (io) io.observe(n); else n.classList.add('in'); }); }
-  window.JJacb = { watch: watch, load: load, render: render, faceSvg: faceSvg, NAME: NAME, C: C };
+  // 관리비 지도(첫 화면, 2026-11-22): 보이는 범위 안 단지를 얼굴로. 지도를 옮기면 다시 그린다.
+  function bigMap(m, root, onPick) {
+    return Promise.all([getIdx(root), getKakao(root)]).then(function (r) {
+      var I = r[0], K = r[1], all = [], shown = {}, tip = null;
+      for (var c in I) { var e = I[c]; if (e.length >= 8 && e[6]) all.push([c, e]); }
+      var map = new K.Map(m, { center: new K.LatLng(37.5126, 127.0590), level: 6 });
+      function card(c, e) {
+        if (tip) tip.setMap(null);
+        var d = document.createElement('div'); d.className = 'acbtip'; d.innerHTML = '<b></b><span></span><a>관리비 보기</a>';
+        d.querySelector('b').textContent = e[0]; d.querySelector('span').textContent = '㎡당 ' + e[2].toLocaleString('ko-KR') + '원 · ' + NAME[e[4]] + ' ' + e[3];
+        var a = d.querySelector('a'); a.href = root + 'acb/?c=' + c; a.onclick = function (ev) { if (onPick) { ev.preventDefault(); onPick(c); } };
+        tip = new K.CustomOverlay({ position: new K.LatLng(e[6], e[7]), content: d, yAnchor: 1.35, zIndex: 20 }); tip.setMap(map);
+      }
+      function redraw() {
+        var b = map.getBounds(), sw = b.getSouthWest(), ne = b.getNorthEast(), ct = map.getCenter(), la = ct.getLat(), ln = ct.getLng();
+        var inb = all.filter(function (p) { var e = p[1]; return e[6] >= sw.getLat() && e[6] <= ne.getLat() && e[7] >= sw.getLng() && e[7] <= ne.getLng(); });
+        if (inb.length > 140) { inb.sort(function (x, y) { return dist(la, ln, x[1][6], x[1][7]) - dist(la, ln, y[1][6], y[1][7]); }); inb = inb.slice(0, 140); }
+        var keep = {}; inb.forEach(function (p) { keep[p[0]] = 1; });
+        for (var k in shown) if (!keep[k]) { shown[k].setMap(null); delete shown[k]; }
+        inb.forEach(function (p) {
+          var c = p[0], e = p[1]; if (shown[c]) return;
+          var bt = document.createElement('button'); bt.type = 'button'; bt.className = 'acbm in'; bt.setAttribute('aria-label', e[0]); bt.appendChild(faceSvg(e[4], 24));
+          bt.onclick = function () { card(c, e); };
+          shown[c] = new K.CustomOverlay({ position: new K.LatLng(e[6], e[7]), content: bt, yAnchor: .5, xAnchor: .5, zIndex: 1 }); shown[c].setMap(map);
+        });
+        var n = m.parentNode.querySelector('.amapn'); if (n) n.textContent = '보이는 범위 ' + inb.length + '단지';
+      }
+      K.event.addListener(map, 'idle', redraw); K.event.addListener(map, 'click', function () { if (tip) { tip.setMap(null); tip = null; } });
+      redraw(); return map;
+    });
+  }
+  window.JJacb = { watch: watch, load: load, render: render, faceSvg: faceSvg, NAME: NAME, C: C, bigMap: bigMap };
   document.querySelectorAll('section.acb[data-c]').forEach(load);
 })();

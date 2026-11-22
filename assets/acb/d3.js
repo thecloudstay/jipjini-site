@@ -2,7 +2,7 @@
    JJd3.mount(상자, 단지코드, 뿌리경로, {spin:true}) — 자료가 없으면 상자를 감춘다. 쓰리제이에스는 화면에 들어올 때 불러온다. */
 (function () {
   'use strict';
-  var V = '20261122b', lib = null;
+  var V = '20261122c', lib = null;
   function load(root) {
     if (lib) return lib;
     function one(src) { return new Promise(function (ok, no) { var s = document.createElement('script'); s.src = src; s.onload = ok; s.onerror = no; document.head.appendChild(s); }); }
@@ -33,7 +33,10 @@
       b.p.forEach(function (q) { ext = Math.max(ext, Math.sqrt(q[0] * q[0] + q[1] * q[1])); });
     });
     var g = new T.Mesh(new T.CircleGeometry(ext * 1.25, 72), new T.MeshLambertMaterial({ color: '#E9ECE5' })); g.rotation.x = -Math.PI / 2; g.position.y = -0.2; S.add(g);
-    K.target.set(0, hmax * 0.3, 0); C.position.set(-ext * 1.0, ext * 0.85 + hmax * 0.5, ext * 1.25); C.far = ext * 12; K.maxDistance = ext * 5; K.update();
+    K.target.set(0, hmax * 0.3, 0); var end = new T.Vector3(-ext * 1.0, ext * 0.85 + hmax * 0.5, ext * 1.25); C.far = ext * 14; K.maxDistance = ext * 5;
+    // 처음 한 번: 위에서 내려오며 다가온다 (움직임 줄이기 설정이면 바로 제자리)
+    var t0 = 0, from = new T.Vector3(-ext * 0.3, ext * 3.2, ext * 2.4), fly = !!opt.fly && !still;
+    C.position.copy(fly ? from : end); K.update();
     var ray = new T.Raycaster(), sel = null, down = null;
     cv.addEventListener('pointerdown', function (e) { down = [e.clientX, e.clientY]; K.autoRotate = false; });
     cv.addEventListener('pointerup', function (e) {
@@ -49,7 +52,9 @@
     window.addEventListener('resize', fit); fit();
     var on = true; if ('IntersectionObserver' in window) new IntersectionObserver(function (es) { on = es[0].isIntersecting; }).observe(cv);
     var dead = false; box._d3stop = function () { dead = true; R.dispose(); window.removeEventListener('resize', fit); };
-    (function loop() { if (dead) return; if (on) { K.update(); R.render(S, C); } requestAnimationFrame(loop); })();
+    (function loop(ts) { if (dead) return; if (on) {
+      if (fly) { if (!t0) t0 = ts || 1; var k = Math.min(1, ((ts || 1) - t0) / 1800), e = 1 - Math.pow(1 - k, 3); C.position.lerpVectors(from, end, e); if (k >= 1) fly = false; }
+      K.update(); R.render(S, C); } requestAnimationFrame(loop); })();
     box.classList.add('ok');
   }
   function mount(box, code, root, opt) {

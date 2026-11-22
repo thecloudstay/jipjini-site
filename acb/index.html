@@ -15,7 +15,7 @@
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../assets/home/home.css?v=20261116c">
 <link rel="stylesheet" href="../assets/apt/apt.css?v=20261117c">
-<link rel="stylesheet" href="../assets/acb/acb.css?v=20261122b">
+<link rel="stylesheet" href="../assets/acb/acb.css?v=20261122c">
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-35EM7T3M9W"></script>
 <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());(function(){try{if(localStorage.getItem('jj_staff'))window['ga-disable-G-35EM7T3M9W']=true}catch(e){}})();gtag('config','G-35EM7T3M9W');</script>
 <style>
@@ -45,6 +45,7 @@
 <p class="sub">집지니 아관비 · 수도권 <span id="acbN">9,620</span>단지 · 국토교통부 공개 관리비 2026년 1~9월</p>
 <div class="acbq"><input id="acbIn" type="search" placeholder="아파트 이름이나 구 이름 (예: 래미안, 서대문구)" autocomplete="off" aria-label="아파트 찾기"><ul id="acbList"></ul></div>
 <div class="acbs" id="acbScale"></div>
+<section class="acb" id="acbMapWrap"><h3>관리비 지도<small class="amapn">수도권 8,689단지</small></h3><div class="amap" id="acbMap" style="height:480px"></div></section>
 <section class="acb" id="acbOut"></section>
 <p class="note">비교 대상: 같은 시·도, 같은 난방·분양 형태, 준공 연도·세대수·평균 전용면적이 가까운 10곳<br>지수 = 우리 단지 ㎡당 관리비 ÷ 10곳 가운데값 × 100</p>
 </main>
@@ -53,20 +54,20 @@
   <p class="fid"><b>집지니 — 인테리어 데이터 솔루션 기업.</b> 아파트 평면도를 도면·공정별 물량·공사 자료로 바꾸고, 그 자료로 견적부터 시공 관리까지 합니다.</p>
   <p>© 2026 집지니. 서울, 경기, 인천. 대표 박찬영, 사업자등록번호 874-10-00088</p>
 </footer>
-<script src="../assets/acb/acb.js?v=20261122b"></script>
+<script src="../assets/acb/acb.js?v=20261122c"></script>
 <script>
 (function(){
   var A=window.JJacb, IDX=null, inp=document.getElementById('acbIn'), ul=document.getElementById('acbList'), out=document.getElementById('acbOut');
   var R={1:'85 미만',2:'85~95',3:'95~105',4:'105~115',5:'115 이상'}, sc=document.getElementById('acbScale');
   [1,2,3,4,5].forEach(function(t){var d=document.createElement('div');d.appendChild(A.faceSvg(t,52));d.insertAdjacentHTML('beforeend','<b style="color:'+A.C[t]+'">'+A.NAME[t]+'</b>지수 '+R[t]);sc.appendChild(d);});
   function idx(){return IDX?Promise.resolve(IDX):fetch('../data/acb/index.json').then(function(r){return r.json()}).then(function(j){IDX=j;document.getElementById('acbN').textContent=Object.keys(j).length.toLocaleString('ko-KR');return j});}
-  function show(c){idx().then(function(j){var e=j[c];if(!e)return;out.setAttribute('data-c',c);out.setAttribute('data-f',e[5]);out.setAttribute('data-root','../');A.load(out);sc.style.display='none';ul.innerHTML='';inp.value=e[0];document.title=e[0]+' 관리비 — 아관비 | 집지니';});}
+  function show(c){idx().then(function(j){var e=j[c];if(!e)return;out.setAttribute('data-c',c);out.setAttribute('data-f',e[5]);out.setAttribute('data-root','../');A.load(out);sc.style.display='none';document.getElementById('acbMapWrap').hidden=true;ul.innerHTML='';inp.value=e[0];document.title=e[0]+' 관리비 — 아관비 | 집지니';});}
   var t;inp.addEventListener('input',function(){clearTimeout(t);t=setTimeout(function(){var q=inp.value.replace(/\s/g,'');if(q.length<2){ul.innerHTML='';return}
     idx().then(function(j){var hit=[];for(var c in j){var e=j[c];if((e[0]+e[1]).replace(/\s/g,'').indexOf(q)>=0)hit.push([c,e]);if(hit.length>=30)break}
       ul.innerHTML='';hit.forEach(function(h){var li=document.createElement('li'),a=document.createElement('a');a.href='?c='+h[0];a.appendChild(A.faceSvg(h[1][4],30));
         a.insertAdjacentHTML('beforeend','<span><b></b><small></small></span><span>㎡당 '+h[1][2].toLocaleString('ko-KR')+'원</span>');a.querySelector('b').textContent=h[1][0];a.querySelector('small').textContent=h[1][1];
         a.onclick=function(ev){ev.preventDefault();history.pushState(null,'','?c='+h[0]);show(h[0]);};li.appendChild(a);ul.appendChild(li);});});},150);});
-  var c=new URLSearchParams(location.search).get('c'); if(c)show(c); else idx();
+  var c=new URLSearchParams(location.search).get('c'); if(c)show(c); else { idx(); A.bigMap(document.getElementById('acbMap'),'../',function(c){history.pushState(null,'','?c='+c);show(c);window.scrollTo(0,0);}).catch(function(){document.getElementById('acbMapWrap').hidden=true;}); }
   window.addEventListener('popstate',function(){var c=new URLSearchParams(location.search).get('c');if(c)show(c)});
 })();
 </script>
