@@ -456,7 +456,7 @@ def acb_html(code, depth):
         return ""
     up = "../" * depth
     return (f'<section class="acb" data-c="{code}" data-f="{esc(k)}" data-root="{up}"></section>'
-            f'<link rel="stylesheet" href="{up}assets/acb/acb.css?v=20261122d"><script src="{up}assets/acb/acb.js?v=20261122d" defer></script>')
+            f'<link rel="stylesheet" href="{up}assets/acb/acb.css?v=20261122d"><script src="{up}assets/acb/acb.js?v=20261122e" defer></script>')
 
 
 def apt_page(code, row, d, pr, nq):

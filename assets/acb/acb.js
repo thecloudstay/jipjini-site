@@ -159,11 +159,16 @@
     [1, 2, 3, 4, 5].forEach(function (t) { var s = document.createElement('i'); s.style.background = C[t]; bar.appendChild(s); });
     m.parentNode.insertBefore(bar, m.nextSibling); m.parentNode.insertBefore(leg, bar.nextSibling);
     var W = 0, H = 0, dpr = 1, cx, cy, z, zmin, face = {}, tip = null, tipP = null;
+    var base = ownMap.base || null;   // 2026-11-22 바탕(땅·시도·시군구 경계) — 점만 떠 있어 지도로 안 보인다는 지적
+    if (!base && !ownMap.wait) ownMap.wait = fetch(root + 'data/acb/basemap.json?v=20261122a').then(function (r) { return r.json(); }).then(function (j) { ownMap.base = j; return j; }).catch(function () { return null; });
+    if (!base && ownMap.wait) ownMap.wait.then(function (j) { if (j) { base = j; if (W) draw(); } });
+    function ring(f) { g.moveTo(X(f[0]), Y(f[1])); for (var i = 2; i < f.length; i += 2) g.lineTo(X(f[i]), Y(f[i + 1])); g.closePath(); }
     function X(lng) { return (lng - cx) * z * KX + W / 2; } function Y(lat) { return (cy - lat) * z + H / 2; }
     function fit() {
       if (opt.center) { cy = opt.center[0]; cx = opt.center[1]; z = (H / 2) / 0.0105; zmin = z / 40; return; }
-      var a = 1e9, b = -1e9, d = 1e9, f = -1e9; pts.forEach(function (p) { a = Math.min(a, p.e[7]); b = Math.max(b, p.e[7]); d = Math.min(d, p.e[6]); f = Math.max(f, p.e[6]); });
-      cx = (a + b) / 2; cy = (d + f) / 2; z = Math.min(W / ((b - a) * KX), H / (f - d)) * 0.94; zmin = z * 0.8;
+      var xs = pts.map(function (p) { return p.e[7]; }).sort(function (u, v) { return u - v; }), ys = pts.map(function (p) { return p.e[6]; }).sort(function (u, v) { return u - v; }), q = function (v, t) { return v[Math.min(v.length - 1, Math.floor(v.length * t))]; };
+      var a = q(xs, .02), b = q(xs, .98), d = q(ys, .02), f = q(ys, .98);
+      cx = (a + b) / 2; cy = (d + f) / 2; z = Math.min(W / ((b - a) * KX), H / (f - d)) * 0.9; zmin = z * 0.55;
     }
     function size() { var r = m.getBoundingClientRect(); if (!r.width) return false; dpr = Math.min(window.devicePixelRatio || 1, 2); W = r.width; H = r.height; cv.width = W * dpr; cv.height = H * dpr; return true; }
     function card(p) {
@@ -176,13 +181,14 @@
     function place() { if (tip && tipP) { tip.style.left = X(tipP.e[7]) + 'px'; tip.style.top = Y(tipP.e[6]) + 'px'; } }
     function draw() {
       g.setTransform(dpr, 0, 0, dpr, 0, 0); g.clearRect(0, 0, W, H); g.fillStyle = '#fff'; g.fillRect(0, 0, W, H);
-      // 눈금선 (도면 느낌): 간격은 화면에서 90px 안팎
-      var st = [1, .5, .2, .1, .05, .02, .01, .005, .002].filter(function (s) { return s * z >= 90; }).pop() || 1;
-      g.strokeStyle = '#EEF0EB'; g.lineWidth = 1; g.fillStyle = '#A9AEA5'; g.font = '10px "IBM Plex Sans KR",sans-serif'; g.beginPath();
-      var la0 = cy - H / 2 / z, la1 = cy + H / 2 / z, lo0 = cx - W / 2 / z / KX, lo1 = cx + W / 2 / z / KX, v;
-      for (v = Math.ceil(la0 / st) * st; v <= la1; v += st) { var yy = Math.round(Y(v)) + .5; g.moveTo(0, yy); g.lineTo(W, yy); g.fillText(v.toFixed(st < .01 ? 3 : 2) + '°', 4, yy - 3); }
-      for (v = Math.ceil(lo0 / st) * st; v <= lo1; v += st) { var xx = Math.round(X(v)) + .5; g.moveTo(xx, 0); g.lineTo(xx, H); g.fillText(v.toFixed(st < .01 ? 3 : 2) + '°', xx + 3, H - 5); }
-      g.stroke();
+      var la0 = cy - H / 2 / z, la1 = cy + H / 2 / z, lo0 = cx - W / 2 / z / KX, lo1 = cx + W / 2 / z / KX;
+      if (base) {
+        g.fillStyle = '#E6ECEE'; g.fillRect(0, 0, W, H);                                   // 바다
+        g.beginPath(); base.land.forEach(ring); g.fillStyle = '#FBFBF8'; g.fill('evenodd');   // 땅
+        g.beginPath(); base.sgg.forEach(function (s) { s.r.forEach(ring); }); g.strokeStyle = '#D3D8CE'; g.lineWidth = z < 900 ? .6 : 1; g.lineJoin = 'round'; g.stroke();   // 시군구 경계
+        g.beginPath(); base.sido.forEach(ring); g.strokeStyle = '#8E9489'; g.lineWidth = z < 900 ? 1.1 : 1.6; g.stroke();   // 시도 경계
+        g.beginPath(); base.land.forEach(ring); g.strokeStyle = '#B9C4C8'; g.lineWidth = .8; g.stroke();   // 바닷가 선
+      }
       var vis = pts.filter(function (p) { return p.e[7] >= lo0 && p.e[7] <= lo1 && p.e[6] >= la0 && p.e[6] <= la1; }), cnt = [0, 0, 0, 0, 0, 0];
       vis.forEach(function (p) { cnt[p.e[4]]++; });
       var faces = vis.length <= 90 && z >= 6000, r = z < 900 ? 1.7 : z < 2500 ? 2.6 : z < 6000 ? 3.8 : 5, keep = {};
