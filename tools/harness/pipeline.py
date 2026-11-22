@@ -113,6 +113,34 @@ def fix_R1(G, mm, img, plan=None):
                     if ((x - run[0]) ** 2 + (y - run[1]) ** 2) ** 0.5 * mm >= 250: add.append([int(run[0]), int(run[1]), int(x), int(y), 100])
                     run = None
     G['사선벽'] = add; return G
+def fix_rooms_R16(img, plan):
+    """욕실 놓침(R16) 방 이름 고침 — 2026-11-22 출고보류 분석: 욕실을 놓친 자리의 68%(표본 28곳 중 19곳)는 칸은 제대로 갈렸는데 이름만 「기타」였다.
+    원본의 파란 바닥 칸(욕실 타일, 1~12㎡)의 절반 넘게를 덮는 「기타」 칸(14㎡ 이하)을 욕실로 바꾼다. 방 모양은 손대지 않는다. 바꾼 것이 없으면 None."""
+    import copy
+    if img is None or not plan.get('rooms'):
+        return None
+    mm = plan['mmpp']; H, W = img.shape[:2]
+    b_, g_, r_ = [img[..., i].astype(int) for i in range(3)]
+    blue = (((b_ - r_) >= 10) & ((g_ - r_) >= 3) & (np.minimum(np.minimum(r_, g_), b_) > 185)).astype(np.uint8)
+    blue = cv2.morphologyEx(blue, cv2.MORPH_CLOSE, np.ones((5, 5), np.uint8))
+    nb_, lb_, sb_, _c = cv2.connectedComponentsWithStats(blue, 8)
+    P = copy.deepcopy(plan); R = P['rooms']
+    def mask(r):
+        m = np.zeros((H, W), np.uint8); cv2.fillPoly(m, [np.array(r['pts'], np.int32)], 1); return m
+    bath = np.zeros((H, W), np.uint8)
+    for r in R:
+        if r.get('kind') == '욕실' and len(r['pts']) >= 3: bath |= mask(r)
+    cand = [(r, mask(r)) for r in R if r.get('kind') == '기타' and len(r.get('pts') or []) >= 3]
+    cand = [(r, m) for r, m in cand if m.sum() * mm * mm / 1e6 <= 14]
+    n = sum(1 for r in R if r.get('kind') == '욕실'); done = 0
+    for j in range(1, nb_):
+        a_ = sb_[j, 4] * mm * mm / 1e6
+        comp = lb_ == j
+        if not (1.0 <= a_ <= 12) or (bath[comp] > 0).mean() >= 0.5: continue
+        best = max(cand, key=lambda rm: (rm[1][comp] > 0).mean(), default=None)
+        if best and (best[1][comp] > 0).mean() >= 0.5 and best[0].get('kind') == '기타':
+            n += 1; best[0]['kind'] = '욕실'; best[0]['name'] = '욕실%d' % n; bath |= best[1]; done += 1
+    return P if done else None
 FIXERS = [('R9', fix_R9), ('R2', fix_R2), ('R3', fix_R3), ('R4', fix_R4), ('R10', fix_R10), ('R1', fix_R1)]
 
 def weight(chk):
@@ -178,6 +206,12 @@ def run(imgdir, roomsf, outdir, csvf=None):
         try:
             img = plan_trace.imread_u(f); G = plan_trace.trace(f, p); q = dict(p, 그림=G)
             chk0 = plan_check.rules(img, q); fixed = []
+            if any(x[0] == 'R16' for x in chk0):   # 2026-11-22 욕실 이름 고침(칸은 맞고 이름만 기타)
+                p2 = fix_rooms_R16(img, p)
+                if p2:
+                    c2 = plan_check.rules(img, dict(p2, 그림=G))
+                    if weight(c2) < weight(chk0) and not any(sum(1 for x in c2 if x[0] == s_) > sum(1 for x in chk0 if x[0] == s_) for s_ in SAFETY):
+                        p, chk0 = p2, c2; fixed.append('R16')
             for rule, fn in FIXERS:
                 if not any(x[0] == rule for x in chk0): continue
                 G2 = fn(copy.deepcopy(G), p['mmpp'], img, p) if fn.__code__.co_argcount >= 4 else fn(copy.deepcopy(G), p['mmpp'], img); chk2 = plan_check.rules(img, dict(p, 그림=G2))

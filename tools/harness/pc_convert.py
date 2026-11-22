@@ -436,6 +436,12 @@ def one(f, k, plan, known, teach=None):
     """한 장: 변환 → 검수 → 자동 고침 → 다시 검수 → 가르기 → 채점. 도면 자료는 결과 폴더에."""
     import copy
     img = plan_trace.imread_u(f); G = plan_trace.trace(f, plan); chk = plan_check.rules(img, dict(plan, 그림=G)); fixed = []
+    if any(x[0] == "R16" for x in chk):   # 2026-11-22 욕실 이름 고침 — 칸은 맞게 갈렸는데 이름만 「기타」인 욕실(욕실 놓침의 68%)
+        p2 = pipeline.fix_rooms_R16(img, plan)
+        if p2:
+            c2 = plan_check.rules(img, dict(p2, 그림=G))
+            if pipeline.weight(c2) < pipeline.weight(chk) and not any(sum(1 for x in c2 if x[0] == s) > sum(1 for x in chk if x[0] == s) for s in pipeline.SAFETY):
+                plan, chk = p2, c2; fixed.append("R16")
     for rule, fn in pipeline.FIXERS:
         if not any(x[0] == rule for x in chk):
             continue
