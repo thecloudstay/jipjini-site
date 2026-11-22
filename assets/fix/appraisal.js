@@ -79,7 +79,7 @@
           step('스캔본이라 그림에서 글자를 읽고 있습니다 (쪽마다 20초 안팎)');
           return planTools().then(function () {
             var q = Promise.resolve();
-            pages.slice(0, 6).forEach(function (pg) { q = q.then(function () { return render(doc, pg.n, 1.6).then(function (c) { return root.JJPlanTools.readText(c); }).then(function (items) { pg.text = rowsText((items || []).filter(function (i) { return !i.v; })); step('스캔본 ' + pg.n + '쪽 읽음'); }).catch(function () {}); }); });
+            pages.slice(0, 6).filter(function (pg) { return pg.scanned; }).forEach(function (pg) {   /* 2026-11-22: 글자층이 있는 쪽은 그대로 둔다 — 전부 그림 인식으로 덮어써 전용면적을 놓치던 것 고침 */ q = q.then(function () { return render(doc, pg.n, 1.6).then(function (c) { return root.JJPlanTools.readText(c); }).then(function (items) { pg.text = rowsText((items || []).filter(function (i) { return !i.v; })); step('스캔본 ' + pg.n + '쪽 읽음'); }).catch(function () {}); }); });
             return q.then(function () { return { doc: doc, pages: pages, scanned: true }; });
           });
         });

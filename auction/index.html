@@ -16,6 +16,18 @@
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-35EM7T3M9W"></script>
 <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());(function(){try{if(/[?&]jj_staff=1/.test(location.search))localStorage.setItem('jj_staff','1');if(/[?&]jj_staff=0/.test(location.search))localStorage.removeItem('jj_staff');if(localStorage.getItem('jj_staff'))window['ga-disable-G-35EM7T3M9W']=true}catch(e){}})();gtag('config','G-35EM7T3M9W');</script>
 <meta name="twitter:card" content="summary_large_image">
+<style>
+.apflow{list-style:none;margin:18px 0 6px;padding:0;display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--rule,#DCDFD8);border-bottom:1px solid var(--rule,#DCDFD8)}
+.apflow li{padding:18px 18px 20px 0;min-width:0}.apflow li+li{padding-left:18px;border-left:1px solid var(--rule,#DCDFD8)}
+.apflow svg{display:block;width:100%;max-width:190px;height:auto;margin-bottom:12px}
+.apflow b{display:block;font-size:15px;font-weight:600;margin-bottom:6px}.apflow span{display:block;font-size:13.5px;line-height:1.75;color:#6B7067}
+.apflow i{font-style:normal;color:#1F5E2E;font-weight:600;margin-right:6px}
+@media(max-width:640px){.apflow{grid-template-columns:1fr}.apflow li+li{padding-left:0;border-left:0;border-top:1px solid var(--rule,#DCDFD8);padding-top:18px}}
+.stk{margin:14px 0 6px}.stk .bar{position:relative;display:flex;height:30px;border-radius:4px;overflow:visible;background:#EEF0EB}
+.stk .bar div{height:100%}.stk .b1{background:#1C1F1B}.stk .b2{background:#1F5E2E}.stk .b3{background:#9AA097}
+.stk .mk{position:absolute;top:-6px;bottom:-6px;width:0;border-left:2px dashed #B3261E}
+.stk .lg{display:flex;flex-wrap:wrap;gap:6px 20px;margin-top:10px;font-size:13px;color:#6B7067}.stk .lg em{display:inline-block;width:10px;height:10px;margin-right:6px;font-style:normal;vertical-align:-1px}
+</style>
 </head>
 <body>
 <main>
@@ -27,7 +39,12 @@
 
 <h2>감정평가서로 바로 채우기 <span class="hint" style="font-weight:400">(선택)</span></h2>
 <p class="hint" style="margin-top:0">법원 경매 물건 화면에서 받은 감정평가서 PDF를 올리면 단지·면적·연식·상태를 읽고, 내부 구조도를 집지니 도면으로 다시 그립니다. 파일은 이 화면 안에서만 읽고 어디에도 보내지 않습니다.</p>
-<div class="btns" style="margin-top:6px"><label class="btn line" for="apFile">감정평가서 PDF 올리기</label><input id="apFile" type="file" accept=".pdf,application/pdf" hidden></div>
+<ol class="apflow">
+<li><svg viewBox="0 0 190 96" fill="none" stroke="#1C1F1B" stroke-width="1.5"><path d="M62 8h46l20 20v60H62z"/><path d="M108 8v20h20"/><path d="M72 42h46M72 54h46M72 66h30" stroke="#9AA097"/><text x="95" y="84" font-size="9" fill="#6B7067" stroke="none" text-anchor="middle">감정평가서.pdf</text></svg><b><i>1</i>감정평가서를 올립니다</b><span>법원경매 물건 상세 화면의 「감정평가서」 파일입니다. 스캔본도 읽습니다(쪽마다 20초 안팎).</span></li>
+<li><svg viewBox="0 0 190 96" fill="none" stroke="#1C1F1B" stroke-width="1.5"><g stroke="#DCDFD8"><path d="M6 20h84M6 38h84M6 56h84M6 74h84"/></g><g stroke="none" fill="#6B7067" font-size="8.5"><text x="6" y="15">전용면적</text><text x="6" y="33">사용승인</text><text x="6" y="51">감정가</text><text x="6" y="69">상태 말</text></g><g stroke="none" fill="#1C1F1B" font-size="8.5" text-anchor="end"><text x="90" y="15">84.92㎡</text><text x="90" y="33">2004년</text><text x="90" y="51">5억 7,000만</text><text x="90" y="69">누수</text></g><rect x="108" y="12" width="76" height="62"/><path d="M140 12v30M108 46h22M162 12v24h22M150 74V54h34"/></svg><b><i>2</i>여섯 가지를 읽고 도면을 그립니다</b><span>사건번호·소재지·전용면적·사용승인 연도·감정가·상태 말(누수·내부 미확인 등)을 뽑고, 내부 구조도를 방·욕실로 나눕니다.</span></li>
+<li><svg viewBox="0 0 190 96" fill="none"><rect x="6" y="14" width="150" height="12" fill="#1F5E2E"/><rect x="6" y="34" width="112" height="12" fill="#1F5E2E"/><rect x="6" y="54" width="84" height="12" fill="#1F5E2E"/><rect x="6" y="74" width="52" height="12" fill="#1F5E2E"/><g fill="#6B7067" font-size="8.5"><text x="162" y="24">욕실</text><text x="124" y="44">도배</text><text x="96" y="64">바닥</text><text x="64" y="84">주방</text></g></svg><b><i>3</i>수리비와 입찰 상한이 나옵니다</b><span>공종별 수리비 범위, 임대·기본·올수리 세 단계, 낙찰가를 넣으면 총 취득원가, 시세를 넣으면 써도 되는 최고 입찰가까지.</span></li>
+</ol>
+<div class="btns" style="margin-top:14px"><label class="btn line" for="apFile">감정평가서 PDF 올리기</label><input id="apFile" type="file" accept=".pdf,application/pdf" hidden><button type="button" class="btn line" id="apSample">파일 없이 견본으로 먼저 보기</button></div>
 <div id="apMsg" class="hint"></div>
 <table class="lines" id="apFields" hidden><tbody></tbody></table>
 <div id="apPlan" style="margin-top:12px"></div>
@@ -88,7 +105,7 @@
 <footer class="fix">집지니 · 대표 박찬영 · 사업자등록번호 874-10-00088 · 서울·경기·인천 · <a href="/privacy.html">개인정보 처리방침</a></footer>
 
 <script src="/assets/fix/fix.js?v=20261116"></script>
-<script src="/assets/fix/appraisal.js?v=20261114"></script>
+<script src="/assets/fix/appraisal.js?v=20261122"></script>
 <script>
 (function () {
   var F = JJFix, $ = function (id) { return document.getElementById(id); };
@@ -144,34 +161,43 @@
   }
   $('apFile').addEventListener('change', function () {
     var file = this.files[0], m = $('apMsg'); if (!file) return; m.textContent = '감정평가서를 읽는 중…';
-    JJAppraisal.read(file, function (t) { m.textContent = t + '…'; }).then(function (R) {
-      var f = R.fields, rows = [];
+    JJAppraisal.read(file, function (t) { m.textContent = t + '…'; }).then(applyAp).catch(function () { m.textContent = '이 파일은 읽지 못했습니다. 아래에 단지·면적을 직접 넣어 주세요.'; });
+  });
+  var APRICE = 0;
+  $('apSample').addEventListener('click', function () {
+    $('bidp').value = 45600; $('mkt').value = 57000; $('gain').value = 3000;
+    applyAp({ sample: true, pages: 0, scanned: false, planPage: 0, planCanvas: null, fields: { caseNo: '', addr: '경기도 용인시 수지구 죽전동 ○○ 용인죽전동부센트레빌 제○동 제7층 (견본)', name: '용인죽전동부센트레빌', gu: '수지구', area: 84.92, year: 2004, price: 570000000, notes: ['누수', '내부 미확인'], cond: 3 } });
+  });
+  function applyAp(R) {
+      var m = $('apMsg'), f = R.fields, rows = [];
+      APRICE = f.price || 0;
       if (f.caseNo) { rows.push(['사건번호', f.caseNo]); $('case').value = f.caseNo; }
       if (f.addr) rows.push(['소재지', f.addr]);
-      if (f.area) { rows.push(['전용면적', f.area + '㎡']); $('area').value = f.area; }
+      if (f.area) { rows.push(['전용면적', f.area + '㎡']); $('area').value = f.area; } else rows.push(['전용면적', '못 읽음 — 아래 칸에 직접 넣어 주세요']);
       if (f.year) { rows.push(['사용승인', f.year + '년 (' + (NOW - f.year) + '년 차)']); $('year').value = f.year; }
       if (f.price) rows.push(['감정가', F.man(f.price)]);
       rows.push(['상태 말', f.notes.length ? f.notes.join(', ') : '특이 사항 없음']);
       $('cond').querySelectorAll('.chip').forEach(function (b) { b.setAttribute('aria-pressed', b.getAttribute('data-v') === String(f.cond) ? 'true' : 'false'); });
       $('apFields').querySelector('tbody').innerHTML = rows.map(function (r) { return '<tr><td>' + F.esc(r[0]) + '</td><td>' + F.esc(r[1]) + '</td></tr>'; }).join('');
       $('apFields').hidden = false;
-      m.textContent = (R.scanned ? '스캔본 · ' : '') + R.pages + '쪽 읽음' + (R.planPage ? ' · 내부 구조도 ' + R.planPage + '쪽' : ' · 내부 구조도 쪽은 못 찾음');
+      m.textContent = R.sample ? '견본 값입니다. 낙찰 예정가는 감정가의 80%, 수리 뒤 시세는 감정가와 같다고 가정했습니다. 실제 파일을 올리면 이 자리에 읽은 값이 들어갑니다.' : (R.scanned ? '스캔본 · ' : '') + R.pages + '쪽 읽음' + (R.planPage ? ' · 내부 구조도 ' + R.planPage + '쪽' : ' · 내부 구조도 쪽은 못 찾음');
+      var done = function () { showRes(true); $('apFields').scrollIntoView({ behavior: 'smooth', block: 'start' }); };
       try { gtag('event', 'fix_appraisal', { scanned: R.scanned ? 1 : 0, plan: R.planPage ? 1 : 0 }); } catch (_g) {}
       return findApt(f).then(function (a) {
         var go = a ? ($('q').value = a.name, pickApt(a, f.area)) : Promise.resolve(false);
         if (!a && f.name) $('apMsg').textContent += ' · 「' + f.name + '」 단지를 목록에서 못 찾음';
         return go.then(function (used) {
         if (f.year) $('year').value = f.year;   // 감정평가서 연도가 단지 목록보다 앞섬
-        if (used || !R.planCanvas) return;
+        if (used || !R.planCanvas) return done();
         $('apMsg').textContent += ' · 구조도를 집지니 도면으로 다시 그리는 중…';
         return JJAppraisal.redraw(R.planCanvas, f.area, function (t) { $('apMsg').textContent = t + '…'; }).then(function (r) {
           if (r && r.ok && r.rooms && r.rooms.length >= 2) { showPlan({ W: r.W, H: r.H, mmpp: r.mmpp, sum: r.sum, rooms: r.rooms, 창: r.창, 문: r.문, 외곽: r.외곽 }, '감정평가서 구조도 · 집지니가 다시 그림'); $('apMsg').textContent = '구조도를 다시 그렸습니다(원본 그림은 보여 주지 않습니다).'; }
           else $('apMsg').textContent = '구조도에서 방을 나누지 못했습니다 — 면적 기준으로 계산합니다.';
+          done();
+        }).catch(done);
         });
-        });
-      });
-    }).catch(function () { m.textContent = '이 파일은 읽지 못했습니다. 아래에 단지·면적을 직접 넣어 주세요.'; });
-  });
+      }).catch(done);
+  }
 
   // 목표별 공종: [공종, 넣는 방식] — 'all'은 평당값 그대로, 숫자는 평당값에 곱함
   var SETS = {
@@ -202,7 +228,8 @@
   }
   var GOALN = { rent: '임대 놓기', basic: '기본 수리', full: '올수리' }, CONDN = { 1: '깔끔', 2: '보통', 3: '낡음' };
 
-  $('go').addEventListener('click', function () {
+  $('go').addEventListener('click', function () { showRes(false); });
+  function showRes(quiet) {
     F.prices().then(function (P) {
       var R = calc(P); LAST = R;
       $('dm').textContent = '경매 수리비 어림 · ' + F.docNo('JJA') + ' · ' + F.today();
@@ -210,6 +237,8 @@
       $('rng').textContent = '범위 ' + F.man(R.lo) + ' ~ ' + F.man(R.hi);
       $('apt').textContent = (APT ? APT.name + ' · ' : '') + '전용 ' + R.A + '㎡ · ' + GOALN[R.goal] + ' · 상태 ' + CONDN[R.cond];
       $('facts').innerHTML = '<div><b>' + R.age + '년 차</b><span>' + R.yr + '년 사용승인</span></div><div><b>' + F.man(R.mid / R.py) + '</b><span>평당(공급 약 ' + R.py + '평)</span></div><div><b>' + R.days + '</b><span>예상 공사 기간</span></div>';
+      $('facts').style.gridTemplateColumns = APRICE > 0 ? 'repeat(auto-fit,minmax(150px,1fr))' : '';
+      if (APRICE > 0) $('facts').innerHTML += '<div><b>' + (Math.round(R.mid / APRICE * 1000) / 10) + '%</b><span>감정가 ' + F.man(APRICE) + ' 대비 수리비</span></div>';
       $('bars').innerHTML = F.bars(R.rows);
       var b = '', mkt = Number($('mkt').value) * 10000, gain = Number($('gain').value) * 10000 || 0, etc = Number($('etc').value) || 0;
       if (mkt > 0) {
@@ -230,7 +259,8 @@
       var bp = Number($('bidp').value) * 10000, o = '';
       if (bp > 0) {
         var oc = (mkt > 0 ? mkt : bp) * etc / 100, sum = bp + R.mid + oc;
-        o = '<h2>총 취득원가</h2><table class="lines"><tbody>' +
+        var mx = Math.max(sum, mkt || 0) * 1.02, w = function (v) { return (v / mx * 100).toFixed(2) + '%'; };
+        o = '<h2>총 취득원가</h2><div class="stk"><div class="bar"><div class="b1" style="width:' + w(bp) + '"></div><div class="b2" style="width:' + w(R.mid) + '"></div><div class="b3" style="width:' + w(oc) + '"></div>' + (mkt > 0 ? '<span class="mk" style="left:' + w(mkt) + '"></span>' : '') + '</div><div class="lg"><span><em style="background:#1C1F1B"></em>낙찰 예정가 ' + F.man(bp) + '</span><span><em style="background:#1F5E2E"></em>수리비 ' + F.man(R.mid) + '</span><span><em style="background:#9AA097"></em>그 밖의 비용 ' + F.man(oc) + '</span>' + (mkt > 0 ? '<span><em style="background:none;border-left:2px dashed #B3261E;width:0"></em>수리 뒤 시세 ' + F.man(mkt) + '</span>' : '') + '</div></div><table class="lines"><tbody>' +
           '<tr><td>낙찰 예정가</td><td class="n">' + F.man(bp) + '</td></tr>' +
           '<tr><td>+ 수리비 (' + GOALN[R.goal] + ', 가운데 값)</td><td class="n">' + F.man(R.mid) + '</td></tr>' +
           '<tr><td>+ 그 밖의 비용 (' + etc + '%)</td><td class="n">' + F.man(oc) + '</td></tr>' +
@@ -248,10 +278,10 @@
       ck.push('<li class="good">감정서 사진을 보내 주시면 공종별로 범위를 좁혀 드립니다(무료).</li>');
       $('checks').innerHTML = ck.join('');
       $('basis').textContent = '근거: ' + P.source + '의 공종별 평당 금액(낮은 4분의 1·가운데·높은 4분의 1). 공급 평수는 전용면적 ÷ 2.5 로 어림. ' + P.updated + ' 기준.';
-      $('res').hidden = false; $('res').scrollIntoView({ behavior: 'smooth' });
+      $('res').hidden = false; if (!quiet) $('res').scrollIntoView({ behavior: 'smooth' });
       try { gtag('event', 'fix_calc', { tool: 'auction', value: Math.round(R.mid / 10000) }); } catch (_g) {}
     }).catch(function () { alert('단가 자료를 못 불러왔습니다. 잠시 뒤 다시 눌러 주세요.'); });
-  });
+  }
 
   $('sendBtn').addEventListener('click', function () {
     var nm = $('nm').value.trim(), ph = $('ph').value.trim(), m = $('sendMsg');
