@@ -39,10 +39,11 @@ jobs:
       - env: {DATA_GO_KR_KEY: "${{ secrets.DATA_GO_KR_KEY }}", MODE: merge}
         run: python3 tools/acb_bid.py
       - run: python3 tools/acb_bid_build.py
+      - run: python3 tools/acb_bidref.py
       - run: |
           git config user.name "jipjini-bot"; git config user.email "bot@jipjini.com"
           rm -rf data/acb/bid/part
-          git add data/acb/bid
+          git add data/acb/bid data/acb/bidref.json
           git diff --cached --quiet || (git commit -m "아관비: 입찰 목록 합침·분석 [skip ci]" && git pull --rebase -q && git push)
   bidders:
     needs: merge
@@ -55,8 +56,9 @@ jobs:
       - env: {DATA_GO_KR_KEY: "${{ secrets.DATA_GO_KR_KEY }}", MODE: bidders}
         run: timeout 300m python3 tools/acb_bid.py || true
       - run: python3 tools/acb_bid_build.py
+      - run: python3 tools/acb_bidref.py
       - if: always()
         run: |
           git config user.name "jipjini-bot"; git config user.email "bot@jipjini.com"
-          git add data/acb/bid
+          git add data/acb/bid data/acb/bidref.json
           git diff --cached --quiet || (git commit -m "아관비: 응찰 업체·분석 [skip ci]" && git pull --rebase -q && git push)

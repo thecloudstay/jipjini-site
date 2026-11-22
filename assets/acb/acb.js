@@ -72,6 +72,7 @@
       if (gsum > 30) h += '<div class="cutbox"><h3>줄일 수 있는 돈<small>비슷한 10곳 수준까지 낮추면</small></h3><p class="cutn">세대당 연 <b>' + man(gsum * sup * 12) + '</b>' + (tot ? '<span>단지 전체 연 <b>' + man(Math.round(gsum * tot * 12 / 1e5) * 1e5) + '</b></span>' : '') + '</p>' + gbar + '<p class="anote" style="margin-top:10px">경비·청소·일반관리·승강기 유지·수선유지 다섯 항목 합계 기준, 전용 ' + Math.round(ex) + '㎡ 어림. 난방·전기·수도와 장기수선충당금은 뺐습니다.</p></div>';
       else if (gsum < -30) h += '<div class="cutbox ok"><h3>관리 항목은 이미 덜 씁니다<small>비슷한 10곳과 견주어</small></h3><p class="cutn">세대당 연 <b>' + man(-gsum * sup * 12) + '</b> 적게 냅니다</p>' + gbar + '<p class="anote" style="margin-top:10px">경비·청소·일반관리·승강기 유지·수선유지 다섯 항목 합계 기준, 전용 ' + Math.round(ex) + '㎡ 어림.</p></div>';
     }
+    h += '<div class="cncl" hidden></div>';
     if (o.ga && o.pf && o.pf.length) {
       var hiM = o.s.reduce(function (a, x) { return x[1] > a[1] ? x : a; }), loM = o.s.reduce(function (a, x) { return x[1] < a[1] ? x : a; });
       h += '<h3>평형별 한 달 관리비<small>2026년 1~9월 평균 · 세대 몫 어림</small></h3><table class="br ptype"><thead><tr><th>전용</th><th class="hide">세대</th><th>면적대로 나뉘는 몫</th><th>쓰는 만큼 (평균)</th><th>합계</th><th class="hide">가장 싼 달 ~ 비싼 달</th></tr></thead><tbody>' +
@@ -105,12 +106,50 @@
       (o.chk ? '<li>비슷한 집과 차이가 매우 커서 공개 자료 확인이 필요한 단지</li>' : '') +
       '<li>자료: 국토교통부 공동주택관리정보시스템 (2026년 11월 20일)</li></ul></details>';
     box.innerHTML = h;
+    council(box, o, root);
     box.querySelector('.fbig').appendChild(faceSvg(o.lv, box.clientWidth < 500 ? 72 : 92));
     box.querySelector('.achart').appendChild(chart(o, box.querySelector('.achart').clientWidth));
     box.querySelectorAll('[data-f]').forEach(function (td) { td.appendChild(faceSvg(+td.getAttribute('data-f'), 30)); });
     draw3d(box, o, root);
     drawMap(box, o, root);
     watch(box);
+  }
+
+  /* 2026-11-22 대표회의 보고서 미리보기 — 대표 「공개하되 모자이크 처리하여 궁금하게」.
+     가린 칸에는 실제 낙찰가를 넣지 않는다(자리만 채운 숫자를 흐리게). 실제 값은 보고서에만 적는다.
+     가린 칸은 비슷한 단지 낙찰이 12건 이상 있는 단지에만 낸다(data/acb/bidref.json 은 건수만 담음). */
+  var CAPI = 'https://script.google.com/macros/s/AKfycbyTMw196qwKBmpz_TA3erW4OcBsmRFWTYioecO5evjq4poPOEXpyqkSKZZ91eTHWUI-/exec', BREF = null;
+  function council(box, o, root) {
+    var el = box.querySelector('.cncl'); if (!el || !o.b || !o.pf || !o.pf.length) return;
+    (BREF || (BREF = fetch(root + 'data/acb/bidref.json?v=20261122a').then(function (r) { return r.ok ? r.json() : {}; }).catch(function () { return {}; }))).then(function (R) {
+      var n = R[o.c] || [0, 0], area = 0; o.pf.forEach(function (q) { area += q[0] * q[1] * (o.k || 1.3); });
+      var mz = function (cur) { return '<span class="mz" aria-hidden="true">' + (cur >= 1e8 ? '0.00억 원' : '0,000만 원') + '</span><span class="sr">보고서에 적혀 있습니다</span>'; };
+      var rows = ['경비', '청소'].map(function (k, i) {
+        var cur = (o.b[k] || 0) * area * 12; if (cur <= 0 || !n[i]) return '';
+        return '<tr><td>' + k + '</td><td>' + man(Math.round(cur / 1e5) * 1e5) + '</td><td>' + mz(cur) + '</td><td>' + mz(cur / 10) + '</td><td class="hide">' + n[i].toLocaleString('ko-KR') + '건</td></tr>';
+      }).join('');
+      if (!rows) return;
+      el.innerHTML = '<h3>입주자대표회의 보고서<small>회의 안건으로 바로 올리는 4쪽</small></h3>' +
+        '<p class="csay">비슷한 단지가 <b>실제로 계약한 낙찰가</b>와 우리 단지를 나란히 놓은 보고서입니다. 가려진 숫자는 보고서에 적혀 있습니다.</p>' +
+        '<table class="br"><thead><tr><th>용역</th><th>우리 단지 지금 (연)</th><th>비슷한 단지 낙찰가 (가운데)</th><th>차이</th><th class="hide">낙찰 건수</th></tr></thead><tbody>' + rows + '</tbody></table>' +
+        '<ol class="ctoc"><li>요약과 안건 문안</li><li>항목별 비교</li><li>다음 입찰 때 견줄 값</li><li>우리 단지 입찰 기록</li></ol>' +
+        '<div class="cform"><input type="text" class="cn" placeholder="이름" autocomplete="name" aria-label="이름"><input type="tel" class="cp" placeholder="휴대폰 010-0000-0000" inputmode="tel" autocomplete="tel" aria-label="휴대폰"><button type="button" class="cb">이 단지 보고서 받기</button></div>' +
+        '<label class="cag"><input type="checkbox" class="ca"> 보고서를 받기 위해 이름·휴대폰·단지 이름을 집지니에 보내는 데 동의합니다 (<a href="' + root + 'privacy.html">처리방침</a>, 1년 보관).</label>' +
+        '<p class="cmsg" role="status"></p>' +
+        '<p class="anote" style="margin-top:14px">무료입니다. 같은 시·도에서 세대수가 비슷한 단지의 2024~2026년 낙찰 공고 기준이며, 계약 기간이 섞여 있어 참고값입니다. 자료: 국토교통부 공동주택관리정보시스템.</p>';
+      el.hidden = false;
+      var msg = el.querySelector('.cmsg'), btn = el.querySelector('.cb');
+      btn.addEventListener('click', function () {
+        var nm = el.querySelector('.cn').value.trim(), ph = el.querySelector('.cp').value.replace(/\s/g, '');
+        if (!nm || !/^01[016789]-?\d{3,4}-?\d{4}$/.test(ph)) { msg.className = 'cmsg er'; msg.textContent = '이름과 휴대폰 번호를 확인해 주세요.'; return; }
+        if (!el.querySelector('.ca').checked) { msg.className = 'cmsg er'; msg.textContent = '보내기 동의에 표시해 주세요.'; return; }
+        btn.disabled = true; msg.className = 'cmsg'; msg.textContent = '보내는 중…';
+        var body = JSON.stringify({ jjf: 1, kind: 'council', act: 'ask', at: new Date().toISOString(), ref: location.pathname, name: nm, phone: ph, apt: { code: o.c, name: o.n, gu: o.g || '' }, homes: o.h || 0 });
+        fetch(CAPI, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: body, keepalive: true })
+          .then(function () { msg.className = 'cmsg ok'; msg.textContent = '접수했습니다. 확인한 뒤 하루 안에(밤에는 다음 날 아침) 보고서 주소를 문자로 보내드립니다.'; try { gtag('event', 'acb_council', { apt: o.c }); } catch (_g) {} })
+          .catch(function () { msg.className = 'cmsg er'; msg.textContent = '보내지 못했습니다. 010-9806-0422 로 문자 주세요.'; btn.disabled = false; });
+      });
+    });
   }
 
   var IDXP = null;

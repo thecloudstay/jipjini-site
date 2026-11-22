@@ -108,3 +108,18 @@
 .acb .cutbar i{display:block;height:12px;border-radius:2px;min-width:2px}
 .acb .cutbar b{font-weight:600;text-align:right;font-variant-numeric:tabular-nums}
 @media (max-width:760px){.acb .cutn b{font-size:28px}.acb .cutbar p{grid-template-columns:92px 1fr 96px;gap:8px;font-size:13px}}
+
+/* 2026-11-22 대표회의 보고서 미리보기 */
+.acb .cncl{margin-top:38px;padding:4px 0 24px;border-top:1px solid var(--jj-ink,#1C1F1B);border-bottom:1px solid var(--jj-rule,#DCDFD8)}
+.acb .cncl h3{margin-top:22px}
+.acb .cncl .csay{margin:10px 0 18px;font-size:15.5px;line-height:1.85}
+.acb .cncl .mz{display:inline-block;filter:blur(6px);-webkit-user-select:none;user-select:none;font-weight:600;letter-spacing:.5px}
+.acb .cncl .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.acb .cncl .ctoc{margin:18px 0 0;padding:0;list-style:none;display:flex;flex-wrap:wrap;gap:6px 22px;font-size:13.5px;color:var(--jj-pencil,#6B7067);counter-reset:c}
+.acb .cncl .ctoc li{counter-increment:c}.acb .cncl .ctoc li:before{content:counter(c) "쪽 ";color:var(--jj-green,#1F5E2E);font-weight:600}
+.acb .cncl .cform{display:flex;flex-wrap:wrap;gap:10px;margin-top:22px}
+.acb .cncl .cform input{flex:1 1 160px;min-width:0;padding:12px 12px;font:inherit;font-size:15px;border:1px solid var(--jj-rule,#DCDFD8);border-radius:4px;background:#fff;color:var(--jj-ink,#1C1F1B)}
+.acb .cncl .cb{flex:0 0 auto;padding:12px 20px;font:inherit;font-size:15px;font-weight:600;color:#fff;background:var(--jj-green,#1F5E2E);border:0;border-radius:4px;cursor:pointer}
+.acb .cncl .cb:disabled{opacity:.5}
+.acb .cncl .cag{display:block;margin-top:12px;font-size:13px;line-height:1.7;color:var(--jj-pencil,#6B7067)}
+.acb .cncl .cmsg{margin-top:10px;font-size:14px;min-height:1em}.acb .cncl .cmsg.er{color:#B3261E}.acb .cncl .cmsg.ok{color:var(--jj-green,#1F5E2E)}
