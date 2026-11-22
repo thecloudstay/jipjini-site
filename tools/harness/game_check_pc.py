@@ -26,12 +26,19 @@ def idle_seconds():
         return 0
 
 
+def flag_on():
+    """게임모드.bat 이 남기는 game_on.txt — 6시간 안이고 내용이 off 가 아니면 켜진 것. (2026-11-22: 파일을 지울 수 없는 쪽에서도 off 라고 적어 끌 수 있게)"""
+    p = os.path.join(BASE, "game_on.txt")
+    try:
+        if time.time() - os.path.getmtime(p) >= 6 * 3600: return False
+        return not open(p, encoding="utf-8", errors="ignore").read().strip().lower().startswith("off")
+    except OSError:
+        return False
+
+
 def gaming(tasklist_out=None):
     if os.name != "nt": return False
-    try:
-        if time.time() - os.path.getmtime(os.path.join(BASE, "game_on.txt")) < 6 * 3600: return True
-    except OSError:
-        pass
+    if flag_on(): return True
     out = tasklist_out
     if out is None:
         try:

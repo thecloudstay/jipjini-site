@@ -248,7 +248,8 @@ def run_items(n, shard, busy):
     def _again(v): return (v or {}).get("판") != ver or ((v or {}).get("판정") == "오류" and (v or {}).get("오류횟수", 1) < 3)
     todo = [r for r in rows if _again(st.get("%s_%s" % (r["단지코드"], r["평형"])))]
     random.seed(int(time.time())); random.shuffle(todo)
-    never = [r for r in todo if "%s_%s" % (r["단지코드"], r["평형"]) not in st]
+    # 2026-11-22 오류 장(11-15 브라우저 기동 실패 10,724장)은 한 번도 변환해 보지 못한 장이다 → 「안 한 것」과 같은 줄에 섞는다(예전에는 안 한 것 1만 6천 장 뒤라 9일을 기다려야 했다)
+    never = [r for r in todo if "%s_%s" % (r["단지코드"], r["평형"]) not in st or (st.get("%s_%s" % (r["단지코드"], r["평형"])) or {}).get("판정") == "오류"]
     # 2026-11-13 대표 제안 「우선 벌크로 싹 다 변환한 다음 클로드가 직접 찾는 방식」:
     #  ① 한 번도 안 바꾼 것 전부 먼저(장수 0 = 끝까지)  ② 판이 바뀌면 떨어진 것(출고보류·예외·오류)만 다시  ③ 이미 통과한 것은 맨 뒤
     #  — 고칠 때마다 8천 장을 처음부터 다시 돌리던 것(70시간 남짓)을 떨어진 것만 다시 돌게
