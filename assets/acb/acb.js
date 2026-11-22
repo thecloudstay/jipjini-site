@@ -57,8 +57,8 @@
     var ex = main ? main[0] : 84, sup = ex * (o.k || 1.3), mon = diff * sup;
     var big = o.lv >= 4, same = o.lv == 3;
     var say = same
-      ? '비슷한 집 10곳과 거의 같습니다. ㎡당 <b>' + won(o.m2) + '</b>, 비슷한 집 가운데값은 ' + won(o.pmed) + '입니다.'
-      : '비슷한 집 10곳보다 ㎡당 <b class="' + (diff > 0 ? 'up' : 'dn') + '">' + won(Math.abs(diff)) + ' ' + (diff > 0 ? '더' : '덜') + '</b> 냅니다 (' + (pct > 0 ? '+' : '') + pct + '%). 전용 ' + Math.round(ex) + '㎡ 세대로 치면 한 달 약 <b class="' + (diff > 0 ? 'up' : 'dn') + '">' + man(mon) + '</b>, 1년 약 ' + man(mon * 12) + '입니다.';
+      ? '㎡당 <b>' + won(o.m2) + '</b> · 비슷한 10곳 가운데값 ' + won(o.pmed) + ' · 차이 거의 없음'
+      : '비슷한 10곳보다 ㎡당 <b class="' + (diff > 0 ? 'up' : 'dn') + '">' + won(Math.abs(diff)) + ' ' + (diff > 0 ? '더' : '덜') + '</b> (' + (pct > 0 ? '+' : '') + pct + '%)<br>전용 ' + Math.round(ex) + '㎡ 기준 월 <b class="' + (diff > 0 ? 'up' : 'dn') + '">' + man(mon) + '</b> · 연 ' + man(mon * 12);
     var h = '<h2>' + esc(o.n) + ' 관리비 <small>집지니 아관비 지수</small></h2>';
     h += '<div class="ahead"><div class="fbig"></div><div><p class="lvn" style="color:' + C[o.lv] + '">' + NAME[o.lv] + '<small>지수 ' + o.ix + '</small></p><p class="say">' + say + '</p></div></div>';
     h += '<div class="scale5">' + [1, 2, 3, 4, 5].map(function (t) { return '<span' + (t == o.lv ? ' class="on" style="border-color:' + C[t] + '"' : ' style="border-color:' + C[t] + '55"') + '>' + NAME[t] + '<br>' + RANGE[t] + '</span>'; }).join('') + '</div>';
@@ -69,7 +69,7 @@
           var sp = p[0] * (o.k || 1.3);
           return '<tr><td>' + Math.round(p[0]) + '㎡ <small>약 ' + Math.round(sp / 3.3058) + '평</small></td><td class="hide">' + p[1].toLocaleString('ko-KR') + '</td><td>' + man(o.ga * sp) + '</td><td>' + man(o.iu * sp) + '</td><td><b>' + man((o.ga + o.iu) * sp) + '</b></td><td class="hide">' + man(o.lo * sp) + ' ~ ' + man(o.hi * sp) + '</td></tr>';
         }).join('') + '</tbody></table>' +
-        '<p class="anote" style="margin-top:8px">쓰는 만큼은 단지 평균이라 집마다 다릅니다. 가장 비싼 달 ' + (+hiM[0].slice(2)) + '월, 가장 싼 달 ' + (+loM[0].slice(2)) + '월.</p>';
+        '<p class="anote" style="margin-top:8px">사용료는 단지 평균 · 최고 ' + (+hiM[0].slice(2)) + '월 · 최저 ' + (+loM[0].slice(2)) + '월</p>';
     }
     h += '<h3>달마다 ㎡당 관리비<small>우리 단지와 비슷한 집 가운데값</small></h3><div class="achart"></div><div class="lg"><span><i style="border-color:' + C[o.lv] + '"></i>' + esc(o.n) + '</span><span><i class="p"></i>비슷한 집 10곳 가운데값</span></div>';
     var keys = Object.keys(o.b).filter(function (k) { return o.b[k] || o.pb[k]; }), mx = 1;
@@ -85,8 +85,8 @@
     h += '<h3>비슷한 집 10곳<small>' + esc(o.n) + '은 11곳 가운데 싼 순서로 ' + rank + '번째</small></h3><table class="br peer"><thead><tr><th></th><th style="text-align:left">단지</th><th class="hide">준공</th><th class="hide">세대</th><th>㎡당</th><th>지수</th></tr></thead><tbody>' + rows.map(function (r) {
       return '<tr' + (r.me ? ' class="me"' : '') + '><td data-f="' + r.lv + '" style="width:40px"></td><td class="nm">' + (r.me ? esc(r.n) : '<a href="' + root + 'acb/?c=' + r.c + '">' + esc(r.n) + '</a>') + '<small>' + esc(r.g) + '</small></td><td class="hide">' + r.y + '</td><td class="hide">' + r.h.toLocaleString('ko-KR') + '</td><td>' + won(r.m2) + '</td><td style="color:' + C[r.lv] + '">' + r.ix + '</td></tr>';
     }).join('') + '</tbody></table>';
-    h += '<div data-d3wrap><h3>우리 단지 입체<small>동마다 실제 높이로 세웠습니다. 동을 누르면 층수가 나옵니다</small></h3><div class="a3d"></div><p class="a3dsrc">자료: 국토교통부 건물통합정보</p></div>';
-    h += '<h3>옆 아파트 지도<small>얼굴을 누르면 단지 이름과 관리비가 나옵니다</small></h3><div class="amap"></div>';
+    h += '<div data-d3wrap><h3>단지 입체도<small>동별 실제 높이</small></h3><div class="a3d"></div><p class="a3dsrc">자료: 국토교통부 건물통합정보</p></div>';
+    h += '<h3>주변 단지 관리비<small>반경 1km</small></h3><div class="amap"></div>';
     h += '<details class="how"><summary>계산 방법과 자료</summary><ul>' +
       '<li>비슷한 집: 같은 시·도에서 난방 방식(' + esc(o.heat || '') + ')·분양 형태가 같고, 준공 연도·세대수·평균 전용면적이 가장 가까운 10곳</li>' +
       '<li>개별난방 단지는 가스 난방비가 관리비에 안 들어가서 개별난방끼리만 비교</li>' +
@@ -121,7 +121,7 @@
     var el = box.querySelector('.a3d'); if (!el) return;
     function go() { window.JJd3.mount(el, o.c, root, {}); }
     if (window.JJd3) return go();
-    var sc = document.createElement('script'); sc.src = root + 'assets/acb/d3.js?v=20261122a'; sc.onload = go; sc.onerror = function () { el.parentNode.hidden = true; }; document.head.appendChild(sc);
+    var sc = document.createElement('script'); sc.src = root + 'assets/acb/d3.js?v=20261122b'; sc.onload = go; sc.onerror = function () { el.parentNode.hidden = true; }; document.head.appendChild(sc);
   }
   function drawMap(box, o, root) {
     var m = box.querySelector('.amap'); if (!m) return;

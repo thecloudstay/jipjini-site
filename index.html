@@ -130,12 +130,12 @@
 <!-- 단지 입체 (2026-11-22 대표 「메인에 크게, 보여주기 먼저」) -->
 <section class="d3h" id="d3">
   <div class="d3hh">
-    <div><h2>우리 단지를 입체로 봅니다</h2>
-    <p class="d3hs">동마다 실제 높이로 세웠습니다. 끌면 돌아가고, 동을 누르면 층수가 나옵니다.</p></div>
-    <div class="d3hq"><input id="d3in" type="search" placeholder="아파트 이름 (예: 잠실엘스)" autocomplete="off" aria-label="단지 찾기"><ul id="d3list"></ul></div>
+    <div><h2>단지 입체도</h2>
+    <p class="d3hs">수도권 5,393단지 · 동별 실제 높이</p></div>
+    <div class="d3hq"><input id="d3in" type="search" placeholder="아파트 이름" autocomplete="off" aria-label="단지 찾기"><ul id="d3list"></ul></div>
   </div>
   <div class="a3d d3big" id="d3box"></div>
-  <p class="d3hf"><b id="d3name">잠실엘스아파트</b><span id="d3msg">서울 송파구 · 수도권 5,393단지 준비됨</span><a id="d3go" href="acb/?c=A13822004" data-ev="home_d3">이 단지 관리비 보기</a><small>자료: 국토교통부 건물통합정보</small></p>
+  <p class="d3hf"><b id="d3name">잠실엘스아파트</b><span id="d3msg">서울 송파구</span><a id="d3go" href="acb/?c=A13822004" data-ev="home_d3">관리비 보기</a><small>자료: 국토교통부 건물통합정보</small></p>
 </section>
 
 <section class="go4" id="go">
@@ -193,9 +193,9 @@
 <!-- 아관비 — 아파트 관리비 비교 (2026-11-21) -->
 <section class="acbh" id="acb">
   <h2>옆 아파트 관리비는 얼마나 나올까?</h2>
-  <p class="acbhs">수도권 9,620단지 관리비를 연식·세대수·평형·난방 방식이 비슷한 10곳과 견주어 얼굴로 보여 드립니다. 국토교통부 공개 자료, 2026년 1~9월.</p>
+  <p class="acbhs">수도권 9,620단지 · 비슷한 10곳과 ㎡당 비교 · 국토교통부 2026년 1~9월</p>
   <div class="acbhf" id="acbhf"></div>
-  <a class="acbhb" href="acb/" data-ev="home_acb">우리 단지 관리비 보기</a>
+  <a class="acbhb" href="acb/" data-ev="home_acb">우리 단지 찾기</a>
 </section>
 
 <!-- 사고 접수 · 경매 분석 (2026-11-16 대표 「보험 처리·경매 고객 칸을 따로, 가시성 있게」) -->
@@ -782,15 +782,15 @@ var hdr=document.querySelector("header, .site-header, nav.site-nav, .navbar, .na
 .acbhb{display:inline-block;margin-top:22px;padding:13px 22px;background:var(--jj-ink,#1C1F1B);color:#fff;border-radius:4px;text-decoration:none;font-weight:600}
 @media (max-width:640px){.acbhf .r{display:none}.acbhf svg{width:40px;height:40px}.acbhf em{font-size:16px}.acbhf b{font-size:13px}}
 </style>
-<link rel="stylesheet" href="assets/acb/acb.css?v=20261122a"><script src="assets/acb/acb.js?v=20261122a" defer></script>
-<script src="assets/acb/d3.js?v=20261122a" defer></script>
+<link rel="stylesheet" href="assets/acb/acb.css?v=20261122b"><script src="assets/acb/acb.js?v=20261122b" defer></script>
+<script src="assets/acb/d3.js?v=20261122b" defer></script>
 <script>
 document.addEventListener('DOMContentLoaded',function(){
   var box=document.getElementById('d3box'); if(!box||!window.JJd3) return;
   var IDX=null,inp=document.getElementById('d3in'),ul=document.getElementById('d3list'),nm=document.getElementById('d3name'),msg=document.getElementById('d3msg'),go=document.getElementById('d3go');
   function show(c,name,gu,spin){ JJd3.mount(box,c,'',{spin:spin,done:function(){nm.textContent=name;msg.textContent=gu;go.href='acb/?c='+c;go.hidden=false;},
-    fail:function(){msg.textContent=name+' 단지는 입체 자료를 준비하고 있습니다';}}); }
-  show('A13822004','잠실엘스아파트','서울 송파구 · 수도권 5,393단지 준비됨',true);
+    fail:function(){msg.textContent=name+' · 준비 중';}}); }
+  show('A13822004','잠실엘스아파트','서울 송파구',true);
   function idx(){return IDX?Promise.resolve(IDX):fetch('data/acb/index.json').then(function(r){return r.json()}).then(function(j){IDX=j;return j});}
   var t; inp.addEventListener('input',function(){clearTimeout(t);t=setTimeout(function(){var q=inp.value.replace(/\s/g,'');if(q.length<2){ul.textContent='';return}
     idx().then(function(j){ul.textContent='';var n=0;for(var c in j){var e=j[c];if((e[0]+e[1]).replace(/\s/g,'').indexOf(q)<0)continue;

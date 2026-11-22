@@ -2,7 +2,7 @@
    JJd3.mount(상자, 단지코드, 뿌리경로, {spin:true}) — 자료가 없으면 상자를 감춘다. 쓰리제이에스는 화면에 들어올 때 불러온다. */
 (function () {
   'use strict';
-  var V = '20261122a', lib = null;
+  var V = '20261122b', lib = null;
   function load(root) {
     if (lib) return lib;
     function one(src) { return new Promise(function (ok, no) { var s = document.createElement('script'); s.src = src; s.onload = ok; s.onerror = no; document.head.appendChild(s); }); }
@@ -12,10 +12,10 @@
   function css(n, d) { var v = getComputedStyle(document.documentElement).getPropertyValue(n).trim(); return v || d; }
   function draw(box, B, opt) {
     var T = window.THREE, cv = document.createElement('canvas'), tip = document.createElement('div'), cap = document.createElement('p');
-    cv.setAttribute('aria-label', '단지 입체 그림. 끌면 돌아가고 동을 누르면 층수와 높이가 나옵니다'); cv.tabIndex = 0;
+    cv.setAttribute('aria-label', '단지 입체도'); cv.tabIndex = 0;
     tip.className = 'd3tip'; tip.hidden = true; cap.className = 'd3cap';
     var big = B.filter(function (b) { return b.f >= 3; }), fs = big.map(function (b) { return b.f; });
-    cap.textContent = big.length + '동 · ' + (Math.min.apply(0, fs) === Math.max.apply(0, fs) ? Math.max.apply(0, fs) + '층' : Math.min.apply(0, fs) + '~' + Math.max.apply(0, fs) + '층') + ' · 끌면 돌아갑니다';
+    cap.textContent = big.length + '동 · ' + (Math.min.apply(0, fs) === Math.max.apply(0, fs) ? Math.max.apply(0, fs) + '층' : Math.min.apply(0, fs) + '~' + Math.max.apply(0, fs) + '층');
     box.appendChild(cv); box.appendChild(tip); box.appendChild(cap);
     var R = new T.WebGLRenderer({ canvas: cv, antialias: true }); R.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
     var S = new T.Scene(), C = new T.PerspectiveCamera(36, 1, 1, 20000), K = new T.OrbitControls(C, cv);

@@ -59,12 +59,12 @@
 </div>
 
 <h2>우리 단지 승강기 교체하면 얼마?</h2>
-<p class="sub">단지 이름을 넣으면 공개된 승강기 대수 × 대당 가운데값으로 계산합니다. 장기수선계획 다시 짤 때 예산 잡는 용도입니다.</p>
+<p class="sub">승강기 대수 × 대당 가운데값 · 장기수선계획 예산용</p>
 <div class="q"><input id="qi" type="search" placeholder="아파트 이름 (예: 래미안, 주공)" autocomplete="off" aria-label="단지 찾기"><ul id="ql"></ul></div>
 <div class="res" id="res"></div>
 
 <h2>대당 낙찰가 분포</h2>
-<p class="sub">점 하나가 공사 한 건입니다. 가운데 굵은 선이 가운데값.</p>
+<p class="sub">점 1개 = 공사 1건 · 굵은 선 = 가운데값</p>
 <div class="strip" id="strip"></div>
 
 <h2>연식·지역별</h2>
@@ -102,13 +102,13 @@
   var qi=document.getElementById('qi'),ql=document.getElementById('ql'),res=document.getElementById('res'),tm;
   function idx(){return Promise.all([I||fetch('../../data/acb/index.json').then(function(r){return r.json()}).then(function(j){I=j;return j}),EST||fetch('../../data/acb/bid/out/ev_est.json').then(function(r){return r.json()}).then(function(j){EST=j;return j})]);}
   function show(c){if(!E)return setTimeout(function(){show(c)},300);idx().then(function(){var e=I[c],x=EST[c],t=E.기준표.전체;if(!e)return;ql.innerHTML='';qi.value=e[0];res.style.display='block';
-    if(!x){res.innerHTML='<h3>'+esc(e[0])+'</h3><p>공개된 승강기 대수가 없어 계산하지 못했습니다.</p>';return}
+    if(!x){res.innerHTML='<h3>'+esc(e[0])+'</h3><p>승강기 대수 자료 없음</p>';return}
     var done=E.건.filter(function(d){return d.c===c})[0];
     res.innerHTML='<h3>'+esc(e[0])+' <small style="color:#6B7067;font-weight:400">'+esc(e[1])+'</small></h3>'+
       '<p>승강기 '+x[0]+'대 전면 교체 예상</p><p><b class="m">약 '+won(x[1])+' 원</b></p>'+
       '<p>범위 '+won(t.하위25*x[0])+' ~ '+won(t.상위25*x[0])+' 원 (대당 하위 25% ~ 상위 25%)</p>'+
-      (done?'<p>이 단지는 '+done.d+'에 대당 '+won(done.대당)+' 원으로 낙찰된 교체 공사가 있습니다.</p>':'')+
-      '<p><a href="../?c='+c+'">이 단지 관리비 보기</a></p>';});}
+      (done?'<p>이 단지 낙찰 이력: '+done.d+' · 대당 '+won(done.대당)+' 원</p>':'')+
+      '<p><a href="../?c='+c+'">관리비 보기</a></p>';});}
   qi.addEventListener('input',function(){clearTimeout(tm);tm=setTimeout(function(){var q=qi.value.replace(/\s/g,'');if(q.length<2){ql.innerHTML='';return}
     idx().then(function(){var h=[];for(var c in I){if((I[c][0]+I[c][1]).replace(/\s/g,'').indexOf(q)>=0)h.push(c);if(h.length>=20)break}
       ql.innerHTML=h.map(function(c){return '<li><a href="?c='+c+'" data-c="'+c+'"><span>'+esc(I[c][0])+'</span><small>'+esc(I[c][1])+'</small></a></li>'}).join('');
