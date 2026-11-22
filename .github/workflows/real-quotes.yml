@@ -44,4 +44,5 @@ jobs:
           git config user.email "thecloudstay@gmail.com"
           git add -A
           git commit -m "사이트 자동 갱신 (실견적·검색 쪽·카드·지도)" || echo "바뀐 것 없음"
-          git push
+          # 2026-11-22 도는 사이 다른 올리기가 끼면 거절되던 문제 — 받아 얹고 세 번까지 다시
+          for i in 1 2 3; do git push && break; git pull --rebase -X theirs origin main || git rebase --abort; sleep 5; done
