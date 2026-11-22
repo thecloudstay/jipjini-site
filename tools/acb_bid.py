@@ -128,13 +128,14 @@ def main():
     won = []
     for y in YEARS:
         for r in rd(os.path.join(OUT, f"all_{y}.json.gz"), []):
-            if str(r.get("bidState")) == "5" and r["bidNum"] not in bd:
+            # 2026-11-22 kg2b_ 로 시작하는 번호(나라장터 연계 공고)는 응찰 조회가 답 없이 43초씩 끌다 끊긴다 — 금액 큰 순 맨 앞에 몰려 있어 40번 만에 멈추던 원인. 건너뛴다.
+            if str(r.get("bidState")) == "5" and r["bidNum"] not in bd and not str(r["bidNum"]).startswith("kg2b"):
                 try: a = float(r.get("amount") or 0)
                 except Exception: a = 0
                 won.append((a, r["bidNum"]))
     won.sort(reverse=True)
     bd = {k: v for k, v in bd.items() if v}   # 예전에 저장된 빈 답은 버린다
-    n0 = len(bd); tried = got = 0
+    n0 = len(bd); tried = got = miss = 0
     for a, num in won:
         if calls >= MAXCALL: break
         raw = get("getBidEntrpsInfoSearchV3", bidNum=num, pageNo=1, numOfRows=100)
@@ -143,14 +144,15 @@ def main():
         if it:
             # 빈 답은 저장하지 않는다(다음에 다시 받게). 2026-11-22: 3,500건이 모두 빈 답으로 저장된 원인 추적
             bd[num] = [[p.get("companyName"), (p.get("bidSuccessfulYn") or "")[:1]] for p in it]
-            got += 1
+            got += 1; miss = 0
             if got == 1: print("응찰 첫 답 칸", sorted(it[0].keys()), flush=True)
             if len(bd) % 500 == 0:
                 wr(bf, bd); print("응찰", len(bd), flush=True)
-        elif tried <= 3:
-            print("빈 답 원문", num, json.dumps(raw, ensure_ascii=False)[:600], flush=True)
-        if tried >= 40 and got == 0:
-            print("응찰 답이 모두 비어 멈춤 — 한도 아끼기", flush=True); break
+        else:
+            miss += 1
+            if tried <= 3: print("빈 답 원문", num, json.dumps(raw, ensure_ascii=False)[:600], flush=True)
+        if miss >= 40:
+            print("응찰 답이 40번 잇달아 비어 멈춤 — 한도 아끼기 · 받은 것", got, flush=True); break
     wr(bf, bd)
     wr(os.path.join(OUT, "state.json.gz"), st)
     print("응찰 붙임", len(bd) - n0, "남은 낙찰", max(0, len(won) - (len(bd) - n0)), "부른 횟수", calls)
