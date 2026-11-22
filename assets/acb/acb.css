@@ -96,3 +96,15 @@
 .acb .omapbar i{display:block;height:100%;transition:width .25s}
 .acb .omapleg{display:flex;flex-wrap:wrap;gap:4px 16px;margin:0;font-size:13px;color:var(--jj-pencil,#6B7067);font-variant-numeric:tabular-nums}
 .acb .omapleg b{font-weight:600}
+/* 2026-11-22 줄일 수 있는 돈 */
+.acb .cutbox{margin-top:34px;padding:4px 0 22px;border-top:1px solid var(--jj-ink,#1C1F1B);border-bottom:1px solid var(--jj-rule,#DCDFD8)}
+.acb .cutbox h3{margin-top:22px}
+.acb .cutn{font-size:19px;line-height:1.5;margin:12px 0 18px;display:flex;flex-wrap:wrap;gap:6px 28px;align-items:baseline}
+.acb .cutn b{font-size:34px;font-weight:700;color:#B4321F;font-variant-numeric:tabular-nums;margin:0 2px}
+.acb .cutn span{font-size:15px;color:var(--jj-pencil,#6B7067)}.acb .cutn span b{font-size:19px;color:var(--jj-ink,#1C1F1B)}
+.acb .cutbox.ok .cutn b{color:var(--jj-green,#1F5E2E)}
+.acb .cutbar p{display:grid;grid-template-columns:150px 1fr 120px;gap:12px;align-items:center;margin:7px 0;font-size:14px}
+.acb .cutbar span{color:var(--jj-pencil,#6B7067);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.acb .cutbar i{display:block;height:12px;border-radius:2px;min-width:2px}
+.acb .cutbar b{font-weight:600;text-align:right;font-variant-numeric:tabular-nums}
+@media (max-width:760px){.acb .cutn b{font-size:28px}.acb .cutbar p{grid-template-columns:92px 1fr 96px;gap:8px;font-size:13px}}

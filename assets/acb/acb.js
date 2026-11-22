@@ -62,6 +62,16 @@
     var h = '<h2>' + esc(o.n) + ' 관리비 <small>집지니 아관비 지수</small></h2>';
     h += '<div class="ahead"><div class="fbig"></div><div><p class="lvn" style="color:' + C[o.lv] + '">' + NAME[o.lv] + '<small>지수 ' + o.ix + '</small></p><p class="say">' + say + '</p></div></div>';
     h += '<div class="scale5">' + [1, 2, 3, 4, 5].map(function (t) { return '<span' + (t == o.lv ? ' class="on" style="border-color:' + C[t] + '"' : ' style="border-color:' + C[t] + '55"') + '>' + NAME[t] + '<br>' + RANGE[t] + '</span>'; }).join('') + '</div>';
+    // 2026-11-22 줄일 수 있는 돈 — 「나가는 돈을 줄여 주는 지니」: 관리 방식으로 바꿀 수 있는 다섯 항목을 비슷한 10곳 가운데값까지 낮췄을 때
+    //   항목 나누는 법이 단지마다 달라(경비를 일반관리에 넣는 단지 등) 다섯을 합쳐서 본다. 쓰는 만큼 내는 난방·전기·수도와, 쌓아 두는 장충금은 뺀다.
+    var MG = ['경비', '청소', '일반관리', '승강기', '수선유지'], gsum = 0, gme = 0, gpe = 0;
+    MG.forEach(function (k) { gme += (o.b && o.b[k]) || 0; gpe += (o.pb && o.pb[k]) || 0; }); gsum = gme - gpe;
+    if (o.b && o.pb && gpe > 0) {
+      var tot = 0; (o.pf || []).forEach(function (q) { tot += q[0] * q[1] * (o.k || 1.3); });
+      var gmx = Math.max(gme, gpe), gbar = '<div class="cutbar"><p><span>' + esc(o.n) + '</span><i style="width:' + (gme / gmx * 100) + '%;background:' + C[o.lv] + '"></i><b>㎡당 ' + won(gme) + '</b></p><p><span>비슷한 10곳</span><i style="width:' + (gpe / gmx * 100) + '%;background:#C9CDC4"></i><b>㎡당 ' + won(gpe) + '</b></p></div>';
+      if (gsum > 30) h += '<div class="cutbox"><h3>줄일 수 있는 돈<small>비슷한 10곳 수준까지 낮추면</small></h3><p class="cutn">세대당 연 <b>' + man(gsum * sup * 12) + '</b>' + (tot ? '<span>단지 전체 연 <b>' + man(Math.round(gsum * tot * 12 / 1e5) * 1e5) + '</b></span>' : '') + '</p>' + gbar + '<p class="anote" style="margin-top:10px">경비·청소·일반관리·승강기 유지·수선유지 다섯 항목 합계 기준, 전용 ' + Math.round(ex) + '㎡ 어림. 난방·전기·수도와 장기수선충당금은 뺐습니다.</p></div>';
+      else if (gsum < -30) h += '<div class="cutbox ok"><h3>관리 항목은 이미 덜 씁니다<small>비슷한 10곳과 견주어</small></h3><p class="cutn">세대당 연 <b>' + man(-gsum * sup * 12) + '</b> 적게 냅니다</p>' + gbar + '<p class="anote" style="margin-top:10px">경비·청소·일반관리·승강기 유지·수선유지 다섯 항목 합계 기준, 전용 ' + Math.round(ex) + '㎡ 어림.</p></div>';
+    }
     if (o.ga && o.pf && o.pf.length) {
       var hiM = o.s.reduce(function (a, x) { return x[1] > a[1] ? x : a; }), loM = o.s.reduce(function (a, x) { return x[1] < a[1] ? x : a; });
       h += '<h3>평형별 한 달 관리비<small>2026년 1~9월 평균 · 세대 몫 어림</small></h3><table class="br ptype"><thead><tr><th>전용</th><th class="hide">세대</th><th>면적대로 나뉘는 몫</th><th>쓰는 만큼 (평균)</th><th>합계</th><th class="hide">가장 싼 달 ~ 비싼 달</th></tr></thead><tbody>' +
