@@ -238,7 +238,11 @@
       if (base) {
         g.fillStyle = '#E6ECEE'; g.fillRect(0, 0, W, H);                                   // 바다
         g.beginPath(); base.land.forEach(ring); g.fillStyle = '#FBFBF8'; g.fill('evenodd');   // 땅
-        g.beginPath(); base.sgg.forEach(function (s) { s.r.forEach(ring); }); g.strokeStyle = '#D3D8CE'; g.lineWidth = z < 900 ? .6 : 1; g.lineJoin = 'round'; g.stroke();   // 시군구 경계
+        // 2026-11-22 대표 「동 구분이 없어 어디쯤인지 모르겠다」: 가까이 보면 읍면동 경계와 이름(행정동, 통계청 2018) — 가까이 볼 때만 따로 받아 온다
+        if (z >= 2200 && !ownMap.dong && !ownMap.dwait) ownMap.dwait = fetch(root + 'data/acb/basemap_dong.json?v=20261122a').then(function (r) { return r.json(); }).then(function (j) { ownMap.dong = j.sort(function (a, b) { return b.a - a.a; }); draw(); }).catch(function () {});
+        var DONG = z >= 2200 ? ownMap.dong : null;
+        if (DONG) { g.beginPath(); DONG.forEach(function (d) { if (d.x < lo0 - .06 || d.x > lo1 + .06 || d.y < la0 - .06 || d.y > la1 + .06) return; d.r.forEach(ring); }); g.strokeStyle = '#DDE2D8'; g.lineWidth = .8; g.lineJoin = 'round'; g.stroke(); }
+        g.beginPath(); base.sgg.forEach(function (s) { s.r.forEach(ring); }); g.strokeStyle = z >= 2200 ? '#A9B0A3' : '#D3D8CE'; g.lineWidth = z < 900 ? .6 : z >= 2200 ? 1.4 : 1; g.lineJoin = 'round'; g.stroke();   // 시군구 경계(동 경계가 보일 때는 더 진하게)
         g.beginPath(); base.sido.forEach(ring); g.strokeStyle = '#8E9489'; g.lineWidth = z < 900 ? 1.1 : 1.6; g.stroke();   // 시도 경계
         g.beginPath(); base.land.forEach(ring); g.strokeStyle = '#B9C4C8'; g.lineWidth = .8; g.stroke();   // 바닷가 선
         if (base.han) { g.beginPath(); base.han.forEach(function (f) { g.moveTo(X(f[0]), Y(f[1])); for (var i = 2; i < f.length; i += 2) g.lineTo(X(f[i]), Y(f[i + 1])); }); g.strokeStyle = '#C9D9DF'; g.lineCap = 'round'; g.lineWidth = Math.max(2.5, Math.min(60, 0.009 * z)); g.stroke(); g.lineCap = 'butt';
@@ -261,6 +265,10 @@
       if (faces && vis.length <= 40) { g.font = '11.5px "IBM Plex Sans KR",sans-serif'; g.textAlign = 'center'; g.lineJoin = 'round';
         vis.forEach(function (p) { if (p.c === opt.me) return; var x = X(p.e[7]), y = Y(p.e[6]) + 25, t = p.e[0].replace(/아파트$/, '').slice(0, 12);
           g.strokeStyle = 'rgba(255,255,255,.95)'; g.lineWidth = 3.5; g.strokeText(t, x, y); g.fillStyle = '#6B7067'; g.fillText(t, x, y); }); g.textAlign = 'start'; }
+      if (base && ownMap.dong && z >= 4200) { var DONG = ownMap.dong;  g.font = '500 11.5px "IBM Plex Sans KR",sans-serif'; g.textAlign = 'center'; g.lineJoin = 'round'; var usedD = [];
+          DONG.forEach(function (d) { if (Math.sqrt(d.a / 1e4) * z < 46) return; var x = X(d.x), y = Y(d.y); if (x < 24 || x > W - 24 || y < 14 || y > H - 26) return;
+            for (var i = 0; i < usedD.length; i++) if (Math.abs(usedD[i][0] - x) < 54 && Math.abs(usedD[i][1] - y) < 16) return; usedD.push([x, y]);
+            g.strokeStyle = 'rgba(255,255,255,.9)'; g.lineWidth = 3.5; g.strokeText(d.n, x, y + 4); g.fillStyle = '#5A6157'; g.fillText(d.n, x, y + 4); }); g.textAlign = 'start'; }
       // 구 이름: 넓게 볼 때는 큰 구만
       if (z < 9000) { var need = z < 500 ? 120 : z < 900 ? 60 : z < 2000 ? 25 : 1, used = [];
         g.font = '600 12.5px "IBM Plex Sans KR",sans-serif'; g.textAlign = 'center'; g.lineJoin = 'round';

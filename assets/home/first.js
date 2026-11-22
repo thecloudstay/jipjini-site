@@ -77,7 +77,8 @@
   function suggest() {
     var k = norm(q.value); SEL = -1;
     if (!k) { sug.hidden = true; q.setAttribute('aria-expanded', 'false'); return; }
-    HIT = LIST.filter(function (x) { return norm(x[1]).indexOf(k) >= 0 || norm(x[3]).indexOf(k) >= 0 || norm(x[2]).indexOf(k) >= 0; }).slice(0, 8);
+    HIT = window.JJSearch ? JJSearch.rank(q.value, LIST, function (x) { return { n: x[1], g: x[2], d: x[3] }; }, 8) : [];
+    if (!HIT.length) HIT = LIST.filter(function (x) { return norm(x[1]).indexOf(k) >= 0 || norm(x[3]).indexOf(k) >= 0 || norm(x[2]).indexOf(k) >= 0; }).slice(0, 8);   // 동·구 이름만 친 경우
     sug.innerHTML = HIT.length ? HIT.map(function (x, i) { return '<li role="option" id="f1-s' + i + '" data-i="' + i + '"><b>' + esc(x[1]) + '</b><span>' + esc(x[2] + ' ' + x[3]) + ' · 평형 ' + x[6] + '</span></li>'; }).join('') : '<li class="fnone">아직 도면이 열리지 않은 단지입니다. 평형만 알려 주시면 24시간 안에 견적서를 드립니다. <a href="' + BASE + 'req/">의뢰서 쓰기</a></li>';
     sug.hidden = false; q.setAttribute('aria-expanded', 'true');
   }

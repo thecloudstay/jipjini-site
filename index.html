@@ -756,7 +756,7 @@
 
 <script src="assets/site_config.js"></script>
 <script src="assets/home/sys.js?v=20261113b"></script>
-<script src="assets/home/home.js?v=20261122a"></script>
+<script src="assets/home/home.js?v=20261122c"></script>
 <script>
 /* 바로 가기의 단지 고르기 (2026-11-16): 고른 단지를 도구 주소에 ?apt=번호 로 붙여 그 집으로 바로 열리게 한다. 고른 단지는 이 기기에만 기억 */
 (function () {
@@ -767,8 +767,7 @@
   function apply(r) { [].forEach.call(document.querySelectorAll('#go a[data-apt]'), function (a) { var h = a.getAttribute('href').split('?')[0]; a.setAttribute('href', r ? h + '?apt=' + r[0] : h); });
     if (r) { p.innerHTML = '<b>' + esc(r[1]) + '</b> · ' + esc(r[2] + ' ' + r[3]) + (r[6] ? ' · 집지니 도면 있음' : ' · 도면 준비 중(전용면적으로 계산)') + ' — 아래 줄을 누르면 이 집으로 열립니다. <button type="button" id="gox">다른 집</button>'; document.getElementById('gox').onclick = function () { q.value = ''; apply(null); try { localStorage.removeItem('jj_go_apt'); } catch (e) {} q.focus(); }; }
     else p.textContent = base; }
-  function show() { var k = norm(q.value); if (k.length < 2) { l.innerHTML = ''; return; } var hit = []; for (var i = 0; i < rows.length && hit.length < 30; i++) { var r = rows[i]; if (norm(r[1]).indexOf(k) > -1 || norm(r[3] + r[1]).indexOf(k) > -1) hit.push(r); }
-    hit.sort(function (a, b) { return b[6] - a[6]; });
+  function show() { var k = norm(q.value); if (k.length < 2) { l.innerHTML = ''; return; } var hit = window.JJSearch ? JJSearch.rank(q.value, rows, function (r) { return { n: r[1], g: r[2], d: r[3] }; }, 12) : rows.filter(function (r) { return norm(r[1]).indexOf(k) > -1; }).slice(0, 12);
     l.innerHTML = hit.slice(0, 8).map(function (r) { return '<li><button type="button" data-c="' + r[0] + '">' + esc(r[1]) + '<small>' + esc(r[2] + ' ' + r[3]) + (r[6] ? ' · 도면 있음' : '') + '</small></button></li>'; }).join('') || '<li><button type="button" disabled>못 찾았습니다 — 전용면적만 넣어도 됩니다</button></li>'; }
   q.addEventListener('input', function () { clearTimeout(t); t = setTimeout(function () { load().then(show).catch(function () {}); }, 180); });
   l.addEventListener('click', function (e) { var b = e.target.closest('button[data-c]'); if (!b) return; var r = rows.filter(function (x) { return x[0] === b.getAttribute('data-c'); })[0]; l.innerHTML = ''; q.value = r[1]; apply(r); try { localStorage.setItem('jj_go_apt', JSON.stringify(r)); } catch (e2) {} });
@@ -779,7 +778,8 @@
 <script src="assets/home/flow.js?v=20261113b" defer></script>
 <script src="assets/home/estim.js?v=20261112v"></script>
 <script src="assets/home/motion.js?v=20261116a"></script>
-<script src="assets/home/first.js?v=20261119a" data-page="home"></script>
+<script src="assets/aptsearch.js?v=20261122a"></script>
+<script src="assets/home/first.js?v=20261122a" data-page="home"></script>
 <script src="assets/chatbot.js" defer></script>
 <!--SITENAV--><style>.jj-map{max-width:900px;margin:32px auto 0;padding:22px 16px 26px;border-top:1px solid #1C1F1B;font-family:"IBM Plex Sans KR",-apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;color:#1C1F1B;word-break:keep-all;line-height:1.7}.jj-map .ttl{font-size:15px;font-weight:700;color:#1C1F1B;margin-bottom:14px}.jj-map .grp{display:flex;flex-wrap:wrap;gap:4px 18px;align-items:baseline;padding:8px 0;border-top:1px solid #DCDFD8;font-size:15px}.jj-map .grp b{min-width:84px;color:#6B7067;font-weight:600;font-size:14px}.jj-map .grp a{display:inline-block;padding:2px 0;color:#1C1F1B;text-decoration:underline;text-decoration-color:#C9CDC4;text-underline-offset:3px;font-size:15px;font-weight:400}.jj-map .grp a:hover{color:#1F5E2E;text-decoration-color:#1F5E2E}.jj-map .grp a[aria-current=page]{color:#1F5E2E;font-weight:700;text-decoration:none}.jj-map .grp a[aria-current=page]::after{content:" (지금 보는 쪽)";font-size:13px;font-weight:400;color:#6B7067}.jj-map .ft{font-size:14px;color:#6B7067;margin-top:14px;padding-top:12px;border-top:1px solid #DCDFD8;line-height:1.8}.jj-where{max-width:1200px;margin:0 auto;padding:8px 16px;font-size:14px;color:#2a2a2a;background:#fff;border-bottom:1px solid #DCDFD8;display:flex;gap:6px;align-items:center;flex-wrap:wrap;word-break:keep-all}.jj-where a{color:#1F5E2E;text-decoration:none;font-weight:600}.jj-where .now{color:#1C1F1B;font-weight:700;font-size:14px}.nav-item.is-current>.nav-top{color:#1e4d3a!important;font-weight:800!important;box-shadow:inset 0 -3px 0 #1e4d3a}.nav-dropdown a.is-current{background:#e6efe9!important;color:#1e4d3a!important;font-weight:700!important}@media(max-width:640px){.jj-map .grp b{min-width:100%}}</style><div class="jj-map"><div class="ttl">집지니 사이트 지도</div><div class="grp"><b>시작하기</b><a href="index.html">홈</a><a href="self-interior-agency.html">셀인대행이란</a><a href="request.html">무료 견적 신청</a><a href="prepare.html">사전 준비</a></div><div class="grp"><b>집지니 CAD</b><a href="cad.html">집지니 CAD — 무료 공사 계획 도면</a></div><div class="grp"><b>샘플실</b><a href="showroom.html">가양동 샘플실 · 상담 예약</a></div><div class="grp"><b>진행 방식</b><a href="workflow.html">진행 방식 8단계</a><a href="interior-coordinator.html">코디네이터란</a></div><div class="grp"><b>가격·견적</b><a href="pricing.html">가격·코디비</a><a href="interior-price-table.html">실견적 시세표</a><a href="cases/">견적 사례</a><a href="py/">평형별 비용</a><a href="trade/">공종별 비용</a></div><div class="grp"><b>가이드</b><a href="banself-interior.html">반셀프 코디</a><a href="jikyoung-interior.html">직영 인테리어</a><a href="interior-margin-30.html">마진 30%</a><a href="interior-estimate-compare.html">견적서 비교</a><a href="apt-olsuri-cost.html">32평 올수리</a><a href="bathroom-remodel-cost.html">욕실 리모델링</a><a href="interior-scam-types.html">사기 유형</a></div><div class="grp"><b>회사</b><a href="about.html">회사소개</a><a href="faq.html">자주 묻는 질문</a><a href="ai-answers.html">AI에게 물어볼 때</a><a href="sitemap.html">사이트 지도</a></div><div class="ft">서울·경기·인천 수도권 전역 · 자재상·기술자 직거래 · 정찰제 코디비 · 부가세 10% 별도<br>샘플실: <a href="showroom.html" style="color:#1F5E2E;font-weight:600">서울 강서구 공항대로41길 66 세신종합상가 지하 1층 B156호 (가양동)</a> · 상담 예약 010-9806-0422</div></div><script>(function(){try{
 var here=location.pathname.replace(/\/index\.html$/,"/");
@@ -842,7 +842,7 @@ var hdr=document.querySelector("header, .site-header, nav.site-nav, .navbar, .na
 .acbhb{display:inline-block;margin-top:22px;padding:13px 22px;background:var(--jj-ink,#1C1F1B);color:#fff;border-radius:4px;text-decoration:none;font-weight:600}
 @media (max-width:640px){.acbhf .r{display:none}.acbhf svg{width:40px;height:40px}.acbhf em{font-size:16px}.acbhf b{font-size:13px}}
 </style>
-<link rel="stylesheet" href="assets/acb/acb.css?v=20261122h"><script src="assets/acb/acb.js?v=20261122i" defer></script>
+<link rel="stylesheet" href="assets/acb/acb.css?v=20261122h"><script src="assets/acb/acb.js?v=20261122j" defer></script>
 <script src="assets/acb/d3.js?v=20261122c" defer></script>
 <script>
 document.addEventListener('DOMContentLoaded',function(){
@@ -855,8 +855,9 @@ document.addEventListener('DOMContentLoaded',function(){
   show('A13822004','잠실엘스아파트','서울 송파구',true);
   function idx(){return IDX?Promise.resolve(IDX):fetch('data/acb/index.json').then(function(r){return r.json()}).then(function(j){IDX=j;return j});}
   var t; inp.addEventListener('input',function(){clearTimeout(t);t=setTimeout(function(){var q=inp.value.replace(/\s/g,'');if(q.length<2){ul.textContent='';return}
-    idx().then(function(j){ul.textContent='';var n=0;for(var c in j){var e=j[c];if((e[0]+e[1]).replace(/\s/g,'').indexOf(q)<0)continue;
-      (function(c,e){var li=document.createElement('li'),b=document.createElement('button'),s=document.createElement('small');b.type='button';b.textContent=e[0];s.textContent=e[1];b.appendChild(s);
+    idx().then(function(j){ul.textContent='';var n=0,rows=[];for(var c0 in j)rows.push([c0,j[c0]]);var hits=window.JJSearch?JJSearch.rank(inp.value,rows,function(r){return{n:r[1][0],g:String(r[1][5]).replace('_',' '),d:r[1][8]||''}},20):rows.filter(function(r){return(r[1][0]+r[1][1]).replace(/\s/g,'').indexOf(q)>=0});
+      for(var hi=0;hi<hits.length;hi++){var c=hits[hi][0],e=hits[hi][1];
+      (function(c,e){var li=document.createElement('li'),b=document.createElement('button'),s=document.createElement('small');b.type='button';b.textContent=e[0];s.textContent=e[1]+(e[8]?' '+e[8]:'');b.appendChild(s);
         b.onclick=function(){ul.textContent='';inp.value=e[0];show(c,e[0],e[1],false);if(window.gtag)gtag('event','home_d3_pick');};li.appendChild(b);ul.appendChild(li);})(c,e);
       if(++n>=20)break;}});},150);});
 });

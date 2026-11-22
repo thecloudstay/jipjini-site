@@ -17,12 +17,13 @@
   /* 단지 찾기: 글자를 넣으면 find.json 을 한 번 받아 이름·동·구로 찾는다 */
   function aptFinder(input, list, onPick) {
     var rows = null, t = 0;
+    if (!window.JJSearch) { var sj = document.createElement('script'); sj.src = '/assets/aptsearch.js?v=20261122a'; document.head.appendChild(sj); }   // 2026-11-22 공용 단지 찾기(동 이름·순서 바뀜·「아파트」 붙임도 찾음)
     function norm(s) { return String(s || '').replace(/\s|아파트|단지|\(.*?\)/g, '').toLowerCase(); }
     function show(q) {
       if (!rows) return; q = norm(q); if (q.length < 2) { list.innerHTML = ''; return; }
       var hit = [];
-      for (var i = 0; i < rows.length && hit.length < 30; i++) { var r = rows[i]; if (norm(r[1]).indexOf(q) > -1 || (norm(r[3] + r[1]).indexOf(q) > -1)) hit.push(r); }
-      hit.sort(function (a, b) { return b[6] - a[6]; });
+      if (window.JJSearch) hit = JJSearch.rank(input.value, rows, function (r) { return { n: r[1], g: r[2], d: r[3] }; }, 12);
+      else { for (var i = 0; i < rows.length && hit.length < 30; i++) { var r = rows[i]; if (norm(r[1]).indexOf(q) > -1 || (norm(r[3] + r[1]).indexOf(q) > -1)) hit.push(r); } hit.sort(function (a, b) { return b[6] - a[6]; }); }
       list.innerHTML = hit.slice(0, 12).map(function (r, i) { return '<li><button type="button" data-i="' + rows.indexOf(r) + '">' + esc(r[1]) + '<small>' + esc(r[2] + ' ' + r[3]) + (r[4] ? ' · ' + esc(r[4]) + '년' : '') + (r[6] ? ' · 평면 있음' : '') + '</small></button></li>'; }).join('') || '<li><button type="button" disabled>찾는 단지가 없습니다 — 아래에 평형을 직접 넣어 주세요</button></li>';
     }
     input.addEventListener('input', function () {

@@ -147,6 +147,7 @@
     qT = setTimeout(function () {
       loadAll(function (all) {
         var hit = all.filter(function (x) { return (x.n + x.d + x.g).replace(/\s+/g, '').toLowerCase().indexOf(q) >= 0; }).sort(function (a, b) { return b.s - a.s || b.h - a.h; });
+        if (window.JJSearch) { var raw = $('aptQ').value, rk = JJSearch.rank(raw, all, function (x) { return { n: x.n, g: x.g, d: x.d }; }, 200); if (rk.length) hit = rk; }
         TAB = 'all'; SHOWN = 60; OPEN = '';
         $('aptSideTtl').textContent = '「' + $('aptQ').value.trim() + '」 찾은 단지';
         $('aptSideSub').innerHTML = '<b>' + num(hit.length) + '</b>곳 · 평면 확보 <b>' + num(hit.filter(function (x) { return x.s > 0; }).length) + '</b>곳';
