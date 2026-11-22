@@ -829,3 +829,22 @@ section.go4{padding-top:88px}
 .pat .pt.v2 .pflow svg{max-height:190px}.pat .pt.v2 .pflow figure{padding:26px 22px 26px}.pat .pt.v2 .pflow figure+figure::before{top:104px}
 .pat .pt.v2 .pflow figcaption{font-size:16px;margin-top:18px}.pat .pt.v2 .pflow figcaption span{font-size:14px}
 @media(max-width:900px){.pat .pt.v2 .pflow figure{padding:18px 12px}.pat .pt.v2 .pflow figure+figure::before{top:70px}.pat .pt.v2 .pflow figcaption{font-size:14.5px}}
+
+/* 2026-11-22 대표 「너저분하다, 너무 텍스트 위주」: 바로 가기 20줄 → 그림 붙은 여섯 칸 + 나머지는 접어 둠 */
+.go6{display:grid;grid-template-columns:repeat(3,1fr);margin-top:40px;border-top:1.5px solid var(--ink);border-bottom:1px solid var(--rule)}
+.go6 a{display:block;padding:30px 26px 32px;min-width:0;border-right:1px solid var(--rule);border-bottom:1px solid var(--rule);color:var(--ink)}
+.go6 a:nth-child(3n){border-right:0}.go6 a:nth-child(n+4){border-bottom:0}
+.go6 svg{display:block;width:150px;max-width:100%;height:70px;margin-bottom:20px}
+.go6 b{display:block;font-size:19px;font-weight:600;letter-spacing:-.3px;line-height:1.4}
+.go6 span{display:block;margin-top:8px;font-size:14.5px;line-height:1.75;color:var(--pencil)}
+.go6 a:hover b{color:var(--g);text-decoration:underline;text-underline-offset:4px}
+.go6 a.pri b{color:var(--g)}
+.gomore{margin-top:26px}
+.gomore summary{cursor:pointer;font-size:15.5px;font-weight:600;padding:10px 0;list-style:none;display:inline-block;border-bottom:1px solid var(--ink)}
+.gomore summary::-webkit-details-marker{display:none}
+.gomore summary:after{content:" 펼치기";font-weight:400;color:var(--pencil)}
+.gomore[open] summary:after{content:" 접기"}
+.gomore summary small{font-weight:400;color:var(--pencil);margin-left:6px}
+.gomore .go4g{margin-top:22px}
+@media(max-width:860px){.go6{grid-template-columns:1fr 1fr}.go6 a{padding:26px 18px 28px}.go6 a:nth-child(3n){border-right:1px solid var(--rule)}.go6 a:nth-child(2n){border-right:0}.go6 a:nth-child(n+4){border-bottom:1px solid var(--rule)}.go6 a:nth-child(n+5){border-bottom:0}}
+@media(max-width:520px){.go6{grid-template-columns:1fr}.go6 a{padding:24px 0 26px;border-right:0!important;border-bottom:1px solid var(--rule)!important;display:grid;grid-template-columns:104px 1fr;column-gap:16px;align-items:center}.go6 a:last-child{border-bottom:0!important}.go6 svg{width:104px;height:50px;margin:0;grid-row:1 / span 2}.go6 b{font-size:17.5px}.go6 span{margin-top:4px;font-size:14px}}
