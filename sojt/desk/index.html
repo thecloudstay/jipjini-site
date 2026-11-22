@@ -522,7 +522,7 @@ var map=document.querySelector(".jj-map"),curName="",grpName="";
 if(map){map.querySelectorAll(".grp").forEach(function(g){g.querySelectorAll("a").forEach(function(a){if(isCur(a.getAttribute("href"))){a.setAttribute("aria-current","page");if(!curName){curName=a.textContent;var b=g.querySelector("b");grpName=b?b.textContent.replace(/\s*[·:]\s*$/,""):"";}}});});}
 document.querySelectorAll(".nav-item").forEach(function(it){var top=it.querySelector(".nav-top"),hit=false;it.querySelectorAll("a").forEach(function(a){var h=a.getAttribute("href")||"";if(h.indexOf("http")===0)return;if(norm(h)===here){hit=true;if(a!==top)a.classList.add("is-current");}});it.classList.remove("active");if(hit)it.classList.add("is-current");});
 if(here!=="/"&&!document.querySelector(".jj-where")){var ttl=curName||(document.title.split(/[|—–]/)[0]||"").trim();var up=location.pathname.split("/").length>2?"../":"";
-var bar=document.createElement("div");bar.className="jj-where";bar.innerHTML='<a href="'+up+'index.html">홈</a><span>›</span>'+(grpName?'<span>'+grpName+'</span><span>›</span>':'')+'<span class="now">지금 보는 쪽 · '+ttl+'</span>';
+var bar=document.createElement("div");bar.className="jj-where";bar.innerHTML='<a hr'+'ef="'+up+'index.html">홈</a><span>›</span>'+(grpName?'<span>'+grpName+'</span><span>›</span>':'')+'<span class="now">지금 보는 쪽 · '+ttl+'</span>';
 var hdr=document.querySelector("header, .site-header, nav.site-nav, .navbar, .nav");if(hdr)hdr.insertAdjacentElement("afterend",bar);else document.body.insertBefore(bar,document.body.firstChild);}
 }catch(e){}})();</script><!--/SITENAV-->
 <script src="../../assets/chatbot.js" defer></script>
