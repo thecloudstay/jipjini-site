@@ -133,7 +133,7 @@ def main():
                 try: a = float(r.get("amount") or 0)
                 except Exception: a = 0
                 # 2026-11-22 먼저 받을 것: 수도권 도장·방수 공사(제휴 후보 업체 명단·남는 공고 분석에 바로 쓰임) → 그다음 금액 큰 순
-                first = 1 if (str(r.get("codeClassifyType2")) == "02" and FIN.search(r.get("bidTitle") or "") and re.match(r"서울|경기|인천", r.get("bidArea") or "")) else 0
+                first = 1 if (str(r.get("codeClassifyType2")) == "02" and FIN.search(r.get("bidTitle") or "") and str(r.get("bidArea")) in ("11", "41", "28")) else 0
                 won.append((first, a, r["bidNum"]))
     won.sort(reverse=True); won = [(a, n) for _, a, n in won]
     bd = {k: v for k, v in bd.items() if v}   # 예전에 저장된 빈 답은 버린다
