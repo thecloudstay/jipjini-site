@@ -369,6 +369,10 @@ details.sample{border:0;border-top:1px solid var(--line);border-radius:0;padding
       P.계약예시.forEach(function (x) { h.push('<dt>' + esc(x.제목) + '</dt><dd>' + esc(x.내용) + '</dd>'); });
       h.push('</dl></details>');
     }
+    if (cs && cs.서명됨 && (cs.입금계좌 || cs.서류링크)) {   // 2026-11-26 서명이 끝난 고객: 입금 계좌·사업자등록증·통장 사본
+      h.push('<div class="note" style="border-color:var(--g)"><b>집지니 입금 계좌</b>' + (cs.입금계좌 ? '<p style="margin:6px 0 0;font-size:17px;user-select:all">' + esc(cs.입금계좌) + '</p><button type="button" class="btn" style="margin-top:8px" data-copy="' + esc(cs.입금계좌) + '">계좌 복사</button>' : '') +
+        (cs.서류링크 ? '<a class="btn" style="margin:8px 0 0 6px" href="' + esc(cs.서류링크) + '" target="_blank" rel="noopener">사업자등록증·통장 사본 보기</a>' : '') + '</div>');
+    }
     h.push('<p class="vat"><b>입금은 집지니 사업자 계좌로만.</b> 다른 계좌 안내는 코디에게 먼저 확인해 주세요.</p></section>');
     return h.join('');
   }
@@ -454,6 +458,10 @@ details.sample{border:0;border-top:1px solid var(--line);border-radius:0;padding
       return o;
     }).filter(function (x) { return x.위치 && (x.브랜드 || x.모델명 || x.메모 || x.메지 || x.사양); });
   }
+  app.addEventListener('click', function (e) {   // 2026-11-26 입금 계좌 복사
+    var cb = e.target.closest('[data-copy]'); if (!cb) return; var tx = cb.getAttribute('data-copy'), done = function () { cb.textContent = '복사했습니다'; setTimeout(function () { cb.textContent = '계좌 복사'; }, 2000); };
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(tx).then(done, function () {}); else { var ta = document.createElement('textarea'); ta.value = tx; document.body.appendChild(ta); ta.select(); try { document.execCommand('copy'); done(); } catch (_c) {} ta.remove(); }
+  });
   app.addEventListener('click', function (e) {
     var t = e.target; if (!document.getElementById('sel') || !t.closest('#sel') || (SEL && SEL.잠김)) return;
     var ad = t.closest('[data-addroom],[data-addfree]');
