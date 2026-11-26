@@ -32,9 +32,11 @@ def main():
         # 2026-11-22 대표 「사이트 크기에 비해 노출이 안 된다」: 구글이 단지별 경매·누수 쪽 1,353쪽을 「크롤링됨 - 색인 안 함」으로 돌려보냄(쪽끼리 글이 85~92% 같음).
         #   네이버는 하루 20~40쪽만 가져가는데 이 6,089쪽이 차례를 차지해 본문·사례가 밀렸다 → 사이트 지도에서 빼고 단지 대문·평형 쪽에서 링크로만 잇는다.
         if re.match(r"apt/[^/]+/(auction|leak)\.html$", rel): continue
-        s = open(f, encoding="utf-8", errors="ignore").read(2000)
-        if 'name="robots"' in s and "noindex" in s: continue
+        s = open(f, encoding="utf-8", errors="ignore").read(30000)   # 2026-11-27 앞 2,000자만 보다가 머리 뒤쪽에 noindex 가 있는 req/ 를 지도에 넣었다
+        if re.search(r'name=["\']robots["\'][^>]*noindex', s): continue
         loc = SITE + (rel[:-10] if rel.endswith("index.html") else rel)   # cases/index.html → cases/
+        _cn = re.search(r'rel=["\']canonical["\'][^>]*href=["\']([^"\']+)', s)
+        if _cn and _cn.group(1) != loc: continue   # 표준 주소가 다른 쪽은 지도에 넣지 않는다(구글 「대체 페이지」)
         pr = dict(PRIO).get(rel) or ("0.6" if re.match(r"apt/[^/]+/index\.html$", rel) else "0.4" if rel.startswith("apt/") else "0.8" if rel.startswith(("region/", "py/", "trade/")) else "0.6" if rel.startswith("cases/q-") else "0.5" if rel.startswith("cases/") else "0.7")
         cf = "weekly" if rel.startswith(("region/", "py/", "trade/", "apt/")) or rel in ("interior-price-table.html", "cases/index.html", "index.html") else "monthly"
         rows.append(f"  <url><loc>{loc}</loc><lastmod>{lastmod(rel)}</lastmod><changefreq>{cf}</changefreq><priority>{pr}</priority></url>")
