@@ -56,7 +56,11 @@ def note(text):
 DRAW = r'''
 import json, sys, copy
 sys.path.insert(0, sys.argv[1]); sys.path.insert(0, sys.argv[1] + "/harness")
-import plan_trace
+import plan_trace, plan_check
+try:
+    import pipeline
+except Exception:
+    pipeline = None
 jobs = json.load(open(sys.argv[2], encoding="utf-8")); out = {}
 for k, (f, plan) in jobs.items():
     p = copy.deepcopy(plan)
@@ -66,7 +70,21 @@ for k, (f, plan) in jobs.items():
             plan_trace.fix_kinds(plan_trace.imread_u(f), p["rooms"])
             px = sum(abs(cv2.contourArea(np.array(q["pts"], np.float32))) for q in p["rooms"] if len(q["pts"]) >= 3 and q.get("kind") not in ("발코니", "공용", "피트"))
             if px > 0: p["mmpp"] = (0.974 * p["전용"] * 1e6 / px) ** 0.5
-        G = plan_trace.trace(f, p); G.pop("점검", None); out[k] = {"plan": p, "G": G}
+        G = plan_trace.trace(f, p); G.pop("점검", None)
+        if pipeline is not None and p.get("mmpp"):   # 2026-11-26 일괄 변환(pc_convert.one)과 같은 자동 고침 단계까지 — 이 단계를 빼서 pipeline.py 고침이 관문에서 늘 「나아진 것이 없음」으로 버려졌다(11-15~)
+            img = plan_trace.imread_u(f); chk = plan_check.rules(img, dict(p, 그림=G)); W_ = pipeline.weight; S_ = getattr(pipeline, "SAFETY", ())
+            worse = lambda c2, c1: any(sum(1 for x in c2 if x[0] == s) > sum(1 for x in c1 if x[0] == s) for s in S_)
+            if hasattr(pipeline, "fix_rooms_R16") and any(x[0] == "R16" for x in chk):
+                p2 = pipeline.fix_rooms_R16(img, p)
+                if p2:
+                    c2 = plan_check.rules(img, dict(p2, 그림=G))
+                    if W_(c2) < W_(chk) and not worse(c2, chk): p, chk = p2, c2
+            for rule, fn in pipeline.FIXERS:
+                if not any(x[0] == rule for x in chk): continue
+                G2 = fn(copy.deepcopy(G), p["mmpp"], img, p) if fn.__code__.co_argcount >= 4 else fn(copy.deepcopy(G), p["mmpp"], img); c2 = plan_check.rules(img, dict(p, 그림=G2))
+                if W_(c2) < W_(chk) and not worse(c2, chk): G, chk = G2, c2
+            G.pop("점검", None)
+        out[k] = {"plan": p, "G": G}
     except Exception as e:
         out[k] = {"오류": str(e)[:120]}
 json.dump(out, open(sys.argv[3], "w", encoding="utf-8"), ensure_ascii=False)
