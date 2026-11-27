@@ -18,10 +18,10 @@ def main(qf):
     bad = []
     for it in q.get("글", []):
         i = it.get("id", "?"); cs = it.get("카드") or []
-        txt = " ".join([it.get("제목", ""), it.get("본문", ""), it.get("스레드", "")] + [" ".join(str(c.get(k, "")) for k in ("t", "s", "n", "u")) + " " + " ".join(" ".join(map(str, b)) for b in c.get("bars", [])) for c in cs])
+        txt = " ".join([it.get("제목", ""), it.get("본문", ""), it.get("스레드", "")] + [" ".join(str(c.get(k, "")) for k in ("t", "s", "n", "u")) + " " + " ".join(" ".join(map(str, b)) for b in c.get("bars", []) + c.get("chat", []) + c.get("rows", [])) for c in cs])
         if not re.match(r"^\d{4}-\d\d-\d\d \d\d:\d\d$", it.get("예약시각", "")): bad.append(f"{i}: 예약시각 형식(yyyy-MM-dd HH:mm)")
         if not (3 <= len(cs) <= 7): bad.append(f"{i}: 카드 {len(cs)}장 (3~7장)")
-        elif cs[0].get("k", "hook") != "hook" or cs[-1].get("k") != "cta": bad.append(f"{i}: 첫 장은 hook, 끝 장은 cta")
+        elif cs[0].get("k", "hook") not in ("hook", "chat", "bill") or cs[-1].get("k") != "cta": bad.append(f"{i}: 첫 장은 hook, 끝 장은 cta")
         if len(it.get("본문", "")) > 2000: bad.append(f"{i}: 인스타 본문 2,000자 넘음")
         if not it.get("스레드") or len(it["스레드"]) > 450: bad.append(f"{i}: 스레드 글 없음 또는 450자 넘음")
         if not str(it.get("링크", "")).startswith("https://jipjini.com"): bad.append(f"{i}: 링크는 jipjini.com 깊은 쪽으로")
