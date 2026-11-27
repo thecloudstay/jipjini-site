@@ -336,11 +336,49 @@ def complex_ld(name, loc, dong, hh, url):
 
 
 ACBF = {}
+SUPP = None
+def support_html(code, name, loc, year, hh, warn_keys=()):
+    """2026-11-28 대표 「정부지원사업도 안내해주면 좋을 것 같은데 국토부 등 (아파트 관련)」: 이 단지가 알아볼 만한 지원 사업(data/apt/support.json).
+    지역·준공 연수·세대수로 거르고, 누수 위험 점검에서 「살펴볼 때」가 나온 공사와 이어지는 것을 앞에 둔다."""
+    global SUPP
+    if SUPP is None:
+        try: SUPP = json.load(open(os.path.join(ROOT, "data", "apt", "support.json"), encoding="utf-8"))
+        except Exception: SUPP = {}
+    if not SUPP: return ""
+    try: age = int(TODAY[:4]) - int(year)
+    except Exception: age = None
+    try: hhn = int(hh)
+    except Exception: hhn = None
+    L = []
+    for p in SUPP.get("사업", []):
+        if p.get("지역") and not (loc or "").startswith(p["지역"]): continue
+        if p.get("최소연수") and (age is None or age < p["최소연수"]): continue
+        if p.get("최대준공") and (not year or int(year) > p["최대준공"]): continue
+        if p.get("최대세대") and (hhn is None or hhn > p["최대세대"]): continue
+        hit = any(k in warn_keys for k in p.get("관련", []))
+        L.append((0 if hit else 1, 0 if p.get("지역") else 1, p, hit))
+    L.sort(key=lambda z: (z[0], z[1]))
+    rows = "".join(f'<tr><td><b>{esc(p["이름"])}</b><small>{esc(p["주관"])}</small>' + ('<small class="lk2">누수 점검과 이어짐</small>' if hit else '')
+                   + f'</td><td>{esc(p["내용"])}<small>{esc(p["언제"])} · {esc(p["누가"])} · <a href="{esc(p["출처"])}" rel="nofollow noopener" target="_blank">근거</a></small></td></tr>'
+                   for _, _, p, hit in L)
+    sd, gu = ((loc or "").split() + ["", ""])[:2]
+    if sd == "경기" and len(gu) > 3 and gu.endswith("구"): gu = gu[:2] + "시"   # 안양만안구 → 안양시(경기 일반구는 시청이 맡음)
+    office = (gu + "청") if gu else "시·군·구청"
+    if not any(len(p.get("지역", "").split()) > 1 for _, _, p, _ in L): rows += (f'<tr><td><b>{esc(gu or "우리 시·군·구")} 공동주택 지원 조례 보조금</b><small>{esc(office)} 주택과(공동주택 담당)</small></td>'
+             '<td>수도권 시·군·구는 대부분 조례로 공용시설(옥상 방수·외벽·배관·보안등·놀이터 등) 보수비 일부를 보조합니다. 비율·한도는 지역마다 다릅니다.'
+             '<small>대개 해마다 연초 공고 · 입주자대표회의 의결 → 관리사무소가 신청</small></td></tr>')
+    return (f'<section id="support"><h2>{esc(name)} 알아볼 만한 지원 사업</h2>'
+            '<div style="overflow-x:auto"><table class="tb lkr"><thead><tr><th>사업</th><th>내용 · 신청</th></tr></thead><tbody>' + rows + '</tbody></table></div>'
+            f'<p class="note">이 단지의 {" · ".join(x for x in ["지역", f"준공 {age}년째" if age is not None and age < 200 else "", f"{hhn:,}세대" if hhn else ""] if x)}에 맞춰 골랐습니다. 지원 내용은 {esc(SUPP.get("확인", ""))} 확인한 공고 · 보도 기준이며 해마다 바뀌니, 신청 전에 「근거」와 담당 기관 공고를 꼭 보세요.</p></section>')
+
+
 LEAKR = None
+WARNK = []
 def leak_risk_html(code, name, year):
     """2026-11-27 대표 「누수 파트 업그레이드」: 이 단지가 어디서 샐 위험이 큰지 — 최근 3년 공개 입찰에서 옥상 방수·외벽·배관·지하주차장 방수를
     했는지와, 수도권 단지들이 그 공사를 준공 몇 년째에 하는지(tools/leak_risk.py → data/acb/leak.json)를 나란히 둔다."""
     global LEAKR
+    del WARNK[:]
     if LEAKR is None:
         try: LEAKR = json.load(open(os.path.join(ROOT, "data", "acb", "leak.json"), encoding="utf-8"))
         except Exception: LEAKR = {}
@@ -355,9 +393,9 @@ def leak_risk_html(code, name, year):
         if rec:
             stt, cls, rc = "최근 공사함", "lk1", f'{rec[0][:7].replace("-", ".")}<small>{esc(rec[1])}</small>'
         elif age >= s["q3"]:
-            stt, cls, rc = "살펴볼 때 지남", "lk3", "3년 안 기록 없음"; warn.append((nm, where))
+            stt, cls, rc = "살펴볼 때 지남", "lk3", "3년 안 기록 없음"; warn.append((nm, where)); WARNK.append(k)
         elif age >= s["med"]:
-            stt, cls, rc = "살펴볼 때", "lk2", "3년 안 기록 없음"; warn.append((nm, where))
+            stt, cls, rc = "살펴볼 때", "lk2", "3년 안 기록 없음"; warn.append((nm, where)); WARNK.append(k)
         else:
             stt, cls, rc = "아직 이른 편", "lk0", "3년 안 기록 없음"
         rows += (f'<tr><td><b>{esc(nm)}</b><small>새면 {esc(where)}</small></td><td>{rc}</td>'
@@ -596,6 +634,7 @@ def apt_page(code, row, d, pr, nq):
   <p class="note">경매로 낙찰받을 때의 수리비입니다. 가운데 값 아래 작은 글씨는 범위. 상태 「보통」 기준, 입주 청소 포함, 부가세 10% 별도. 안을 못 봤다면 높은 쪽 값으로 입찰 상한을 잡으세요.</p>
 </section>
 {('<section id="leak"><h2>' + esc(name) + ' 누수 복구 비용</h2>' + leak_risk_html(code, name, year) + '<h3>평형별 복구 비용</h3><div style="overflow-x:auto"><table class="tb"><thead><tr><th>평형</th><th class=n>가장 가벼운 경우</th><th class=n>가장 큰 경우</th><th class=n></th></tr></thead><tbody>' + ltr + '</tbody></table></div><p class="note">이 단지 평형 도면의 방 크기로 계산했습니다. 원인 세대의 일상생활배상책임 보험에 낼 산정서를 바로 만들 수 있습니다. 부가세 10% 별도.</p></section>') if ltr else ""}
+{support_html(code, name, loc, year, hh, tuple(WARNK) if ltr else ())}
 </main>
 """
     hd = head(url, title, desc, ld, 2, kw)
@@ -641,6 +680,7 @@ def leak_apt_page(code, row, d, pr):
 <p class="ans">{esc(ans)}</p>
 <section>{"".join(parts)}</section>
 <section>{leak_risk_html(code, d["단지"], row[4])}</section>
+{support_html(code, d["단지"], row[2], row[4], row[5], tuple(WARNK))}
 <section class="qa"><h2>자주 묻는 질문</h2>{"".join(f"<h3>{esc(q)}</h3><p>{esc(a)}</p>" for q, a in qa)}</section>
 <div class="cta"><a class="go" href="../../leak/?apt={code}">누수 복구 공사비 산정서 만들기<small>무료 · 보험 제출용</small></a><a href="auction.html">{esc(name)} 경매 수리비</a></div>
 <p class="note">집지니 실견적 단가(도배 기술자 {I['wallpaper_day']['price']:,}원/품, 강마루 {I['floor_maru']['price']:,}원/㎡, 건조기 {I['dry_day']['price']:,}원/일 등)로 이 단지 평형 도면의 방 크기를 넣어 계산했습니다. 현장 상태에 따라 달라지며 부가세 10% 별도. {TODAY} 기준.</p>
