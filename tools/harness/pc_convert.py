@@ -436,7 +436,7 @@ def one(f, k, plan, known, teach=None):
     """한 장: 변환 → 검수 → 자동 고침 → 다시 검수 → 가르기 → 채점. 도면 자료는 결과 폴더에."""
     import copy
     img = plan_trace.imread_u(f); G = plan_trace.trace(f, plan); chk = plan_check.rules(img, dict(plan, 그림=G)); fixed = []
-    if any(x[0] == "R16" for x in chk):   # 2026-11-22 욕실 이름 고침 — 칸은 맞게 갈렸는데 이름만 「기타」인 욕실(욕실 놓침의 68%)
+    if hasattr(pipeline, "fix_rooms_R16") and any(x[0] == "R16" for x in chk):   # (2026-11-26 관문이 pipeline 을 옛 판으로 되돌려도 오류가 나지 않게) 2026-11-22 욕실 이름 고침 — 칸은 맞게 갈렸는데 이름만 「기타」인 욕실(욕실 놓침의 68%)
         p2 = pipeline.fix_rooms_R16(img, plan)
         if p2:
             c2 = plan_check.rules(img, dict(p2, 그림=G))

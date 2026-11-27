@@ -41,7 +41,7 @@ def sync_code():
     HERE = os.path.dirname(os.path.abspath(__file__)); tools = os.path.dirname(HERE); src = os.path.join(REPO, "tools")
     pairs = [("plan_check.py", os.path.join(tools, "plan_check.py")), ("plan_trace.py", os.path.join(tools, "plan_trace.py")),
              ("harness/game_check_pc.py", os.path.join(os.path.dirname(os.path.dirname(tools)), "game_check.py"))]
-    for n in ("pc_convert.py", "pipeline.py", "discover.py", "answer_key.py", "rerender.py", "trend.py", "알려진모양.json"):
+    for n in ("pc_convert.py", "pc_gate.py", "pipeline.py", "discover.py", "answer_key.py", "rerender.py", "trend.py", "알려진모양.json"):
         pairs.append(("harness/" + n, os.path.join(HERE, n)))
     done = []
     for rel, dst in pairs:
@@ -59,6 +59,11 @@ def sync_code():
 
 
 def main():
+    try:   # 2026-11-26 대표 「게임 중 모드인데도 꺼진다」: 매시간 공개 올리기(git·변환 검사)가 게임 중에도 돌았다
+        sys.path.insert(0, os.path.join(CROLL, "코드")); import game_check
+        if game_check.gaming(): log("게임 중이라 이번 회차는 쉼"); return 0
+    except Exception:
+        pass
     if os.path.exists(LOCK) and time.time() - os.path.getmtime(LOCK) < 3600:
         log("건너뜀: 앞 회차가 아직 도는 중(잠금 %d분째)" % ((time.time() - os.path.getmtime(LOCK)) // 60)); return 0
     open(LOCK, "w").write(str(os.getpid()))
