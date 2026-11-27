@@ -17,11 +17,12 @@ jobs:
       - uses: actions/checkout@v4
         with: { fetch-depth: 0 }
       - run: python3 tools/apt_find_index.py   # 단지 찾기 자료(평면 있음 표시·연도·세대수) — 11-14 뒤로 안 돌아 낡아 있던 것
+      - run: python3 tools/leak_risk.py   # 2026-11-27 단지별 누수 위험 점검표 자료
       - run: python3 tools/apt_pages.py
       - run: python3 tools/sitemap_build.py
       - run: python3 tools/indexnow.py || echo "IndexNow 실패 — 다음 날 다시"
       - run: |
           git config user.name "jipjini-bot"; git config user.email "thecloudstay@gmail.com"
-          git add -A apt data/apt/find.json data/apt-costs.json data/apt-costs.csv sitemap.xml tools/indexnow_state.json
+          git add -A apt data/acb/leak.json data/apt/find.json data/apt-costs.json data/apt-costs.csv sitemap.xml tools/indexnow_state.json
           git commit -m "아파트별 공사비 쪽 다시 만듦" || echo "바뀐 것 없음"
           git pull --rebase -q && git push

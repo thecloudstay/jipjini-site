@@ -290,7 +290,7 @@ def head(url, title, desc, ld, depth, kw="", canon=None):
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="{up}assets/home/home.css?v=20261116c">
-<link rel="stylesheet" href="{up}assets/apt/apt.css?v=20261127a">
+<link rel="stylesheet" href="{up}assets/apt/apt.css?v=20261127b">
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-35EM7T3M9W"></script>
 <script>window.dataLayer=window.dataLayer||[];function gtag(){{dataLayer.push(arguments);}}gtag('js',new Date());(function(){{try{{if(localStorage.getItem('jj_staff'))window['ga-disable-G-35EM7T3M9W']=true}}catch(e){{}}}})();gtag('config','G-35EM7T3M9W');</script>
 {"".join(f'<script type="application/ld+json">{json.dumps(x, ensure_ascii=False)}</script>' for x in ld)}
@@ -336,6 +336,42 @@ def complex_ld(name, loc, dong, hh, url):
 
 
 ACBF = {}
+LEAKR = None
+def leak_risk_html(code, name, year):
+    """2026-11-27 대표 「누수 파트 업그레이드」: 이 단지가 어디서 샐 위험이 큰지 — 최근 3년 공개 입찰에서 옥상 방수·외벽·배관·지하주차장 방수를
+    했는지와, 수도권 단지들이 그 공사를 준공 몇 년째에 하는지(tools/leak_risk.py → data/acb/leak.json)를 나란히 둔다."""
+    global LEAKR
+    if LEAKR is None:
+        try: LEAKR = json.load(open(os.path.join(ROOT, "data", "acb", "leak.json"), encoding="utf-8"))
+        except Exception: LEAKR = {}
+    if not LEAKR or not year: return ""
+    try: age = int(TODAY[:4]) - int(year)
+    except Exception: return ""
+    me, st, cat = LEAKR["단지"].get(code, {}), LEAKR.get("통계", {}), LEAKR.get("분류", {})
+    rows, warn = "", []
+    for k in ("roof", "wall", "pipe", "park"):
+        if k not in st: continue
+        nm, where = cat[k]; s = st[k]; rec = me.get(k)
+        if rec:
+            stt, cls, rc = "최근 공사함", "lk1", f'{rec[0][:7].replace("-", ".")}<small>{esc(rec[1])}</small>'
+        elif age >= s["q3"]:
+            stt, cls, rc = "살펴볼 때 지남", "lk3", "3년 안 기록 없음"; warn.append((nm, where))
+        elif age >= s["med"]:
+            stt, cls, rc = "살펴볼 때", "lk2", "3년 안 기록 없음"; warn.append((nm, where))
+        else:
+            stt, cls, rc = "아직 이른 편", "lk0", "3년 안 기록 없음"
+        rows += (f'<tr><td><b>{esc(nm)}</b><small>새면 {esc(where)}</small></td><td>{rc}</td>'
+                 f'<td class=n>{s["med"]}년째<small>보통 {s["q1"]}~{s["q3"]}년</small></td><td class="n {cls}">{stt}</td></tr>')
+    if not rows: return ""
+    lk = me.get("leak")
+    head_ = (f'준공 {age}년째입니다. ' + (f'최근 3년 공개 입찰 기준으로 {", ".join(n for n, _ in warn)} 기록이 없어, '
+             f'{", ".join(w for _, w in warn)} 쪽 물 자국을 먼저 보세요.' if warn else '네 가지 모두 최근에 공사했거나 아직 이른 편입니다.'))
+    if lk: head_ += f' {lk[0][:7].replace("-", ".")}에 공용부 누수 보수 입찰이 있었습니다.'
+    return (f'<h3>{esc(name)} 누수 위험 점검</h3><p>{esc(head_)}</p>'
+            '<div style="overflow-x:auto"><table class="tb lkr"><thead><tr><th>공용부 공사</th><th>이 단지 최근 입찰</th>'
+            '<th class=n>보통 하는 때(준공 후)</th><th class=n>상태</th></tr></thead><tbody>' + rows + '</tbody></table></div>'
+            f'<p class="note">공동주택관리정보시스템에 2024년 1월~2026년 11월 공개된 입찰 제목으로 셌습니다. 「보통 하는 때」는 이 기간 그 공사를 입찰에 올린 수도권 단지들의 준공 후 연수 가운데값과 사분 범위입니다. '
+            '수의계약이나 2023년 이전 공사는 잡히지 않으니, 정확한 이력은 관리사무소 장기수선계획서로 확인하세요.</p>')
 def acb_row(code):
     """관리비 단지 자료 한 줄(data/acb/시도_시군구.json) — 평형 쪽에 이 평형 한 달 관리비를 싣는다(2026-11-22, 쪽끼리 같은 글 줄이기)"""
     k = acb_key(code)
@@ -559,7 +595,7 @@ def apt_page(code, row, d, pr, nq):
   <div style="overflow-x:auto"><table class="tb"><thead><tr><th>평형</th><th class=n>임대 놓기 · {A_DAYS['rent']}</th><th class=n>기본 수리 · {A_DAYS['basic']}</th><th class=n>올수리 · {A_DAYS['full']}</th><th class=n></th></tr></thead><tbody>{atr}</tbody></table></div>
   <p class="note">경매로 낙찰받을 때의 수리비입니다. 가운데 값 아래 작은 글씨는 범위. 상태 「보통」 기준, 입주 청소 포함, 부가세 10% 별도. 안을 못 봤다면 높은 쪽 값으로 입찰 상한을 잡으세요.</p>
 </section>
-{('<section id="leak"><h2>' + esc(name) + ' 누수 복구 비용</h2><div style="overflow-x:auto"><table class="tb"><thead><tr><th>평형</th><th class=n>가장 가벼운 경우</th><th class=n>가장 큰 경우</th><th class=n></th></tr></thead><tbody>' + ltr + '</tbody></table></div><p class="note">이 단지 평형 도면의 방 크기로 계산했습니다. 원인 세대의 일상생활배상책임 보험에 낼 산정서를 바로 만들 수 있습니다. 부가세 10% 별도.</p></section>') if ltr else ""}
+{('<section id="leak"><h2>' + esc(name) + ' 누수 복구 비용</h2>' + leak_risk_html(code, name, year) + '<h3>평형별 복구 비용</h3><div style="overflow-x:auto"><table class="tb"><thead><tr><th>평형</th><th class=n>가장 가벼운 경우</th><th class=n>가장 큰 경우</th><th class=n></th></tr></thead><tbody>' + ltr + '</tbody></table></div><p class="note">이 단지 평형 도면의 방 크기로 계산했습니다. 원인 세대의 일상생활배상책임 보험에 낼 산정서를 바로 만들 수 있습니다. 부가세 10% 별도.</p></section>') if ltr else ""}
 </main>
 """
     hd = head(url, title, desc, ld, 2, kw)
@@ -604,6 +640,7 @@ def leak_apt_page(code, row, d, pr):
 <p class="sub">{esc(loc)} {esc(dong)} · {yh(year, hh, ' · ', 1)}평형 {len(rows)}개</p>
 <p class="ans">{esc(ans)}</p>
 <section>{"".join(parts)}</section>
+<section>{leak_risk_html(code, d["단지"], row[4])}</section>
 <section class="qa"><h2>자주 묻는 질문</h2>{"".join(f"<h3>{esc(q)}</h3><p>{esc(a)}</p>" for q, a in qa)}</section>
 <div class="cta"><a class="go" href="../../leak/?apt={code}">누수 복구 공사비 산정서 만들기<small>무료 · 보험 제출용</small></a><a href="auction.html">{esc(name)} 경매 수리비</a></div>
 <p class="note">집지니 실견적 단가(도배 기술자 {I['wallpaper_day']['price']:,}원/품, 강마루 {I['floor_maru']['price']:,}원/㎡, 건조기 {I['dry_day']['price']:,}원/일 등)로 이 단지 평형 도면의 방 크기를 넣어 계산했습니다. 현장 상태에 따라 달라지며 부가세 10% 별도. {TODAY} 기준.</p>
