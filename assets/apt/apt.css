@@ -56,3 +56,9 @@
 .ap .plans{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px}
 .ap .plans .plan svg{max-height:320px}
 .ap .plans figcaption{line-height:1.6}
+/* 2026-11-27 누수 위험 점검표 */
+.ap .lkr td small{display:block;color:var(--jj-pencil,#6B7067);font-size:12.5px;font-weight:400;line-height:1.5}
+.ap .lkr td.lk0{color:var(--jj-pencil,#6B7067)}
+.ap .lkr td.lk1{color:#1F5E2E;font-weight:600}
+.ap .lkr td.lk2{color:#9A5B00;font-weight:600}
+.ap .lkr td.lk3{color:#B3261E;font-weight:600}
