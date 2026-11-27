@@ -26,8 +26,8 @@ body{{width:1080px;height:1350px;background:#fff;color:#1C1F1B;font-family:P,san
 .n{{font-size:250px;font-weight:700;color:#1F5E2E;letter-spacing:-8px;line-height:1.05}}
 .n small{{font-size:84px;letter-spacing:-2px;margin-left:6px}}
 .t{{font-size:76px;font-weight:700;line-height:1.3;margin-top:40px;letter-spacing:-2px}}
-.bars{{margin-top:80px}}
-.bar{{margin-bottom:64px}}
+.bars{{margin-top:56px}}
+.bar{{margin-bottom:38px}}
 .bar p{{display:flex;justify-content:space-between;font-size:42px;margin-bottom:18px}}
 .bar p b{{font-size:56px}}
 .bar div{{height:44px;background:#DCDFD8;border-radius:4px}}
@@ -45,7 +45,7 @@ def slide(x, i, n):
         body = f'<div class="n">{E(x["n"])}<small>{E(x.get("u", ""))}</small></div><div class="t">{hl(x.get("t", ""))}</div><div class="s">{hl(x.get("s", ""))}</div>'
     elif k == "bars":
         mx = max(float(b[1]) for b in x["bars"]) or 1
-        body = f'<div class="t" style="margin-top:0">{hl(x.get("t", ""))}</div><div class="bars">' + "".join(
+        body = f'<div class="t" style="margin-top:0;font-size:64px">{hl(x.get("t", ""))}</div><div class="bars">' + "".join(
             f'<div class="bar{" g" if j == len(x["bars"]) - 1 else ""}"><p><span>{E(b[0])}</span><b>{E(b[2] if len(b) > 2 else b[1])}</b></p><div><i style="width:{float(b[1]) / mx * 100:.1f}%"></i></div></div>'
             for j, b in enumerate(x["bars"])) + f'</div><div class="s">{hl(x.get("s", ""))}</div>'
     elif k == "cta":
