@@ -64,5 +64,40 @@ jan = [p for p in S if 1 in p.get("월", []) and len(p.get("월", [])) < 12]
 mx = max((int(m) for p in S for m in re.findall(r"(\d+)%", p.get("비율", ""))), default=0)
 add("support", "지원금", f"아파트 지원금 최대 {mx}% — {len(jan)}개 사업이 1월에 엽니다", {"사업수": len(S), "1월접수": len(jan), "최대_퍼센트": mx}, "https://jipjini.com/support/")
 
+# 5) 견적 편차(눈탱이) · 샷시 · 코디비 · 누수 복구비(보험 청구) — 84㎡
+L84 = by.get("84", [])
+if L84:
+    lo = statistics.median(x["낮게"] for x in L84); hi_ = statistics.median(x["높게"] for x in L84)
+    add("quote_gap", "눈탱이", f"같은 84㎡ 올수리, 낮게 {round(lo/1e4):,}만 원 ~ 높게 {round(hi_/1e4):,}만 원", {
+        "낮게_만원": round(lo / 1e4), "높게_만원": round(hi_ / 1e4), "차이_만원": round((hi_ - lo) / 1e4)}, "https://jipjini.com/compare/")
+    sh = statistics.median(x["샷시포함"] for x in L84); bs = statistics.median(x["올수리기본"] for x in L84)
+    add("sash", "공사비", f"84㎡ 올수리에 샷시까지 넣으면 가운데값 {round(sh/1e4):,}만 원", {"기본_만원": round(bs / 1e4), "샷시포함_만원": round(sh / 1e4), "샷시몫_만원": round((sh - bs) / 1e4)}, "https://jipjini.com/apt/")
+    cd = statistics.median(x["코디비"] for x in L84)
+    add("coordi", "셀인", f"84㎡ 셀인대행 코디비 가운데값 {round(cd/1e4):,}만 원", {"코디비_만원": round(cd / 1e4)}, "https://jipjini.com/apt/")
+    lk = [v for x in L84 for _, v in x.get("누수", [])]
+    if lk:
+        add("leak_cost", "보험", f"84㎡ 누수 복구비 {round(min(lk)/1e4):,}만 ~ {round(max(lk)/1e4):,}만 원, 가운데값 {round(statistics.median(lk)/1e4):,}만 원", {
+            "최소_만원": round(min(lk) / 1e4), "최대_만원": round(max(lk) / 1e4), "가운데값_만원": round(statistics.median(lk) / 1e4)}, "https://jipjini.com/leak/")
+
+# 6) 도면 — 단지 이름만 넣으면 우리 집 도면
+try:
+    fd = J("data", "apt", "find.json")
+    add("plans", "도면", f"수도권 {len(fd):,}단지 중 {sum(1 for r in fd if r[6]):,}단지는 도면이 이미 준비", {"단지수": len(fd), "도면단지": sum(1 for r in fd if r[6]), "평형쪽": len(c)}, "https://jipjini.com/genie-plan/")
+except Exception as e:
+    print("도면 자료 건너뜀", e)
+
+# 7) 장기수선충당금이 쓰이는 곳 — 최근 3년 공개 입찰(수도권 단지)
+try:
+    import gzip
+    codes = {x["c"] for x in rows}; bids = []
+    for f in glob.glob(os.path.join(ROOT, "data", "acb", "bid", "all_*.json.gz")):
+        bids += [b for b in json.load(gzip.open(f)) if b.get("aptCode") in codes]
+    KW = [("도장", r"도장"), ("방수", r"방수"), ("승강기", r"승강기|엘리베이터"), ("배관", r"배관|급수관|급탕관"), ("주차장", r"주차장")]
+    cnt = {k: sum(1 for b in bids if re.search(p, b.get("bidTitle", ""))) for k, p in KW}
+    top = sorted(cnt.items(), key=lambda z: -z[1])
+    add("ltsm_use", "장충금", f"수도권 단지 3년 공개 입찰 {len(bids):,}건 — 공사 1위는 {top[0][0]}", dict({"입찰건수": len(bids), "단지수": len({b['aptCode'] for b in bids})}, **{k + "_건": v for k, v in top}), "https://jipjini.com/apt/")
+except Exception as e:
+    print("입찰 자료 건너뜀", e)
+
 json.dump({"만든날": str(datetime.date.today()), "소재": F}, open(os.path.join(ROOT, "mk", "facts.json"), "w", encoding="utf-8"), ensure_ascii=False, indent=1)
 for x in F: print(x["id"], "|", x["한줄"])

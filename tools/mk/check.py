@@ -30,7 +30,7 @@ def main(qf):
         for w in BAN:
             if w in txt: bad.append(f"{i}: 금지어 「{w}」")
         if EMOJI.search(txt): bad.append(f"{i}: 이모지")
-        if re.search(r"[A-Za-z]{3,}", re.sub(r"https?://\S+|jipjini\.com\S*", "", txt)): bad.append(f"{i}: 영어 낱말")
+        if re.search(r"[A-Za-z]{3,}", re.sub(r"https?://\S+|jipjini\.com\S*|CAD", "", txt)): bad.append(f"{i}: 영어 낱말")
         if any(f.startswith("cost") for f in it.get("소재", [])) and "부가세 10% 별도" not in txt: bad.append(f"{i}: 공사비 글은 「부가세 10% 별도」")
         for u in it.get("사진", []):
             if not (ROOT / "mk" / "img" / u.rsplit("/", 1)[-1]).exists(): bad.append(f"{i}: 사진 파일 없음 {u}")
