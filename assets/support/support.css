@@ -1,0 +1,50 @@
+/* 아파트 지원금 찾기 (2026-11-28) — 홈페이지 문서 양식: 흰 종이 · 가는 선 · 초록은 핵심 숫자에만 */
+.sp h2{font-size:19px;margin:0 0 14px}
+.sp h2 small{font-size:13px;font-weight:400;color:var(--jj-pencil,#6B7067);margin-left:8px}
+.spq{margin-top:22px;position:relative}
+.spq input{width:100%;font:inherit;font-size:18px;padding:14px 16px;border:1.5px solid var(--jj-ink,#1C1F1B);border-radius:4px;box-sizing:border-box}
+.spq ul{list-style:none;margin:0;padding:0;border:1px solid var(--jj-rule,#DCDFD8);border-top:0;border-radius:0 0 4px 4px;background:#fff}
+.spq ul:empty{display:none}
+.spq li button{all:unset;box-sizing:border-box;display:flex;justify-content:space-between;gap:12px;width:100%;padding:10px 14px;border-top:1px solid #EEF0EB;cursor:pointer;font-variant-numeric:tabular-nums}
+.spq li button:hover,.spq li button:focus-visible{background:#F6F7F4}
+.spq li small{color:var(--jj-pencil,#6B7067);font-size:13px}
+.spsel{margin:14px 0 0;font-size:15px;color:var(--jj-pencil,#6B7067)}
+.spsel b{color:var(--jj-ink,#1C1F1B)}
+.spsel button{font:inherit;font-size:13px;margin-left:10px;padding:2px 10px;border:1px solid var(--jj-rule,#DCDFD8);border-radius:4px;background:#fff;cursor:pointer;color:var(--jj-pencil,#6B7067)}
+.spk{display:grid;grid-template-columns:repeat(3,1fr);margin:28px 0 8px;border-top:1px solid var(--jj-ink,#1C1F1B);border-bottom:1px solid var(--jj-rule,#DCDFD8)}
+.spk div{padding:16px 14px;border-right:1px solid var(--jj-rule,#DCDFD8);font-size:13px;color:var(--jj-pencil,#6B7067)}
+.spk div:last-child{border-right:0}
+.spk b{display:block;font-size:30px;line-height:1.25;color:var(--jj-ink,#1C1F1B);font-variant-numeric:tabular-nums;font-weight:600}
+.spk b.g{color:#1F5E2E}
+.spcal{margin-top:34px}
+.calw{overflow-x:auto}
+.cal{border-collapse:collapse;width:100%;min-width:620px;font-size:13px;font-variant-numeric:tabular-nums}
+.cal th{font-weight:500;color:var(--jj-pencil,#6B7067);padding:4px 0;text-align:center;border-bottom:1px solid var(--jj-rule,#DCDFD8)}
+.cal th:first-child{text-align:left;width:34%}
+.cal th.now{color:#1F5E2E;font-weight:700}
+.cal td{padding:5px 2px;border-bottom:1px solid #EEF0EB}
+.cal td:first-child{padding-right:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:220px}
+.cal td i{display:block;height:10px;border-radius:2px;background:#C9D6C7}
+.cal td i.on{background:#1F5E2E}
+.cal td.now{background:#F3F7F2}
+.sptab{display:flex;flex-wrap:wrap;gap:4px 18px;margin:36px 0 4px;border-bottom:1px solid var(--jj-rule,#DCDFD8)}
+.sptab button{font:inherit;font-size:15px;background:none;border:0;border-bottom:2px solid transparent;padding:8px 0;margin-bottom:-1px;cursor:pointer;color:var(--jj-pencil,#6B7067)}
+.sptab button[aria-selected=true]{color:var(--jj-ink,#1C1F1B);border-color:var(--jj-ink,#1C1F1B);font-weight:600}
+.sptab small{margin-left:4px;font-size:12px}
+.spr{display:grid;grid-template-columns:minmax(0,1fr) 190px;gap:8px 28px;padding:22px 0;border-bottom:1px solid var(--jj-rule,#DCDFD8)}
+.spr h3{margin:0;font-size:17px;line-height:1.5}
+.spr .who{font-size:13px;color:var(--jj-pencil,#6B7067);margin:2px 0 8px}
+.spr p{margin:0;font-size:15px;line-height:1.8}
+.spr .meta{margin-top:10px;font-size:13px;color:var(--jj-pencil,#6B7067);line-height:1.9}
+.spr .meta span+span:before{content:"  ·  "}
+.spr .amt{text-align:right}
+.spr .amt b{display:block;font-size:22px;line-height:1.3;color:#1F5E2E;font-weight:600}
+.spr .amt small{display:block;font-size:13px;color:var(--jj-pencil,#6B7067);margin-top:4px}
+.spr .st{display:inline-block;margin-top:10px;font-size:13px;font-weight:600}
+.st.s1{color:#1F5E2E}.st.s2{color:#9A5B00}.st.s3{color:var(--jj-pencil,#6B7067)}
+.spr .tie{font-size:13px;color:#9A5B00;font-weight:600;margin-left:8px}
+.spempty{padding:30px 0;color:var(--jj-pencil,#6B7067)}
+@media (max-width:640px){
+  .spk{grid-template-columns:1fr 1fr 1fr}.spk b{font-size:22px}.spk div{padding:12px 8px}
+  .spr{grid-template-columns:1fr}.spr .amt{text-align:left}
+}

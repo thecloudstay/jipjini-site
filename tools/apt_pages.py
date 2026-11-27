@@ -369,7 +369,7 @@ def support_html(code, name, loc, year, hh, warn_keys=()):
              '<small>대개 해마다 연초 공고 · 입주자대표회의 의결 → 관리사무소가 신청</small></td></tr>')
     return (f'<section id="support"><h2>{esc(name)} 알아볼 만한 지원 사업</h2>'
             '<div style="overflow-x:auto"><table class="tb lkr"><thead><tr><th>사업</th><th>내용 · 신청</th></tr></thead><tbody>' + rows + '</tbody></table></div>'
-            f'<p class="note">이 단지의 {" · ".join(x for x in ["지역", f"준공 {age}년째" if age is not None and age < 200 else "", f"{hhn:,}세대" if hhn else ""] if x)}에 맞춰 골랐습니다. 지원 내용은 {esc(SUPP.get("확인", ""))} 확인한 공고 · 보도 기준이며 해마다 바뀌니, 신청 전에 「근거」와 담당 기관 공고를 꼭 보세요.</p></section>')
+            f'<p class="note">이 단지의 {" · ".join(x for x in ["지역", f"준공 {age}년째" if age is not None and age < 200 else "", f"{hhn:,}세대" if hhn else ""] if x)}에 맞춰 골랐습니다. 지원 내용은 {esc(SUPP.get("확인", ""))} 확인한 공고 · 보도 기준이며 해마다 바뀌니, 신청 전에 「근거」와 담당 기관 공고를 꼭 보세요. <a href="../../support/?c={code}">접수 달력과 전체 지원 사업 보기</a></p></section>')
 
 
 LEAKR = None
