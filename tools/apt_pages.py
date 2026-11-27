@@ -290,7 +290,7 @@ def head(url, title, desc, ld, depth, kw="", canon=None):
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="{up}assets/home/home.css?v=20261116c">
-<link rel="stylesheet" href="{up}assets/apt/apt.css?v=20261117c">
+<link rel="stylesheet" href="{up}assets/apt/apt.css?v=20261127a">
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-35EM7T3M9W"></script>
 <script>window.dataLayer=window.dataLayer||[];function gtag(){{dataLayer.push(arguments);}}gtag('js',new Date());(function(){{try{{if(localStorage.getItem('jj_staff'))window['ga-disable-G-35EM7T3M9W']=true}}catch(e){{}}}})();gtag('config','G-35EM7T3M9W');</script>
 {"".join(f'<script type="application/ld+json">{json.dumps(x, ensure_ascii=False)}</script>' for x in ld)}
@@ -470,7 +470,9 @@ def type_page(code, row, d, t, pr, nq, siblings, cases=()):
     rec = {"url": url, "단지": name, "평형": tn, "전용": e, "공급평": round(py, 1), "올수리기본": int(round(base[1], -4)), "낮게": int(round(base[0], -4)), "높게": int(round(base[2], -4)),
            "샷시포함": int(round(full[1], -4)), "코디비": int(round(codi, -4)), "턴키추정": int(round(turn, -4)),
            "누수": [[a, int(round(x["tot"], -4))] for a, _b, x in LK], "경매": {A_GOAL[g]: [int(round(AU[g]["lo"], -4)), int(round(AU[g]["mid"], -4)), int(round(AU[g]["hi"], -4))] for g in AU}}
-    return url, head(url, title, desc, ld, 2, kw) + body + foot(2), rec
+    # 2026-11-27 대표 승인: 같은 단지 평형 쪽끼리 글이 93% 같아(서로 다른 단지 평형끼리도 84%) 구글 「대량 생성 콘텐츠」로 사이트 전체 순위가 깎일 위험
+    #   → 평형 쪽은 고객용으로 두고 대표 주소를 단지 대문으로(사이트 지도에서도 빠짐). 도면·공종 금액은 대문에 평형별로 모은다.
+    return url, head(url, title, desc, ld, 2, kw, canon=f"{SITE}apt/{code}/") + body + foot(2), rec
 
 
 ACB = None
@@ -523,6 +525,17 @@ def apt_page(code, row, d, pr, nq):
         mn = min(LK, key=lambda z: z[2]['tot']); mx = max(LK, key=lambda z: z[2]['tot'])
         ltr += (f'<tr><td><b>{esc(t["이름"])}</b> <small>{float(t.get("전용") or 0):.0f}㎡</small></td><td class=n>{man(mn[2]["tot"])}<small>{esc(mn[0])} · 약 {mn[2]["days"]}일</small></td>'
                 f'<td class=n>{man(mx[2]["tot"])}<small>{esc(mx[0])} · 약 {mx[2]["days"]}일</small></td><td class=n><a href="../../leak/?apt={code}&amp;t={esc(str(t["이름"]))}">산정서</a></td></tr>')
+    # 2026-11-27 대문을 이 단지에만 있는 내용으로: 평형별 집지니 도면(방 이름·면적) + 공종 × 평형 금액 표
+    figs = "".join(f'<figure class="plan"><a href="{slug(t["이름"])}.html">{plan_svg(t["plan"])}</a><figcaption><b>{esc(t["이름"])}</b> 전용 {float(t.get("전용") or 0):.1f}㎡ · 방 {sm.get("방", "-")} · 욕실 {sm.get("욕실", "-")} · '
+                   + " · ".join(f'{esc(r["name"])} {r["area"]:.1f}㎡' for r in sorted((t["plan"].get("rooms") or []), key=lambda r: -r.get("area", 0))[:4] if r.get("area", 0) > 3)
+                   + '</figcaption></figure>' for t, b, f, sm in items[:6])
+    cols = items[:5]
+    cm = {str(t['이름']): {r[0]: r[2] for r in cost(t, pr)[1]} for t, _b, _f, _s in cols}
+    mtr = "".join(f'<tr><td>{esc(k)}</td>' + "".join(f'<td class=n>{man(cm[str(t["이름"])].get(k, 0))}</td>' for t, _b, _f, _s in cols) + '</tr>' for k in ORDER if any(cm[str(t["이름"])].get(k) for t, _b, _f, _s in cols))
+    matrix = ('<section id="trades"><h2>' + esc(name) + ' 평형별 공종 금액</h2><div style="overflow-x:auto"><table class="tb"><thead><tr><th>공종</th>'
+              + "".join(f'<th class=n>{esc(t["이름"])}</th>' for t, _b, _f, _s in cols) + '</tr></thead><tbody>' + mtr + '</tbody></table></div>'
+              + f'<p class="note">집지니 실견적 {nq}건의 공종별 평당 가운데값 × 평형별 공급 평수. 부가세 10% 별도.</p></section>')
+    thin = len(ts) < 2 and not (str(year or '').strip() and str(hh or '').strip())   # 평형 하나에 준공·세대수도 없는 대문은 색인 제외
     body = f"""<main class="ap">
 <nav class="crumb"><a href="../">아파트별 공사비</a> › <span>{esc(loc)}</span> › <span>{esc(name)}</span></nav>
 <h1>{esc(name)} 인테리어 비용</h1>
@@ -534,6 +547,8 @@ def apt_page(code, row, d, pr, nq):
   <p class="note">올수리 기본은 샷시·필름·베란다를 뺀 금액, 부가세 10% 별도. 평형을 누르면 도면과 공종별 금액, 셀인(셀프 인테리어)·반셀인(반셀프)·직영 인테리어로 할 때의 비용이 나옵니다.</p>
   <div class="cta"><a class="go" href="../../req/?apt={code}">우리 집 견적서 받기<small>무료 · 24시간 안에</small></a><a href="../../?apt={code}#f1">첫 화면 계산기에서 공사 빼 보기</a></div>
 </section>
+<section id="plans"><h2>{esc(name)} 평형별 집지니 도면</h2><div class="plans">{figs}</div></section>
+{matrix}
 {acb_html(code, 2)}
 <section>
   <h2>{esc(name)} 공사 전에 먼저 볼 곳</h2>
@@ -547,7 +562,9 @@ def apt_page(code, row, d, pr, nq):
 {('<section id="leak"><h2>' + esc(name) + ' 누수 복구 비용</h2><div style="overflow-x:auto"><table class="tb"><thead><tr><th>평형</th><th class=n>가장 가벼운 경우</th><th class=n>가장 큰 경우</th><th class=n></th></tr></thead><tbody>' + ltr + '</tbody></table></div><p class="note">이 단지 평형 도면의 방 크기로 계산했습니다. 원인 세대의 일상생활배상책임 보험에 낼 산정서를 바로 만들 수 있습니다. 부가세 10% 별도.</p></section>') if ltr else ""}
 </main>
 """
-    return url, head(url, title, desc, ld, 2, kw) + body + foot(2)
+    hd = head(url, title, desc, ld, 2, kw)
+    if thin: hd = hd.replace('<link rel="canonical"', '<meta name="robots" content="noindex,follow">\n<link rel="canonical"', 1)
+    return url, hd + body + foot(2)
 
 
 def has_leak(d, pr):

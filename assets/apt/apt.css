@@ -52,3 +52,7 @@
 .ap .pts{margin:0;padding-left:20px}.ap .pts li{margin:6px 0}
 .ap .note a,.ap .tb td a{color:var(--jj-g,#1F5E2E)}
 .ap .tb td small{display:block;margin-left:0}
+/* 2026-11-27 단지 대문 평형별 도면 묶음 */
+.ap .plans{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px}
+.ap .plans .plan svg{max-height:320px}
+.ap .plans figcaption{line-height:1.6}
