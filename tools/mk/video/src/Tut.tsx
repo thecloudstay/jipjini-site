@@ -154,16 +154,17 @@ const Hook: React.FC<{d: TutData; f: number; bgImg: string}> = ({d, f, bgImg}) =
     }
   }
 };
+// 첫 장면 소리: 형식마다 다르게, 높은 음 없이 밈·반응 소리 위주
 const hookSounds = (m: Fmt): JSX.Element[] => {
   switch (m.kind) {
-    case 'count': return [snd('rise', 6, 0.5), snd('slam', 50, 0.7), snd('m_woo', 56, 0.7)];
-    case 'taps': return [snd('pop', 30, 0.6), snd('key2', 44, 0.7), snd('key1', 74, 0.7)];
-    case 'versus': return [1, 11, 21].map((a) => snd('thud', a, 0.6)).concat([snd('whoosh_b', 48, 0.5), snd('qup', 62, 0.7), snd('m_ah', 76, 0.7)]);
-    case 'chat': return [0, 28, 48, 66].map((a, k) => snd(k % 2 ? 'pluck' : 'pop', a, 0.7));
-    case 'myth': return [snd('slam', 46, 0.8), snd('boing', 48, 0.7), snd('m_hehe', 66, 0.6)];
-    case 'pov': return [snd('drop', 20, 0.6), snd('drop', 40, 0.5), snd('riser', 40, 0.4), snd('m_gah', 52, 0.6)];
+    case 'count': return [snd('drumroll', 50 - 27, 0.55), snd('slam', 50, 0.7), snd('m_omg', 56, 0.6)];
+    case 'taps': return [snd('tok', 30, 0.6), snd('tok', 44, 0.6), snd('tok', 74, 0.6), snd('crowd_oh', 76, 0.5)];
+    case 'versus': return [1, 11, 21].map((a) => snd('thud', a, 0.6)).concat([snd('whoosh', 48, 0.4), snd('m_bruh', 62, 0.7)]);
+    case 'chat': return [0, 28, 48, 66].map((a) => snd('tok', a, 0.6)).concat([snd('laugh', 70, 0.45)]);
+    case 'myth': return [snd('slam', 46, 0.8), snd('boing', 48, 0.6), snd('laugh', 60, 0.55)];
+    case 'pov': return [snd('drop_low', 20, 0.7), snd('drop_low', 40, 0.6), snd('heart', 30, 0.6), snd('m_bruh', 56, 0.7)];
     case 'list': return [30, 40, 50].map((a) => snd('punch', a, 0.45));
-    case 'marker': return [snd('whoosh_c', 26, 0.5), snd('mk2', 46, 0.8), snd('m_ah', 60, 0.6)];
+    case 'marker': return [snd('whoosh', 24, 0.4), snd('mk2', 46, 0.7), snd('sad', 52, 0.45)];
     case 'challenge': return [snd('tapestop', 14, 0.4), snd('drop808', 34, 0.6)];
   }
 };
@@ -205,16 +206,16 @@ export const Tut: React.FC<{d: TutData}> = ({d}) => {
     if (x.step) lastStep = x.step;
     // 누르는 소리는 화면 속 소리라 남기되 작게
     if (x.kind === 'tap' && x.tapAt) {const tm = s + Math.round(len(x, m) * 0.45); tapMoments.push(tm); sounds.push(snd(pal.tap, tm, pal.tapV, 't' + k));}
-    if (x.kind === 'type' && typeN++ % 2 === 0) sounds.push(snd('key1', s + 1, 0.28, 'k' + k));
+    if (x.kind === 'type' && typeN++ % 2 === 0) sounds.push(snd('key3', s + 1, 0.25, 'k' + k));
     if (x.focus && (x.result || x.kind === 'shot') && x.cap) sounds.push(snd(['mk1', 'mk2', 'mk3'][k % 3], s + ZIN + 2, 0.5, 'mk' + k));
     if (x.result) {
       if (pal.pre) sounds.push(snd(pal.pre, s - (PEAK[pal.pre] ?? 0), 0.4, 'pre' + k));
       pal.hit.forEach(([n, v], q) => sounds.push(snd(n, s, v, 'hit' + k + q)));
-      if (pal.voice) sounds.push(snd(pal.voice, s + 8, 0.6, 'r' + k));
+      if (pal.voice) sounds.push(snd(pal.voice[0], s + 6, pal.voice[1], 'r' + k));
     }
   });
   if (m.kind === 'list' && resultIdx >= 0) [20, 44, 68].forEach((a, k) => sounds.push(snd('tok', starts[resultIdx] + a, 0.5, 'l' + k)));
-  if (m.kind === 'challenge') sounds.push(snd('airhorn', endAt - 4, 0.4, 'win'));
+  if (m.kind === 'challenge') sounds.push(snd('cheer', endAt - 4, 0.55, 'win'));
   // 결과 순간 화면 효과
   const lfHit = fr && fr.result ? f - starts[i] : -1;
   const pz = punchZ(lfHit, pal.punch), hs = pal.shake ? hitShake(lfHit) : '';
@@ -286,6 +287,6 @@ export const Tut: React.FC<{d: TutData}> = ({d}) => {
     </AbsoluteFill>}
     <Audio src={staticFile(`sfx/${m.music}.wav`)} startFrom={musicStart(mood, hits[0] ?? endAt, EXTRA_BARS[d.id] ?? 0)} volume={(x) => musicVol(x, total, hits)} />
     {sounds}
-    {snd('whoosh_b', endAt - 6, 0.4, 'e1')}{snd('reveal', endAt + 10, 0.5, 'e2')}
+    {snd('whoosh', endAt - 2, 0.4, 'e1')}{snd('thud', endAt + 10, 0.5, 'e2')}
   </AbsoluteFill>;
 };

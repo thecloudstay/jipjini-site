@@ -8,14 +8,16 @@
 export type Mood = 'up' | 'talk' | 'calm' | 'tense' | 'warm';
 export const BPM: Record<Mood, number> = {up: 96, talk: 90, calm: 76, tense: 88, warm: 82};
 export const moodOf = (music: string) => (music.replace('mood_', '') as Mood);
-export const PEAK: Record<string, number> = {whoosh_a: 4, whoosh_b: 6, whoosh_c: 2, whoosh: 2, riser: 26, rise: 8};
-type Pal = {cut: string | null; tap: string; tapV: number; hit: [string, number][]; voice: string | null; pre: string | null; shake: boolean; punch: number};
+//  6) 높은 음의 소리는 쓰지 않는다(2026-11-28 대표 「높은 피치 사운드 다 빼, 거북하다」). 금지: riser·rise·qup·pluck·pop·key1·key2·ding·glitch·hat·coins·chips·airhorn·scratch·reveal·m_ah·m_woo·m_hehe·m_gah·whoosh_a/b/c
+//  7) 밈·반응 소리는 적극적으로(대표 「와우·박수 등 밈 사운드 적극, 필요하면 만들어 써」): 박수·환호·관중 「오~」·두구두구·짜잔·웃음·실망 트롬본·브루·바인 붐 (tools/music/memes.py 로 직접 만든 것 + 밈 원본)
+export const PEAK: Record<string, number> = {whoosh: 2, drumroll: 27, timp: 8, tada: 5};
+type Pal = {cut: string | null; tap: string; tapV: number; hit: [string, number][]; voice: [string, number] | null; pre: string | null; shake: boolean; punch: number};
 export const PAL: Record<Mood, Pal> = {
-  up:    {cut: 'whoosh_a', tap: 'tok',  tapV: 0.45, hit: [['thud', 0.75], ['reveal', 0.55]], voice: 'm_woo', pre: 'rise',  shake: false, punch: 1.06},
-  talk:  {cut: 'whoosh_c', tap: 'pop',  tapV: 0.5,  hit: [['pluck', 0.6], ['reveal', 0.5]],  voice: 'm_ah',  pre: null,    shake: false, punch: 1.05},
-  calm:  {cut: null,       tap: 'tok',  tapV: 0.35, hit: [['reveal', 0.45]],                 voice: null,    pre: null,    shake: false, punch: 1.035},
-  tense: {cut: 'whoosh_b', tap: 'key2', tapV: 0.5,  hit: [['boom', 0.4], ['reveal', 0.5]],   voice: null,    pre: 'riser', shake: true,  punch: 1.07},
-  warm:  {cut: null,       tap: 'tok',  tapV: 0.35, hit: [['pluck', 0.5], ['reveal', 0.45]], voice: null,    pre: null,    shake: false, punch: 1.035},
+  up:    {cut: 'whoosh', tap: 'tok', tapV: 0.45, hit: [['thud', 0.7], ['tada', 0.6]],    voice: ['cheer', 0.6],      pre: 'drumroll', shake: false, punch: 1.06},
+  talk:  {cut: 'whoosh', tap: 'tok', tapV: 0.45, hit: [['thud', 0.55], ['tada', 0.45]],  voice: ['crowd_oh', 0.7],   pre: null,       shake: false, punch: 1.05},
+  calm:  {cut: null,     tap: 'tok', tapV: 0.35, hit: [['thud', 0.45]],                  voice: ['clap_small', 0.5], pre: null,       shake: false, punch: 1.035},
+  tense: {cut: 'whoosh', tap: 'tok', tapV: 0.45, hit: [['m_vine', 0.6]],                 voice: ['crowd_oh', 0.7],   pre: 'timp',     shake: true,  punch: 1.07},
+  warm:  {cut: null,     tap: 'tok', tapV: 0.35, hit: [['thud', 0.45], ['tada', 0.4]],   voice: ['applause', 0.55],  pre: null,       shake: false, punch: 1.035},
 };
 // 결과 장면(hitAt)이 마디 첫 박에 오도록 곡 시작 지점(프레임)을 구한다. extraBars 로 같은 곡을 쓰는 편끼리 구간을 달리한다.
 export const musicStart = (mood: Mood, hitAt: number, extraBars = 0) => {
