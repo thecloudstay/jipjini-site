@@ -16,7 +16,7 @@
 .f1 .fk b{color:var(--jj-g);font-weight:700}
 .f1 .fh h1{margin:0;font-size:clamp(30px,5.4vw,50px);line-height:1.32;font-weight:700;letter-spacing:-.8px;text-wrap:balance}
 .f1 .fh p{margin:16px 0 0;max-width:30em;color:var(--jj-pencil);font-size:17px;text-wrap:pretty}
-.f1 .ff{position:relative;margin-top:30px;max-width:620px}
+.f1 .ff{position:relative;z-index:20;margin-top:30px;max-width:620px}
 .f1 .ff input{width:100%;height:60px;padding:0 18px;border:1.5px solid var(--jj-ink);border-radius:var(--jj-radius);font:inherit;font-size:18px;color:var(--jj-ink);background:#fff;outline-offset:2px}
 .f1 .ff input::placeholder{color:var(--jj-pencil-2)}
 .f1 .ff input:focus-visible{outline:2px solid var(--jj-g)}
