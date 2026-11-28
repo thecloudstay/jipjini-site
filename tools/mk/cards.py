@@ -19,7 +19,7 @@ body{{width:1080px;height:1350px;background:#fff;color:#1C1F1B;font-family:P,san
 .m{{flex:1;display:flex;flex-direction:column;justify-content:center;padding-bottom:150px}}
 .hook{{background:#1C1F1B;color:#fff}} .hook .top{{border-color:#fff;color:#B9BDB5}} .hook .top b{{color:#fff}} .hook .h em{{color:#7FC98B}} .hook .s{{color:#C9CCC5}} .hook .foot{{color:#9BA097;border-color:#3A3E38}}
 .top{{display:flex;justify-content:space-between;align-items:center;font-size:30px;color:#6B7067;border-bottom:2px solid #1C1F1B;padding-bottom:26px}}
-.top b{{color:#1C1F1B;font-size:34px}} .top b i{{font-style:normal;display:inline-block;width:46px;height:46px;line-height:46px;text-align:center;background:#1F5E2E;color:#fff;border-radius:4px;margin-right:14px;font-size:28px;vertical-align:middle}}
+.top b{{color:#1C1F1B;font-size:50px;letter-spacing:-1px}} .top b i{{font-style:normal;display:inline-block;width:66px;height:66px;line-height:66px;text-align:center;background:#1F5E2E;color:#fff;border-radius:6px;margin-right:18px;font-size:40px;vertical-align:middle}}
 .h{{font-size:128px;line-height:1.2;font-weight:700;letter-spacing:-4px}}
 .h em,.t em{{font-style:normal;color:#1F5E2E}}
 .s{{font-size:40px;line-height:1.6;color:#6B7067;margin-top:56px}}
@@ -35,7 +35,11 @@ body{{width:1080px;height:1350px;background:#fff;color:#1C1F1B;font-family:P,san
 .bar.g div i{{background:#1F5E2E}} .bar.g p b{{color:#1F5E2E}}
 .foot{{position:absolute;left:92px;right:92px;bottom:70px;display:flex;justify-content:space-between;font-size:26px;color:#6B7067;border-top:1px solid #DCDFD8;padding-top:22px}}
 
-.url{{align-self:flex-start;display:inline-block;margin-top:70px;font-size:52px;font-weight:700;border-bottom:6px solid #1F5E2E;padding-bottom:8px}}
+/* 2026-11-28 대표 「집지니 너무 작잖아! 항상 로고는 크게 + 사이트 주소 병기」 */
+.logo{{display:flex;align-items:center;gap:30px;margin-top:80px}}
+.logo i{{font-style:normal;display:block;width:150px;height:150px;line-height:150px;text-align:center;background:#1F5E2E;color:#fff;border-radius:12px;font-size:92px;font-weight:700}}
+.logo b{{display:block;font-size:128px;line-height:1;letter-spacing:-4px}}
+.logo span{{display:block;margin-top:14px;font-size:50px;font-weight:700;color:#1F5E2E;letter-spacing:0}}
 /* 2026-11-28 대표 「글만 있는 것보다 배경 화면이나 이미지 등 다르게, 최신식으로 계속 변경하면서」 */
 .t-paper .c{{background:#F3EFE6}} .t-paper .hook{{background:#F3EFE6;color:#1C1F1B}} .t-paper .hook .top{{border-color:#1C1F1B;color:#6B7067}} .t-paper .hook .top b{{color:#1C1F1B}} .t-paper .hook .h em{{color:#1F5E2E}} .t-paper .hook .s{{color:#6B7067}}
 .t-yellow .hook{{background:#FFD43B;color:#1C1F1B}} .t-yellow .hook .top{{border-color:#1C1F1B;color:#3A3E38}} .t-yellow .hook .top b{{color:#1C1F1B}} .t-yellow .hook .h em{{color:#1C1F1B;background:#fff;padding:0 10px}} .t-yellow .hook .s{{color:#3A3E38}} .t-yellow .hook .foot{{color:#3A3E38;border-color:#1C1F1B}}
@@ -79,7 +83,7 @@ def slide(x, i, n):
     elif k == "bill":
         body = f'<div class="t" style="margin:0 0 40px">{hl(x.get("t", ""))}</div><div class="billbox"><h4>관리비 고지서</h4>' + "".join(f'<div class="{"hi" if j == x.get("hi") else ""}"><span>{E(a)}</span><span>{E(b)}</span></div>' for j, (a, b) in enumerate(x["rows"])) + f'</div><div class="s">{hl(x.get("s", ""))}</div>'
     elif k == "cta":
-        body = f'<div class="h">{hl(x.get("t", "우리 단지는?"))}</div><div class="s">{hl(x.get("s", "아파트 검색하면 우리 집 공사비가 바로 나와요"))}</div><span class="url">{E(x.get("url", "집지니"))}</span>'
+        body = f'<div class="h">{hl(x.get("t", "우리 단지는?"))}</div><div class="s">{hl(x.get("s", "아파트 검색하면 우리 집 공사비가 바로 나와요"))}</div><div class="logo"><i>집</i><div><b>집지니</b><span>jipjini.com</span></div></div>'
     else:
         body = f'<div class="h">{hl(x.get("t", ""))}</div><div class="s">{hl(x.get("s", ""))}</div>'
     bg = ""
