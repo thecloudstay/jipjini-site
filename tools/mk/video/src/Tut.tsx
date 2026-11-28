@@ -1,20 +1,22 @@
 // 집지니 사이트 사용법 영상 틀 (2026-11-28 대표 「사이트 들어가서 사용법도 올리자 — 튜토리얼」)
-// 조사 반영: 결과 먼저(갈고리) → 번호 단계 자막 → 누를 곳 확대·손가락 표시 → 결과에서 멈춤 → 큰 로고 + jipjini.com
+// v2 (대표 「왜 다 똑같은 폼?」): 편마다 갈고리 형식·바탕색·자막 모양·배경음이 다름 → src/tut/fmt.ts
+// 공통: 누를 곳 확대·손가락 표시 → 결과에서 멈춤 → 큰 로고 + jipjini.com
 import React from 'react';
 import {AbsoluteFill, Audio, Img, Sequence, interpolate, useCurrentFrame, staticFile, Easing} from 'remotion';
-import {INK, useFonts} from './Maru';
+import {INK, useFonts, css} from './Maru';
+import {Fmt} from './tut/fmt';
 
 const GREEN = '#1F5E2E', LIME = '#8FD19E', YEL = '#FFD43B';
 const S = 2.5;            // 화면 사진 배율(432×768 → 1080×1920)
-const HOOK = 75, END = 105, ZIN = 14;
+const ZIN = 14, END = 105;
+const C = {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'} as const;
 
 type Fr = {img: string; kind: 'tap' | 'type' | 'shot'; cap: string | null; step: number | null; focus: number[] | null; tapAt: number[] | null; hold: number; result: boolean};
-export type TutData = {id: string; title: string; hook: string; end: string; frames: Fr[]};
+export type TutData = {id: string; title: string; hook: string; end: string; frames: Fr[]; fmt: Fmt};
 
-const len = (f: Fr) => f.kind === 'type' ? 8 : Math.round(f.hold * 30);
-export const tutLength = (d: TutData) => HOOK + d.frames.reduce((a, f) => a + len(f), 0) + END;
+const len = (f: Fr, m: Fmt) => f.kind === 'type' ? 8 : Math.round((f.result && m.resultHold ? m.resultHold : f.hold) * 30);
+export const tutLength = (d: TutData) => d.fmt.hook + d.frames.reduce((a, f) => a + len(f, d.fmt), 0) + END;
 
-// 확대 배율과 중심(영상 좌표)
 const cam = (f: Fr) => {
   if (!f.focus) return {z: 1, cx: 540, cy: 960};
   const [x, y, w, h] = f.focus.map((v) => v * S);
@@ -22,117 +24,274 @@ const cam = (f: Fr) => {
   z = Math.max(1, z);
   const hw = 540 / z, hh = 960 / z;
   const cx = Math.min(Math.max(x + w / 2, hw), 1080 - hw);
-  const cy = Math.min(Math.max(y + h / 2 + 60 / z, hh), 1920 - hh);   // 위 자막 띠만큼 살짝 아래로
+  const cy = Math.min(Math.max(y + h / 2 + 60 / z, hh), 1920 - hh);
   return {z, cx, cy};
 };
+const pop = (f: number, at: number, k = 1.8) => interpolate(f - at, [0, 9], [0, 1], {...C, easing: Easing.out(Easing.back(k))});
+const fade = (f: number, at: number, d = 6) => interpolate(f - at, [0, d], [0, 1], C);
+const snd = (name: string, at: number, v = 0.7, key = name + at) => <Sequence key={key} from={Math.max(0, Math.round(at))}><Audio src={staticFile(`sfx/${name}.wav`)} volume={v} /></Sequence>;
 
-const Logo: React.FC<{at: number}> = ({at}) => {
+const Logo: React.FC<{at: number; fg: string; light: boolean}> = ({at, fg, light}) => {
   const f = useCurrentFrame();
-  const k = interpolate(f - at, [0, 8], [0.6, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp', easing: Easing.out(Easing.back(2))});
+  const k = interpolate(f - at, [0, 8], [0.6, 1], {...C, easing: Easing.out(Easing.back(2))});
   return <div style={{display: 'flex', alignItems: 'center', gap: 34, transform: `scale(${k})`, transformOrigin: 'left center', opacity: f >= at ? 1 : 0}}>
-    <span style={{width: 190, height: 190, background: YEL, color: INK, borderRadius: 16, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: 120, fontWeight: 700}}>집</span>
-    <div><div style={{fontSize: 170, fontWeight: 700, color: '#fff', letterSpacing: -5, lineHeight: 1}}>집지니</div>
-      <div style={{marginTop: 18, fontSize: 66, fontWeight: 700, color: LIME}}>jipjini.com</div></div></div>;
+    <span style={{width: 190, height: 190, background: light ? GREEN : YEL, color: light ? '#fff' : INK, borderRadius: 16, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: 120, fontWeight: 700}}>집</span>
+    <div><div style={{fontSize: 170, fontWeight: 700, color: fg, letterSpacing: -5, lineHeight: 1}}>집지니</div>
+      <div style={{marginTop: 18, fontSize: 66, fontWeight: 700, color: light ? GREEN : LIME}}>jipjini.com</div></div></div>;
+};
+
+// 큰 글자 줄들(위에서 튀어 들어옴)
+const Lines: React.FC<{f: number; at: number; lines: string[]; size: number; color: string; last?: string; gap?: number}> = ({f, at, lines, size, color, last, gap = 6}) => <>
+  {lines.map((l, k) => <div key={k} style={{fontSize: size, fontWeight: 700, color: last && k === lines.length - 1 ? last : color, letterSpacing: -size / 32, lineHeight: 1.16,
+    transform: `translateY(${(1 - pop(f, at + k * gap)) * 60}px)`, opacity: fade(f, at + k * gap)}}>{l}</div>)}
+</>;
+
+// ── 갈고리 9가지 ──
+const Hook: React.FC<{d: TutData; f: number; bgImg: string}> = ({d, f, bgImg}) => {
+  const m = d.fmt, H = m.hook;
+  const label = <div style={{fontSize: 46, color: m.acc, fontWeight: 700, marginBottom: 30, opacity: fade(f, 0)}}>집지니 사용법 · {d.title}</div>;
+  const dim = (b = 0.22) => <Img src={staticFile(bgImg)} style={{position: 'absolute', width: 1080, height: 1920, filter: `brightness(${b}) blur(8px)`, transform: `scale(${1.05 + f * 0.001})`}} />;
+  const box = (top: number, kids: React.ReactNode) => <div style={{position: 'absolute', left: 90, right: 90, top}}>{kids}</div>;
+  switch (m.kind) {
+    case 'count': {
+      const p = interpolate(f, [8, 50], [0, 1], {...C, easing: Easing.out(Easing.cubic)});
+      const n = Math.round(2800 * p).toLocaleString('ko-KR');
+      const land = pop(f, 50, 3);
+      return <AbsoluteFill>{dim(0.1)}{box(520, <>{label}
+        <div style={{fontSize: 60, color: '#fff', fontWeight: 700, opacity: fade(f, 0)}}>우리 집 올수리 공사비</div>
+        <div style={{display: 'flex', alignItems: 'baseline', gap: 16, transform: `scale(${1 + land * 0.06 - (f > 58 ? 0.06 : 0)})`, transformOrigin: 'left bottom'}}>
+          <span style={{fontSize: 250, fontWeight: 700, color: m.acc, letterSpacing: -10, fontVariantNumeric: 'tabular-nums'}}>{n}</span>
+          <span style={{fontSize: 100, fontWeight: 700, color: m.acc}}>만 원</span></div>
+        <div style={{marginTop: 30}}><Lines f={f} at={58} lines={['아파트 검색 한 번으로 나왔어요', '턴키보다 1,200만 원 적게']} size={62} color="#fff" last={LIME} gap={10} /></div></>)}
+      </AbsoluteFill>;
+    }
+    case 'taps': {
+      const ring = (f % 30) / 30;
+      return <AbsoluteFill style={{background: m.bg}}>{box(500, <>{label}
+        <Lines f={f} at={4} lines={['우리 집 도면 열고', '물량까지 뽑는 데']} size={104} color="#fff" />
+        <div style={{marginTop: 30}}><Lines f={f} at={30} lines={['몇 번 누르면 될까?']} size={118} color={m.acc} /></div></>)}
+        <div style={{position: 'absolute', left: 540 - 90, top: 1380, width: 180, height: 180, borderRadius: 90, background: 'rgba(111,211,255,.35)', border: '8px solid #fff', opacity: fade(f, 40)}} />
+        <div style={{position: 'absolute', left: 540 - 90, top: 1380, width: 180, height: 180, borderRadius: 90, border: `8px solid ${m.acc}`, opacity: f > 40 ? 1 - ring : 0, transform: `scale(${1 + ring * 1.2})`}} />
+      </AbsoluteFill>;
+    }
+    case 'versus': {
+      const bad = ['업체마다 전화 돌리기', '실측 날짜 맞추기', '견적서 오기까지 며칠'], good = ['사진·도면 파일만 보내면', '24시간 안에 견적서'];
+      const row = (t: string, at: number, ok: boolean) => <div key={t} style={{display: 'flex', alignItems: 'center', gap: 26, marginTop: 22, opacity: fade(f, at), transform: `translateX(${(1 - pop(f, at)) * -50}px)`}}>
+        <span style={{width: 74, height: 74, borderRadius: 37, background: ok ? LIME : '#E5484D', color: INK, fontSize: 52, fontWeight: 700, display: 'inline-flex', alignItems: 'center', justifyContent: 'center'}}>{ok ? '✓' : '✕'}</span>
+        <span style={{fontSize: 64, fontWeight: 700, color: ok ? '#fff' : 'rgba(255,255,255,.75)', textDecoration: ok ? 'none' : 'line-through', textDecorationThickness: 6}}>{t}</span></div>;
+      return <AbsoluteFill>
+        <div style={{position: 'absolute', left: 0, right: 0, top: 0, height: 960, background: '#3A1B1B', padding: '300px 90px 0'}}>
+          <div style={{fontSize: 46, color: '#FF9A9A', fontWeight: 700}}>그동안 견적 받기</div>
+          {bad.map((t, k) => row(t, 8 + k * 12, false))}</div>
+        <div style={{position: 'absolute', left: 0, right: 0, top: 960, height: 960, background: m.bg, padding: '80px 90px 0', borderTop: `10px solid ${m.acc}`, transform: `translateY(${(1 - pop(f, 50, 1.2)) * 960}px)`}}>
+          <div style={{fontSize: 46, color: m.acc, fontWeight: 700}}>집지니로 견적 받기</div>
+          {good.map((t, k) => row(t, 62 + k * 14, true))}</div>
+      </AbsoluteFill>;
+    }
+    case 'chat': {
+      const msgs: [string, boolean, number][] = [['이번 달 관리비 왜 이렇게 나왔지?', false, 6], ['옆 단지랑 비교해 봐', true, 28], ['그걸 어떻게 해?', false, 48], ['아파트 이름만 치면 돼', true, 66]];
+      return <AbsoluteFill style={{background: m.bg}}>
+        <div style={{position: 'absolute', left: 70, top: 300, fontSize: 46, color: GREEN, fontWeight: 700}}>집지니 사용법 · {d.title}</div>
+        <div style={{position: 'absolute', left: 60, right: 60, top: 460}}>
+          {msgs.map(([t, me, at]) => <div key={t} style={{display: 'flex', justifyContent: me ? 'flex-end' : 'flex-start', marginTop: 34, opacity: fade(f, at, 4), transform: `scale(${pop(f, at, 2.2)})`, transformOrigin: me ? 'right bottom' : 'left bottom'}}>
+            <div style={{maxWidth: 820, padding: '30px 42px', borderRadius: 48, borderBottomRightRadius: me ? 10 : 48, borderBottomLeftRadius: me ? 48 : 10, background: me ? m.acc : '#fff', color: INK, fontSize: 70, fontWeight: 700, lineHeight: 1.25, boxShadow: '0 4px 0 rgba(0,0,0,.08)'}}>{t}</div></div>)}
+        </div>
+      </AbsoluteFill>;
+    }
+    case 'myth': {
+      const st = pop(f, 46, 1.4);
+      return <AbsoluteFill style={{background: m.bg}}>{box(480, <>{label}
+        <Lines f={f} at={4} lines={['아파트 지원금,', '우리 단지랑은', '상관없다?']} size={120} color="#fff" /></>)}
+        {f >= 46 && <div style={{position: 'absolute', left: 520, top: 840, padding: '10px 46px', border: `14px solid ${m.acc}`, borderRadius: 24, color: m.acc, fontSize: 190, fontWeight: 700, transform: `rotate(-12deg) scale(${2.4 - st * 1.4})`, opacity: st}}>땡!</div>}
+        {box(1400, <Lines f={f} at={64} lines={['단지마다 받을 수 있는', '사업이 따로 있어요']} size={66} color={LIME} gap={8} />)}
+      </AbsoluteFill>;
+    }
+    case 'pov': {
+      const drops = Array.from({length: 9}, (_, k) => {const x = 160 + ((k * 389) % 760), per = 34 + (k % 4) * 7, t = ((f + k * 11) % per) / per; return <div key={k} style={{position: 'absolute', left: x, top: 120 + t * 1700, width: 26, height: 40, borderRadius: '50% 50% 50% 50% / 60% 60% 40% 40%', background: m.acc, opacity: 0.75 * (1 - t * 0.6)}} />;});
+      return <AbsoluteFill style={{background: m.bg}}>
+        <div style={{position: 'absolute', left: -80, right: -80, top: -60, height: 220, background: 'radial-gradient(ellipse at 50% 0%, rgba(140,110,70,.75), rgba(0,0,0,0) 70%)'}} />
+        {drops}{box(560, <>
+        <div style={{fontSize: 90, color: m.acc, fontWeight: 700, opacity: fade(f, 0)}}>POV:</div>
+        <Lines f={f} at={6} lines={['윗집에서', '물이 샌다']} size={150} color="#fff" />
+        <div style={{marginTop: 50}}><Lines f={f} at={52} lines={['복구비, 얼마 나올까?']} size={86} color={m.acc} /></div></>)}
+      </AbsoluteFill>;
+    }
+    case 'list': {
+      const items = ['수리비', '공사 기간', '감정가 대비 비율'];
+      return <AbsoluteFill>{dim(0.16)}{box(460, <>{label}
+        <Lines f={f} at={2} lines={['경매 낙찰 전', '꼭 볼 것 3가지']} size={124} color="#fff" last={m.acc} />
+        <div style={{marginTop: 60}}>{items.map((t, k) => <div key={t} style={{display: 'flex', alignItems: 'center', gap: 30, marginTop: 26, opacity: fade(f, 30 + k * 10), transform: `translateX(${(1 - pop(f, 30 + k * 10)) * 80}px)`}}>
+          <span style={{width: 90, height: 90, borderRadius: 45, border: `6px solid ${m.acc}`, color: m.acc, fontSize: 54, fontWeight: 700, display: 'inline-flex', alignItems: 'center', justifyContent: 'center'}}>{k + 1}</span>
+          <span style={{fontSize: 72, fontWeight: 700, color: '#fff'}}>{t}</span></div>)}</div></>)}
+      </AbsoluteFill>;
+    }
+    case 'marker': {
+      const sw = interpolate(f, [26, 46], [0, 1], {...C, easing: Easing.inOut(Easing.cubic)});
+      const z = 1.18;
+      return <AbsoluteFill style={{background: m.bg}}>
+        <div style={{position: 'absolute', left: 0, top: 0, width: 1080, height: 1920, transformOrigin: '540px 1050px', transform: `scale(${z})`}}>
+          <Img src={staticFile(bgImg)} style={{width: 1080, height: 1920, filter: 'brightness(.5)'}} />
+          <div style={{position: 'absolute', left: 84, top: 990, height: 120, width: 920 * sw, background: 'rgba(255,225,77,.55)', borderRadius: 8}} />
+        </div>
+        <div style={{position: 'absolute', left: 0, right: 0, top: 0, padding: '230px 80px 60px', background: `linear-gradient(${m.bg} 75%, rgba(0,0,0,0))`}}>
+          {label}
+          <Lines f={f} at={4} lines={['받은 견적서,']} size={104} color="#fff" />
+          {['이 줄,', '비싼 거 맞아요?'].map((l, k) => <div key={l} style={{marginTop: 14}}><span style={{fontSize: 108, fontWeight: 700, letterSpacing: -3, color: INK, opacity: fade(f, 46 + k * 8), background: `linear-gradient(${m.acc}, ${m.acc}) no-repeat`, backgroundSize: `${interpolate(f, [46 + k * 8, 58 + k * 8], [0, 100], C)}% 100%`, padding: '0 16px'}}>{l}</span></div>)}
+        </div>
+      </AbsoluteFill>;
+    }
+    case 'challenge': {
+      const go = pop(f, 34, 2.4);
+      return <AbsoluteFill style={{background: m.bg}}>{box(420, <>{label}
+        <Lines f={f} at={2} lines={['싱크대 설계', '60초 도전']} size={130} color="#fff" last={m.acc} /></>)}
+        <div style={{position: 'absolute', left: 540 - 210, top: 1030, width: 420, height: 420, borderRadius: 210, border: `22px solid ${m.acc}`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: 200, fontWeight: 700, transform: `scale(${pop(f, 14, 2)})`}}>{f < 34 ? '60' : '시작'}</div>
+        {f >= 34 && <div style={{position: 'absolute', left: 0, right: 0, top: 1030, height: 420, display: 'flex', alignItems: 'center', justifyContent: 'center'}}><div style={{width: 420, height: 420, borderRadius: 210, background: m.acc, opacity: (1 - go) * 0.8, transform: `scale(${1 + go * 0.5})`}} /></div>}
+      </AbsoluteFill>;
+    }
+  }
+};
+const hookSounds = (m: Fmt): JSX.Element[] => {
+  switch (m.kind) {
+    case 'count': return [snd('rise', 6, 0.5), snd('slam', 50, 0.7), snd('m_woo', 56, 0.7)];
+    case 'taps': return [snd('pop', 30, 0.6), snd('key2', 44, 0.7), snd('key1', 74, 0.7)];
+    case 'versus': return [8, 20, 32].map((a) => snd('thud', a, 0.6)).concat([snd('whoosh_b', 48, 0.5), snd('qup', 62, 0.7), snd('m_ah', 76, 0.7)]);
+    case 'chat': return [6, 28, 48, 66].map((a, k) => snd(k % 2 ? 'pluck' : 'pop', a, 0.7));
+    case 'myth': return [snd('slam', 46, 0.8), snd('boing', 48, 0.7), snd('m_hehe', 66, 0.6)];
+    case 'pov': return [snd('drop', 20, 0.6), snd('drop', 40, 0.5), snd('riser', 40, 0.4), snd('m_gah', 52, 0.6)];
+    case 'list': return [30, 40, 50].map((a) => snd('punch', a, 0.45));
+    case 'marker': return [snd('whoosh_c', 26, 0.5), snd('pen', 46, 0.8), snd('m_ah', 60, 0.6)];
+    case 'challenge': return [snd('tapestop', 14, 0.4), snd('drop808', 34, 0.6)];
+  }
 };
 
 export const Tut: React.FC<{d: TutData}> = ({d}) => {
   useFonts();
   const f = useCurrentFrame();
+  const m = d.fmt, HOOK = m.hook, light = m.fg !== '#fff';
   const base = `tut/${d.id}/`;
-  // 장면 시작 시각
   const starts: number[] = []; let t = HOOK;
-  d.frames.forEach((fr) => {starts.push(t); t += len(fr);});
+  d.frames.forEach((fr) => {starts.push(t); t += len(fr, m);});
   const endAt = t, total = t + END;
-  let i = starts.findIndex((s, k) => f >= s && f < s + len(d.frames[k]));
+  const i = starts.findIndex((s, k) => f >= s && f < s + len(d.frames[k], m));
   const fr = i >= 0 ? d.frames[i] : null;
-  // 지금 단계 자막(빈 자막이면 앞 장면 것을 이어 씀)
   let capIdx = -1;
   if (i >= 0) for (let k = i; k >= 0; k--) if (d.frames[k].cap) {capIdx = k; break;}
   const cap = capIdx >= 0 ? d.frames[capIdx] : null;
-  // 확대: 같은 단계 안(타자 장면)은 그대로, 새 단계는 1배에서 들어감
   let view = {z: 1, cx: 540, cy: 960};
   if (fr) {
     const tgt = cam(fr.kind === 'type' && capIdx >= 0 ? d.frames[capIdx] : fr);
     const from = fr.kind === 'type' || fr.cap === null && i > 0 && d.frames[i - 1].kind !== 'shot' ? tgt : {z: 1, cx: 540, cy: 960};
-    const p = fr.kind === 'type' ? 1 : interpolate(f - starts[i], [4, 4 + ZIN], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp', easing: Easing.inOut(Easing.cubic)});
+    const p = fr.kind === 'type' ? 1 : interpolate(f - starts[i], [4, 4 + ZIN], [0, 1], {...C, easing: Easing.inOut(Easing.cubic)});
     view = {z: from.z + (tgt.z - from.z) * p, cx: from.cx + (tgt.cx - from.cx) * p, cy: from.cy + (tgt.cy - from.cy) * p};
   }
   const tf = `translate(${540 - view.cx * view.z}px, ${960 - view.cy * view.z}px) scale(${view.z})`;
   const resultIdx = d.frames.findIndex((x) => x.result);
-  const resImg = d.frames[resultIdx >= 0 ? resultIdx : d.frames.length - 1].img;
+  const resImg = base + d.frames[resultIdx >= 0 ? resultIdx : d.frames.length - 1].img;
 
   // 소리
-  const sounds: JSX.Element[] = [];
+  const sounds: JSX.Element[] = [snd(m.start, 0, 0.8, 'start'), ...hookSounds(m)];
   const W = ['whoosh_a', 'whoosh_b', 'whoosh_c'], K = ['key1', 'key2', 'key3'];
+  const tapMoments: number[] = [];
   d.frames.forEach((x, k) => {
     const s = starts[k];
-    if (x.cap && !x.result) sounds.push(<Sequence key={'w' + k} from={s - 3}><Audio src={staticFile(`sfx/${W[k % 3]}.wav`)} volume={0.35} /></Sequence>);
-    if (x.kind === 'tap' && x.tapAt) sounds.push(<Sequence key={'t' + k} from={s + Math.round(len(x) * 0.45)}><Audio src={staticFile(`sfx/${K[k % 3]}.wav`)} volume={0.7} /></Sequence>);
-    if (x.kind === 'type') sounds.push(<Sequence key={'k' + k} from={s + 1}><Audio src={staticFile(`sfx/${K[(k + 1) % 3]}.wav`)} volume={0.45} /></Sequence>);
-    if (x.result) sounds.push(<Sequence key={'r' + k} from={s + 6}><Audio src={staticFile('sfx/m_ah.wav')} volume={0.8} /></Sequence>);
+    if (x.cap && !x.result) sounds.push(snd(W[k % 3], s - 3, 0.35, 'w' + k));
+    if (x.kind === 'tap' && x.tapAt) {const tm = s + Math.round(len(x, m) * 0.45); tapMoments.push(tm); sounds.push(snd(K[k % 3], tm, 0.7, 't' + k));}
+    if (x.kind === 'type') sounds.push(snd(K[(k + 1) % 3], s + 1, 0.45, 'k' + k));
+    if (x.result) sounds.push(snd(m.kind === 'myth' ? 'm_woo' : 'm_ah', s + 6, 0.8, 'r' + k));
   });
+  if (m.kind === 'taps') tapMoments.forEach((tm, k) => sounds.push(snd('qup', tm + 2, 0.4, 'q' + k)));
+  if (m.kind === 'list' && resultIdx >= 0) [20, 44, 68].forEach((a, k) => sounds.push(snd('punch', starts[resultIdx] + a, 0.5, 'l' + k)));
+  if (m.kind === 'challenge') sounds.push(snd('airhorn', endAt - 4, 0.5, 'win'));
 
   // 손가락 표시
   let tapEl = null;
   if (fr && fr.kind === 'tap' && fr.tapAt) {
-    const L = len(fr), lf = f - starts[i];
+    const L = len(fr, m), lf = f - starts[i];
     const px = 540 + (fr.tapAt[0] * S - view.cx) * view.z, py = 960 + (fr.tapAt[1] * S - view.cy) * view.z;
-    const show = interpolate(lf, [L * 0.2, L * 0.3], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
-    const press = interpolate(lf, [L * 0.4, L * 0.45, L * 0.55], [1, 0.8, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
-    const rip = interpolate(lf, [L * 0.45, L * 0.75], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+    const show = interpolate(lf, [L * 0.2, L * 0.3], [0, 1], C);
+    const press = interpolate(lf, [L * 0.4, L * 0.45, L * 0.55], [1, 0.8, 1], C);
+    const rip = interpolate(lf, [L * 0.45, L * 0.75], [0, 1], C);
     tapEl = <>
       <div style={{position: 'absolute', left: px - 50, top: py - 50, width: 100, height: 100, borderRadius: 50, background: 'rgba(255,212,59,.55)', border: '6px solid #fff', boxShadow: '0 6px 24px rgba(0,0,0,.35)', opacity: show, transform: `scale(${press})`}} />
-      {rip > 0 && rip < 1 && <div style={{position: 'absolute', left: px - 50, top: py - 50, width: 100, height: 100, borderRadius: 50, border: `8px solid ${YEL}`, opacity: 1 - rip, transform: `scale(${1 + rip * 1.8})`}} />}
+      {rip > 0 && rip < 1 && <div style={{position: 'absolute', left: px - 50, top: py - 50, width: 100, height: 100, borderRadius: 50, border: `8px solid ${m.acc}`, opacity: 1 - rip, transform: `scale(${1 + rip * 1.8})`}} />}
     </>;
   }
-  // 결과 테두리 반짝
+  // 결과 테두리
   let resEl = null;
   if (fr && fr.result && fr.focus) {
     const [x, y, w, h] = fr.focus.map((v) => v * S);
-    const lf = f - starts[i];
-    const o = interpolate(lf, [ZIN, ZIN + 6, ZIN + 30], [0, 1, 0.75], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
-    resEl = <div style={{position: 'absolute', left: 540 + (x - view.cx) * view.z - 10, top: 960 + (y - view.cy) * view.z - 10, width: w * view.z + 20, height: h * view.z + 20, border: `8px solid ${YEL}`, borderRadius: 14, opacity: o}} />;
+    const o = interpolate(f - starts[i], [ZIN, ZIN + 6, ZIN + 30], [0, 1, 0.75], C);
+    resEl = <div style={{position: 'absolute', left: 540 + (x - view.cx) * view.z - 10, top: 960 + (y - view.cy) * view.z - 10, width: w * view.z + 20, height: h * view.z + 20, border: `8px solid ${m.acc}`, borderRadius: 14, opacity: o}} />;
   }
-  const capIn = cap ? interpolate(f - starts[capIdx], [0, 7], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp', easing: Easing.out(Easing.back(1.6))}) : 0;
-  const lines = d.hook.split('\n');
 
-  return <AbsoluteFill style={{background: INK, fontFamily: 'P', overflow: 'hidden'}}>
-    {/* 갈고리: 결과 화면을 깔고 큰 질문 */}
-    {f < HOOK && <AbsoluteFill>
-      <Img src={staticFile(base + resImg)} style={{width: 1080, height: 1920, filter: 'brightness(.22) blur(3px)', transform: `scale(${1.05 + f * 0.001})`}} />
-      <div style={{position: 'absolute', left: 90, right: 90, top: 640}}>
-        <div style={{fontSize: 46, color: LIME, fontWeight: 700, marginBottom: 28}}>집지니 사용법 · {d.title}</div>
-        {lines.map((l, k) => <div key={k} style={{fontSize: 120, fontWeight: 700, color: k === lines.length - 1 ? YEL : '#fff', letterSpacing: -4, lineHeight: 1.15,
-          transform: `translateY(${interpolate(f, [k * 6, k * 6 + 10], [60, 0], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp', easing: Easing.out(Easing.back(1.8))})}px)`,
-          opacity: interpolate(f, [k * 6, k * 6 + 6], [0, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'})}}>{l}</div>)}
-      </div>
-    </AbsoluteFill>}
-    {/* 단계 화면 */}
+  // 단계 자막 4가지 모양
+  const capIn = cap ? pop(f, starts[capIdx], 1.6) : 0;
+  const tag = cap ? (cap.result ? '끝' : `${cap.step}단계`) : '';
+  let capEl = null;
+  if (cap) {
+    if (m.cap === 'band') capEl = <div style={{position: 'absolute', left: 0, right: 0, top: 0, padding: '120px 70px 44px', background: `linear-gradient(${m.bg} 78%, rgba(0,0,0,0))`, transform: `translateY(${(1 - capIn) * -40}px)`, opacity: capIn}}>
+      <div style={{display: 'flex', alignItems: 'center', gap: 26}}>
+        <span style={{flex: '0 0 auto', background: m.acc, color: INK, fontSize: 44, fontWeight: 700, padding: '10px 22px', borderRadius: 10}}>{tag}</span>
+        <span style={{fontSize: 62, fontWeight: 700, color: '#fff', letterSpacing: -1.5, lineHeight: 1.2}}>{cap.cap}</span></div></div>;
+    if (m.cap === 'chip') capEl = <div style={{position: 'absolute', left: 50, right: 50, top: 1500, padding: '34px 40px', background: m.bg, border: `5px solid ${m.acc}`, borderRadius: 22, boxShadow: '0 12px 40px rgba(0,0,0,.45)', transform: `translateY(${(1 - capIn) * 60}px)`, opacity: capIn}}>
+      <div style={{fontSize: 40, fontWeight: 700, color: m.acc, marginBottom: 8}}>{tag}</div>
+      <div style={{fontSize: 64, fontWeight: 700, color: '#fff', letterSpacing: -1.5, lineHeight: 1.2}}>{cap.cap}</div></div>;
+    if (m.cap === 'bubble') capEl = <div style={{position: 'absolute', right: 50, top: 1480, maxWidth: 900, display: 'flex', flexDirection: 'column', alignItems: 'flex-end', transform: `scale(${capIn})`, transformOrigin: 'right bottom'}}>
+      <div style={{fontSize: 38, fontWeight: 700, color: INK, background: '#fff', padding: '6px 18px', borderRadius: 10, marginBottom: 12, boxShadow: '0 4px 14px rgba(0,0,0,.25)'}}>{tag}</div>
+      <div style={{padding: '30px 44px', borderRadius: 48, borderBottomRightRadius: 10, background: m.acc, color: INK, fontSize: 64, fontWeight: 700, lineHeight: 1.25, boxShadow: '0 10px 30px rgba(0,0,0,.35)'}}>{cap.cap}</div></div>;
+    if (m.cap === 'marker') {
+      const sw = interpolate(f - starts[capIdx], [4, 16], [0, 100], C);
+      capEl = <div style={{position: 'absolute', left: 50, right: 50, top: 1520, padding: '30px 36px', background: '#fff', borderRadius: 6, boxShadow: '0 12px 40px rgba(0,0,0,.4)', opacity: capIn, transform: `rotate(-1.2deg) translateY(${(1 - capIn) * 50}px)`}}>
+        <div style={{fontSize: 38, fontWeight: 700, color: GREEN, marginBottom: 10}}>{tag}</div>
+        <span style={{fontSize: 64, fontWeight: 700, color: INK, lineHeight: 1.35, background: `linear-gradient(transparent 52%, ${m.acc} 52%) no-repeat`, backgroundSize: `${sw}% 100%`}}>{cap.cap}</span></div>;
+    }
+  }
+
+  // 단계 중 따라다니는 표시
+  let side = null;
+  if (fr) {
+    if (m.kind === 'taps') {
+      const n = tapMoments.filter((tm) => f >= tm).length, last = tapMoments.filter((tm) => f >= tm).pop() ?? -99;
+      side = <div style={{position: 'absolute', right: 50, top: 1560, padding: '22px 34px', background: m.bg, border: `5px solid ${m.acc}`, borderRadius: 20, textAlign: 'center', transform: `scale(${1 + interpolate(f - last, [0, 4, 10], [0, 0.18, 0], C)})`}}>
+        <div style={{fontSize: 36, color: m.acc, fontWeight: 700}}>누른 횟수</div>
+        <div style={{fontSize: 110, color: '#fff', fontWeight: 700, lineHeight: 1}}>{n}</div></div>;
+    }
+    if (m.kind === 'challenge') {
+      const left = Math.max(0, 60 - Math.floor((f - HOOK) / 30)), frac = ((f - HOOK) % 30) / 30;
+      side = <div style={{position: 'absolute', right: 46, top: 150, width: 210, height: 210, borderRadius: 105, background: m.bg, border: `12px solid ${m.acc}`, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', transform: `scale(${1 + (1 - frac) * 0.05})`}}>
+        <div style={{fontSize: 96, color: '#fff', fontWeight: 700, lineHeight: 1}}>{left}</div><div style={{fontSize: 32, color: m.acc, fontWeight: 700}}>초 남음</div></div>;
+    }
+    if (m.kind === 'list' && fr.result) {
+      const lf = f - starts[i];
+      const items = [['수리비', '3,114만 원'], ['공사 기간', '3~4주'], ['감정가 대비', '5.5%']];
+      side = <div style={{position: 'absolute', left: 50, right: 50, top: 1330, padding: '30px 40px', background: m.bg, border: `5px solid ${m.acc}`, borderRadius: 22, boxShadow: '0 12px 40px rgba(0,0,0,.45)', opacity: fade(lf, 12)}}>
+        {items.map(([a, b], k) => <div key={a} style={{display: 'flex', alignItems: 'center', gap: 24, padding: '12px 0', opacity: fade(lf, 20 + k * 24), transform: `translateX(${(1 - pop(lf, 20 + k * 24)) * 60}px)`}}>
+          <span style={{width: 70, height: 70, borderRadius: 35, background: m.acc, color: INK, fontSize: 44, fontWeight: 700, display: 'inline-flex', alignItems: 'center', justifyContent: 'center'}}>✓</span>
+          <span style={{fontSize: 56, fontWeight: 700, color: '#fff', flex: 1}}>{a}</span>
+          <span style={{fontSize: 60, fontWeight: 700, color: m.acc}}>{b}</span></div>)}</div>;
+    }
+  }
+
+  const endLines = (m.end ?? d.end).split('\n');
+  return <AbsoluteFill style={{background: m.bg, fontFamily: 'P', overflow: 'hidden'}}>
+    <style>{css}</style>
+    {f < HOOK && <Hook d={d} f={f} bgImg={resImg} />}
     {fr && <AbsoluteFill>
       <div style={{position: 'absolute', left: 0, top: 0, width: 1080, height: 1920, transformOrigin: '0 0', transform: tf}}>
         <Img src={staticFile(base + fr.img)} style={{width: 1080, height: 1920}} />
       </div>
-      {resEl}{tapEl}
-      {cap && <div style={{position: 'absolute', left: 0, right: 0, top: 0, padding: '120px 70px 44px', background: 'linear-gradient(#141613 78%, rgba(20,22,19,0))', transform: `translateY(${(1 - capIn) * -40}px)`, opacity: capIn}}>
-        <div style={{display: 'flex', alignItems: 'center', gap: 26}}>
-          <span style={{flex: '0 0 auto', background: cap.result ? LIME : YEL, color: INK, fontSize: 44, fontWeight: 700, padding: '10px 22px', borderRadius: 10}}>{cap.result ? '끝' : `${cap.step}단계`}</span>
-          <span style={{fontSize: 62, fontWeight: 700, color: '#fff', letterSpacing: -1.5, lineHeight: 1.2}}>{cap.cap}</span>
-        </div>
-      </div>}
+      {resEl}{tapEl}{capEl}{side}
     </AbsoluteFill>}
-    {/* 끝 화면 */}
-    {f >= endAt && <AbsoluteFill style={{background: INK}}>
-      <div style={{position: 'absolute', left: 90, top: 660}}>
-        <div style={{fontSize: 130, fontWeight: 700, color: '#fff', letterSpacing: -4, lineHeight: 1.1}}>{d.end}</div>
-        <div style={{marginTop: 90}}><Logo at={endAt + 10} /></div>
+    {f >= endAt && <AbsoluteFill style={{background: m.bg}}>
+      <div style={{position: 'absolute', left: 90, top: 620}}>
+        {m.kind === 'challenge' && <div style={{fontSize: 56, fontWeight: 700, color: m.acc, marginBottom: 24}}>성공 · {Math.max(0, 60 - Math.floor((endAt - HOOK) / 30))}초 남음</div>}
+        {endLines.map((l, k) => <div key={k} style={{fontSize: 124, fontWeight: 700, color: m.fg, letterSpacing: -4, lineHeight: 1.12}}>{l}</div>)}
+        <div style={{marginTop: 90}}><Logo at={endAt + 10} fg={m.fg} light={light} /></div>
       </div>
     </AbsoluteFill>}
-    <div style={{position: 'absolute', top: 0, left: 0, height: 12, width: `${(f / total) * 100}%`, background: LIME}} />
-    {/* 소리 */}
-    <Audio src={staticFile('sfx/music_tut.wav')} volume={(fr) => interpolate(fr, [0, 10, total - 20, total], [0, 0.32, 0.32, 0], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'})} />
-    <Sequence from={0}><Audio src={staticFile('sfx/m_vine.wav')} volume={0.9} /></Sequence>
+    <div style={{position: 'absolute', top: 0, left: 0, height: 12, width: `${(f / total) * 100}%`, background: light ? GREEN : m.acc}} />
+    <Audio src={staticFile(`sfx/${m.music}.wav`)} volume={(x) => interpolate(x, [0, 10, total - 20, total], [0, 0.32, 0.32, 0], C)} />
     {sounds}
-    <Sequence from={endAt}><Audio src={staticFile('sfx/whoosh_b.wav')} volume={0.5} /></Sequence>
-    <Sequence from={endAt + 10}><Audio src={staticFile('sfx/reveal.wav')} volume={0.6} /></Sequence>
+    {snd('whoosh_b', endAt, 0.5, 'e1')}{snd('reveal', endAt + 10, 0.6, 'e2')}
   </AbsoluteFill>;
 };
