@@ -41,8 +41,8 @@ const Punch: React.FC<{children: React.ReactNode; bg: string}> = ({children, bg}
 };
 
 const Brand: React.FC<{dark?: boolean}> = ({dark}) => (
-  <div style={{position: 'absolute', top: 120, left: 90, display: 'flex', alignItems: 'center', gap: 18, fontSize: 40, fontWeight: 700, color: dark ? '#fff' : INK}}>
-    <span style={{width: 60, height: 60, background: dark ? YEL : GREEN, color: dark ? INK : '#fff', borderRadius: 6, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: 36}}>집</span>집지니</div>
+  <div style={{position: 'absolute', top: 120, left: 90, display: 'flex', alignItems: 'center', gap: 22, fontSize: 64, fontWeight: 700, letterSpacing: -1, color: dark ? '#fff' : INK}}>
+    <span style={{width: 92, height: 92, background: dark ? YEL : GREEN, color: dark ? INK : '#fff', borderRadius: 6, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: 56}}>집</span>집지니</div>
 );
 const Foot: React.FC<{dark?: boolean; t: string}> = ({dark, t}) => (
   <div style={{position: 'absolute', bottom: 150, left: 90, right: 90, fontSize: 32, color: dark ? '#A9AEA5' : '#6B7067'}}>{t}</div>
@@ -197,7 +197,10 @@ export const Maru: React.FC = () => {
     {f >= T.cta + 15 && <div style={{position: 'absolute', left: 90, top: 640}}>
       <Pop at={T.cta + 15} size={170}>우리 집은</Pop>
       <div style={{fontSize: 190, fontWeight: 700, letterSpacing: -4, lineHeight: 1.08}}><Hit at={T.cta + 30} color={LIME} pre={false}>얼마?</Hit></div>
-      <div style={{marginTop: 70, fontSize: 64, fontWeight: 700, color: '#fff', borderBottom: `8px solid ${LIME}`, display: 'inline-block', paddingBottom: 10}}><Type t="집지니" at={T.cta + 45} /></div></div>}
+      <div style={{marginTop: 80, display: 'flex', alignItems: 'center', gap: 34, transform: `scale(${interpolate(f - T.cta - 45, [0, 8], [0.6, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp', easing: Easing.out(Easing.back(2))})})`, transformOrigin: 'left center', opacity: f >= T.cta + 45 ? 1 : 0}}>
+        <span style={{width: 190, height: 190, background: YEL, color: INK, borderRadius: 16, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: 120, fontWeight: 700}}>집</span>
+        <div><div style={{fontSize: 170, fontWeight: 700, color: '#fff', letterSpacing: -5, lineHeight: 1}}>집지니</div>
+        <div style={{marginTop: 18, fontSize: 66, fontWeight: 700, color: LIME}}>jipjini.com</div></div></div></div>}
     <Foot dark t="84㎡ 수도권 2,026개 단지 가운데값 · 턴키는 추정 · 부가세 10% 별도" />
     <Flash at={hits} />
     <div style={{position: 'absolute', top: 0, left: 0, height: 12, width: `${(f / T.end) * 100}%`, background: LIME}} />
@@ -210,6 +213,6 @@ export const Maru: React.FC = () => {
     {A(T.save - 4, 'whoosh_b', 0.45)}{A(T.save + 15, 'chips', 0.7)}{A(T.save + 25, 'chips2', 0.5)}{A(T.save + 45, 'drop808', 0.5)}{A(T.save + 45, 'm_woo', 0.9)}
     {A(T.car - 2, 'carhorn', 0.55)}{A(T.maru - 4, 'whoosh_c', 0.55)}{A(T.maru, 'm_gah', 1)}{A(T.maru + 15, 'm_hehe', 1)}
     {A(T.cta - 8, 'tapestop', 0.5)}{A(T.cta + 15, 'pluck', 0.6)}{A(T.cta + 30, 'thud', 0.9)}{A(T.cta + 30, 'qup', 0.55)}
-    {[2, 4, 6].map((k, i) => <React.Fragment key={'u' + k}>{A(T.cta + 45 + k, ['key2', 'key1', 'key3'][i % 3], 0.35)}</React.Fragment>)}
+    {A(T.cta + 45, 'reveal', 0.6)}
   </AbsoluteFill>;
 };
