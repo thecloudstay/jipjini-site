@@ -11,7 +11,7 @@ import {Mark, MarkKind, Cap, shake} from './Marks';
 const LIME = '#8FD19E', YEL = '#FFD43B';
 const KIND: MarkKind[] = ['hl', 'circle', 'arrow', 'underline', 'star', 'bracket', 'circle', 'box', 'arrow', 'star', 'check'];
 const C = {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'} as const;
-const snd = (n: string, at: number, v = 0.7) => <Sequence key={n + at} from={Math.max(0, Math.round(at))}><Audio src={staticFile(`sfx/${n}.wav`)} volume={v} /></Sequence>;
+const snd = (n: string, at: number, v = 0.7) => <Sequence key={n + at} from={Math.max(0, Math.round(at))}><Audio src={staticFile(`sfx/${n}.wav`)} volume={v * 0.7} /></Sequence>;
 
 // 그림 배율: 진행표 사진은 css 1px = 2.5px, 사용법 영상 사진(cost·compare)은 이미 1080 폭
 const SC: Record<string, number> = {cost: 1, compare: 1, contract: 2.5, codi: 2.5, build: 2.5, movein: 2.5};
@@ -110,7 +110,7 @@ export const Journey: React.FC = () => {
         <div style={{marginTop: 90}}><Logo /></div>
       </div>
     </AbsoluteFill>}
-    <Audio src={staticFile('sfx/music_a.wav')} volume={(x) => interpolate(x, [0, 10, JOURNEY_LEN - 20, JOURNEY_LEN], [0, 0.22, 0.22, 0], C)} />
+    <Audio src={staticFile('sfx/mood_warm.wav')} startFrom={308} volume={(x) => interpolate(x, [0, 10, JOURNEY_LEN - 20, JOURNEY_LEN], [0, 0.24, 0.24, 0], C)} />
     {sounds}
   </AbsoluteFill>;
 };
