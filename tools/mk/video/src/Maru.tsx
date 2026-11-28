@@ -73,9 +73,9 @@ const Type: React.FC<{t: string; at: number}> = ({t, at}) => {
 
 
 // 2026-11-28 대표 「이펙트가 더 과하게 — 강조 메시지마다」: 강조 순간마다 번쩍 + 흔들림 + 튀는 확대 + 색 갈라짐 + 빛줄기 터짐
-const Hit: React.FC<{at: number; children: React.ReactNode; color?: string; rays?: string}> = ({at, children, color = '#fff', rays = YEL}) => {
+const Hit: React.FC<{at: number; children: React.ReactNode; color?: string; rays?: string; pre?: boolean}> = ({at, children, color = '#fff', rays = YEL, pre = true}) => {
   const f = useCurrentFrame(); const d = f - at;
-  if (d < 0) return <div style={{opacity: 0}}>{children}</div>;
+  if (d < 0) return <div style={{opacity: pre ? 1 : 0, color}}>{children}</div>;
   const k = interpolate(d, [0, 4, 10], [1.45, 0.94, 1], {extrapolateRight: 'clamp', easing: Easing.out(Easing.quad)});
   const sh = d < 14 ? Math.sin(d * 4.7) * (14 - d) * 2.6 : 0;
   const sp = interpolate(d, [0, 10], [14, 0], {extrapolateRight: 'clamp'});
@@ -104,47 +104,108 @@ const Coins: React.FC<{at: number}> = ({at}) => {
       opacity: interpolate(d, [26, 40], [1, 0], {extrapolateLeft: 'clamp'}), transform: `rotate(${d * 20 + i * 30}deg) scaleX(${Math.cos(d / 3 + i)})`}} />; })}</AbsoluteFill>;
 };
 
+
+// 2026-11-28 대표 「내용 구성·색상 다 따로 놀아 — 하나의 일련의 시나리오, 스토리로」
+// 한 화면·한 배경(먹색 + 평면도 선)·한 색 규칙(흰 글, 종이 견적서, 초록 = 아낀 돈, 노랑 = 도장 한 번)으로 끝까지 이어 간다.
+// 이야기: 견적서 받음(3,964만) → 헐 미친 → 단지 이름 넣어 봄 → 줄 긋고 2,775만 → 1,189만 남음 → 그 돈 동전이 차로 → 마티즈 샀다 긔긔 → 우리 집은 얼마?
+const T = {recv: 0, shock: 50, try_: 95, strike: 120, newv: 135, save: 190, car: 255, maru: 300, cta: 360, end: 450};
+
+const Cap: React.FC<{lines: [number, number, React.ReactNode][]}> = ({lines}) => {
+  const f = useCurrentFrame();
+  const cur = lines.filter(([a, b]) => f >= a && f < b);
+  return <div style={{position: 'absolute', left: 90, right: 90, top: 300, height: 360}}>{cur.map(([a, , node], i) => {
+    const d = f - a; const s = interpolate(d, [0, 8], [0, 1], {extrapolateRight: 'clamp', easing: Easing.out(Easing.back(2))});
+    return <div key={a} style={{fontSize: 112, fontWeight: 700, color: '#fff', letterSpacing: -3, lineHeight: 1.12, opacity: s, transform: `translateY(${(1 - s) * 40}px)`}}>{node}</div>; })}</div>;
+};
+
+const Receipt: React.FC = () => {
+  const f = useCurrentFrame();
+  const up = interpolate(f, [T.recv + 4, T.recv + 20], [900, 0], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp', easing: Easing.out(Easing.cubic)});
+  const shrink = interpolate(f, [T.save, T.save + 16], [1, 0.62], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp', easing: Easing.inOut(Easing.cubic)});
+  const lift = interpolate(f, [T.save, T.save + 16], [0, -330], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp', easing: Easing.inOut(Easing.cubic)});
+  const gone = interpolate(f, [T.car - 10, T.car + 6], [1, 0], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const old = interpolate(f, [T.recv + 18, T.recv + 44], [0, 3964], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp', easing: Easing.out(Easing.cubic)});
+  const strike = interpolate(f, [T.strike, T.strike + 10], [0, 100], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  const nv = interpolate(f, [T.newv, T.newv + 30], [3964, 2775], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp', easing: Easing.out(Easing.cubic)});
+  const stampK = interpolate(f - T.shock, [0, 6, 12], [2.4, 0.92, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp', easing: Easing.out(Easing.quad)});
+  return <div style={{position: 'absolute', left: 110, right: 110, top: 760, opacity: gone, transform: `translateY(${up + lift}px) scale(${shrink}) rotate(-2deg)`}}>
+    <div style={{background: '#fff', borderRadius: 6, padding: '50px 56px 56px', boxShadow: '0 30px 80px rgba(0,0,0,.45)'}}>
+      <div style={{display: 'flex', justifyContent: 'space-between', fontSize: 34, color: '#6B7067', borderBottom: '3px dashed #C9CCC5', paddingBottom: 22}}><span>견적서 · 84㎡ 올수리</span><span>턴키</span></div>
+      <div style={{position: 'relative', fontSize: 150, fontWeight: 700, color: INK, letterSpacing: -6, marginTop: 30, fontVariantNumeric: 'tabular-nums', opacity: f >= T.newv ? 0.35 : 1}}>
+        {Math.round(old).toLocaleString('ko-KR')}<span style={{fontSize: 60}}>만 원</span>
+        <div style={{position: 'absolute', left: 0, top: '52%', height: 14, width: `${strike}%`, background: '#E0352B', borderRadius: 7}} /></div>
+      {f >= T.newv && <div style={{fontSize: 40, color: '#6B7067', marginTop: 10}}>집지니로 바꾸면</div>}
+      {f >= T.newv && <div style={{fontSize: 170, fontWeight: 700, letterSpacing: -6, lineHeight: 1.05, fontVariantNumeric: 'tabular-nums'}}><Hit at={T.newv + 30} color={GREEN} rays={GREEN}>{Math.round(nv).toLocaleString('ko-KR')}<span style={{fontSize: 64}}>만 원</span></Hit></div>}
+    </div>
+    {f >= T.shock && <div style={{position: 'absolute', right: -30, top: -70, transform: `rotate(12deg) scale(${stampK})`, border: `10px solid ${YEL}`, color: YEL, fontSize: 92, fontWeight: 700, padding: '6px 28px', borderRadius: 10, background: 'rgba(20,22,19,.85)'}}>헐 미친</div>}
+  </div>;
+};
+
+const Saved: React.FC = () => {
+  const f = useCurrentFrame(); if (f < T.save + 10 || f > T.car + 10) return null;
+  const v = interpolate(f, [T.save + 10, T.save + 40], [0, 1189], {extrapolateRight: 'clamp', easing: Easing.out(Easing.cubic)});
+  const o = interpolate(f, [T.car, T.car + 10], [1, 0], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
+  return <div style={{position: 'absolute', left: 90, top: 1060, opacity: o}}>
+    <div style={{fontSize: 56, color: '#C9CCC5', marginBottom: 6}}>남은 돈</div>
+    <div style={{fontSize: 240, fontWeight: 700, letterSpacing: -9, fontVariantNumeric: 'tabular-nums'}}><Hit at={T.save + 40} color={LIME}>{Math.round(v).toLocaleString('ko-KR')}<span style={{fontSize: 90}}>만 원</span></Hit></div></div>;
+};
+
+const Car: React.FC = () => {
+  const f = useCurrentFrame(); if (f < T.car) return null;
+  const draw = interpolate(f, [T.car, T.car + 30], [1, 0], {extrapolateRight: 'clamp'});
+  const drive = interpolate(f, [T.cta + 10, T.cta + 40], [0, -1500], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp', easing: Easing.in(Easing.cubic)});
+  const bob = Math.sin(f / 3) * 4;
+  const P = (d: string, w = 10) => <path d={d} pathLength={1} fill="none" stroke={LIME} strokeWidth={w} strokeLinecap="round" strokeLinejoin="round" strokeDasharray={1} strokeDashoffset={draw} />;
+  return <svg viewBox="0 0 600 300" style={{position: 'absolute', left: 140, top: 1080, width: 800, transform: `translate(${drive}px, ${bob}px)`}}>
+    {P('M40 220 L60 150 Q80 90 150 85 L330 85 Q380 85 420 140 L520 160 Q560 170 560 215 L560 230 L40 230 Z')}
+    {P('M170 95 L170 150 M300 95 L300 150 M120 150 L410 150')}
+    <circle cx="150" cy="235" r="40" fill="#141613" stroke={LIME} strokeWidth="10" /><circle cx="450" cy="235" r="40" fill="#141613" stroke={LIME} strokeWidth="10" />
+    {f > T.cta + 10 && [0, 1, 2].map(i => <line key={i} x1={600 + i * 10} y1={150 + i * 30} x2={700 + i * 40} y2={150 + i * 30} stroke="#fff" strokeWidth={8} strokeLinecap="round" opacity={0.6} />)}
+  </svg>;
+};
+
+const Fly: React.FC = () => {
+  const f = useCurrentFrame(); const d = f - T.car + 8; if (d < 0 || d > 34) return null;
+  return <AbsoluteFill>{Array.from({length: 18}).map((_, i) => {
+    const t = Math.min(1, Math.max(0, (d - i * 0.8) / 18)); const sx = 300 + (i % 6) * 90, sy = 1150, ex = 540, ey = 1330;
+    const x = sx + (ex - sx) * t, y = sy + (ey - sy) * t - Math.sin(t * Math.PI) * 300;
+    return <div key={i} style={{position: 'absolute', left: x, top: y, width: 50, height: 50, borderRadius: 25, background: YEL, border: `5px solid ${GREEN}`, opacity: t >= 1 ? 0 : 1}} />; })}</AbsoluteFill>;
+};
+
 export const Maru: React.FC = () => {
   useFonts();
   const f = useCurrentFrame();
-  const shake = f >= 135 && f < 160 ? Math.sin(f * 3.1) * (160 - f) * 2.4 : 0;
-  const cam = [22, 108, 157, 259, 314].reduce((acc, a) => acc + (f >= a && f < a + 10 ? Math.sin((f - a) * 5) * (10 - (f - a)) * 2.2 : 0), 0);
-  return <AbsoluteFill style={{background: INK, transform: `translate(${cam}px, ${cam * 0.6}px) scale(${1 + Math.abs(cam) / 400})`}}>
+  const hits = [T.shock, T.newv + 30, T.save + 40, T.maru, T.maru + 22, T.cta + 14];
+  const cam = hits.reduce((acc, a) => acc + (f >= a && f < a + 10 ? Math.sin((f - a) * 5) * (10 - (f - a)) * 2.4 : 0), 0);
+  const maruK = interpolate(f - T.maru, [0, 7], [2.6, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp', easing: Easing.out(Easing.back(1.8))});
+  const A = (at: number, src: string, v = 1) => <Sequence from={at}><Audio src={staticFile('sfx/' + src + '.wav')} volume={v} /></Sequence>;
+  return <AbsoluteFill style={{background: INK, transform: `translate(${cam}px, ${cam * 0.6}px)`}}>
     <style>{css}</style>
-    <Audio src={staticFile('sfx/beat.wav')} volume={0.35} />
-    {/* 1 갈고리 */}
-    <Sequence durationInFrames={60}><Punch bg={INK}><PlanBg dark /><Brand dark />
-      <div style={{position: 'absolute', left: 90, top: 620}}><Pop at={4}>인테리어비</Pop><div style={{fontSize: 150, fontWeight: 700, letterSpacing: -4, lineHeight: 1.08}}><Hit at={22} color={LIME}>아껴서</Hit></div></div></Punch>
-      <Sequence from={4}><Audio src={staticFile('sfx/pop.wav')} /></Sequence><Sequence from={22}><Audio src={staticFile('sfx/slam.wav')} volume={0.8} /></Sequence></Sequence>
-    {/* 2 숫자 */}
-    <Sequence from={60} durationInFrames={75}><Punch bg={PAPER}><Brand />
-      <div style={{position: 'absolute', left: 90, top: 640}}>
-        <div style={{fontSize: 60, color: '#6B7067', marginBottom: 20}}>84㎡ 같은 집, 차이</div>
-        <Hit at={48} color={GREEN}><Counter from={0} to={1189} at={4} dur={44} size={250} color={GREEN} suffix="만 원" /></Hit></div><Coins at={48} />
-      <Foot t="집지니 실견적 가운데값 · 부가세 10% 별도" /></Punch>
-      <Sequence from={4}><Audio src={staticFile('sfx/coins.wav')} /></Sequence><Sequence from={48}><Audio src={staticFile('sfx/ding.wav')} /></Sequence><Sequence from={48}><Audio src={staticFile('sfx/slam.wav')} volume={0.7} /></Sequence><Sequence from={50}><Audio src={staticFile('sfx/coins.wav')} /></Sequence></Sequence>
-    {/* 3 반전 */}
-    <Sequence from={135} durationInFrames={60}><Punch bg={YEL}><Brand />
-      <div style={{position: 'absolute', left: 90, top: 620, transform: `translateX(${shake}px)`}}>
-        <div style={{fontSize: 190, fontWeight: 700, color: INK, letterSpacing: -6, lineHeight: 1.05, transform: `scale(${interpolate(f - 135, [0, 8], [2.6, 1], {extrapolateRight: 'clamp', easing: Easing.out(Easing.back(1.6))})})`, transformOrigin: 'left center'}}>마티즈<br />샀다</div>
-        <div style={{marginTop: 30}}><div style={{fontSize: 200, fontWeight: 700, letterSpacing: -4}}><Hit at={22} color={GREEN} rays={INK}>긔긔</Hit></div></div></div></Punch>
-      <Audio src={staticFile('sfx/slam.wav')} /><Sequence from={22}><Audio src={staticFile('sfx/glitch.wav')} /></Sequence><Sequence from={22}><Audio src={staticFile('sfx/slam.wav')} volume={0.6} /></Sequence></Sequence>
-    {/* 4 비교 */}
-    <Sequence from={195} durationInFrames={105}><Punch bg={PAPER}><Brand />
-      <div style={{position: 'absolute', left: 90, right: 90, top: 560}}>
-        <div style={{fontSize: 84, fontWeight: 700, color: INK, marginBottom: 90, letterSpacing: -2}}>같은 84㎡ 올수리</div>
-        <Bar label="턴키 추정" val={3964} max={3964} at={10} color={INK} text="만" />
-        <Bar label="집지니" val={2775} max={3964} at={34} color={GREEN} text="만" /></div>
-      <Foot t="수도권 2,026개 단지 84㎡ 가운데값 · 부가세 10% 별도" /></Punch>
-      <Audio src={staticFile('sfx/whoosh.wav')} /><Sequence from={10}><Audio src={staticFile('sfx/rise.wav')} volume={0.6} /></Sequence><Sequence from={64}><Audio src={staticFile('sfx/ding.wav')} /></Sequence></Sequence>
-    {/* 5 행동 */}
-    <Sequence from={300} durationInFrames={75}><Punch bg={GREEN}><Brand dark />
-      <div style={{position: 'absolute', left: 90, top: 640}}><Pop at={2} size={170}>우리 집은</Pop><div style={{fontSize: 190, fontWeight: 700, letterSpacing: -4, lineHeight: 1.08}}><Hit at={14} color={YEL}>얼마?</Hit></div>
-        <div style={{marginTop: 80, fontSize: 64, fontWeight: 700, color: '#fff', borderBottom: `8px solid ${YEL}`, display: 'inline-block', paddingBottom: 10}}><Type t="jipjini.com/apt" at={26} /></div></div>
-      <Foot dark t="아파트 이름만 넣으면 30초" /></Punch>
-      <Audio src={staticFile('sfx/whoosh.wav')} /><Sequence from={14}><Audio src={staticFile('sfx/slam.wav')} /></Sequence></Sequence>
-    <Flash at={[22, 108, 135, 157, 259, 314]} />
-    {/* 진행 막대 */}
-    <div style={{position: 'absolute', top: 0, left: 0, height: 12, width: `${(f / 375) * 100}%`, background: YEL}} />
+    <PlanBg dark />
+    <Brand dark />
+    <Cap lines={[
+      [T.recv, T.shock, <>견적서 받았는데</>],
+      [T.shock, T.try_, <>3,964만 원<span style={{color: YEL}}>?</span></>],
+      [T.try_, T.save, <>단지 이름만<br />넣어 봤더니</>],
+      [T.save, T.car, <>같은 집인데<br /><span style={{color: LIME}}>이만큼 남음</span></>],
+      [T.car, T.maru, <>그 돈으로</>],
+    ]} />
+    <Receipt /><Saved /><Fly /><Car />
+    {f >= T.maru && f < T.cta + 30 && <div style={{position: 'absolute', left: 90, top: 300, opacity: interpolate(f, [T.cta + 10, T.cta + 30], [1, 0], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'})}}>
+      <div style={{fontSize: 180, fontWeight: 700, color: '#fff', letterSpacing: -6, lineHeight: 1.05, transform: `scale(${maruK})`, transformOrigin: 'left center'}}>마티즈 샀다</div>
+      <div style={{fontSize: 190, fontWeight: 700, letterSpacing: -4, marginTop: 20}}><Hit at={T.maru + 22} color={YEL} rays={LIME} pre={false}>긔긔</Hit></div></div>}
+    {f >= T.cta + 14 && <div style={{position: 'absolute', left: 90, top: 640}}>
+      <Pop at={T.cta + 14} size={170}>우리 집은</Pop>
+      <div style={{fontSize: 190, fontWeight: 700, letterSpacing: -4, lineHeight: 1.08}}><Hit at={T.cta + 26} color={LIME} pre={false}>얼마?</Hit></div>
+      <div style={{marginTop: 70, fontSize: 64, fontWeight: 700, color: '#fff', borderBottom: `8px solid ${LIME}`, display: 'inline-block', paddingBottom: 10}}><Type t="jipjini.com/apt" at={T.cta + 40} /></div></div>}
+    <Foot dark t="84㎡ 수도권 2,026개 단지 가운데값 · 턴키는 추정 · 부가세 10% 별도" />
+    <Flash at={hits} />
+    <div style={{position: 'absolute', top: 0, left: 0, height: 12, width: `${(f / T.end) * 100}%`, background: LIME}} />
+    <Audio src={staticFile('sfx/beat.wav')} volume={0.3} />
+    <Sequence from={T.end - 390}><Audio src={staticFile('sfx/beat.wav')} volume={0.3} /></Sequence>
+    {A(T.recv + 4, 'whoosh')}{A(T.recv + 18, 'coins', 0.5)}{A(T.shock, 'slam')}{A(T.shock, 'glitch', 0.7)}{A(T.try_, 'pop')}
+    {A(T.strike, 'whoosh', 0.8)}{A(T.newv, 'rise', 0.5)}{A(T.newv + 30, 'ding')}{A(T.newv + 30, 'slam', 0.6)}
+    {A(T.save + 10, 'coins')}{A(T.save + 40, 'slam', 0.7)}{A(T.car - 8, 'coins')}{A(T.car, 'rise', 0.6)}
+    {A(T.maru, 'slam')}{A(T.maru + 22, 'glitch')}{A(T.maru + 22, 'pop')}{A(T.cta + 10, 'whoosh')}{A(T.cta + 26, 'slam')}{A(T.cta + 40, 'pop', 0.6)}
   </AbsoluteFill>;
 };
