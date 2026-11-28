@@ -1,133 +1,135 @@
 // 고객 입장에서 본 집지니 진행 과정: 비교 견적 → 계약 → 코디 → 시공 → 입주 (2026-11-28 대표 요청)
-// 조사 반영(mk/research/2026-11-28-고객여정영상.md): 단계마다 「고객이 받는 것」 한 줄 + 안심 장치(돈 흐름·동의·하자)를 숫자로, 위쪽에 여정 지도 고정
-// 화면은 실제 고객 페이지(progress/?demo=1)에 예시 자료를 넣어 찍은 것 — 예시 고객·예시 단지 표시
+// v2 (대표 「AI 티가 너무 난다」 → mk/research/2026-11-28-AI티-없애기.md):
+//   둥근 자막 상자·알약 머리말·3D 이모지·통통 튀는 글자 빼고 → 쇼츠 기본 자막(흰 글씨+검은 테두리), 손으로 그은 동그라미,
+//   손가락으로 넘기는 듯한 스크롤, 컷 편집, 살짝 손 흔들림, 대표 말투 1인칭 자막
+// 화면은 실제 고객 진행표(progress/?demo=1)에 예시 자료를 넣어 찍은 것(tools/proc/rec.js) — 「예시 고객·예시 단지」 그대로 보임
 import React from 'react';
 import {AbsoluteFill, Audio, Img, Sequence, interpolate, useCurrentFrame, staticFile, Easing} from 'remotion';
 import {INK, useFonts, css} from './Maru';
 
-const GREEN = '#1F5E2E', LIME = '#8FD19E', YEL = '#FFD43B', PAPER = '#F3EFE6';
+const LIME = '#8FD19E', YEL = '#FFD43B', RED = '#E5392C';
 const C = {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'} as const;
-const S = 2.5;
 const snd = (n: string, at: number, v = 0.7) => <Sequence key={n + at} from={Math.max(0, Math.round(at))}><Audio src={staticFile(`sfx/${n}.wav`)} volume={v} /></Sequence>;
-const pop = (f: number, at: number, k = 1.8) => interpolate(f - at, [0, 9], [0, 1], {...C, easing: Easing.out(Easing.back(k))});
-const fade = (f: number, at: number, d = 6) => interpolate(f - at, [0, d], [0, 1], C);
 
-type Key = {at: number; img: string; cy: number; z: number; cap: string; sub?: string};
-type Ch = {name: string; icon: string; from: number; to: number; keys: Key[]};
-const HOOK = 84;
+// 그림 배율: 진행표 사진은 css 1px = 2.5px, 사용법 영상 사진(cost·compare)은 이미 1080 폭
+const SC: Record<string, number> = {cost: 1, compare: 1, contract: 2.5, codi: 2.5, build: 2.5, movein: 2.5};
+type Key = {at: number; img: string; mark: number[]; cap: string; sub?: string};
+type Ch = {no: string; name: string; from: number; keys: Key[]};
+const HOOK = 78;
 const CH: Ch[] = [
-  {name: '비교 견적', icon: 'magnifying_glass_tilted_left', from: HOOK, to: 270, keys: [
-    {at: HOOK, img: 'cost', cy: 290, z: 1.0, cap: '턴키 견적과 나란히 놓고 봅니다', sub: '84㎡ 올수리 예시 · 차이 1,200만 원'},
-    {at: HOOK + 95, img: 'compare', cy: 400, z: 1.0, cap: '받은 견적서도 줄마다 짚어 드려요', sub: '비싼 줄 · 빠진 공사 · 부가세 표기'}]},
-  {name: '계약', icon: 'clipboard', from: 270, to: 430, keys: [
-    {at: 270, img: 'contract', cy: 420, z: 1.0, cap: '계약은 휴대폰으로, 손가락 서명', sub: '지금 단계 · 다음 단계가 한눈에'},
-    {at: 340, img: 'contract', cy: 1640, z: 1.0, cap: '추가 공사는 동의해야만 진행', sub: '공사 전 취소하면 코디비 전액 환불'}]},
-  {name: '코디', icon: 'light_bulb', from: 430, to: 610, keys: [
-    {at: 430, img: 'codi', cy: 1480, z: 1.0, cap: '공정마다 담당 기술자와 날짜를 미리', sub: '고객님이 준비할 일까지 적어 드려요'},
-    {at: 520, img: 'codi', cy: 2960, z: 1.0, cap: '집지니에 내는 돈은 코디비뿐', sub: '자재·인건비는 직접 거래 · 마진 0원'}]},
-  {name: '시공', icon: 'hammer', from: 610, to: 830, keys: [
-    {at: 610, img: 'build', cy: 1080, z: 1.0, cap: '진행률이 휴대폰에 실시간으로', sub: '공정 7개 중 4개 완료 · 57%'},
-    {at: 680, img: 'build', cy: 2780, z: 1.0, cap: '매일 저녁 현장 일보', sub: '오늘 한 일 · 내일 할 일 · 특이사항'},
-    {at: 755, img: 'build', cy: 3430, z: 1.0, cap: '돈이 더 들면, 먼저 묻습니다', sub: '「동의합니다」를 누르기 전엔 진행 안 함'}]},
-  {name: '입주', icon: 'house', from: 830, to: 980, keys: [
-    {at: 830, img: 'movein', cy: 1090, z: 1.0, cap: '공정 7개 모두 완료, 입주', sub: '완공 7일 점검 뒤 들어가세요'},
-    {at: 900, img: 'movein', cy: 3080, z: 1.0, cap: '입주 뒤 12개월, 하자는 여기서 접수', sub: '시공한 기술자 연결 · 방문 일정까지'}]},
+  {no: '①', name: '비교 견적', from: HOOK, keys: [
+    {at: HOOK, img: 'cost', mark: [50, 740, 980, 135], cap: '견적 받으면\n턴키랑 나란히 비교돼요', sub: '84㎡ 예시 · 1,200만 원 차이'},
+    {at: HOOK + 80, img: 'compare', mark: [40, 960, 1000, 170], cap: '다른 업체 견적서도 넣어 보세요\n비싼 줄 짚어 드려요'}]},
+  {no: '②', name: '계약', from: 240, keys: [
+    {at: 240, img: 'contract', mark: [20, 1396, 392, 50], cap: '계약은 휴대폰으로 서명해요'},
+    {at: 305, img: 'contract', mark: [20, 1589, 392, 70], cap: '추가 공사는\n고객님이 동의 눌러야 들어가요'}]},
+  {no: '③', name: '코디', from: 385, keys: [
+    {at: 385, img: 'codi', mark: [20, 1340, 392, 50], cap: '공정마다 어떤 기사님이\n언제 오는지 미리 나와요'},
+    {at: 465, img: 'codi', mark: [20, 2996, 392, 70], cap: '저희한테 내시는 건 코디비 하나', sub: '자재비·인건비는 직접 내세요 · 마진 0원'}]},
+  {no: '④', name: '시공', from: 560, keys: [
+    {at: 560, img: 'build', mark: [16, 1044, 110, 66], cap: '진행률은 매일 바뀌어요'},
+    {at: 620, img: 'build', mark: [16, 2700, 400, 120], cap: '저녁마다 현장 일보 올려 드려요'},
+    {at: 690, img: 'build', mark: [16, 3500, 130, 46], cap: '돈 더 드는 일 생기면\n먼저 여쭤봐요'}]},
+  {no: '⑤', name: '입주', from: 770, keys: [
+    {at: 770, img: 'movein', mark: [16, 1069, 120, 66], cap: '다 끝나면 7일 점검하고 입주'},
+    {at: 835, img: 'movein', mark: [16, 3112, 400, 56], cap: '살다가 문제 생기면 여기서 접수', sub: '12개월 동안 기사님 연결해 드려요'}]},
 ];
-const ENDAT = 980;
-export const JOURNEY_LEN = ENDAT + 110;
+const ENDAT = 925;
+export const JOURNEY_LEN = ENDAT + 105;
+const KS = CH.flatMap((c) => c.keys);
 
-const cam = (f: number) => {
-  const ks = CH.flatMap((c) => c.keys);
-  let i = 0; for (let k = 0; k < ks.length; k++) if (f >= ks[k].at) i = k;
-  const cur = ks[i], prev = ks[Math.max(0, i - 1)];
-  const sameImg = prev.img === cur.img && i > 0;
-  const p = sameImg ? interpolate(f - cur.at, [0, 16], [0, 1], {...C, easing: Easing.inOut(Easing.cubic)}) : 1;
-  const cy = sameImg ? prev.cy + (cur.cy - prev.cy) * p : cur.cy;
-  const z0 = sameImg ? prev.z : 1.0;
-  const zin = sameImg ? p : interpolate(f - cur.at, [0, 18], [0, 1], {...C, easing: Easing.out(Easing.cubic)});
-  const z = 1; const slide = sameImg ? 0 : (1 - zin) * 120;
-  return {cur, cy, z, i, sameImg, slide};
+// 화면 위치: 표시한 곳 가운데가 화면 y=820 에 오게, 같은 사진이면 손가락으로 쓸어 올리듯(빠르게 출발, 천천히 멈춤)
+const view = (f: number) => {
+  let i = 0; for (let k = 0; k < KS.length; k++) if (f >= KS[k].at) i = k;
+  const cur = KS[i], prev = KS[Math.max(0, i - 1)];
+  const s = SC[cur.img];
+  const yOf = (k: Key) => (k.mark[1] + k.mark[3] / 2) * SC[k.img];
+  const same = i > 0 && prev.img === cur.img;
+  const p = same ? interpolate(f - cur.at, [0, 22], [0, 1], {...C, easing: Easing.out(Easing.poly(5))}) : 1;
+  const y = same ? yOf(prev) + (yOf(cur) - yOf(prev)) * p : yOf(cur);
+  return {cur, i, s, top: 820 - y, swipe: same ? f - cur.at : -1};
 };
 
-const Logo: React.FC<{at: number}> = ({at}) => {
-  const f = useCurrentFrame();
-  const k = interpolate(f - at, [0, 8], [0.6, 1], {...C, easing: Easing.out(Easing.back(2))});
-  return <div style={{display: 'flex', alignItems: 'center', gap: 34, transform: `scale(${k})`, transformOrigin: 'left center', opacity: f >= at ? 1 : 0}}>
+// 손으로 그은 동그라미(살짝 삐뚤게, 한 바퀴 조금 더)
+const Circle: React.FC<{x: number; y: number; w: number; h: number; t: number; seed: number}> = ({x, y, w, h, t, seed}) => {
+  const n = 46, pts: string[] = [];
+  for (let k = 0; k <= n; k++) {
+    const a = -1.9 + (k / n) * Math.PI * 2.18;
+    const j = 1 + 0.045 * Math.sin(k * 1.7 + seed) + 0.03 * Math.cos(k * 0.9 + seed * 2);
+    pts.push(`${(x + w / 2 + Math.cos(a) * (w / 2 + 26) * j).toFixed(1)},${(y + h / 2 + Math.sin(a) * (h / 2 + 22) * j).toFixed(1)}`);
+  }
+  const len = 2 * Math.PI * Math.sqrt(((w / 2 + 26) ** 2 + (h / 2 + 22) ** 2) / 2) * 1.12;
+  const d = interpolate(t, [0, 9], [len, 0], {...C, easing: Easing.out(Easing.quad)});
+  return <svg style={{position: 'absolute', left: 0, top: 0, width: 1080, height: 1920, overflow: 'visible'}}>
+    <polyline points={pts.join(' ')} fill="none" stroke={RED} strokeWidth={9} strokeLinecap="round" strokeLinejoin="round" strokeDasharray={len} strokeDashoffset={d} opacity={0.92} />
+  </svg>;
+};
+
+// 쇼츠 기본 자막: 흰 글씨 + 검은 테두리, 상자 없음
+const Cap: React.FC<{text: string; size?: number; color?: string}> = ({text, size = 68, color = '#fff'}) =>
+  <div style={{fontSize: size, fontWeight: 700, color, lineHeight: 1.28, letterSpacing: -1, textAlign: 'center', whiteSpace: 'pre-line',
+    WebkitTextStroke: `${Math.round(size / 9)}px #000`, paintOrder: 'stroke fill', textShadow: '0 4px 10px rgba(0,0,0,.35)'}}>{text}</div>;
+
+const Logo: React.FC = () =>
+  <div style={{display: 'flex', alignItems: 'center', gap: 34}}>
     <span style={{width: 190, height: 190, background: YEL, color: INK, borderRadius: 16, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: 120, fontWeight: 700}}>집</span>
     <div><div style={{fontSize: 170, fontWeight: 700, color: '#fff', letterSpacing: -5, lineHeight: 1}}>집지니</div>
       <div style={{marginTop: 18, fontSize: 66, fontWeight: 700, color: LIME}}>jipjini.com</div></div></div>;
-};
 
 export const Journey: React.FC = () => {
   useFonts();
   const f = useCurrentFrame();
-  const chi = CH.findIndex((c) => f >= c.from && f < c.to);
-  const {cur, cy, z, slide} = cam(f);
-  // 장면 이미지: 위 여정 지도(240) 아래부터, 자막 상자 위까지 보이게
-  const top = 880 - cy * S * z + slide;
+  const chi = CH.reduce((a, c, k) => (f >= c.from ? k : a), -1);
+  const {cur, i, s, top, swipe} = view(f);
+  // 손 흔들림(아주 살짝)
+  const sx = Math.sin(f * 0.21) * 3 + Math.sin(f * 0.53) * 1.5, sy = Math.cos(f * 0.17) * 3, rot = Math.sin(f * 0.11) * 0.25;
+  const markT = f - cur.at - (swipe >= 0 ? 16 : 8);
 
-  // 소리
-  const sounds: JSX.Element[] = [snd('m_vine', 0, 0.85), snd('pop', 22, 0.6), snd('pop', 40, 0.6), snd('rise', 52, 0.4)];
-  CH.forEach((c, k) => {
-    sounds.push(snd(['whoosh_a', 'whoosh_b', 'whoosh_c', 'whoosh_a', 'whoosh_b'][k], c.from - 4, 0.5));
-    sounds.push(snd(['chips', 'pen', 'pluck', 'punch', 'reveal'][k], c.from + 8, 0.6));
-    c.keys.slice(1).forEach((q) => sounds.push(snd('qup', q.at, 0.45)));
+  const sounds: JSX.Element[] = [snd('m_vine', 2, 0.8), snd('scratch', 44, 0.5)];
+  KS.forEach((k, n) => {
+    const newImg = n === 0 || KS[n - 1].img !== k.img;
+    sounds.push(newImg ? snd(['whoosh_a', 'whoosh_b', 'whoosh_c'][n % 3], k.at - 2, 0.45) : snd('key2', k.at, 0.5));
+    sounds.push(snd('pen', k.at + (newImg ? 8 : 16), 0.55));
   });
-  sounds.push(snd('m_woo', CH[4].keys[0].at + 10, 0.7), snd('tapestop', ENDAT - 6, 0.4), snd('reveal', ENDAT + 10, 0.6));
+  sounds.push(snd('m_ah', 700, 0.6), snd('m_woo', 840, 0.6), snd('tapestop', ENDAT - 6, 0.4), snd('reveal', ENDAT + 8, 0.6));
 
-  const capKey = cur; const capAt = capKey.at;
-  const capIn = pop(f, capAt, 1.6);
-
-  return <AbsoluteFill style={{background: INK, fontFamily: 'P', overflow: 'hidden'}}>
+  return <AbsoluteFill style={{background: '#000', fontFamily: 'P', overflow: 'hidden'}}>
     <style>{css}</style>
-    {/* 갈고리 */}
-    {f < HOOK && <AbsoluteFill style={{background: INK}}>
-      <div style={{position: 'absolute', left: 90, right: 90, top: 470}}>
-        {['인테리어 계약하고 나면', '연락 끊길까 봐', '걱정되시죠?'].map((l, k) => <div key={l} style={{fontSize: k === 0 ? 74 : 128, fontWeight: 700, color: k === 2 ? YEL : '#fff', letterSpacing: -4, lineHeight: 1.18, opacity: fade(f, k * 8), transform: `translateY(${(1 - pop(f, k * 8)) * 60}px)`}}>{l}</div>)}
-        <div style={{marginTop: 70, fontSize: 64, fontWeight: 700, color: LIME, opacity: fade(f, 40)}}>집지니는 계약 뒤가 다 보입니다</div>
-      </div>
-      <div style={{position: 'absolute', left: 60, right: 60, top: 1380, display: 'flex', justifyContent: 'space-between'}}>
-        {CH.map((c, k) => <div key={c.name} style={{textAlign: 'center', opacity: fade(f, 50 + k * 4), transform: `scale(${pop(f, 50 + k * 4, 2.4)})`}}>
-          <Img src={staticFile(`img3d/${c.icon}.png`)} style={{width: 150, height: 150}} />
-          <div style={{fontSize: 38, fontWeight: 700, color: '#fff', marginTop: 10}}>{c.name}</div></div>)}
+    {/* 갈고리: 실제 진행표 화면 위에 그냥 자막 */}
+    {f < HOOK && <AbsoluteFill style={{transform: `translate(${sx}px, ${sy}px) rotate(${rot}deg) scale(1.03)`}}>
+      <Img src={staticFile('proc/contract.jpg')} style={{position: 'absolute', left: 0, top: -120, width: 1080}} />
+      <div style={{position: 'absolute', inset: 0, background: 'rgba(0,0,0,.42)'}} />
+      <div style={{position: 'absolute', left: 50, right: 50, top: 760}}>
+        {f < 44 ? <Cap text={'인테리어 계약하고 나면\n연락 끊길까 봐\n걱정되시죠?'} size={92} /> : <Cap text={'저희 고객님 휴대폰엔\n이렇게 떠요'} size={92} color={YEL} />}
       </div>
     </AbsoluteFill>}
     {/* 단계 화면 */}
-    {f >= HOOK && f < ENDAT && <AbsoluteFill style={{background: PAPER}}>
-      <div style={{position: 'absolute', left: 540 - 540 * z, top, width: 1080 * z, transformOrigin: '0 0'}}>
-        <Img src={staticFile(`proc/${cur.img}.jpg`)} style={{width: 1080 * z, display: 'block', boxShadow: '0 0 0 2px #DCDFD8'}} />
+    {f >= HOOK && f < ENDAT && <AbsoluteFill style={{background: '#F3EFE6', transform: `translate(${sx}px, ${sy}px) rotate(${rot}deg) scale(1.03)`}}>
+      <div style={{position: 'absolute', left: 0, top, width: 1080}}>
+        <Img src={staticFile(`proc/${cur.img}.jpg`)} style={{width: 1080, display: 'block'}} />
+        {markT >= 0 && <Circle x={cur.mark[0] * s} y={cur.mark[1] * s} w={cur.mark[2] * s} h={cur.mark[3] * s} t={markT} seed={i * 1.3} />}
       </div>
-      {/* 여정 지도 */}
-      <div style={{position: 'absolute', left: 0, right: 0, top: 0, height: 300, background: `linear-gradient(${INK} 82%, rgba(20,22,19,0))`, padding: '96px 56px 0'}}>
-        <div style={{position: 'relative', height: 140}}>
-          <div style={{position: 'absolute', left: 50, right: 50, top: 44, height: 8, background: '#3A3E37', borderRadius: 4}} />
-          <div style={{position: 'absolute', left: 50, top: 44, height: 8, background: LIME, borderRadius: 4, width: `${Math.max(0, chi) / 4 * (968 - 100) + interpolate(f - (CH[chi]?.from ?? 0), [0, 12], [-(968 - 100) / 4, 0], C) * (chi > 0 ? 1 : 0)}px`}} />
-          {CH.map((c, k) => {
-            const on = k <= chi, now = k === chi;
-            return <div key={c.name} style={{position: 'absolute', left: 50 + k * (968 - 100) / 4 - 60, width: 120, top: 0, textAlign: 'center'}}>
-              <div style={{width: 96, height: 96, margin: '0 auto', borderRadius: 48, background: now ? YEL : on ? LIME : '#2A2D27', border: `4px solid ${now ? '#fff' : 'transparent'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', transform: `scale(${now ? 1 + 0.12 * pop(f, c.from, 3) - (f > c.from + 9 ? 0.12 : 0) + 0.12 : 1})`}}>
-                <Img src={staticFile(`img3d/${c.icon}.png`)} style={{width: 66, height: 66, opacity: on ? 1 : 0.45}} /></div>
-              <div style={{marginTop: 8, fontSize: 32, fontWeight: 700, color: now ? YEL : on ? '#fff' : '#7C8177', whiteSpace: 'nowrap'}}>{c.name}</div></div>;
-          })}
-        </div>
-      </div>
-      {/* 자막 */}
-      <div style={{position: 'absolute', left: 44, right: 44, top: 1470, padding: '34px 40px 38px', background: INK, borderRadius: 20, boxShadow: '0 16px 48px rgba(0,0,0,.4)', opacity: capIn, transform: `translateY(${(1 - capIn) * 70}px)`}}>
-        <div style={{fontSize: 38, fontWeight: 700, color: YEL, marginBottom: 10}}>{chi + 1} / 5 · {CH[Math.max(0, chi)].name}</div>
-        <div style={{fontSize: 66, fontWeight: 700, color: '#fff', letterSpacing: -1.5, lineHeight: 1.2}}>{capKey.cap}</div>
-        {capKey.sub && <div style={{marginTop: 14, fontSize: 44, fontWeight: 700, color: LIME, opacity: fade(f, capAt + 8)}}>{capKey.sub}</div>}
-      </div>
-      <div style={{position: 'absolute', right: 50, top: 1880, fontSize: 28, color: '#6B7067'}}>실제 고객 화면 · 예시 자료</div>
+      {/* 쓸어 올리는 손가락 자국(휴대폰 화면 녹화의 터치 표시처럼) */}
+      {swipe >= 0 && swipe < 14 && <div style={{position: 'absolute', left: 620, top: interpolate(swipe, [0, 12], [1350, 700], C), width: 84, height: 84, borderRadius: 42, background: 'rgba(120,120,120,.45)', border: '3px solid rgba(255,255,255,.8)', opacity: interpolate(swipe, [0, 2, 10, 14], [0, 1, 1, 0], C)}} />}
     </AbsoluteFill>}
-    {/* 끝 */}
+    {f >= HOOK && f < ENDAT && <>
+      <div style={{position: 'absolute', left: 0, right: 0, top: 0, height: 260, background: 'linear-gradient(rgba(0,0,0,.55), rgba(0,0,0,0))'}} />
+      <div style={{position: 'absolute', left: 0, right: 0, bottom: 0, height: 760, background: 'linear-gradient(rgba(0,0,0,0), rgba(0,0,0,.62) 45%, rgba(0,0,0,.7))'}} />
+      <div style={{position: 'absolute', left: 44, top: 70}}><Cap text={`${CH[chi].no} ${CH[chi].name}`} size={58} color={YEL} /></div>
+      <div style={{position: 'absolute', left: 40, right: 40, top: 1430}}>
+        <Cap text={cur.cap} size={70} />
+        {cur.sub && <div style={{marginTop: 18}}><Cap text={cur.sub} size={46} color={YEL} /></div>}
+      </div>
+      <div style={{position: 'absolute', right: 40, top: 1856, fontSize: 28, color: '#fff', opacity: 0.85, WebkitTextStroke: '5px #000', paintOrder: 'stroke fill'}}>실제 고객 화면 · 예시 자료</div>
+    </>}
+    {/* 끝: 큰 로고 + 주소 */}
     {f >= ENDAT && <AbsoluteFill style={{background: INK}}>
-      <div style={{position: 'absolute', left: 90, top: 560}}>
-        {['계약 뒤가', '더 편한 인테리어'].map((l, k) => <div key={l} style={{fontSize: 124, fontWeight: 700, color: k ? YEL : '#fff', letterSpacing: -4, lineHeight: 1.12, opacity: fade(f, ENDAT + k * 6)}}>{l}</div>)}
-        <div style={{marginTop: 100}}><Logo at={ENDAT + 14} /></div>
+      <div style={{position: 'absolute', left: 90, top: 620}}>
+        <div style={{fontSize: 84, fontWeight: 700, color: '#fff', lineHeight: 1.25, letterSpacing: -2}}>궁금한 건<br />카톡으로 물어보세요</div>
+        <div style={{marginTop: 90}}><Logo /></div>
       </div>
     </AbsoluteFill>}
-    <div style={{position: 'absolute', top: 0, left: 0, height: 12, width: `${(f / JOURNEY_LEN) * 100}%`, background: LIME}} />
-    <Audio src={staticFile('sfx/music_c.wav')} volume={(x) => interpolate(x, [0, 10, JOURNEY_LEN - 20, JOURNEY_LEN], [0, 0.3, 0.3, 0], C)} />
+    <Audio src={staticFile('sfx/music_c.wav')} volume={(x) => interpolate(x, [0, 10, JOURNEY_LEN - 20, JOURNEY_LEN], [0, 0.22, 0.22, 0], C)} />
     {sounds}
   </AbsoluteFill>;
 };
