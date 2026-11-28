@@ -7,6 +7,8 @@ import {INK, useFonts, css} from './Maru';
 import {Fmt} from './tut/fmt';
 import {Mark, MARK_ORDER, Cap, shake} from './Marks';
 
+// 배경음: 유튜브 오디오 보관함 「Jackal - The Mini Vandals」(표기 필요 없음, 유튜브 영상 전용). 편마다 다른 구간에서 시작
+const BGM_AT: Record<string, number> = {cost: 0, cad: 600, req: 1200, acb: 1800, support: 2400, disaster: 3000, auction: 3600, compare: 300, kitchen: 900};
 const GREEN = '#1F5E2E', LIME = '#8FD19E', YEL = '#FFD43B';
 const S = 2.5;            // 화면 사진 배율(432×768 → 1080×1920)
 const ZIN = 14, END = 105;
@@ -270,7 +272,7 @@ export const Tut: React.FC<{d: TutData}> = ({d}) => {
         <div style={{marginTop: 90}}><Logo at={endAt + 10} fg={m.fg} light={light} /></div>
       </div>
     </AbsoluteFill>}
-    <Audio src={staticFile(`sfx/${m.music}.wav`)} volume={(x) => interpolate(x, [0, 10, total - 20, total], [0, 0.32, 0.32, 0], C)} />
+    <Audio src={staticFile('sfx/bgm_jackal.mp3')} startFrom={BGM_AT[d.id] ?? 0} volume={(x) => interpolate(x, [0, 10, total - 20, total], [0, 0.26, 0.26, 0], C)} />
     {sounds}
     {snd('whoosh_b', endAt, 0.5, 'e1')}{snd('reveal', endAt + 10, 0.6, 'e2')}
   </AbsoluteFill>;
