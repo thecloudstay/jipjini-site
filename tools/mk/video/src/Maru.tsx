@@ -108,7 +108,7 @@ const Coins: React.FC<{at: number}> = ({at}) => {
 // 2026-11-28 대표 「내용 구성·색상 다 따로 놀아 — 하나의 일련의 시나리오, 스토리로」
 // 한 화면·한 배경(먹색 + 평면도 선)·한 색 규칙(흰 글, 종이 견적서, 초록 = 아낀 돈, 노랑 = 도장 한 번)으로 끝까지 이어 간다.
 // 이야기: 견적서 받음(3,964만) → 헐 미친 → 단지 이름 넣어 봄 → 줄 긋고 2,775만 → 1,189만 남음 → 그 돈 동전이 차로 → 마티즈 샀다 긔긔 → 우리 집은 얼마?
-const T = {recv: 0, shock: 50, try_: 95, strike: 120, newv: 135, save: 190, car: 255, maru: 300, cta: 360, end: 450};
+const T = {recv: 0, shock: 60, try_: 105, strike: 135, newv: 150, save: 195, car: 270, maru: 300, cta: 330, end: 480};   // 120BPM: 15프레임 = 한 박, 강조는 마디·박 첫머리
 
 const Cap: React.FC<{lines: [number, number, React.ReactNode][]}> = ({lines}) => {
   const f = useCurrentFrame();
@@ -142,25 +142,25 @@ const Receipt: React.FC = () => {
 };
 
 const Saved: React.FC = () => {
-  const f = useCurrentFrame(); if (f < T.save + 10 || f > T.car + 10) return null;
-  const v = interpolate(f, [T.save + 10, T.save + 40], [0, 1189], {extrapolateRight: 'clamp', easing: Easing.out(Easing.cubic)});
+  const f = useCurrentFrame(); if (f < T.save + 15 || f > T.car + 10) return null;
+  const v = interpolate(f, [T.save + 15, T.save + 45], [0, 1189], {extrapolateRight: 'clamp', easing: Easing.out(Easing.cubic)});
   const o = interpolate(f, [T.car, T.car + 10], [1, 0], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
   return <div style={{position: 'absolute', left: 90, top: 1060, opacity: o}}>
     <div style={{fontSize: 56, color: '#C9CCC5', marginBottom: 6}}>남은 돈</div>
-    <div style={{fontSize: 240, fontWeight: 700, letterSpacing: -9, fontVariantNumeric: 'tabular-nums'}}><Hit at={T.save + 40} color={LIME}>{Math.round(v).toLocaleString('ko-KR')}<span style={{fontSize: 90}}>만 원</span></Hit></div></div>;
+    <div style={{fontSize: 240, fontWeight: 700, letterSpacing: -9, fontVariantNumeric: 'tabular-nums'}}><Hit at={T.save + 45} color={LIME}>{Math.round(v).toLocaleString('ko-KR')}<span style={{fontSize: 90}}>만 원</span></Hit></div></div>;
 };
 
 const Car: React.FC = () => {
   const f = useCurrentFrame(); if (f < T.car) return null;
   const draw = interpolate(f, [T.car, T.car + 30], [1, 0], {extrapolateRight: 'clamp'});
-  const drive = interpolate(f, [T.cta + 10, T.cta + 40], [0, -1500], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp', easing: Easing.in(Easing.cubic)});
+  const drive = interpolate(f, [T.cta, T.cta + 22], [0, -1500], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp', easing: Easing.in(Easing.cubic)});
   const bob = Math.sin(f / 3) * 4;
   const P = (d: string, w = 10) => <path d={d} pathLength={1} fill="none" stroke={LIME} strokeWidth={w} strokeLinecap="round" strokeLinejoin="round" strokeDasharray={1} strokeDashoffset={draw} />;
   return <svg viewBox="0 0 600 300" style={{position: 'absolute', left: 140, top: 1080, width: 800, transform: `translate(${drive}px, ${bob}px)`}}>
     {P('M40 220 L60 150 Q80 90 150 85 L330 85 Q380 85 420 140 L520 160 Q560 170 560 215 L560 230 L40 230 Z')}
     {P('M170 95 L170 150 M300 95 L300 150 M120 150 L410 150')}
     <circle cx="150" cy="235" r="40" fill="#141613" stroke={LIME} strokeWidth="10" /><circle cx="450" cy="235" r="40" fill="#141613" stroke={LIME} strokeWidth="10" />
-    {f > T.cta + 10 && [0, 1, 2].map(i => <line key={i} x1={600 + i * 10} y1={150 + i * 30} x2={700 + i * 40} y2={150 + i * 30} stroke="#fff" strokeWidth={8} strokeLinecap="round" opacity={0.6} />)}
+    {f > T.cta && [0, 1, 2].map(i => <line key={i} x1={600 + i * 10} y1={150 + i * 30} x2={700 + i * 40} y2={150 + i * 30} stroke="#fff" strokeWidth={8} strokeLinecap="round" opacity={0.6} />)}
   </svg>;
 };
 
@@ -175,7 +175,7 @@ const Fly: React.FC = () => {
 export const Maru: React.FC = () => {
   useFonts();
   const f = useCurrentFrame();
-  const hits = [T.shock, T.newv + 30, T.save + 40, T.maru, T.maru + 22, T.cta + 14];
+  const hits = [T.shock, T.newv + 30, T.save + 45, T.maru, T.maru + 15, T.cta + 30];
   const cam = hits.reduce((acc, a) => acc + (f >= a && f < a + 10 ? Math.sin((f - a) * 5) * (10 - (f - a)) * 2.4 : 0), 0);
   const maruK = interpolate(f - T.maru, [0, 7], [2.6, 1], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp', easing: Easing.out(Easing.back(1.8))});
   const A = (at: number, src: string, v = 1) => <Sequence from={at}><Audio src={staticFile('sfx/' + src + '.wav')} volume={v} /></Sequence>;
@@ -191,21 +191,22 @@ export const Maru: React.FC = () => {
       [T.car, T.maru, <>그 돈으로</>],
     ]} />
     <Receipt /><Saved /><Fly /><Car />
-    {f >= T.maru && f < T.cta + 30 && <div style={{position: 'absolute', left: 90, top: 300, opacity: interpolate(f, [T.cta + 10, T.cta + 30], [1, 0], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'})}}>
+    {f >= T.maru && f < T.cta + 12 && <div style={{position: 'absolute', left: 90, top: 300, opacity: interpolate(f, [T.cta, T.cta + 12], [1, 0], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'})}}>
       <div style={{fontSize: 180, fontWeight: 700, color: '#fff', letterSpacing: -6, lineHeight: 1.05, transform: `scale(${maruK})`, transformOrigin: 'left center'}}>마티즈 샀다</div>
-      <div style={{fontSize: 190, fontWeight: 700, letterSpacing: -4, marginTop: 20}}><Hit at={T.maru + 22} color={YEL} rays={LIME} pre={false}>긔긔</Hit></div></div>}
-    {f >= T.cta + 14 && <div style={{position: 'absolute', left: 90, top: 640}}>
-      <Pop at={T.cta + 14} size={170}>우리 집은</Pop>
-      <div style={{fontSize: 190, fontWeight: 700, letterSpacing: -4, lineHeight: 1.08}}><Hit at={T.cta + 26} color={LIME} pre={false}>얼마?</Hit></div>
-      <div style={{marginTop: 70, fontSize: 64, fontWeight: 700, color: '#fff', borderBottom: `8px solid ${LIME}`, display: 'inline-block', paddingBottom: 10}}><Type t="jipjini.com/apt" at={T.cta + 40} /></div></div>}
+      <div style={{fontSize: 190, fontWeight: 700, letterSpacing: -4, marginTop: 20}}><Hit at={T.maru + 15} color={YEL} rays={LIME} pre={false}>긔긔</Hit></div></div>}
+    {f >= T.cta + 15 && <div style={{position: 'absolute', left: 90, top: 640}}>
+      <Pop at={T.cta + 15} size={170}>우리 집은</Pop>
+      <div style={{fontSize: 190, fontWeight: 700, letterSpacing: -4, lineHeight: 1.08}}><Hit at={T.cta + 30} color={LIME} pre={false}>얼마?</Hit></div>
+      <div style={{marginTop: 70, fontSize: 64, fontWeight: 700, color: '#fff', borderBottom: `8px solid ${LIME}`, display: 'inline-block', paddingBottom: 10}}><Type t="jipjini.com/apt" at={T.cta + 45} /></div></div>}
     <Foot dark t="84㎡ 수도권 2,026개 단지 가운데값 · 턴키는 추정 · 부가세 10% 별도" />
     <Flash at={hits} />
     <div style={{position: 'absolute', top: 0, left: 0, height: 12, width: `${(f / T.end) * 100}%`, background: LIME}} />
-    <Audio src={staticFile('sfx/beat.wav')} volume={0.3} />
-    <Sequence from={T.end - 390}><Audio src={staticFile('sfx/beat.wav')} volume={0.3} /></Sequence>
-    {A(T.recv + 4, 'whoosh')}{A(T.recv + 18, 'coins', 0.5)}{A(T.shock, 'slam')}{A(T.shock, 'glitch', 0.7)}{A(T.try_, 'pop')}
-    {A(T.strike, 'whoosh', 0.8)}{A(T.newv, 'rise', 0.5)}{A(T.newv + 30, 'ding')}{A(T.newv + 30, 'slam', 0.6)}
-    {A(T.save + 10, 'coins')}{A(T.save + 40, 'slam', 0.7)}{A(T.car - 8, 'coins')}{A(T.car, 'rise', 0.6)}
-    {A(T.maru, 'slam')}{A(T.maru + 22, 'glitch')}{A(T.maru + 22, 'pop')}{A(T.cta + 10, 'whoosh')}{A(T.cta + 26, 'slam')}{A(T.cta + 40, 'pop', 0.6)}
+    <Audio src={staticFile('sfx/music.wav')} volume={0.55} />
+    {A(T.recv + 2, 'whoosh', 0.6)}{A(T.recv + 18, 'coins', 0.35)}
+    {A(T.shock - 4, 'whoosh', 0.5)}{A(T.shock, 'boom')}{A(T.shock, 'slam', 0.7)}
+    {A(T.try_, 'pop', 0.5)}{A(T.strike - 4, 'whoosh', 0.6)}{A(T.newv, 'riser', 0.55)}{A(T.newv + 30, 'boom')}{A(T.newv + 30, 'ding', 0.8)}
+    {A(T.save - 4, 'whoosh', 0.5)}{A(T.save + 15, 'coins', 0.5)}{A(T.save + 45, 'boom')}{A(T.save + 45, 'slam', 0.5)}
+    {A(T.car - 8, 'coins', 0.6)}{A(T.car, 'rise', 0.4)}{A(T.maru - 4, 'whoosh', 0.6)}{A(T.maru, 'boom')}{A(T.maru, 'slam', 0.8)}{A(T.maru + 15, 'glitch', 0.6)}
+    {A(T.cta - 4, 'whoosh', 0.7)}{A(T.cta + 15, 'pop', 0.5)}{A(T.cta + 30, 'boom')}{A(T.cta + 30, 'slam', 0.6)}{A(T.cta + 45, 'pop', 0.3)}
   </AbsoluteFill>;
 };
