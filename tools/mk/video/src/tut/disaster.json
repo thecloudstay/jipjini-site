@@ -1,0 +1,176 @@
+{
+ "id": "disaster",
+ "title": "누수 복구비 계산",
+ "hook": "물 샜을 때\n복구비 얼마?",
+ "end": "우리 집 복구비는?",
+ "frames": [
+  {
+   "img": "01.jpg",
+   "cap": "사고 종류를 고르고",
+   "step": 1,
+   "big": null,
+   "hold": 1.6,
+   "result": false,
+   "kind": "tap",
+   "focus": [
+    16,
+    320.546875,
+    54.6875,
+    41.375
+   ],
+   "tapAt": [
+    43.34375,
+    341.234375
+   ]
+  },
+  {
+   "img": "02.jpg",
+   "cap": "아파트 이름을 칩니다",
+   "step": 2,
+   "big": null,
+   "hold": 1.6,
+   "result": false,
+   "kind": "tap",
+   "focus": [
+    16,
+    524.671875,
+    400,
+    50
+   ],
+   "tapAt": [
+    216,
+    549.671875
+   ]
+  },
+  {
+   "img": "03.jpg",
+   "kind": "type",
+   "focus": [
+    16,
+    524.671875,
+    400,
+    50
+   ],
+   "hold": 0.25,
+   "cap": null,
+   "step": null
+  },
+  {
+   "img": "04.jpg",
+   "kind": "type",
+   "focus": [
+    16,
+    524.671875,
+    400,
+    50
+   ],
+   "hold": 0.25,
+   "cap": null,
+   "step": null
+  },
+  {
+   "img": "05.jpg",
+   "kind": "type",
+   "focus": [
+    16,
+    524.671875,
+    400,
+    50
+   ],
+   "hold": 0.25,
+   "cap": null,
+   "step": null
+  },
+  {
+   "img": "06.jpg",
+   "cap": null,
+   "step": null,
+   "big": null,
+   "hold": 1.6,
+   "result": false,
+   "kind": "tap",
+   "focus": [
+    17,
+    574.671875,
+    398,
+    44.375
+   ],
+   "tapAt": [
+    216,
+    596.859375
+   ]
+  },
+  {
+   "img": "07.jpg",
+   "cap": "젖은 정도를 고르고",
+   "step": 3,
+   "big": null,
+   "hold": 1.6,
+   "result": false,
+   "kind": "tap",
+   "focus": [
+    92.03125,
+    805.171875,
+    94.25,
+    41.375
+   ],
+   "tapAt": [
+    139.15625,
+    825.859375
+   ]
+  },
+  {
+   "img": "08.jpg",
+   "cap": "젖은 곳을 누릅니다",
+   "step": 4,
+   "big": null,
+   "hold": 1.6,
+   "result": false,
+   "kind": "tap",
+   "focus": [
+    192.3125,
+    594.671875,
+    46.84375,
+    33.625
+   ],
+   "tapAt": [
+    215.734375,
+    611.484375
+   ]
+  },
+  {
+   "img": "09.jpg",
+   "cap": "「복구비 보기」를 누르면",
+   "step": 5,
+   "big": null,
+   "hold": 1.6,
+   "result": false,
+   "kind": "tap",
+   "focus": [
+    16,
+    1149.296875,
+    113.609375,
+    53.125
+   ],
+   "tapAt": [
+    72.8046875,
+    1175.859375
+   ]
+  },
+  {
+   "img": "10.jpg",
+   "cap": "복구 공사비가 바로 나옵니다",
+   "step": 6,
+   "big": null,
+   "hold": 2.6,
+   "result": true,
+   "kind": "shot",
+   "focus": [
+    16,
+    104.921875,
+    271.4375,
+    33.59375
+   ]
+  }
+ ]
+}

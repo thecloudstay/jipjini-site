@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react';
 import {AbsoluteFill, Audio, Sequence, interpolate, spring, useCurrentFrame, useVideoConfig, staticFile, continueRender, delayRender, Easing} from 'remotion';
 import plan from './plan.json';
 
-const INK = '#141613', GREEN = '#1F5E2E', LIME = '#8FD19E', YEL = '#FFD43B', PAPER = '#FFFFFF';
+export const INK = '#141613', GREEN = '#1F5E2E', LIME = '#8FD19E', YEL = '#FFD43B', PAPER = '#FFFFFF';
 const css = `
 @font-face{font-family:P;font-weight:400;src:url(${staticFile('ibm-plex-sans-kr-korean-400-normal.woff2')})}
 @font-face{font-family:P;font-weight:700;src:url(${staticFile('ibm-plex-sans-kr-korean-700-normal.woff2')})}
@@ -10,7 +10,7 @@ const css = `
 @font-face{font-family:P;font-weight:700;src:url(${staticFile('ibm-plex-sans-kr-latin-700-normal.woff2')});unicode-range:U+0000-00FF}
 *{font-family:P,sans-serif;word-break:keep-all}`;
 
-const useFonts = () => {
+export const useFonts = () => {
   const [h] = useState(() => delayRender('fonts'));
   useEffect(() => { (document as any).fonts.ready.then(() => continueRender(h)); }, [h]);
 };

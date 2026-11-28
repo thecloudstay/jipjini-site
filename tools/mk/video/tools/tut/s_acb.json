@@ -1,0 +1,1 @@
+{"title": "우리 단지 관리비 비교", "hook": "우리 관리비,\n옆 단지보다 비쌀까?", "end": "우리 관리비는?", "steps": [{"go": "acb/", "wait": 2500}, {"type": "#acbIn", "text": "래미안위브", "cap": "아파트 이름을 칩니다"}, {"tap": "#acbList li", "cap": "우리 단지를 고릅니다", "wait": 3000}, {"scroll": "#acbOut", "off": 80, "cap": "비슷한 10곳과 바로 비교", "focus": "#acbOut", "hold": 2.6, "result": true}], "id": "acb"}

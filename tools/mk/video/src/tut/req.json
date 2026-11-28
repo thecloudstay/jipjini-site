@@ -1,0 +1,324 @@
+{
+ "id": "req",
+ "title": "무료 견적 신청하기",
+ "hook": "파일만 보내도\n견적서가 옵니다",
+ "end": "우리 집 견적은?",
+ "frames": [
+  {
+   "img": "01.jpg",
+   "cap": null,
+   "step": null,
+   "big": null,
+   "hold": 1.6,
+   "result": false,
+   "kind": "shot",
+   "focus": null
+  },
+  {
+   "img": "02.jpg",
+   "cap": "「직접 정리한 도면·요청서」를 엽니다",
+   "step": 1,
+   "big": null,
+   "hold": 1.6,
+   "result": false,
+   "kind": "tap",
+   "focus": [
+    15,
+    200.75,
+    402,
+    126.390625
+   ],
+   "tapAt": [
+    216,
+    263.9453125
+   ]
+  },
+  {
+   "img": "03.jpg",
+   "cap": null,
+   "step": null,
+   "big": null,
+   "hold": 1.6,
+   "result": false,
+   "kind": "shot",
+   "focus": null
+  },
+  {
+   "img": "04.jpg",
+   "cap": "사진·도면 파일을 올리고",
+   "step": 2,
+   "big": null,
+   "hold": 1.8,
+   "result": false,
+   "kind": "tap",
+   "focus": [
+    35,
+    196.921875,
+    362,
+    89.1875
+   ],
+   "tapAt": [
+    216,
+    241.515625
+   ]
+  },
+  {
+   "img": "05.jpg",
+   "cap": "이름과",
+   "step": 3,
+   "big": null,
+   "hold": 1.6,
+   "result": false,
+   "kind": "tap",
+   "focus": [
+    35,
+    330.109375,
+    185,
+    21
+   ],
+   "tapAt": [
+    127.5,
+    340.609375
+   ]
+  },
+  {
+   "img": "06.jpg",
+   "kind": "type",
+   "focus": [
+    35,
+    330.109375,
+    185,
+    21
+   ],
+   "hold": 0.25,
+   "cap": null,
+   "step": null
+  },
+  {
+   "img": "07.jpg",
+   "kind": "type",
+   "focus": [
+    35,
+    330.109375,
+    185,
+    21
+   ],
+   "hold": 0.25,
+   "cap": null,
+   "step": null
+  },
+  {
+   "img": "08.jpg",
+   "cap": "연락처를 적고",
+   "step": 4,
+   "big": null,
+   "hold": 1.6,
+   "result": false,
+   "kind": "tap",
+   "focus": [
+    35,
+    392.703125,
+    185,
+    21
+   ],
+   "tapAt": [
+    127.5,
+    403.203125
+   ]
+  },
+  {
+   "img": "09.jpg",
+   "kind": "type",
+   "focus": [
+    35,
+    392.703125,
+    185,
+    21
+   ],
+   "hold": 0.25,
+   "cap": null,
+   "step": null
+  },
+  {
+   "img": "10.jpg",
+   "kind": "type",
+   "focus": [
+    35,
+    392.703125,
+    185,
+    21
+   ],
+   "hold": 0.25,
+   "cap": null,
+   "step": null
+  },
+  {
+   "img": "11.jpg",
+   "kind": "type",
+   "focus": [
+    35,
+    392.703125,
+    185,
+    21
+   ],
+   "hold": 0.25,
+   "cap": null,
+   "step": null
+  },
+  {
+   "img": "12.jpg",
+   "kind": "type",
+   "focus": [
+    35,
+    392.703125,
+    185,
+    21
+   ],
+   "hold": 0.25,
+   "cap": null,
+   "step": null
+  },
+  {
+   "img": "13.jpg",
+   "kind": "type",
+   "focus": [
+    35,
+    392.703125,
+    185,
+    21
+   ],
+   "hold": 0.25,
+   "cap": null,
+   "step": null
+  },
+  {
+   "img": "14.jpg",
+   "kind": "type",
+   "focus": [
+    35,
+    392.703125,
+    185,
+    21
+   ],
+   "hold": 0.25,
+   "cap": null,
+   "step": null
+  },
+  {
+   "img": "15.jpg",
+   "cap": "하고 싶은 공사를 짧게",
+   "step": 5,
+   "big": null,
+   "hold": 1.6,
+   "result": false,
+   "kind": "tap",
+   "focus": [
+    35,
+    512.890625,
+    362,
+    81
+   ],
+   "tapAt": [
+    216,
+    553.390625
+   ]
+  },
+  {
+   "img": "16.jpg",
+   "kind": "type",
+   "focus": [
+    35,
+    512.890625,
+    362,
+    81
+   ],
+   "hold": 0.25,
+   "cap": null,
+   "step": null
+  },
+  {
+   "img": "17.jpg",
+   "kind": "type",
+   "focus": [
+    35,
+    512.890625,
+    362,
+    81
+   ],
+   "hold": 0.25,
+   "cap": null,
+   "step": null
+  },
+  {
+   "img": "18.jpg",
+   "kind": "type",
+   "focus": [
+    35,
+    512.890625,
+    362,
+    81
+   ],
+   "hold": 0.25,
+   "cap": null,
+   "step": null
+  },
+  {
+   "img": "19.jpg",
+   "kind": "type",
+   "focus": [
+    35,
+    512.890625,
+    362,
+    81
+   ],
+   "hold": 0.25,
+   "cap": null,
+   "step": null
+  },
+  {
+   "img": "20.jpg",
+   "kind": "type",
+   "focus": [
+    35,
+    512.890625,
+    362,
+    81
+   ],
+   "hold": 0.25,
+   "cap": null,
+   "step": null
+  },
+  {
+   "img": "21.jpg",
+   "kind": "type",
+   "focus": [
+    35,
+    512.890625,
+    362,
+    81
+   ],
+   "hold": 0.25,
+   "cap": null,
+   "step": null
+  },
+  {
+   "img": "22.jpg",
+   "cap": "누르면 끝. 24시간 안에 견적서",
+   "step": 6,
+   "big": null,
+   "hold": 2.6,
+   "result": true,
+   "kind": "tap",
+   "focus": [
+    35,
+    662.484375,
+    155.984375,
+    42
+   ],
+   "tapAt": [
+    112.9921875,
+    683.484375
+   ]
+  }
+ ]
+}

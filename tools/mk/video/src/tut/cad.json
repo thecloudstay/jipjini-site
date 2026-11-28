@@ -1,0 +1,114 @@
+{
+ "id": "cad",
+ "title": "우리 집 도면 열고 물량 뽑기",
+ "hook": "우리 집 도면,\n직접 열어 보세요",
+ "end": "우리 집 도면은?",
+ "frames": [
+  {
+   "img": "01.jpg",
+   "cap": null,
+   "step": null,
+   "big": null,
+   "hold": 1.6,
+   "result": false,
+   "kind": "shot",
+   "focus": null
+  },
+  {
+   "img": "02.jpg",
+   "cap": "우리 평형에서 「이 평면 열기」",
+   "step": 1,
+   "big": null,
+   "hold": 1.6,
+   "result": false,
+   "kind": "tap",
+   "focus": [
+    197.546875,
+    171.609375,
+    218.453125,
+    50
+   ],
+   "tapAt": [
+    306.7734375,
+    196.609375
+   ]
+  },
+  {
+   "img": "03.jpg",
+   "cap": "집지니가 다시 그린 우리 집 도면",
+   "step": 2,
+   "big": null,
+   "hold": 2.2,
+   "result": false,
+   "kind": "shot",
+   "focus": null
+  },
+  {
+   "img": "04.jpg",
+   "cap": "「이 도면으로 공사 계획」을 누릅니다",
+   "step": 3,
+   "big": null,
+   "hold": 1.6,
+   "result": false,
+   "kind": "tap",
+   "focus": [
+    16,
+    500.171875,
+    400,
+    50
+   ],
+   "tapAt": [
+    216,
+    525.171875
+   ]
+  },
+  {
+   "img": "05.jpg",
+   "cap": "할 공사를 고릅니다",
+   "step": 4,
+   "big": null,
+   "hold": 1.6,
+   "result": false,
+   "kind": "tap",
+   "focus": [
+    0,
+    721,
+    76,
+    47
+   ],
+   "tapAt": [
+    38,
+    744.5
+   ]
+  },
+  {
+   "img": "06.jpg",
+   "cap": "방마다 면적·물량이 자동으로",
+   "step": 5,
+   "big": null,
+   "hold": 1.6,
+   "result": false,
+   "kind": "tap",
+   "focus": [
+    152,
+    412.625,
+    76,
+    47
+   ],
+   "tapAt": [
+    190,
+    436.125
+   ]
+  },
+  {
+   "img": "07.jpg",
+   "cap": "이대로 작업지시서까지 뽑힙니다",
+   "step": 6,
+   "big": null,
+   "hold": 2.6,
+   "result": true,
+   "kind": "shot",
+   "focus": null
+  }
+ ]
+}
