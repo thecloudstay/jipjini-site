@@ -2,7 +2,7 @@
 // 그림: 오픈 핍스·오픈 두들스(파블로 스탠리, CC0 — react-peeps / react-open-doodles), 배경·소품·말풍선은 직접 그림. 증거 장면은 집지니 실제 화면.
 // 이야기 틀·나레이션·소리 규칙은 mk/research/2026-11-28-스토리보드-짜는-법.md, fx.ts
 import React from 'react';
-import {AbsoluteFill, Audio, Img, Sequence, interpolate, useCurrentFrame, staticFile, Easing} from 'remotion';
+import {AbsoluteFill, Audio, Img, Sequence, interpolate, useCurrentFrame, staticFile, Easing, OffthreadVideo} from 'remotion';
 import Peep from 'react-peeps';
 import {LayingDoodle} from 'react-open-doodles';
 import {INK, useFonts, css} from './Maru';
@@ -120,10 +120,10 @@ export const ToonStory: React.FC = () => {
     {lf >= 34 && <div style={{position: 'absolute', left: 80, top: 200}}><div style={{fontSize: 60, fontWeight: 700, color: '#1F5E2E'}}>집지니</div><div style={{fontSize: 34, color: '#555'}}>jipjini.com · 아파트 이름으로 도면·공사비</div></div>}
     <P who={WIFE} body="Device" face="Awe" x={80} y={360} w={520} bob={2} {...q} /><P who={HUS} body="Coffee" face="Calm" x={500} y={380} w={480} flip /></Panel>;
   else if (n === 10) panel = <Panel bg="#EFEBE3" f={f} lf={lf}>
-    <div style={{position: 'absolute', left: 30, top: 30, display: 'grid', gridTemplateColumns: 'repeat(6, 150px)', gap: 12}}>{['#E8E2D6', '#C9A77C', '#8E9AA0', '#F4F4F2', '#5B6B5A', '#D9CBB8', '#B98A5A', '#EDE6DA', '#6E7F8A', '#D8C2A8', '#9FB0A0', '#F1E3CC'].map((c, k) => <div key={k} style={{height: 120, background: c, border: `5px solid ${k === Math.min(11, Math.floor(lf / 9)) ? '#1F5E2E' : LINE}`}} />)}</div>
-    <div style={{position: 'absolute', left: 40, top: 310, fontSize: 30, color: '#666'}}>집지니 가양동 사무실 · 자재 고르기</div>
-    <P who={CODI} body="Explaining" face="SmileTeeth" x={0} y={370} w={460} bob={2} {...q} /><P who={WIFE} body="PointingUp" face="Awe" x={360} y={390} w={430} flip /><P who={HUS} body="Hoodie" face="Smile" x={620} y={380} w={430} flip />
-    <Bubble text={'직접 만져 보고\n고르세요'} x={40} y={170} f={lf} at={20} size={44} /></Panel>;
+    <Sequence from={cur.from} layout="none"><OffthreadVideo src={staticFile('toon/office.mp4')} muted style={{position: 'absolute', left: 0, top: 0, width: PW, height: PH, objectFit: 'cover'}} /></Sequence>
+    <div style={{position: 'absolute', left: 16, top: 12, fontSize: 28, color: '#fff', WebkitTextStroke: '5px #000', paintOrder: 'stroke fill'}}>집지니 가양동 사무실 · 실제 영상</div>
+    <Sticker who={WIFE} body="Sweater" face="Awe" x={30} y={560} w={310} bg="#FFF6E0" />
+    <Sticker who={HUS} body="Hoodie" face="Smile" x={680} y={560} w={310} flip bg="#E6F0FF" /></Panel>;
   else if (n === 13) panel = <Panel bg="#5A2A2A" f={f} lf={lf} quake={30}>
     <svg width={PW} height={PH} style={{position: 'absolute'}}><rect width={PW} height={520} fill="#D9D2C2" /><path d="M0 520 L1020 520" stroke={LINE} strokeWidth={6} /><path d="M520 60 L960 40 L990 470 L560 500 Z" fill="#B9B09C" stroke={LINE} strokeWidth={6} strokeLinejoin="round" />
       {lf >= 30 && <g fill="#2f3a2d">{[[640, 200, 60], [720, 260, 80], [800, 180, 50], [760, 360, 70], [880, 300, 60], [680, 380, 45]].map(([x, y, r], k) => <circle key={k} cx={x} cy={y} r={r * punchZ(lf - 30, 1.1)} opacity={0.85} />)}</g>}</svg>
@@ -135,8 +135,8 @@ export const ToonStory: React.FC = () => {
     <Sticker who={WIFE} body="Sweater" face={lf < 50 ? 'Concerned' : 'Smile'} x={660} y={530} w={330} bg="#FFF6E0" /></Panel>;
   else if (n === 17) panel = <Panel bg={INK} f={f} lf={lf}>
     <div style={{position: 'absolute', left: 50, top: 60, fontSize: 250, fontWeight: 700, color: YEL, letterSpacing: -8, lineHeight: 1, transform: `scale(${punchZ(lf - 30, 1.08)})`, transformOrigin: 'left center'}}>13년</div>
-    <div style={{position: 'absolute', left: 60, top: 330, fontSize: 70, fontWeight: 700, color: '#fff'}}>넘게 현장에서</div>
-    <P who={PRO} body="ArmsCrossed" face="Serious" x={470} y={330} w={560} /></Panel>;
+    <div style={{position: 'absolute', left: 60, top: 330, fontSize: 60, fontWeight: 700, color: '#fff'}}>고심해서 만든 프로그램</div>
+    <P who={WIFE} body="Sweater" face="Awe" x={470} y={370} w={520} /></Panel>;
   else if (n === 18) panel = <Panel bg="#FBEBD0" f={f} lf={lf}>
     <svg width={PW} height={PH} style={{position: 'absolute'}}><rect y={620} width={PW} height={280} fill="#D9B48A" /><path d="M0 620 L1020 620" stroke={LINE} strokeWidth={6} /><rect x={60} y={70} width={330} height={380} fill="#CFEAF7" stroke={LINE} strokeWidth={6} /><path d="M225 70 L225 450 M60 260 L390 260" stroke={LINE} strokeWidth={6} /><circle cx={150} cy={160} r={44} fill="#FFE27A" /><path d="M60 70 L390 70 L620 620 L130 620 Z" fill="#FFF7C2" opacity={0.5} />
       <rect x={720} y={120} width={220} height={150} fill="#fff" stroke={LINE} strokeWidth={6} /><path d="M745 245 L800 190 L845 222 L890 176 L915 245 Z" fill={LIME} stroke={LINE} strokeWidth={4} strokeLinejoin="round" /></svg>
