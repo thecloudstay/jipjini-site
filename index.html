@@ -62,7 +62,7 @@
   <nav class="links">
     <a href="#f1">우리 집 공사비</a>
     <a href="acb/">관리비 비교</a><a href="support/">지원금</a>
-    <a href="#claim">사고·경매</a>
+    <a href="leak/">사고·경매</a>
     <a href="ir/">IR</a>
     <a href="#ask" class="go">무료 견적</a>
   </nav>
@@ -113,7 +113,7 @@
 
   <div class="fproof">
     <h3>이 숫자가 나오는 근거</h3>
-    <p class="s">어림이 아니라 실제 도면과 실제 견적에서 가져옵니다. <span class="fmore"><a href="#map">지도에서 찾기</a><a href="#data">데이터</a><a href="#tech">기술 구성</a><a href="ir/">투자자용 안내</a></span></p>
+    <p class="s">어림이 아니라 실제 도면과 실제 견적에서 가져옵니다. <span class="fmore"><a href="#map">지도에서 찾기</a><a href="ir/#data">데이터</a><a href="ir/#tech">기술 구성</a><a href="ir/">투자자용 안내</a></span></p>
     <div class="three fnum">
       <div><em id="f1-p1">903</em><b>도면이 열린 단지</b><span>수도권 아파트를 날마다 도면으로 바꿔 올립니다.</span></div>
       <div><em id="f1-p2">15건</em><b>공개한 실제 견적</b><span>줄마다 자재와 단가를 그대로 보여 드립니다.</span></div>
@@ -122,56 +122,26 @@
   </div>
 </div>
 
-<!-- 바로 가기 (2026-11-16 대표 「고객 그루핑 다 모아서, 주요 기능을 바로바로」) — 탭으로 숨기던 「어떤 분이세요?」를 한눈에 보이는 목록으로 바꿈 -->
-<!-- 컨셉 띠 (2026-11-22 대표: 「나가는 돈을 줄여 주는 지니 — 공사비·관리비·수선비」) -->
-<section class="cut3" id="cut">
-  <h2>집에서 나가는 돈,<br>세 군데서 줄입니다</h2>
-  <div class="cut3g">
-    <a href="#f1" data-ev="home_cut_gong"><small>공사비</small><em>30%</em><span>견적에 숨은 업체 몫을 도면으로 걷어냅니다</span><b>우리 집 공사비 보기</b></a>
-    <a href="acb/" data-ev="home_cut_gwan"><small>관리비</small><em>6곳 중 1곳</em><span>비슷한 단지보다 15% 넘게 내고 있습니다</span><b>우리 단지 관리비 보기</b></a>
-    <a href="#d3" data-ev="home_cut_su"><small>수선비</small><em>2억 7천만 원</em><span>외벽 한 번 칠하는 값. 단지 크기로 적정한지 따집니다</span><b>우리 단지 크기 보기</b></a>
-  </div>
-</section>
 
-<!-- 단지 입체 (2026-11-22 대표 「메인에 크게」 · 문구는 왜 → 어떻게 → 그래서 집지니) -->
-<section class="d3h" id="d3">
-  <div class="d3hh">
-    <div><h2>외벽 한 번 칠하는 데 2억 7천만 원.<br>우리 관리비에서 나갑니다.</h2>
-    <p class="d3hs">얼마가 맞는지는 단지 크기를 알아야 따집니다. 집지니는 수도권 5,393단지를 동별 높이까지 재 두었습니다.</p></div>
-    <div class="d3hq"><label for="d3in">우리 단지 크기부터 확인</label><input id="d3in" type="search" placeholder="아파트 이름" autocomplete="off"><ul id="d3list"></ul></div>
-  </div>
-  <div class="d3st">
-    <div class="a3d d3big" id="d3box"></div>
-    <dl class="d3rd" id="d3rd">
-      <div class="nm"><dt id="d3msg">서울 송파구</dt><dd id="d3name">잠실엘스아파트</dd></div>
-      <div><dt>세대</dt><dd id="d3f0">5,678</dd></div>
-      <div><dt>동</dt><dd id="d3f1">72</dd></div>
-      <div><dt>최고 층</dt><dd id="d3f2">34</dd></div>
-      <div><dt>준공</dt><dd id="d3f3">2008</dd></div>
-      <div class="go"><a id="d3go" href="acb/?c=A13822004" data-ev="home_d3">이 단지 관리비 보기</a></div>
-    </dl>
-  </div>
-  <p class="d3hf"><small>2억 7천만 원: 2024~2026년 전국 아파트 외벽 재도장 낙찰 3,547건의 가운데값 · 자료: 국토교통부 공동주택 입찰결과, 건물통합정보</small></p>
-</section>
 
 <section class="go4" id="go">
-  <h2>무슨 일로 오셨어요?</h2>
+  <h2>어떻게 고치실 건가요?</h2>
   <p class="go4s">모두 무료, 가입 없이 바로 씁니다.</p>
   <div class="gof">
     <label for="goq">아파트에 사시면 단지부터 고르세요</label>
     <div class="gofi"><input id="goq" type="search" autocomplete="off" placeholder="단지 이름 · 예: 래미안위브, 검단 에코비스타"><ul id="gol"></ul></div>
-    <p class="gop" id="gop">고르면 아래 복구비·수리비·적산 도구가 우리 집 평형으로 바로 열립니다. 빌라·주택·오피스텔은 단지 없이 전용면적만 넣으면 됩니다.</p>
+    <p class="gop" id="gop">고르면 아래 견적·도면·적산 도구가 우리 집 평형으로 바로 열립니다. 빌라·주택·오피스텔은 단지 없이 전용면적만 넣으면 됩니다.</p>
   </div>
   <div class="go6">
     <a href="#map" data-go="find" data-ev="home_go_map"><svg viewBox="0 0 150 70" aria-hidden="true"><rect x="2" y="12" width="130" height="14" fill="#C9CDC4"/><rect x="2" y="40" width="85" height="14" fill="#1F5E2E"/><text x="2" y="9" font-size="9.5" fill="#6B7067">업체 턴키 6,500만</text><text x="2" y="37" font-size="9.5" fill="#1F5E2E" font-weight="600">집지니 4,230만</text></svg><b>우리 집 공사비 보기</b><span>단지 이름만 넣으면 10초. 32평 올수리 기준 2,270만 원 차이.</span></a>
-    <a href="acb/" data-ev="home_go_acb"><svg viewBox="0 0 150 70" aria-hidden="true"><g fill="none" stroke-width="5"><path d="M4 40h26" stroke="#1F5E2E"/><path d="M33 40h26" stroke="#7FA37A"/><path d="M62 40h26" stroke="#C9CDC4"/><path d="M91 40h26" stroke="#D9A441"/><path d="M120 40h26" stroke="#B3261E"/></g><circle cx="104" cy="40" r="7" fill="#fff" stroke="#1C1F1B" stroke-width="1.5"/><text x="104" y="24" font-size="9.5" fill="#1C1F1B" text-anchor="middle">우리 단지</text><text x="4" y="60" font-size="9" fill="#6B7067">덜 냄</text><text x="146" y="60" font-size="9" fill="#6B7067" text-anchor="end">더 냄</text></svg><b>우리 단지 관리비 비교</b><span>비슷한 10곳과 견주어 다섯 단계. 수도권 9,620단지.</span></a>
+    <a href="banself-interior.html" data-ev="home_go_banself"><svg viewBox="0 0 150 70" aria-hidden="true"><rect x="2" y="12" width="130" height="14" fill="#C9CDC4"/><rect x="2" y="40" width="0.5" height="14" fill="#1F5E2E"/><text x="2" y="9" font-size="9.5" fill="#6B7067">업체 몫 약 30%</text><text x="8" y="51" font-size="9.5" fill="#1F5E2E" font-weight="600">집지니 코디 마진 0</text></svg><b>셀인·반셀인 코디 받기</b><span>자재상·기술자와 직접 거래하고 코디만 붙입니다.</span></a>
     <a href="compare/" data-ev="home_go_compare"><svg viewBox="0 0 150 70" aria-hidden="true"><path d="M40 4h52l16 16v46H40z" stroke="#1C1F1B" stroke-width="1.5" fill="none"/><path d="M92 4v16h16" stroke="#1C1F1B" stroke-width="1.5" fill="none"/><path d="M50 30h48M50 52h34" stroke="#C9CDC4" stroke-width="1.5"/><rect x="48" y="36" width="52" height="10" fill="#F4E3E1"/><path d="M50 41h48" stroke="#B3261E" stroke-width="1.5"/><text x="114" y="44" font-size="9.5" fill="#B3261E">과다</text></svg><b>받은 견적서 검토</b><span>올리면 비싼 줄과 빠진 공사를 바로 짚습니다.</span></a>
-    <a href="disaster/" data-apt data-ev="home_go_disaster"><svg viewBox="0 0 150 70" aria-hidden="true"><rect x="30" y="8" width="90" height="56" stroke="#1C1F1B" stroke-width="1.5" fill="none"/><path d="M30 34h42M72 8v26M96 34h24M96 34v30" stroke="#1C1F1B" stroke-width="1.5" fill="none"/><ellipse cx="52" cy="22" rx="16" ry="9" fill="#CFE0EE"/><path d="M52 4c3 5 5 7 5 10a5 5 0 0 1-10 0c0-3 2-5 5-10z" fill="#4A7FA8"/></svg><b>누수·화재·침수 복구비</b><span>젖은 곳을 도면에서 고르면 1분. 보험 청구용 산정서까지.</span></a>
-    <a href="auction/" data-apt data-ev="home_go_auction"><svg viewBox="0 0 150 70" aria-hidden="true"><rect x="2" y="26" width="92" height="16" fill="#1C1F1B"/><rect x="94" y="26" width="26" height="16" fill="#1F5E2E"/><rect x="120" y="26" width="10" height="16" fill="#9AA097"/><path d="M140 18v32" stroke="#B3261E" stroke-width="1.5" stroke-dasharray="3 3"/><text x="2" y="20" font-size="9.5" fill="#6B7067">낙찰가</text><text x="94" y="20" font-size="9.5" fill="#1F5E2E" font-weight="600">수리비</text><text x="140" y="62" font-size="9" fill="#B3261E" text-anchor="end">시세</text></svg><b>경매 물건 수리비</b><span>감정평가서를 올리면 수리비와 입찰 상한이 나옵니다.</span></a>
+    <a href="cad.html" data-ev="home_go_cad"><svg viewBox="0 0 150 70" aria-hidden="true"><rect x="30" y="8" width="90" height="56" stroke="#1C1F1B" stroke-width="1.5" fill="none"/><path d="M30 34h42M72 8v26M96 34h24M96 34v30" stroke="#1C1F1B" stroke-width="1.5" fill="none"/><circle cx="50" cy="22" r="6" fill="#1F5E2E"/><circle cx="108" cy="50" r="6" fill="#1F5E2E"/></svg><b>도면에 바꿀 곳 찍어 보기</b><span>방마다 바닥·벽 면적과 물량표가 바로 나옵니다.</span></a>
+    <a href="kitchen/" data-ev="home_go_kitchen"><svg viewBox="0 0 150 70" aria-hidden="true"><path d="M20 20h110v14H20z" stroke="#1C1F1B" stroke-width="1.5" fill="none"/><path d="M20 34v28h110V34M56 34v28M92 34v28" stroke="#1C1F1B" stroke-width="1.5" fill="none"/><text x="20" y="14" font-size="9.5" fill="#6B7067">상판 2,700mm</text></svg><b>싱크대 설계</b><span>벽 길이만 넣으면 1분에 배치와 금액.</span></a>
     <a href="request.html" data-ev="home_go_request" class="pri"><svg viewBox="0 0 150 70" aria-hidden="true"><circle cx="75" cy="36" r="26" stroke="#1F5E2E" stroke-width="1.5" fill="none"/><path d="M75 18v18l12 8" stroke="#1F5E2E" stroke-width="2" fill="none" stroke-linecap="round"/><text x="112" y="40" font-size="11" fill="#1F5E2E" font-weight="600">24시간</text></svg><b>무료 견적 신청</b><span>도면·물량·공종별 금액을 24시간 안에 보내드립니다.</span></a>
   </div>
   <details class="gomore">
-  <summary>현장·사무소용 도구와 전체 목록 <small>20가지</small></summary>
+  <summary>인테리어 도구 전체 <small>10가지</small></summary>
   <div class="go4g">
     <div>
       <h3>집을 고칩니다</h3>
@@ -180,20 +150,8 @@
         <li><a href="request.html" data-ev="home_go_request"><b>무료 견적 신청</b><span>24시간 안에</span></a></li>
         <li><a href="banself-interior.html" data-ev="home_go_banself"><b>셀인·반셀인 코디 받기</b><span>마진 0</span></a></li>
         <li><a href="jikyoung-interior.html" data-ev="home_go_jik"><b>직영 인테리어 하는 법</b><span>순서 안내</span></a></li>
-        <li><a href="acb/" data-ev="home_go_acb"><b>우리 단지 관리비 비교</b><span>얼굴 5단계</span></a></li>
         <li><a href="compare/" data-ev="home_go_compare"><b>받은 견적서 검토</b><span>바로</span></a></li>
-        <li><a href="cad.html" data-ev="home_go_cad"><b>도면에 바꿀 곳 찍어 보기</b><span>5분</span></a></li>
-        <li><a href="kitchen/" data-ev="home_go_kitchen"><b>싱크대 설계</b><span>1분</span></a></li>
         <li><a href="showroom.html" data-ev="home_go_room"><b>샘플실 상담 예약</b><span>가양동</span></a></li>
-      </ul>
-    </div>
-    <div>
-      <h3>사고가 났거나 경매를 봅니다</h3>
-      <ul class="cal">
-        <li><a href="disaster/" data-apt data-ev="home_go_disaster"><b>누수·화재·침수 복구비</b><span>1분</span></a></li>
-        <li><a href="leak/" data-apt data-ev="home_go_leak"><b>보험 청구용 산정서</b><span>인쇄</span></a></li>
-        <li><a href="auction/" data-apt data-ev="home_go_auction"><b>경매 물건 수리비</b><span>입찰 전</span></a></li>
-        <li><a href="tel:01098060422" data-ev="home_go_tel"><b>전화로 접수</b><span>010-9806-0422</span></a></li>
       </ul>
     </div>
     <div>
@@ -205,105 +163,12 @@
         <li><a href="cad-guide.html" data-ev="home_go_guide"><b>도면 화면 사용법</b><span>사진 안내</span></a></li>
       </ul>
     </div>
-    <div>
-      <h3>사무소·기업입니다</h3>
-      <ul class="cal">
-        <li><a href="data.html#buy" data-ev="home_go_b2b"><b>여러 건 산정 맡기기</b><span>손해사정·관리</span></a></li>
-        <li><a href="#data" data-ev="home_go_data"><b>아파트 데이터</b><span>단지·평형</span></a></li>
-        <li><a href="#ir" data-ev="home_go_ir"><b>회사 소개 · IR</b><span>투자·제휴</span></a></li>
-      </ul>
-    </div>
   </div>
   </details>
 </section>
 
-<!-- 아관비 — 아파트 관리비 비교 (2026-11-21) -->
-<section class="acbh" id="acb">
-  <h2>옆 아파트 관리비는 얼마나 나올까?</h2>
-  <p class="acbhs">평수가 달라도 견줄 수 있게 ㎡당으로 냅니다. 연식·세대수·난방이 비슷한 10곳을 골라 비교합니다. 수도권 9,620단지, 국토교통부 2026년 1~9월.</p>
-  <div class="acbhf" id="acbhf"></div>
-  <a class="acbhb" href="acb/" data-ev="home_acb">집지니에서 우리 단지 확인</a>
-</section>
 
-<!-- 사고 접수 · 경매 분석 (2026-11-16 대표 「보험 처리·경매 고객 칸을 따로, 가시성 있게」) -->
-<section class="ca" id="claim">
-  <h2>사고 복구비도 경매 수리비도,<br>부르는 값 말고 도면에서 센 값으로</h2>
-  <div class="ca2">
-    <div class="cac">
-      <h3>누수·화재·침수 사고 접수</h3>
-      <p class="cas">젖은 곳과 탄 곳만 고르면 복구 공사비 산정서가 나옵니다. 보험 청구에 그대로 붙이세요.</p>
-      <a class="caf" href="disaster/" data-ev="home_claim_shot"><img src="assets/home/t-leak2.jpg" width="900" height="562" alt="누수 복구 금액과 공정별 막대가 나온 화면" loading="lazy"></a>
-      <ul class="cal">
-        <li><a href="disaster/" data-ev="home_claim_start"><b>사고 접수하고 복구비 보기</b><span>1분</span></a></li>
-        <li><a href="leak/" data-ev="home_claim_leak"><b>누수 복구 공사비 산정서 받기</b><span>무료</span></a></li>
-        <li><a href="tel:01098060422" data-ev="home_claim_tel"><b>사진 보내고 전화로 접수</b><span>010-9806-0422</span></a></li>
-      </ul>
-      <p class="note">보상 여부와 금액은 보험사·손해사정사가 정합니다. 집지니는 복구 물량과 공사비 근거를 드립니다.</p>
-    </div>
-    <div class="cac">
-      <h3>경매 물건 수리비 분석</h3>
-      <p class="cas">낙찰가에 수리비를 더한 총 취득원가를 입찰 전에 봅니다. 안을 못 본 집은 세 단계 범위로 보여 드립니다.</p>
-      <a class="caf" href="auction/" data-ev="home_auc_shot"><img src="assets/home/t-auc2.jpg" width="900" height="562" alt="공종별 수리비 범위가 나온 화면" loading="lazy"></a>
-      <ul class="cal">
-        <li><a href="auction/" data-ev="home_auc_start"><b>수리비 분석 시작</b><span>1분</span></a></li>
-        <li><a href="auction/" data-ev="home_auc_pdf"><b>감정평가서 올려 자동으로 채우기</b><span>PDF</span></a></li>
-        <li><a href="auction/" data-ev="home_auc_total"><b>총 취득원가·입찰 상한 보기</b><span>무료</span></a></li>
-      </ul>
-      <p class="note">위 화면 예시: 전용 84㎡ · 1993년 사용승인 · 기본 수리 1,949만~3,212만 원. 부가세 10% 별도, 2026-11-16 기준 어림값.</p>
-    </div>
-  </div>
-  <p class="cab">손해사정 사무소·관리사무소·경매 투자 모임에서 여러 건을 맡기실 때는 <a href="data.html#buy" data-ev="home_claim_b2b">업체용 산정 접수</a>로 보내 주세요.</p>
-</section>
 
-<!-- 데이터 (2026-11-14 첫 화면 바로 아래로) -->
-<section class="dhome" id="data">
-  <header class="pn"><h3>집지니 데이터</h3><p>세대 도면·물량부터 단지 관리비·입찰·건물 도형까지, 단지·평형 단위로 공급합니다</p></header>
-  <div class="dt">
-    <div class="row"><span class="no">01</span><h3>단지·평형 표준 물량표<small>엑셀 · CSV</small></h3>
-      <p class="what">방별 바닥·벽 면적, 걸레받이, 문·창, 욕실 타일. 집마다 재지 않고 바로 셉니다.</p>
-      <p class="spec"><b id="dh1" data-live="types">79</b><span>개 평형 · 매일 늘어남</span></p></div>
-    <div class="row"><span class="no">02</span><h3>평형별 캐드 도면<small>DWG · DXF · PDF</small></h3>
-      <p class="what">벽·문·창·방·치수를 층으로 나눈 집지니 재작도 도면. 원본 평면도 그림은 팔지 않습니다.</p>
-      <p class="spec"><b id="dh2" data-live="types">79</b><span>개 평형</span></p></div>
-    <div class="row"><span class="no">03</span><h3>수도권 단지 기본자료 결합본<small>CSV · 연동창구</small></h3>
-      <p class="what">세대수·준공·난방·관리 방식에 건축물대장(구조·층수·연면적)을 붙인 단지 대장.</p>
-      <p class="spec"><b>10,244</b><span>개 단지</span></p></div>
-    <div class="row"><span class="no">04</span><h3>사진 도면 → 캐드 변환<small>사진 · 스캔 → DWG · DXF</small></h3>
-      <p class="what">휴대폰으로 찍은 평면도·옛 종이 도면을 보내면 캐드 도면과 방별 물량표로 다시 그려 돌려 드립니다.</p>
-      <p class="spec"><b>장당</b><span>정액 · 접수 중</span></p></div>
-    <div class="row"><span class="no">05</span><h3>연동창구(API)<small>JSON · 월 구독</small></h3>
-      <p class="what">단지 코드·주소로 평형, 도면, 방별 물량을 바로 불러옵니다. 우리 화면과 같은 자료라 매일 갱신.</p>
-      <p class="spec"><b>시험판</b><span>견본 응답 공개</span></p></div>
-    <div class="row"><span class="no">06</span><h3>단지 관리비 대장<small>CSV · 화면</small></h3>
-      <p class="what">월별·항목별 관리비, 비슷한 10곳 대비 지수, 장기수선충당금 적립·사용액.</p>
-      <p class="spec"><b>9,620</b><span>개 단지 · 2026년 1~9월</span></p></div>
-    <div class="row"><span class="no">07</span><h3>공용부 공사·용역 입찰 대장<small>CSV</small></h3>
-      <p class="what">전국 공동주택 전자입찰 결과. 공종·위치(외벽·옥상·지하주차장) 분류, 낙찰·유찰, 계약 기간.</p>
-      <p class="spec"><b>207,134</b><span>건 · 2024~2026년</span></p></div>
-    <div class="row"><span class="no">08</span><h3>단지 건물 입체 자료<small>JSON · 화면</small></h3>
-      <p class="what">동별 외곽 도형·층수·높이. <a href="#d3">입체도 보기</a></p>
-      <p class="spec"><b>7,729</b><span>개 단지 · 수도권</span></p></div>
-  </div>
-
-  <!-- 2026-11-14 대표 「데이터 기업 위주로」: 표준 물량 실제 견본 -->
-  <div class="dsm">
-    <h3>견본 — 같은 84㎡, 다른 물량</h3>
-    <p>공개 도면에서 84㎡대 평형을 뽑아 셌습니다. 평수가 같아도 벽 면적이 192~235㎡로 22% 차이 납니다. 평수 × 단가로 낸 견적이 틀리는 이유입니다.</p>
-    <div class="dsm-w"><table>
-      <thead><tr><th>단지 · 평형</th><th class="r">전용</th><th class="r">방·욕실</th><th class="r">바닥</th><th class="r">벽</th><th class="r">걸레받이</th></tr></thead>
-      <tbody>
-        <tr><td>연수1차대림 105</td><td class="r">84.79㎡</td><td class="r">3·2</td><td class="r">74.1㎡</td><td class="r">203㎡</td><td class="r">84.6m</td></tr>
-        <tr><td>송도더샵하버뷰13단지 115</td><td class="r">84.92㎡</td><td class="r">3·2</td><td class="r">68.3㎡</td><td class="r">205㎡</td><td class="r">85.4m</td></tr>
-        <tr><td>선학대진 107</td><td class="r">84.69㎡</td><td class="r">3·1</td><td class="r">70.4㎡</td><td class="r">193㎡</td><td class="r">80.6m</td></tr>
-        <tr><td>송도웰카운티4단지 110A</td><td class="r">84.87㎡</td><td class="r">3·2</td><td class="r">75.4㎡</td><td class="r">235㎡</td><td class="r">97.9m</td></tr>
-        <tr><td>선학아주 100A</td><td class="r">84.4㎡</td><td class="r">3·2</td><td class="r">71.5㎡</td><td class="r">192㎡</td><td class="r">79.8m</td></tr>
-      </tbody>
-      <tfoot><tr><td colspan="6">전용 1㎡당 중앙값 · 바닥 0.85㎡ · 벽 2.39㎡ · 걸레받이 1.0m (84㎡대 7개 평형, 2026년 11월)</td></tr></tfoot>
-    </table></div>
-  </div>
-  <p class="note" style="margin-top:22px"><b style="color:var(--ink);font-weight:600">앞으로 낼 자료</b> · 보험 누수·하자 복구비 산정 · 하자 범위·보수비 근거 · 공용부 공사비 산정(도장·방수·승강기) · 장기수선계획·충당금 산정 · 경매·매매 수리비 어림 · 노후 단지 리모델링 통계</p>
-  <div class="dact"><a class="btn" href="data.html#buy" data-ev="home_data_buy">견본·견적 받기</a><a class="btn ghost" href="data.html#list">자료 12종 전체 보기</a></div>
-</section>
 
 <!-- 지도 -->
 <section class="mapsec" id="map">
@@ -507,7 +372,7 @@
 <!-- 제품 진열: 집지니를 움직이는 제품 — 제품 이름이 가장 크게 -->
 <section class="suite" id="suite">
   <h2>남의 도구를 빌려 쓰지 않습니다.<br>현장에서 필요해서 직접 만들었습니다</h2>
-  <p class="sub">수도권 10,242단지의 도면 자리, 관리비 9,620단지, 입찰 207,134건이 이 도구들 안에 들어 있습니다. 고객은 그 결과를 견적서와 휴대폰으로 받습니다.</p>
+  <p class="sub">수도권 10,242단지의 도면 자리와 실제 견적 단가가 이 도구들 안에 들어 있습니다. 고객은 그 결과를 견적서와 휴대폰으로 받습니다.</p>
 
   <article class="pd">
     <header class="pn"><h3>집지니 CAD</h3><p>부동산 평면도 한 장이 공사 도면이 됩니다</p></header>
@@ -612,42 +477,6 @@
   <dl class="pstat"><div><dt>출원일</dt><dd>2026. 11. 20.</dd></div><div><dt>청구항</dt><dd>12개</dd></div><div><dt>심사청구</dt><dd>완료</dd></div><div><dt>추가 출원</dt><dd>공용부 공사비 산정 · 준비 중</dd></div></dl>
 </section>
 
-<section class="tech" id="tech">
-  <h2>모든 것이 하나로 이어져 돌아갑니다</h2>
-  <p class="sub">도면 하나가 물량, 견적, 작업지시서, 고객 화면까지 그대로 갑니다. 사람이 끼는 자리는 승인과 상담뿐입니다.</p>
-  <figure class="arch"><a href="assets/home/arch.jpg" target="_blank" rel="noopener"><img src="assets/home/arch.jpg" alt="집지니 시스템 구성도" loading="lazy"></a><figcaption>집지니 시스템 구성도. 초록 선은 자료가 자동으로 흐르는 길입니다. 누르면 크게 봅니다.</figcaption></figure>
-  <figure class="arch" style="margin-top:40px"><a href="assets/home/tech_stack.webp?v=20261122a" target="_blank" rel="noopener"><img src="assets/home/tech_stack.webp?v=20261122a" alt="집지니 기술 스택: 데이터 원천, 온프레미스 보안 학습 서버의 자가 학습 고리(선생 모델, 자동 채점 관문, 정답지·합성 데이터, 자체 모델, 기존 모델과 대결 후 승자 배포), 데이터 플랫폼, 서비스 계층(집지니 CAD, 적산 엔진, 고객 화면·챗봇, 연동창구), ERP 콘솔" loading="lazy" width="2880" height="1620"></a><figcaption>기술 스택(Tech Stack). 수집, AI 학습, 데이터 플랫폼, 서비스, 운영까지 전 구간을 자체 기술로 이은 닫힌 고리입니다. 누르면 크게 봅니다.</figcaption></figure>
-  <div class="capg">
-    <div class="stack"><h3>다섯 층의 능력</h3><p class="cap0">초록은 집지니가 직접 만들어 돌리는 것</p>
-      <div class="ly"><div class="k">사람<small>신뢰</small></div><div class="v"><span class="me">반셀프 코디</span><span class="me">가양동 샘플실</span><span class="me">하자 조율 약속</span><span>현장관리(PM) 대행</span></div></div>
-    <div class="ly"><div class="k">현장<small>시공 관리</small></div><div class="v"><span class="me">공정별 작업지시서</span><span class="me">공정표·사진</span><span class="me">알림톡 6종</span><span class="me">노무비 청구·지급</span></div></div>
-    <div class="ly"><div class="k">거래<small>견적·계약·돈</small></div><div class="v"><span class="me">자동 견적·자가 점검</span><span class="me">단가 근거 공개</span><span class="me">전자 계약</span><span class="me">입금·정산 장부</span><span class="me">관리비 비교·줄일 돈 계산</span><span>자재 수수료 주문</span></div></div>
-    <div class="ly"><div class="k">설계<small>도면·물량</small></div><div class="v"><span class="me">집지니 CAD</span><span class="me">오토캐드 파일 읽고 쓰기</span><span class="me">물량 자동 산출 17공종</span><span class="me">공법 선택</span><span class="me">단지 입체도</span></div></div>
-    <div class="ly base"><div class="k">데이터<small>바닥</small></div><div class="v"><span class="me">수도권 <b data-live="all" style="font-weight:inherit">10,242</b>단지</span><span class="me">평면도 47,981장 수집</span><span class="me">도면 자동 변환·채점</span><span class="me">자가 학습 고리</span><span class="me">관리비 대장 9,620단지</span><span class="me">입찰 대장 207,134건</span><span class="me">건물 입체 7,729단지</span><span class="me">자체 지도</span></div></div>
-  
-    </div>
-    <div class="cmp"><h3>흔한 인테리어 서비스와 비교</h3><p class="cap0">● 있음 ◐ 일부 ○ 없음 · 일반적인 경우 기준</p>
-      <table>
-      <thead><tr><th style="text-align:left">능력</th><th class="me">집지니</th><th>견적 비교<br>플랫폼</th><th>3D 인테리어<br>꾸미기 앱</th><th>부동산<br>평면도 서비스</th><th>범용 캐드<br>프로그램</th><th>동네<br>인테리어 업체</th></tr></thead>
-      <tbody>
-        <tr><td>아파트 단지 평면 자료</td><td class="me"><i class="f"></i></td><td><i></i></td><td><i class="h"></i></td><td><i class="f"></i></td><td><i></i></td><td><i></i></td></tr>
-        <tr><td>평면도 → 공사 도면 자동 변환</td><td class="me"><i class="f"></i></td><td><i></i></td><td><i class="h"></i></td><td><i></i></td><td><i></i></td><td><i></i></td></tr>
-        <tr><td>오토캐드 파일 읽고 쓰기</td><td class="me"><i class="f"></i></td><td><i></i></td><td><i></i></td><td><i></i></td><td><i class="f"></i></td><td><i class="h"></i></td></tr>
-        <tr><td>도면에서 물량 자동 산출</td><td class="me"><i class="f"></i></td><td><i></i></td><td><i></i></td><td><i></i></td><td><i class="h"></i></td><td><i></i></td></tr>
-        <tr><td>줄마다 단가 공개 견적</td><td class="me"><i class="f"></i></td><td><i class="h"></i></td><td><i></i></td><td><i></i></td><td><i></i></td><td><i></i></td></tr>
-        <tr><td>24시간 자동 견적서</td><td class="me"><i class="f"></i></td><td><i class="h"></i></td><td><i></i></td><td><i></i></td><td><i></i></td><td><i></i></td></tr>
-        <tr><td>공정별 작업지시서</td><td class="me"><i class="f"></i></td><td><i></i></td><td><i></i></td><td><i></i></td><td><i class="h"></i></td><td><i class="h"></i></td></tr>
-        <tr><td>공정·사진 고객 공유, 알림</td><td class="me"><i class="f"></i></td><td><i class="h"></i></td><td><i></i></td><td><i></i></td><td><i></i></td><td><i class="h"></i></td></tr>
-        <tr><td>중간 마진 없는 직거래</td><td class="me"><i class="f"></i></td><td><i></i></td><td><i></i></td><td><i></i></td><td><i></i></td><td><i></i></td></tr>
-        <tr><td>단지별 관리비 비교·줄일 돈 계산</td><td class="me"><i class="f"></i></td><td><i></i></td><td><i></i></td><td><i class="h"></i></td><td><i></i></td><td><i></i></td></tr>
-        <tr><td>아파트 공용부 입찰·낙찰 자료</td><td class="me"><i class="f"></i></td><td><i></i></td><td><i></i></td><td><i></i></td><td><i></i></td><td><i></i></td></tr>
-        <tr><td>단지 입체도 (동별 실제 높이)</td><td class="me"><i class="f"></i></td><td><i></i></td><td><i></i></td><td><i class="h"></i></td><td><i></i></td><td><i></i></td></tr>
-        <tr><td>실물 샘플실·사람 상담</td><td class="me"><i class="f"></i></td><td><i></i></td><td><i></i></td><td><i></i></td><td><i></i></td><td><i class="f"></i></td></tr>
-      </tbody>
-    </table>
-    </div>
-  </div>
-</section>
 
 <!-- 데이터 구입 (2026-11-13): 데이터 기업을 내세우면서 파는 자료가 안 보였다 → 살 수 있는 자료·앞으로 낼 자료·연동창구를 첫 화면에 -->
 
@@ -689,51 +518,6 @@
   <a class="btn" href="showroom.html">샘플실 상담 예약하기</a>
 </section>
 
-<!-- IR: 투자자께 -->
-<section class="ir" id="ir">
-  <header class="pn"><h3>집지니 IR</h3><p>공사비·관리비·수선비, 집에서 나가는 돈을 데이터로 줄이는 회사</p></header>
-  <div class="irg">
-    <div class="irt">
-      <ul class="pf">
-        <li><b>13년:</b> 2013년 처음 마주한 문제를 현장 공정 관리, 직무훈련 컨설팅, 직접 개발로 13년간 풀어 하나의 시스템으로 모았습니다 (개업 2015년 5월)</li>
-        <li><b>문제:</b> 인테리어 견적의 약 30%는 보이지 않는 업체 몫이고, 물량은 평수로 어림합니다</li>
-        <li><b>해결:</b> 반셀프 코디 + 다섯 가지 자체 제품으로 직영의 값, 턴키의 편함, 단가 100% 공개</li>
-        <li><b>돈 버는 구조:</b> 무료 도면 도구 → 로그인 → 상담 → 계약. 코디 계약, 현장관리, 자재 수수료 10%</li>
-        <li><b>다음:</b> 지금 무료 흐름 완성 → 3~6개월 업체 구독 → 내년 단지별 표준 물량 자료</li>
-      </ul>
-      <div class="irb">
-        <a class="btn" href="files/jipjini-ir.pdf?v=20261123b" download="집지니_IR.pdf">IR 자료 받기 (PDF)</a>
-        <a class="btn ghost" href="ir/">투자자용 안내 보기</a>
-        <a class="btn ghost" href="https://pf.kakao.com/_NjpxhC/chat" target="_blank" rel="noopener">카톡으로 문의</a>
-      </div>
-    </div>
-    <dl class="irn">
-      <div><dt>지도에 올린 수도권 단지</dt><dd data-live="all">10,242</dd></div>
-      <div><dt>모은 평면도 원본</dt><dd>47,981</dd></div>
-      <div><dt>도면 공개 단지 · 매일 늘어남</dt><dd id="irOpen" data-live="open">3,061</dd></div>
-      <div><dt>벽 인식률 · 학습 표본 77장 (실측 오차 검증 중)</dt><dd>98.8%</dd></div>
-      <div><dt>계약 · 보낸 견적 23건 중</dt><dd>4건</dd></div>
-      <div><dt>노하우를 모은 시간 · 2013년부터</dt><dd>13년</dd></div>
-    </dl>
-    <div class="lv irlv"><p><b>도면 완성률 <span data-live="pct">41.4</span>%</b><span class="lvm">평면을 확보한 <span data-live="have">7,393</span>단지 중 <span data-live="open">3,061</span>단지 도면 열림 · 오늘 새로 연 평형 <span data-live="today">26</span>개 · <span data-live="date">11월 13일</span> 기준</span></p><div class="lvt" role="progressbar" aria-label="도면 완성률" aria-valuemin="0" aria-valuemax="100"><i data-live-bar="pct" style="width:11.3%"></i></div></div>
-  </div>
-  <div class="irs">
-    <div class="iry"><p class="iy">13년</p><h3>개발해서<br>만든 사업입니다</h3></div>
-    <p class="iq">물류를 전공하며 물건과 돈이 어디서 새는지 보는 법을 배웠습니다. 현장에서 100건 넘게 직접 지어 보니, 인테리어 비용은 도면 없이 어림으로 새고 있었습니다. 그 새는 30%를 시스템으로 막으려고 13년을 썼습니다.</p>
-    <ol class="itl"><li><b>2011–12</b><span>창업 대회 다섯 번 수상, 동계창업캠프 대상</span></li><li><b>2013</b><span>공군 임관·중대장, 아이디어 공모전 참모총장상. 구상 시작</span></li><li><b>2015</b><span>집지니 개업</span></li><li><b>2016–17</b><span>강화중앙시장 청년몰 조성·이화쉼터 총괄팀장</span></li><li><b>~2025</b><span>상업·주거 시공 100건 이상, 방수기능사</span></li><li><b>2026</b><span>제품 다섯 개와 운영 시스템</span></li></ol>
-  </div>
-  <div class="ceo">
-    <figure><img class="cp1" src="assets/home/ir/ceo.jpg" alt="대표 박찬영" loading="lazy" width="600" height="800"></figure>
-    <div>
-      <p class="eyb">대표자 소개</p>
-      <h3>100건 넘게 직접 지은 사람이 직접 만든 시스템</h3>
-      <p class="role">대표 박찬영 · 건축 시공 · 시스템 개발</p>
-      <div class="ceol"><ul class="pf"><li><b>집지니 대표</b> (2015~) — 시공 100건 이상, 도면·적산·운영 시스템 직접 개발</li><li><b>주식회사 운휴원 대표</b> — 기업 현장 직무훈련 컨설팅, 산업기능요원·이중훈련 심사위원</li><li><b>이화여자대학교 산학협력단</b> 총괄팀장 (2017)</li><li><b>강화중앙시장 청년몰 조성사업단</b> 총괄팀장 (2016–17)</li><li><b>공군 중위</b> · 중대장 (2013–16)</li></ul><ul class="pf"><li>인천대 무역·물류 학사, 물류대학원 물류시스템 석사 수료</li><li>방수기능사 · 소방안전관리사 · 지게차기능사</li><li>한국미술대전 입선·장려 (2014)</li><li>국방부 아이디어 공모전 참모총장상 (2013)</li><li>동계창업캠프 대상 등 창업 대회 수상 다수</li><li>「해루낚」 개발·운영 · 유튜브 「촌닭건축」</li></ul></div>
-    </div>
-    <figure class="bz"><a href="assets/home/ir/biz.jpg" target="_blank" rel="noopener"><img src="assets/home/ir/biz.jpg" alt="집지니 사업자등록증, 개업 2015년 5월 27일, 개인 정보 가림" loading="lazy" width="900" height="1271"></a><figcaption>사업자등록증 · 874-10-00088<br>개업 2015.05.27</figcaption></figure>
-  </div>
-  <div class="ipj"><figure><img src="assets/home/ir/p-soop.jpg" alt="카페 숲 (재능기부 카페) 시공 사진" loading="lazy" width="720" height="540"><figcaption>카페 숲 (재능기부 카페)</figcaption></figure><figure><img src="assets/home/ir/p-kundal.jpg" alt="카페 쿤달 시공 사진" loading="lazy" width="720" height="540"><figcaption>카페 쿤달</figcaption></figure><figure><img src="assets/home/ir/p-ewha.jpg" alt="이화여대 이화쉼터 시공 사진" loading="lazy" width="720" height="540"><figcaption>이화여대 이화쉼터</figcaption></figure><figure><img src="assets/home/ir/p-michelle.jpg" alt="논현동 미쉘키친 시공 사진" loading="lazy" width="720" height="540"><figcaption>논현동 미쉘키친</figcaption></figure><figure><img src="assets/home/ir/p-wine.jpg" alt="와인공장 L075 시공 사진" loading="lazy" width="720" height="540"><figcaption>와인공장 L075</figcaption></figure></div>
-</section>
 
 <!-- 지금 바로 -->
 <section class="ask" id="ask">
@@ -842,31 +626,6 @@ var hdr=document.querySelector("header, .site-header, nav.site-nav, .navbar, .na
 .acbhb{display:inline-block;margin-top:22px;padding:13px 22px;background:var(--jj-ink,#1C1F1B);color:#fff;border-radius:4px;text-decoration:none;font-weight:600}
 @media (max-width:640px){.acbhf .r{display:none}.acbhf svg{width:40px;height:40px}.acbhf em{font-size:16px}.acbhf b{font-size:13px}}
 </style>
-<link rel="stylesheet" href="assets/acb/acb.css?v=20261122h"><script src="assets/acb/acb.js?v=20261122j" defer></script>
-<script src="assets/acb/d3.js?v=20261122c" defer></script>
-<script>
-document.addEventListener('DOMContentLoaded',function(){
-  var box=document.getElementById('d3box'); if(!box||!window.JJd3) return;
-  var IDX=null,inp=document.getElementById('d3in'),ul=document.getElementById('d3list'),nm=document.getElementById('d3name'),msg=document.getElementById('d3msg'),go=document.getElementById('d3go');
-  var FX=null,fx=[0,1,2,3].map(function(i){return document.getElementById('d3f'+i)});
-  function facts(c){(FX?Promise.resolve(FX):fetch('data/acb/d3facts.json').then(function(r){return r.json()}).then(function(j){FX=j;return j})).then(function(F){var f=F[c];if(!f)return;[f[0],f[1],f[2],f[3]].forEach(function(v,i){fx[i].textContent=v?(i===3?v:v.toLocaleString('ko-KR')):'—'});}).catch(function(){});}
-  function show(c,name,gu,first){ JJd3.mount(box,c,'',{spin:first,fly:true,done:function(){nm.textContent=name;msg.textContent=gu;go.href='acb/?c='+c;if(!first)facts(c);},
-    fail:function(){msg.textContent=name+' · 준비 중';}}); }
-  show('A13822004','잠실엘스아파트','서울 송파구',true);
-  function idx(){return IDX?Promise.resolve(IDX):fetch('data/acb/index.json').then(function(r){return r.json()}).then(function(j){IDX=j;return j});}
-  var t; inp.addEventListener('input',function(){clearTimeout(t);t=setTimeout(function(){var q=inp.value.replace(/\s/g,'');if(q.length<2){ul.textContent='';return}
-    idx().then(function(j){ul.textContent='';var n=0,rows=[];for(var c0 in j)rows.push([c0,j[c0]]);var hits=window.JJSearch?JJSearch.rank(inp.value,rows,function(r){return{n:r[1][0],g:String(r[1][5]).replace('_',' '),d:r[1][8]||''}},20):rows.filter(function(r){return(r[1][0]+r[1][1]).replace(/\s/g,'').indexOf(q)>=0});
-      for(var hi=0;hi<hits.length;hi++){var c=hits[hi][0],e=hits[hi][1];
-      (function(c,e){var li=document.createElement('li'),b=document.createElement('button'),s=document.createElement('small');b.type='button';b.textContent=e[0];s.textContent=e[1]+(e[8]?' '+e[8]:'');b.appendChild(s);
-        b.onclick=function(){ul.textContent='';inp.value=e[0];show(c,e[0],e[1],false);if(window.gtag)gtag('event','home_d3_pick');};li.appendChild(b);ul.appendChild(li);})(c,e);
-      if(++n>=20)break;}});},150);});
-});
-</script>
 
-<script>
-addEventListener('DOMContentLoaded',function(){var A=window.JJacb,b=document.getElementById('acbhf');if(!A||!b)return;
-var P={1:12,2:21,3:33,4:18,5:16},R={1:'85 미만',2:'85~95',3:'95~105',4:'105~115',5:'115 이상'};
-[1,2,3,4,5].forEach(function(t){var d=document.createElement('div');d.appendChild(A.faceSvg(t,56));d.insertAdjacentHTML('beforeend','<b style="color:'+A.C[t]+'">'+A.NAME[t]+'</b><em>'+P[t]+'%</em><span class="r">지수 '+R[t]+'</span>');b.appendChild(d);});A.watch&&A.watch(document);});
-</script>
 </body>
 </html>
