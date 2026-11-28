@@ -1,0 +1,52 @@
+{
+ "id": "auction",
+ "title": "경매 물건 수리비 보기",
+ "hook": "경매 낙찰 전,\n수리비부터 보세요",
+ "end": "이 물건 수리비는?",
+ "frames": [
+  {
+   "img": "01.jpg",
+   "cap": null,
+   "step": null,
+   "big": null,
+   "hold": 1.6,
+   "result": false,
+   "kind": "shot",
+   "focus": null
+  },
+  {
+   "img": "02.jpg",
+   "cap": "견본으로 먼저 눌러 봅니다",
+   "step": 1,
+   "big": null,
+   "hold": 1.6,
+   "result": false,
+   "kind": "tap",
+   "focus": [
+    16,
+    300.421875,
+    226.359375,
+    53.125
+   ],
+   "tapAt": [
+    129.1796875,
+    326.984375
+   ]
+  },
+  {
+   "img": "03.jpg",
+   "cap": "수리비와 입찰 상한이 한 번에",
+   "step": 2,
+   "big": null,
+   "hold": 2.6,
+   "result": true,
+   "kind": "shot",
+   "focus": [
+    16,
+    124.546875,
+    245.671875,
+    33.59375
+   ]
+  }
+ ]
+}

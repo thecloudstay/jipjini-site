@@ -1,0 +1,1 @@
+{"title": "경매 물건 수리비 보기", "hook": "경매 낙찰 전,\n수리비부터 보세요", "end": "이 물건 수리비는?", "steps": [{"go": "auction/", "wait": 2500}, {"scroll": "#apSample", "off": 300}, {"tap": "#apSample", "cap": "견본으로 먼저 눌러 봅니다", "wait": 3500}, {"scroll": "#res", "off": 80, "cap": "수리비와 입찰 상한이 한 번에", "focus": "#tot", "hold": 2.6, "result": true}], "id": "auction"}

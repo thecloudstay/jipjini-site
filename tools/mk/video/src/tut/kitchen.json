@@ -1,0 +1,140 @@
+{
+ "id": "kitchen",
+ "title": "싱크대 간편 설계",
+ "hook": "싱크대 설계,\n1분이면 끝",
+ "end": "우리 집 싱크대는?",
+ "frames": [
+  {
+   "img": "01.jpg",
+   "cap": "싱크대 모양을 고르고",
+   "step": 1,
+   "big": null,
+   "hold": 1.6,
+   "result": false,
+   "kind": "tap",
+   "focus": [
+    152.65625,
+    294.296875,
+    126.671875,
+    101.125
+   ],
+   "tapAt": [
+    215.9921875,
+    344.859375
+   ]
+  },
+  {
+   "img": "02.jpg",
+   "cap": "벽 길이를 적습니다",
+   "step": 2,
+   "big": null,
+   "hold": 1.6,
+   "result": false,
+   "kind": "tap",
+   "focus": [
+    16,
+    518.796875,
+    194,
+    50
+   ],
+   "tapAt": [
+    113,
+    543.796875
+   ]
+  },
+  {
+   "img": "03.jpg",
+   "kind": "type",
+   "focus": [
+    16,
+    518.796875,
+    194,
+    50
+   ],
+   "hold": 0.25,
+   "cap": null,
+   "step": null
+  },
+  {
+   "img": "04.jpg",
+   "kind": "type",
+   "focus": [
+    16,
+    518.796875,
+    194,
+    50
+   ],
+   "hold": 0.25,
+   "cap": null,
+   "step": null
+  },
+  {
+   "img": "05.jpg",
+   "cap": "냉장고·옵션을 고르면",
+   "step": 3,
+   "big": null,
+   "hold": 1.6,
+   "result": false,
+   "kind": "tap",
+   "focus": [
+    158.75,
+    750.421875,
+    54.6875,
+    41.375
+   ],
+   "tapAt": [
+    186.09375,
+    771.109375
+   ]
+  },
+  {
+   "img": "06.jpg",
+   "cap": null,
+   "step": null,
+   "big": null,
+   "hold": 1.6,
+   "result": false,
+   "kind": "tap",
+   "focus": [
+    118.703125,
+    1268.921875,
+    121.390625,
+    41.375
+   ],
+   "tapAt": [
+    179.3984375,
+    1289.609375
+   ]
+  },
+  {
+   "img": "07.jpg",
+   "cap": "배치도가 바로 그려지고",
+   "step": 4,
+   "big": null,
+   "hold": 2.2,
+   "result": false,
+   "kind": "shot",
+   "focus": [
+    16,
+    100.015625,
+    400,
+    233.15625
+   ]
+  },
+  {
+   "img": "08.jpg",
+   "cap": "금액까지 나옵니다",
+   "step": 5,
+   "big": null,
+   "hold": 2.6,
+   "result": true,
+   "kind": "shot",
+   "focus": [
+    16,
+    250.296875,
+    168.0625,
+    33.59375
+   ]
+  }
+ ]
+}

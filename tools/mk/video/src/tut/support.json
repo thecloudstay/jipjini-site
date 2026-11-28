@@ -1,0 +1,115 @@
+{
+ "id": "support",
+ "title": "우리 아파트 지원금 찾기",
+ "hook": "우리 아파트도\n지원금 받을 수 있다?",
+ "end": "우리 단지 지원금은?",
+ "frames": [
+  {
+   "img": "01.jpg",
+   "cap": "아파트 이름을 칩니다",
+   "step": 1,
+   "big": null,
+   "hold": 1.6,
+   "result": false,
+   "kind": "tap",
+   "focus": [
+    20,
+    203.796875,
+    392,
+    62.390625
+   ],
+   "tapAt": [
+    216,
+    234.9921875
+   ]
+  },
+  {
+   "img": "02.jpg",
+   "kind": "type",
+   "focus": [
+    20,
+    203.796875,
+    392,
+    62.390625
+   ],
+   "hold": 0.25,
+   "cap": null,
+   "step": null
+  },
+  {
+   "img": "03.jpg",
+   "kind": "type",
+   "focus": [
+    20,
+    203.796875,
+    392,
+    62.390625
+   ],
+   "hold": 0.25,
+   "cap": null,
+   "step": null
+  },
+  {
+   "img": "04.jpg",
+   "kind": "type",
+   "focus": [
+    20,
+    203.796875,
+    392,
+    62.390625
+   ],
+   "hold": 0.25,
+   "cap": null,
+   "step": null
+  },
+  {
+   "img": "05.jpg",
+   "cap": "우리 단지를 고릅니다",
+   "step": 2,
+   "big": null,
+   "hold": 1.6,
+   "result": false,
+   "kind": "tap",
+   "focus": [
+    21,
+    266.1875,
+    390,
+    49.796875
+   ],
+   "tapAt": [
+    216,
+    291.0859375
+   ]
+  },
+  {
+   "img": "06.jpg",
+   "cap": "받을 수 있는 사업이 바로",
+   "step": 3,
+   "big": null,
+   "hold": 2.2,
+   "result": false,
+   "kind": "shot",
+   "focus": [
+    20,
+    119.578125,
+    392,
+    76.890625
+   ]
+  },
+  {
+   "img": "07.jpg",
+   "cap": "얼마까지, 언제 신청하는지",
+   "step": 4,
+   "big": null,
+   "hold": 2.6,
+   "result": true,
+   "kind": "shot",
+   "focus": [
+    20,
+    79.9375,
+    392,
+    339.734375
+   ]
+  }
+ ]
+}

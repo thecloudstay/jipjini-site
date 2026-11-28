@@ -1,0 +1,99 @@
+{
+ "id": "compare",
+ "title": "받은 견적서 검토",
+ "hook": "받은 견적서,\n비싼 줄 찾아 드림",
+ "end": "내 견적서는?",
+ "frames": [
+  {
+   "img": "01.jpg",
+   "cap": null,
+   "step": null,
+   "big": null,
+   "hold": 1.6,
+   "result": false,
+   "kind": "shot",
+   "focus": null
+  },
+  {
+   "img": "02.jpg",
+   "cap": "받은 견적서 내용을 붙여 넣고",
+   "step": 1,
+   "big": null,
+   "hold": 2,
+   "result": false,
+   "kind": "shot",
+   "focus": [
+    16,
+    159.796875,
+    400,
+    150
+   ]
+  },
+  {
+   "img": "03.jpg",
+   "cap": "평수를 적습니다",
+   "step": 2,
+   "big": null,
+   "hold": 1.6,
+   "result": false,
+   "kind": "tap",
+   "focus": [
+    16,
+    367.546875,
+    195,
+    50
+   ],
+   "tapAt": [
+    113.5,
+    392.546875
+   ]
+  },
+  {
+   "img": "04.jpg",
+   "kind": "type",
+   "focus": [
+    16,
+    367.546875,
+    195,
+    50
+   ],
+   "hold": 0.25,
+   "cap": null,
+   "step": null
+  },
+  {
+   "img": "05.jpg",
+   "cap": "「줄마다 비교하기」",
+   "step": 3,
+   "big": null,
+   "hold": 1.6,
+   "result": false,
+   "kind": "tap",
+   "focus": [
+    16,
+    494.546875,
+    142.140625,
+    53.125
+   ],
+   "tapAt": [
+    87.0703125,
+    521.109375
+   ]
+  },
+  {
+   "img": "06.jpg",
+   "cap": "비싼 줄과 빠진 공사를 짚어 줍니다",
+   "step": 4,
+   "big": null,
+   "hold": 2.6,
+   "result": true,
+   "kind": "shot",
+   "focus": [
+    16,
+    79.671875,
+    400,
+    2161.96875
+   ]
+  }
+ ]
+}

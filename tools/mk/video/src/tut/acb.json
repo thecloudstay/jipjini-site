@@ -1,0 +1,100 @@
+{
+ "id": "acb",
+ "title": "우리 단지 관리비 비교",
+ "hook": "우리 관리비,\n옆 단지보다 비쌀까?",
+ "end": "우리 관리비는?",
+ "frames": [
+  {
+   "img": "01.jpg",
+   "cap": "아파트 이름을 칩니다",
+   "step": 1,
+   "big": null,
+   "hold": 1.6,
+   "result": false,
+   "kind": "tap",
+   "focus": [
+    20,
+    245.296875,
+    392,
+    62.390625
+   ],
+   "tapAt": [
+    216,
+    276.4921875
+   ]
+  },
+  {
+   "img": "02.jpg",
+   "kind": "type",
+   "focus": [
+    20,
+    245.296875,
+    392,
+    62.390625
+   ],
+   "hold": 0.25,
+   "cap": null,
+   "step": null
+  },
+  {
+   "img": "03.jpg",
+   "kind": "type",
+   "focus": [
+    20,
+    245.296875,
+    392,
+    62.390625
+   ],
+   "hold": 0.25,
+   "cap": null,
+   "step": null
+  },
+  {
+   "img": "04.jpg",
+   "kind": "type",
+   "focus": [
+    20,
+    245.296875,
+    392,
+    62.390625
+   ],
+   "hold": 0.25,
+   "cap": null,
+   "step": null
+  },
+  {
+   "img": "05.jpg",
+   "cap": "우리 단지를 고릅니다",
+   "step": 2,
+   "big": null,
+   "hold": 1.6,
+   "result": false,
+   "kind": "tap",
+   "focus": [
+    21,
+    307.6875,
+    390,
+    49
+   ],
+   "tapAt": [
+    216,
+    332.1875
+   ]
+  },
+  {
+   "img": "06.jpg",
+   "cap": "비슷한 10곳과 바로 비교",
+   "step": 3,
+   "big": null,
+   "hold": 2.6,
+   "result": true,
+   "kind": "shot",
+   "focus": [
+    20,
+    79.6875,
+    392,
+    4778.71875
+   ]
+  }
+ ]
+}
