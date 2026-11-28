@@ -1,0 +1,2 @@
+마이크로소프트 플루언트 이모지 3D (MIT 사용권) — github.com/microsoft/fluentui-emoji
+저작권 (c) Microsoft Corporation. MIT 사용권: 출처 표기 조건으로 상업 이용·수정 자유.
