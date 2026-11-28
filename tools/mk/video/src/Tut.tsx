@@ -64,10 +64,11 @@ const Hook: React.FC<{d: TutData; f: number; bgImg: string}> = ({d, f, bgImg}) =
       const land = pop(f, 50, 3);
       return <AbsoluteFill>{dim(0.1)}{box(520, <>{label}
         <div style={{fontSize: 60, color: '#fff', fontWeight: 700, opacity: fade(f, 0)}}>우리 집 올수리 공사비</div>
+        <div style={{fontSize: 40, color: 'rgba(255,255,255,.8)', fontWeight: 500, marginTop: 6, opacity: fade(f, 0)}}>래미안위브 111A · 전용 85㎡ 예시</div>
         <div style={{display: 'flex', alignItems: 'baseline', gap: 16, transform: `scale(${1 + land * 0.06 - (f > 58 ? 0.06 : 0)})`, transformOrigin: 'left bottom'}}>
           <span style={{fontSize: 250, fontWeight: 700, color: m.acc, letterSpacing: -10, fontVariantNumeric: 'tabular-nums'}}>{n}</span>
           <span style={{fontSize: 100, fontWeight: 700, color: m.acc}}>만 원</span></div>
-        <div style={{marginTop: 30}}><Lines f={f} at={58} lines={['아파트 검색 한 번으로 나왔어요', '턴키보다 1,200만 원 적게']} size={62} color="#fff" last={LIME} gap={10} /></div></>)}
+        <div style={{marginTop: 30}}><Lines f={f} at={58} lines={['아파트 검색 한 번으로 나왔어요', '턴키 추정보다 1,200만 원 적게']} size={62} color="#fff" last={LIME} gap={10} /></div></>)}
       </AbsoluteFill>;
     }
     case 'taps': {
@@ -182,7 +183,7 @@ export const Tut: React.FC<{d: TutData}> = ({d}) => {
   const i = starts.findIndex((s, k) => f >= s && f < s + len(d.frames[k], m));
   const fr = i >= 0 ? d.frames[i] : null;
   let capIdx = -1;
-  if (i >= 0) for (let k = i; k >= 0; k--) if (d.frames[k].cap) {capIdx = k; break;}
+  if (i >= 0 && (d.frames[i].cap || d.frames[i].kind === 'type')) for (let k = i; k >= 0; k--) if (d.frames[k].cap) {capIdx = k; break;}
   const cap = capIdx >= 0 ? d.frames[capIdx] : null;
   let view = {z: 1, cx: 540, cy: 960};
   if (fr) {
@@ -277,7 +278,7 @@ export const Tut: React.FC<{d: TutData}> = ({d}) => {
       </div>
       {markEl}{tapEl}
       </div>
-      <div style={{position: 'absolute', left: 0, right: 0, bottom: 0, height: m.kind === 'list' ? 1200 : 960, background: 'linear-gradient(rgba(0,0,0,0), rgba(0,0,0,.6) 35%, rgba(0,0,0,.72))'}} />
+      <div style={{position: 'absolute', left: 0, right: 0, bottom: 0, height: m.kind === 'list' ? 1200 : 960, background: 'linear-gradient(rgba(0,0,0,0), rgba(0,0,0,.8) 25%, rgba(0,0,0,.88))'}} />
       {(m.kind === 'taps' || m.kind === 'challenge') && <div style={{position: 'absolute', left: 0, right: 0, top: 0, height: 460, background: 'linear-gradient(rgba(0,0,0,.5), rgba(0,0,0,.4) 60%, rgba(0,0,0,0))'}} />}
       {capEl}{side}
     </AbsoluteFill>}
