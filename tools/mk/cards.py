@@ -79,7 +79,7 @@ def slide(x, i, n):
     elif k == "bill":
         body = f'<div class="t" style="margin:0 0 40px">{hl(x.get("t", ""))}</div><div class="billbox"><h4>관리비 고지서</h4>' + "".join(f'<div class="{"hi" if j == x.get("hi") else ""}"><span>{E(a)}</span><span>{E(b)}</span></div>' for j, (a, b) in enumerate(x["rows"])) + f'</div><div class="s">{hl(x.get("s", ""))}</div>'
     elif k == "cta":
-        body = f'<div class="h">{hl(x.get("t", "우리 단지는?"))}</div><div class="s">{hl(x.get("s", "단지 이름만 넣으면 30초"))}</div><span class="url">{E(x.get("url", "jipjini.com"))}</span>'
+        body = f'<div class="h">{hl(x.get("t", "우리 단지는?"))}</div><div class="s">{hl(x.get("s", "아파트 검색하면 우리 집 공사비가 바로 나와요"))}</div><span class="url">{E(x.get("url", "집지니"))}</span>'
     else:
         body = f'<div class="h">{hl(x.get("t", ""))}</div><div class="s">{hl(x.get("s", ""))}</div>'
     bg = ""
