@@ -7,6 +7,7 @@ import React from 'react';
 import {AbsoluteFill, Audio, Img, Sequence, interpolate, useCurrentFrame, staticFile, Easing} from 'remotion';
 import {INK, useFonts, css} from './Maru';
 import {Mark, MarkKind, Cap, shake} from './Marks';
+import {musicStart, musicVol} from './fx';
 
 const LIME = '#8FD19E', YEL = '#FFD43B';
 const KIND: MarkKind[] = ['hl', 'circle', 'arrow', 'underline', 'star', 'bracket', 'circle', 'box', 'arrow', 'star', 'check'];
@@ -66,13 +67,14 @@ export const Journey: React.FC = () => {
   // 손 흔들림(아주 살짝)
   const markT = f - cur.at - (swipe >= 0 ? 16 : 8);
 
-  const sounds: JSX.Element[] = [snd('m_vine', 2, 0.8), snd('scratch', 44, 0.5)];
+  // 소리(fx.ts 규칙): 휙은 단계(①~⑤)가 바뀔 때만, 표시 긋는 소리는 작게, 따뜻한 편이라 밈 외침은 쓰지 않는다
+  const sounds: JSX.Element[] = [snd('pluck', 2, 0.6), snd('whoosh_c', 44 - 2, 0.3)];
+  CH.forEach((c, n) => sounds.push(snd(n % 2 ? 'whoosh_a' : 'whoosh_b', c.from - (n % 2 ? 4 : 6), 0.32), snd('tok', c.from + 2, 0.4)));
   KS.forEach((k, n) => {
     const newImg = n === 0 || KS[n - 1].img !== k.img;
-    sounds.push(newImg ? snd(['whoosh_a', 'whoosh_b', 'whoosh_c'][n % 3], k.at - 2, 0.45) : snd('key2', k.at, 0.5));
-    sounds.push(snd(['mk1', 'mk2', 'mk3'][n % 3], k.at + (newImg ? 8 : 16), 0.7));
+    sounds.push(snd(['mk1', 'mk2', 'mk3'][n % 3], k.at + (newImg ? 8 : 16), 0.5));
   });
-  sounds.push(snd('m_ah', 700, 0.6), snd('m_woo', 840, 0.6), snd('tapestop', ENDAT - 6, 0.4), snd('reveal', ENDAT + 8, 0.6));
+  sounds.push(snd('whoosh_b', ENDAT - 6, 0.4), snd('pluck', ENDAT, 0.5), snd('reveal', ENDAT + 8, 0.5));
 
   return <AbsoluteFill style={{background: '#000', fontFamily: 'P', overflow: 'hidden'}}>
     <style>{css}</style>
@@ -110,7 +112,7 @@ export const Journey: React.FC = () => {
         <div style={{marginTop: 90}}><Logo /></div>
       </div>
     </AbsoluteFill>}
-    <Audio src={staticFile('sfx/mood_warm.wav')} startFrom={308} volume={(x) => interpolate(x, [0, 10, JOURNEY_LEN - 20, JOURNEY_LEN], [0, 0.24, 0.24, 0], C)} />
+    <Audio src={staticFile('sfx/mood_warm.wav')} startFrom={musicStart('warm', ENDAT, 2)} volume={(x) => musicVol(x, JOURNEY_LEN, [ENDAT], 0.24)} />
     {sounds}
   </AbsoluteFill>;
 };
