@@ -86,7 +86,7 @@
    "cap": null,
    "step": null,
    "big": null,
-   "hold": 1.6,
+   "hold": 0.8,
    "result": false,
    "kind": "shot",
    "focus": null
@@ -112,7 +112,7 @@
   },
   {
    "img": "08.jpg",
-   "cap": "우리 집 도면과 공사비가 바로 나옵니다",
+   "cap": "도면과 공사비가 바로 나옵니다",
    "step": 4,
    "big": null,
    "hold": 2.2,

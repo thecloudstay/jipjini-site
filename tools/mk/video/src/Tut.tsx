@@ -25,13 +25,13 @@ export const tutLength = (d: TutData) => d.fmt.hook + d.frames.reduce((a, f) => 
 const cam = (f: Fr) => {
   if (!f.focus) return {z: 1, cx: 540, cy: 960};
   const [x, y, w, h] = f.focus.map((v) => v * S);
-  let z = Math.min(1000 / w, 1350 / Math.max(h, 1), 1.45);
-  z = Math.max(1, z);
-  const hw = 540 / z, hh = 960 / z;
-  const cx = Math.min(Math.max(x + w / 2, hw), 1080 - hw);
-  const cy = Math.min(Math.max(y + h / 2 + 220 / z, hh), 1920 - hh);   // 자막(아래 가운데) 위쪽에 보이게
+  // 확대·이동을 하지 않는다: 조금만 키워도 화면 가장자리 글자가 잘린다(검수 3번). 눈길은 표시(Mark)와 자막으로 끈다
+  void x; void y; void w; void h;
+  const z = 1, cx = 540, cy = 960;
   return {z, cx, cy};
 };
+// 자막은 한 줄에 들어가게 글자 크기를 줄인다(한 낱말만 둘째 줄로 떨어지지 않게)
+const capSize = (t: string) => {const u = [...t].reduce((n, c) => n + (c === ' ' ? 0.3 : 1), 0); return Math.max(52, Math.min(70, Math.floor(850 / u)));};
 const pop = (f: number, at: number, _k = 1.8) => interpolate(f - at, [0, 5], [0, 1], {...C, easing: Easing.out(Easing.cubic)});   // 튀지 않게(v3)
 const fade = (f: number, at: number, d = 6) => interpolate(f - at, [0, d], [0, 1], C);
 const snd = (name: string, at: number, v = 0.7, key = name + at) => <Sequence key={key} from={Math.max(0, Math.round(at))}><Audio src={staticFile(`sfx/${name}.wav`)} volume={v * 0.7} /></Sequence>;
@@ -245,7 +245,7 @@ export const Tut: React.FC<{d: TutData}> = ({d}) => {
   const NO = ['①', '②', '③', '④', '⑤', '⑥', '⑦', '⑧'];
   const capEl = cap ? <div style={{position: 'absolute', left: 60, right: 150, top: 1200, opacity: fade(f, starts[capIdx], 3)}}>
     {!cap.result && cap.step ? <div style={{marginBottom: 8}}><Cap text={NO[(cap.step - 1) % 8]} size={62} color={YEL} /></div> : null}
-    <Cap text={cap.cap || ''} size={70} color={cap.result ? YEL : '#fff'} />
+    <Cap text={cap.cap || ''} size={capSize(cap.cap || '')} color={cap.result ? YEL : '#fff'} />
   </div> : null;
 
   // 단계 중 따라다니는 표시(상자 없이 글자만)
@@ -278,7 +278,7 @@ export const Tut: React.FC<{d: TutData}> = ({d}) => {
       </div>
       {markEl}{tapEl}
       </div>
-      <div style={{position: 'absolute', left: 0, right: 0, bottom: 0, height: m.kind === 'list' ? 1200 : 960, background: 'linear-gradient(rgba(0,0,0,0), rgba(0,0,0,.8) 25%, rgba(0,0,0,.88))'}} />
+      <div style={{position: 'absolute', left: 0, right: 0, bottom: 0, height: m.kind === 'list' ? 1200 : 960, background: 'linear-gradient(rgba(0,0,0,0), rgba(0,0,0,.93) 22%, rgba(0,0,0,.95))'}} />
       {(m.kind === 'taps' || m.kind === 'challenge') && <div style={{position: 'absolute', left: 0, right: 0, top: 0, height: 460, background: 'linear-gradient(rgba(0,0,0,.5), rgba(0,0,0,.4) 60%, rgba(0,0,0,0))'}} />}
       {capEl}{side}
     </AbsoluteFill>}
