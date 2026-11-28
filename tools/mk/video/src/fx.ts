@@ -22,10 +22,10 @@ export const PAL: Record<Mood, Pal> = {
 // 사람이 말하는 밈(2026-11-28 대표 「사람이 말하는 밈이 재미있네, 그런 거 위주로 더 많이」): 뜻별 묶음에서 편마다 다른 것을 고른다
 // 한국어 밈(k_*)은 tools/music/ko.py 로 직접 만든 것(대표 「가보자고·가즈아·이야야·오예·예쓰 … 다각도로」), m_* 는 밈 원본
 export const MEME = {
-  shock: ['k_heol', 'm_omg', 'k_silhwa', 'k_michyeotda', 'm_boywhat', 'k_eomeona', 'k_mwoya', 'm_omg2', 'k_maldoandwae', 'k_mworago', 'm_huh', 'k_jinjja', 'k_heok', 'k_eolma', 'm_dayum', 'm_dogdoin'],   // 놀람
-  nope:  ['k_seolma', 'm_bruh', 'k_aigo', 'k_manghaetda', 'm_getout', 'k_igeonjom', 'k_nuntaengi', 'm_oof', 'k_andwae', 'k_jamkkan', 'm_disappoint', 'm_ehhh'],                                         // 황당·거부
-  yay:   ['k_gabojago', 'm_wow', 'k_gazua', 'k_iyaya', 'k_oye', 'm_stonks', 'k_yes', 'k_nice', 'k_daebak', 'k_gaeideuk', 'm_yeet', 'k_haenaetda', 'k_deugaja', 'k_dwaetda', 'k_jjeonda', 'k_kkalkkeum', 'k_joasseo'], // 신남·성공
-  lol:   ['m_laugh2', 'm_eheh', 'laugh'],
+  shock: ['k_heol', 'm_omg', 'k_silhwa', 'k_michyeotda', 'm_boywhat', 'k_eomeona', 'k_mwoya', 'm_omg2', 'k_maldoandwae', 'k_mworago', 'm_huh', 'k_jinjja', 'k_heok', 'k_eolma', 'm_dayum', 'm_dogdoin', 'k_omg', 'm_what', 'm_omg3', 'm_peasantwhat', 'm_lotofdamage', 'k_waedalla'],   // 놀람
+  nope:  ['k_seolma', 'm_bruh', 'k_aigo', 'k_manghaetda', 'm_getout', 'k_igeonjom', 'k_nuntaengi', 'm_oof', 'k_andwae', 'k_jamkkan', 'm_disappoint', 'm_ehhh', 'm_no1', 'm_no2', 'm_no3', 'm_bruh2', 'k_ilsik'],                                         // 황당·거부
+  yay:   ['k_gabojago', 'm_wow', 'k_gazua', 'k_iyaya', 'k_oye', 'm_stonks', 'k_yes', 'k_nice', 'k_daebak', 'k_gaeideuk', 'm_yeet', 'k_haenaetda', 'k_deugaja', 'k_dwaetda', 'k_jjeonda', 'k_kkalkkeum', 'k_joasseo', 'k_assa', 'k_uwa', 'k_saratda', 'm_yeah', 'm_yes', 'm_ohwao', 'm_okay'], // 신남·성공
+  lol:   ['m_laugh2', 'm_eheh', 'laugh', 'm_ahaha'],
 };
 // 첫 장면은 내용에 딱 맞는 한마디를 형식별로 정해 둔다
 export const HOOK_LINE: Record<string, string> = {count: 'k_eolma', taps: 'k_ige_doene', versus: 'k_jamkkan', chat: 'k_jinjja', myth: 'k_seolma', pov: 'k_mwoya', list: 'k_silhwa', marker: 'k_nuntaengi', challenge: 'k_gabojago'};
