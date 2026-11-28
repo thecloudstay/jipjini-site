@@ -1,0 +1,25 @@
+# 2026-11-28 대표 「TTS 버전도 궁금해」 — 작업 컨테이너는 음성 합성 서버에 못 나가므로 깃허브에서 목소리를 만든다
+# mk/tts/jobs/<이름>.json 을 올리면 → mk/tts/out/<이름>/<목소리>/<줄>.mp3 가 생긴다 (무료 마이크로소프트 신경망 음성, 열쇠 필요 없음)
+name: 나레이션 음성 만들기
+on:
+  push:
+    branches: [main]
+    paths: ['mk/tts/jobs/**']
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: tts
+  cancel-in-progress: false
+jobs:
+  tts:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: pip install -q edge-tts==7.0.2
+      - run: python3 tools/tts/make.py
+      - run: |
+          git config user.name "jipjini-bot"; git config user.email "thecloudstay@gmail.com"
+          git add mk/tts/out
+          git commit -m "나레이션 음성 만들기" || echo "바뀐 것 없음"
+          git pull --rebase -q && git push
