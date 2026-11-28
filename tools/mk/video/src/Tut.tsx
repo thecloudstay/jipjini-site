@@ -272,7 +272,7 @@ export const Tut: React.FC<{d: TutData}> = ({d}) => {
         <div style={{marginTop: 90}}><Logo at={endAt + 10} fg={m.fg} light={light} /></div>
       </div>
     </AbsoluteFill>}
-    <Audio src={staticFile('sfx/bgm_jackal.mp3')} startFrom={BGM_AT[d.id] ?? 0} volume={(x) => interpolate(x, [0, 10, total - 20, total], [0, 0.26, 0.26, 0], C)} />
+    <Audio src={staticFile(m.music.startsWith('bgm_') ? `sfx/${m.music}.mp3` : `sfx/${m.music}.wav`)} startFrom={m.music.startsWith('bgm_') ? (BGM_AT[d.id] ?? 0) : 0} volume={(x) => interpolate(x, [0, 10, total - 20, total], [0, 0.26, 0.26, 0], C)} />
     {sounds}
     {snd('whoosh_b', endAt, 0.5, 'e1')}{snd('reveal', endAt + 10, 0.6, 'e2')}
   </AbsoluteFill>;
