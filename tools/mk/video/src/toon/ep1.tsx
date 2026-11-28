@@ -10,7 +10,7 @@ import {punchZ} from '../fx';
 import narr from './t1_narr.json';
 
 const EX = '집지니 실제 화면 · 래미안위브 111A 예시';
-export const ep1: Ep = {id: 'ep1', series: '신혼집 인테리어 분투기 · 1화', tag: '이야기로 보는 사용법', pre: 't1_', narr, turn: 3, cuts: [
+export const ep1: Ep = {id: 'ep1', series: '신혼집 인테리어 분투기 · 1화', tag: '고객 여정을 재구성한 이야기 · 사용법', pre: 't1_', narr, turn: 3, cuts: [
   {gap: 4, say: 'k_eolma', render: (lf, f) => <Panel bg="#FFE1C4" f={f} lf={lf}>
     <svg width={PW} height={900} style={{position: 'absolute'}}><rect x={640} y={50} width={330} height={250} fill="#fff" stroke={LINE} strokeWidth={6} /><path d="M640 175 L970 175 M805 50 L805 300" stroke={LINE} strokeWidth={6} />
       {lf > 20 && <g fill="none" stroke={LINE} strokeWidth={6} strokeLinecap="round"><path d="M700 110 l40 -30 M860 120 l50 -20 M720 240 l30 30" /></g>}</svg>
@@ -22,11 +22,11 @@ export const ep1: Ep = {id: 'ep1', series: '신혼집 인테리어 분투기 · 
     <P who={WIFE} body="Sweater" face="Contempt" x={520} y={420} w={420} flip />
     <Bubble text={'가 봐야 알죠~\n일단 방문부터!'} x={330} y={90} f={lf} at={8} size={54} /></Panel>},
   {gap: 4, tag: EX, sfx: [['key3', 4, 0.3], ['key3', 12, 0.3], ['key3', 20, 0.3]], render: (lf, f) => <Panel bg="#F3EFE6" f={f} lf={lf}>
-    <ProofCut a={{img: 'tut/cost/05.jpg', s: 2.5, mark: [27, 448, 378, 50], kind: 'box'}} lf={lf} wife="Driven" hus="Calm" say="아파트 이름만 쳤는데" sayAt={40} /></Panel>},
+    <ProofCut a={{img: 'tut/cost/05.jpg', s: 2.5, mark: [27, 448, 378, 50], kind: 'box'}} dy={-18} lf={lf} wife="Driven" hus="Calm" say="아파트 이름만 쳤는데" sayAt={40} /></Panel>},
   {gap: 6, tag: EX, say: 'k_ige_doene', sfx: [['tada', 2, 0.45]], render: (lf, f) => <Panel bg="#F3EFE6" f={f} lf={lf}>
-    <ProofCut a={{img: 'tut/cost/08.jpg', s: 2.5}} zoom={0.62} lf={lf} wife="SmileBig" hus="SmileTeeth" say="어? 우리 집이네?!" sayAt={10} /></Panel>},
+    <ProofCut a={{img: 'tut/cost/08.jpg', s: 2.5}} zoom={0.62} dy={-185} lf={lf} wife="SmileBig" hus="SmileTeeth" say="어? 우리 집이네?!" sayAt={10} /></Panel>},
   {gap: 6, tag: EX, sfx: [['mk1', 16, 0.5]], render: (lf, f) => <Panel bg="#F3EFE6" f={f} lf={lf}>
-    <ProofCut a={{img: 'tut/cost/09.jpg', s: 2.5, mark: [14, 62, 160, 42], kind: 'circle'}} lf={lf} wife="SmileTeeth" hus="Smile" /></Panel>},
+    <ProofCut a={{img: 'tut/cost/09.jpg', s: 2.5, mark: [16, 62, 156, 44], kind: 'underline'}} dy={-146} lf={lf} wife="SmileTeeth" hus="Smile" /></Panel>},
   {gap: 8, say: 'k_saratda', accent: true, tag: '래미안위브 111A · 전용 85㎡ 예시', sfx: [['drumroll', 3, 0.4], ['thud', 30, 0.65]], render: (lf, f) => <Panel bg={INK} f={f} lf={lf}>
     <div style={{position: 'absolute', left: 50, top: 70, fontSize: 56, fontWeight: 700, color: '#fff'}}>턴키 추정보다</div>
     {lf >= 30 && <div style={{position: 'absolute', left: 46, top: 150, fontSize: 190, fontWeight: 700, color: YEL, letterSpacing: -8, lineHeight: 1.1, transform: `scale(${punchZ(lf - 30, 1.08)})`, transformOrigin: 'left center'}}>1,200<span style={{fontSize: 90}}>만 원</span></div>}

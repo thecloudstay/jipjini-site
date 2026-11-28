@@ -13,9 +13,11 @@ const END = 72;
 const plan = (ep: Ep) => { let t = 0; const from: number[] = []; ep.cuts.forEach((c, k) => { from.push(t); t += ep.narr[String(k + 1)].dur + (c.gap ?? 4); }); return {from, endAt: t}; };
 export const epLen = (ep: Ep) => plan(ep).endAt + END;
 
+// dy: 위쪽 자르는 선이 글자 줄에 걸리지 않게 화면을 위아래로 옮김
 // 증거 컷: 위는 집지니 실제 화면, 아래 띠는 부부 반응(화면 글자를 가리지 않게 자리를 나눔 — 검수 3번)
-export const ProofCut: React.FC<{a: Shot; lf: number; wife: string; hus: string; say?: string; sayAt?: number; band?: string; zoom?: number}> = ({a, lf, wife, hus, say, sayAt = 18, band = '#FFF1D6', zoom = 1}) => <>
-  <div style={{position: 'absolute', left: 0, top: 0, width: PW, height: 610, overflow: 'hidden', background: '#fff'}}><div style={{position: 'absolute', left: 0, top: 0, width: PW, transformOrigin: '50% 0', transform: `scale(${zoom})`}}><Proof a={a} lf={lf} /></div></div>
+export const ProofCut: React.FC<{a: Shot; lf: number; wife: string; hus: string; say?: string; sayAt?: number; band?: string; zoom?: number; dy?: number}> = ({a, lf, wife, hus, say, sayAt = 18, band = '#FFF1D6', zoom = 1, dy = 0}) => <>
+  <div style={{position: 'absolute', left: 0, top: 0, width: PW, height: 610, overflow: 'hidden', background: '#fff'}}><div style={{position: 'absolute', left: 0, top: 0, width: PW, transformOrigin: '50% 0', transform: `scale(${zoom}) translateY(${dy}px)`}}><Proof a={a} lf={lf} /></div>
+    <div style={{position: 'absolute', left: 0, right: 0, bottom: 0, height: 90, background: 'linear-gradient(rgba(255,255,255,0), #fff 70%)'}} /></div>
   <div style={{position: 'absolute', left: 0, top: 610, width: PW, height: PH - 610, background: band, borderTop: `8px solid ${LINE}`}} />
   <P who={WIFE} body="Sweater" face={wife} x={40} y={628} w={235} /><P who={HUS} body="Hoodie" face={hus} x={745} y={628} w={235} flip />
   {say && <Bubble text={say} x={300} y={670} f={lf} at={sayAt} size={46} shout />}
