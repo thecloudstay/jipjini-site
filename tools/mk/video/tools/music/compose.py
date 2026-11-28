@@ -81,7 +81,7 @@ def make(name, bpm, bars, kit, comp, bassp, leads, style, sec=54, sw=0.07, lead_
                 for lb, iv, ld in lick:
                     if lb >= ln: continue
                     if not call and lb < 2: continue
-                    s.n(ch, base + iv - (12 if base + iv > lead_lo + 22 else 0), t + st + lb, ld * 0.92, 84 + (8 if lb % 1 == 0 else 0), late=0.02)
+                    s.n(ch, base + iv - (12 if base + iv > lead_lo + 15 else 0), t + st + lb, ld * 0.92, 84 + (8 if lb % 1 == 0 else 0), late=0.02)
         if first:
             continue
         # 북: 붐뱁

@@ -11,13 +11,13 @@ export type Fmt = {
 };
 const INK = '#141613';
 export const FMT: Record<string, Fmt> = {
-  cost:      {kind: 'count',     hook: 96,  bg: INK,       fg: '#fff', acc: '#FFD43B', cap: 'band',   music: 'mood_up',   start: 'chips'},
-  cad:       {kind: 'taps',      hook: 80,  bg: '#0F2236', fg: '#fff', acc: '#6FD3FF', cap: 'band',   music: 'mood_talk', start: 'whoosh_a', end: '4번 누르면\n도면·물량까지'},
-  req:       {kind: 'versus',    hook: 110, bg: '#22170F', fg: '#fff', acc: '#FFB547', cap: 'chip',   music: 'mood_tense',   start: 'scratch'},
-  acb:       {kind: 'chat',      hook: 100, bg: '#EFE8DA', fg: INK,    acc: '#FFD43B', cap: 'bubble', music: 'mood_talk',   start: 'pop', resultHold: 4.6},
+  cost:      {kind: 'count',     hook: 96,  bg: INK,       fg: '#fff', acc: '#FFD43B', cap: 'band',   music: 'mood_up',   start: 'punch'},
+  cad:       {kind: 'taps',      hook: 80,  bg: '#0F2236', fg: '#fff', acc: '#6FD3FF', cap: 'band',   music: 'mood_talk', start: 'whoosh', end: '4번 누르면\n도면·물량까지'},
+  req:       {kind: 'versus',    hook: 110, bg: '#22170F', fg: '#fff', acc: '#FFB547', cap: 'chip',   music: 'mood_tense',   start: 'tapestop'},
+  acb:       {kind: 'chat',      hook: 100, bg: '#EFE8DA', fg: INK,    acc: '#FFD43B', cap: 'bubble', music: 'mood_talk',   start: 'tok', resultHold: 4.6},
   support:   {kind: 'myth',      hook: 96,  bg: '#2A0F14', fg: '#fff', acc: '#FF5A5F', cap: 'chip',   music: 'mood_warm',   start: 'm_vine', resultHold: 3.6},
-  disaster:  {kind: 'pov',       hook: 90,  bg: '#0B1E2E', fg: '#fff', acc: '#5CB8FF', cap: 'band',   music: 'mood_tense',   start: 'drop'},
+  disaster:  {kind: 'pov',       hook: 90,  bg: '#0B1E2E', fg: '#fff', acc: '#5CB8FF', cap: 'band',   music: 'mood_tense',   start: 'drop_low'},
   auction:   {kind: 'list',      hook: 80,  bg: '#1D1A2E', fg: '#fff', acc: '#C9B8FF', cap: 'band',   music: 'mood_calm',   start: 'punch', resultHold: 5.6},
   compare:   {kind: 'marker',    hook: 96,  bg: '#13261A', fg: '#fff', acc: '#FFE14D', cap: 'marker', music: 'mood_calm', start: 'mk2'},
-  kitchen:   {kind: 'challenge', hook: 66,  bg: '#1B1410', fg: '#fff', acc: '#FF8A3D', cap: 'chip',   music: 'mood_up',   start: 'airhorn', end: '60초 안에\n싱크대 설계 끝'},
+  kitchen:   {kind: 'challenge', hook: 66,  bg: '#1B1410', fg: '#fff', acc: '#FF8A3D', cap: 'chip',   music: 'mood_up',   start: 'timp', end: '60초 안에\n싱크대 설계 끝'},
 };
