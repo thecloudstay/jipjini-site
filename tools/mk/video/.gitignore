@@ -2,3 +2,4 @@ node_modules/
 out.mp4
 public/*.woff2
 public/sfx/bgm_*.mp3
+public/sfx/mood_*.wav

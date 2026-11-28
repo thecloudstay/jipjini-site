@@ -8,7 +8,7 @@ import {Fmt} from './tut/fmt';
 import {Mark, MARK_ORDER, Cap, shake} from './Marks';
 
 // 배경음: 유튜브 오디오 보관함 「Jackal - The Mini Vandals」(표기 필요 없음, 유튜브 영상 전용). 편마다 다른 구간에서 시작
-const BGM_AT: Record<string, number> = {cost: 0, cad: 600, req: 1200, acb: 1800, support: 2400, disaster: 3000, auction: 3600, compare: 300, kitchen: 900};
+const BGM_AT: Record<string, number> = {kitchen: 277, acb: 257, auction: 185, disaster: 313}; // 같은 곡을 쓰는 편은 시작 마디를 달리한다   // 부드럽게 깎은 판(끽끽거리는 높은 소리 제거)에서 편마다 다른 구간
 const GREEN = '#1F5E2E', LIME = '#8FD19E', YEL = '#FFD43B';
 const S = 2.5;            // 화면 사진 배율(432×768 → 1080×1920)
 const ZIN = 14, END = 105;
@@ -32,7 +32,7 @@ const cam = (f: Fr) => {
 };
 const pop = (f: number, at: number, _k = 1.8) => interpolate(f - at, [0, 5], [0, 1], {...C, easing: Easing.out(Easing.cubic)});   // 튀지 않게(v3)
 const fade = (f: number, at: number, d = 6) => interpolate(f - at, [0, d], [0, 1], C);
-const snd = (name: string, at: number, v = 0.7, key = name + at) => <Sequence key={key} from={Math.max(0, Math.round(at))}><Audio src={staticFile(`sfx/${name}.wav`)} volume={v} /></Sequence>;
+const snd = (name: string, at: number, v = 0.7, key = name + at) => <Sequence key={key} from={Math.max(0, Math.round(at))}><Audio src={staticFile(`sfx/${name}.wav`)} volume={v * 0.7} /></Sequence>;
 
 const Logo: React.FC<{at: number; fg: string; light: boolean}> = ({at, fg, light}) => {
   const f = useCurrentFrame();
@@ -272,7 +272,7 @@ export const Tut: React.FC<{d: TutData}> = ({d}) => {
         <div style={{marginTop: 90}}><Logo at={endAt + 10} fg={m.fg} light={light} /></div>
       </div>
     </AbsoluteFill>}
-    <Audio src={staticFile(m.music.startsWith('bgm_') ? `sfx/${m.music}.mp3` : `sfx/${m.music}.wav`)} startFrom={m.music.startsWith('bgm_') ? (BGM_AT[d.id] ?? 0) : 0} volume={(x) => interpolate(x, [0, 10, total - 20, total], [0, 0.26, 0.26, 0], C)} />
+    <Audio src={staticFile(m.music.startsWith('bgm_') ? `sfx/${m.music}_soft.mp3` : `sfx/${m.music}.wav`)} startFrom={BGM_AT[d.id] ?? 0} volume={(x) => interpolate(x, [0, 15, total - 25, total], [0, 0.24, 0.24, 0], C)} />
     {sounds}
     {snd('whoosh_b', endAt, 0.5, 'e1')}{snd('reveal', endAt + 10, 0.6, 'e2')}
   </AbsoluteFill>;
