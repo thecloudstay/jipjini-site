@@ -13,12 +13,23 @@ export const moodOf = (music: string) => (music.replace('mood_', '') as Mood);
 export const PEAK: Record<string, number> = {whoosh: 2, drumroll: 27, timp: 8, tada: 5};
 type Pal = {cut: string | null; tap: string; tapV: number; hit: [string, number][]; voice: [string, number] | null; pre: string | null; shake: boolean; punch: number};
 export const PAL: Record<Mood, Pal> = {
-  up:    {cut: 'whoosh', tap: 'tok', tapV: 0.45, hit: [['thud', 0.7], ['tada', 0.6]],    voice: ['cheer', 0.6],      pre: 'drumroll', shake: false, punch: 1.06},
-  talk:  {cut: 'whoosh', tap: 'tok', tapV: 0.45, hit: [['thud', 0.55], ['tada', 0.45]],  voice: ['crowd_oh', 0.7],   pre: null,       shake: false, punch: 1.05},
-  calm:  {cut: null,     tap: 'tok', tapV: 0.35, hit: [['thud', 0.45]],                  voice: ['clap_small', 0.5], pre: null,       shake: false, punch: 1.035},
-  tense: {cut: 'whoosh', tap: 'tok', tapV: 0.45, hit: [['m_vine', 0.6]],                 voice: ['crowd_oh', 0.7],   pre: 'timp',     shake: true,  punch: 1.07},
-  warm:  {cut: null,     tap: 'tok', tapV: 0.35, hit: [['thud', 0.45], ['tada', 0.4]],   voice: ['applause', 0.55],  pre: null,       shake: false, punch: 1.035},
+  up:    {cut: 'whoosh', tap: 'tok', tapV: 0.45, hit: [['thud', 0.7], ['tada', 0.6]],    voice: ['cheer', 0.4],      pre: 'drumroll', shake: false, punch: 1.06},
+  talk:  {cut: 'whoosh', tap: 'tok', tapV: 0.45, hit: [['thud', 0.55], ['tada', 0.45]],  voice: ['crowd_oh', 0.45],  pre: null,       shake: false, punch: 1.05},
+  calm:  {cut: null,     tap: 'tok', tapV: 0.35, hit: [['thud', 0.45]],                  voice: ['clap_small', 0.4], pre: null,       shake: false, punch: 1.035},
+  tense: {cut: 'whoosh', tap: 'tok', tapV: 0.45, hit: [['m_vine', 0.6]],                 voice: ['crowd_oh', 0.45],  pre: 'timp',     shake: true,  punch: 1.07},
+  warm:  {cut: null,     tap: 'tok', tapV: 0.35, hit: [['thud', 0.45], ['tada', 0.4]],   voice: ['applause', 0.4],   pre: null,       shake: false, punch: 1.035},
 };
+// 사람이 말하는 밈(2026-11-28 대표 「사람이 말하는 밈이 재미있네, 그런 거 위주로 더 많이」): 뜻별 묶음에서 편마다 다른 것을 고른다
+// 한국어 밈(k_*)은 tools/music/ko.py 로 직접 만든 것(대표 「가보자고·가즈아·이야야·오예·예쓰 … 다각도로」), m_* 는 밈 원본
+export const MEME = {
+  shock: ['k_heol', 'm_omg', 'k_silhwa', 'k_michyeotda', 'm_boywhat', 'k_eomeona', 'k_mwoya', 'm_omg2', 'k_maldoandwae', 'k_mworago', 'm_huh', 'k_jinjja', 'k_heok', 'k_eolma', 'm_dayum', 'm_dogdoin'],   // 놀람
+  nope:  ['k_seolma', 'm_bruh', 'k_aigo', 'k_manghaetda', 'm_getout', 'k_igeonjom', 'k_nuntaengi', 'm_oof', 'k_andwae', 'k_jamkkan', 'm_disappoint', 'm_ehhh'],                                         // 황당·거부
+  yay:   ['k_gabojago', 'm_wow', 'k_gazua', 'k_iyaya', 'k_oye', 'm_stonks', 'k_yes', 'k_nice', 'k_daebak', 'k_gaeideuk', 'm_yeet', 'k_haenaetda', 'k_deugaja', 'k_dwaetda', 'k_jjeonda', 'k_kkalkkeum', 'k_joasseo'], // 신남·성공
+  lol:   ['m_laugh2', 'm_eheh', 'laugh'],
+};
+// 첫 장면은 내용에 딱 맞는 한마디를 형식별로 정해 둔다
+export const HOOK_LINE: Record<string, string> = {count: 'k_eolma', taps: 'k_ige_doene', versus: 'k_jamkkan', chat: 'k_jinjja', myth: 'k_seolma', pov: 'k_mwoya', list: 'k_silhwa', marker: 'k_nuntaengi', challenge: 'k_gabojago'};
+export const pick = (pool: string[], id: string, n = 0) => pool[(Array.from(id).reduce((a, c) => a + c.charCodeAt(0), 0) + n) % pool.length];
 // 결과 장면(hitAt)이 마디 첫 박에 오도록 곡 시작 지점(프레임)을 구한다. extraBars 로 같은 곡을 쓰는 편끼리 구간을 달리한다.
 export const musicStart = (mood: Mood, hitAt: number, extraBars = 0) => {
   const beat = 1800 / BPM[mood], bar = beat * 4, lead = beat * 0.25;

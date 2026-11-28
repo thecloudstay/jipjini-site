@@ -68,13 +68,13 @@ export const Journey: React.FC = () => {
   const markT = f - cur.at - (swipe >= 0 ? 16 : 8);
 
   // 소리(fx.ts 규칙): 휙은 단계(①~⑤)가 바뀔 때만, 표시 긋는 소리는 작게, 따뜻한 편이라 밈 외침은 쓰지 않는다
-  const sounds: JSX.Element[] = [snd('heart', 2, 0.6), snd('whoosh', 44 - 2, 0.35), snd('crowd_oh', 46, 0.6)];
+  const sounds: JSX.Element[] = [snd('heart', 2, 0.6), snd('k_jamkkan', 10, 0.8), snd('whoosh', 44 - 2, 0.35), snd('k_ige_doene', 48, 0.8)];
   CH.forEach((c) => sounds.push(snd('whoosh', c.from - 2, 0.35), snd('tok', c.from + 2, 0.4)));
   KS.forEach((k, n) => {
     const newImg = n === 0 || KS[n - 1].img !== k.img;
     sounds.push(snd(['mk1', 'mk2', 'mk3'][n % 3], k.at + (newImg ? 8 : 16), 0.5));
   });
-  sounds.push(snd('clap_small', 240 + 8, 0.45), snd('tada', 770 - 5, 0.5), snd('applause', 770 + 4, 0.55));   // 계약 서명 = 작은 박수, 입주 = 짜잔+박수
+  sounds.push(snd('clap_small', 240 + 8, 0.45), snd('tada', 770 - 5, 0.5), snd('applause', 770 + 4, 0.45), snd('k_haenaetda', 770 + 8, 0.8));   // 계약 서명 = 작은 박수, 입주 = 짜잔+박수
   sounds.push(snd('whoosh', ENDAT - 2, 0.4), snd('thud', ENDAT + 8, 0.5));
 
   return <AbsoluteFill style={{background: '#000', fontFamily: 'P', overflow: 'hidden'}}>
