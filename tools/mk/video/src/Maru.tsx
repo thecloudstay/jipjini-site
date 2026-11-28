@@ -201,12 +201,15 @@ export const Maru: React.FC = () => {
     <Foot dark t="84㎡ 수도권 2,026개 단지 가운데값 · 턴키는 추정 · 부가세 10% 별도" />
     <Flash at={hits} />
     <div style={{position: 'absolute', top: 0, left: 0, height: 12, width: `${(f / T.end) * 100}%`, background: LIME}} />
-    <Audio src={staticFile('sfx/music.wav')} volume={0.55} />
-    {A(T.recv + 2, 'whoosh', 0.6)}{A(T.recv + 18, 'coins', 0.35)}
-    {A(T.shock - 4, 'whoosh', 0.5)}{A(T.shock, 'boom')}{A(T.shock, 'slam', 0.7)}
-    {A(T.try_, 'pop', 0.5)}{A(T.strike - 4, 'whoosh', 0.6)}{A(T.newv, 'riser', 0.55)}{A(T.newv + 30, 'boom')}{A(T.newv + 30, 'ding', 0.8)}
-    {A(T.save - 4, 'whoosh', 0.5)}{A(T.save + 15, 'coins', 0.5)}{A(T.save + 45, 'boom')}{A(T.save + 45, 'slam', 0.5)}
-    {A(T.car - 8, 'coins', 0.6)}{A(T.car, 'rise', 0.4)}{A(T.maru - 4, 'whoosh', 0.6)}{A(T.maru, 'boom')}{A(T.maru, 'slam', 0.8)}{A(T.maru + 15, 'glitch', 0.6)}
-    {A(T.cta - 4, 'whoosh', 0.7)}{A(T.cta + 15, 'pop', 0.5)}{A(T.cta + 30, 'boom')}{A(T.cta + 30, 'slam', 0.6)}{A(T.cta + 45, 'pop', 0.3)}
+    <Audio src={staticFile('sfx/music.wav')} volume={0.5} />
+    {/* 효과음: 장면 뜻마다 다른 소리 하나씩, 같은 소리 되풀이 금지 (2026-11-28 v6) */}
+    {A(T.recv + 2, 'paper', 0.9)}
+    {A(T.shock - 3, 'scratch', 0.7)}{A(T.shock, 'boom', 0.9)}
+    {[0, 4, 7, 11, 14, 18].map((k, i) => <React.Fragment key={k}>{A(T.try_ + k, ['key1', 'key2', 'key3'][i % 3], 0.5)}</React.Fragment>)}
+    {A(T.strike - 2, 'pen', 0.8)}{A(T.newv - 6, 'whoosh_a', 0.5)}{A(T.newv, 'riser', 0.5)}{A(T.newv + 30, 'punch', 0.9)}{A(T.newv + 30, 'reveal', 0.45)}
+    {A(T.save - 4, 'whoosh_b', 0.45)}{A(T.save + 15, 'chips', 0.7)}{A(T.save + 25, 'chips2', 0.5)}{A(T.save + 45, 'drop808', 0.9)}
+    {A(T.car - 2, 'carhorn', 0.55)}{A(T.maru - 4, 'whoosh_c', 0.55)}{A(T.maru, 'airhorn', 0.55)}{A(T.maru + 15, 'boing', 0.7)}
+    {A(T.cta - 8, 'tapestop', 0.5)}{A(T.cta + 15, 'pluck', 0.6)}{A(T.cta + 30, 'thud', 0.9)}{A(T.cta + 30, 'qup', 0.55)}
+    {[0, 3, 6, 9, 12, 15, 18].map((k, i) => <React.Fragment key={'u' + k}>{A(T.cta + 45 + k, ['key2', 'key1', 'key3'][i % 3], 0.35)}</React.Fragment>)}
   </AbsoluteFill>;
 };
