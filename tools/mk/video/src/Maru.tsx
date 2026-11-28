@@ -71,30 +71,64 @@ const Type: React.FC<{t: string; at: number}> = ({t, at}) => {
   return <span>{t.slice(0, n)}<span style={{opacity: f % 16 < 8 ? 1 : 0}}>|</span></span>;
 };
 
+
+// 2026-11-28 대표 「이펙트가 더 과하게 — 강조 메시지마다」: 강조 순간마다 번쩍 + 흔들림 + 튀는 확대 + 색 갈라짐 + 빛줄기 터짐
+const Hit: React.FC<{at: number; children: React.ReactNode; color?: string; rays?: string}> = ({at, children, color = '#fff', rays = YEL}) => {
+  const f = useCurrentFrame(); const d = f - at;
+  if (d < 0) return <div style={{opacity: 0}}>{children}</div>;
+  const k = interpolate(d, [0, 4, 10], [1.45, 0.94, 1], {extrapolateRight: 'clamp', easing: Easing.out(Easing.quad)});
+  const sh = d < 14 ? Math.sin(d * 4.7) * (14 - d) * 2.6 : 0;
+  const sp = interpolate(d, [0, 10], [14, 0], {extrapolateRight: 'clamp'});
+  return <div style={{position: 'relative', transform: `translate(${sh}px, ${-sh * 0.5}px) scale(${k})`, transformOrigin: 'left center',
+    textShadow: sp > 0.5 ? `${sp}px 0 rgba(255,40,90,.85), ${-sp}px 0 rgba(0,220,255,.85)` : 'none', color}}>
+    <Rays d={d} color={rays} />{children}</div>;
+};
+const Rays: React.FC<{d: number; color: string}> = ({d, color}) => {
+  if (d > 14) return null;
+  const r = interpolate(d, [0, 14], [40, 520]); const o = interpolate(d, [0, 14], [1, 0]);
+  return <svg style={{position: 'absolute', left: 120, top: '50%', width: 0, height: 0, overflow: 'visible', zIndex: -1}}>
+    {Array.from({length: 14}).map((_, i) => { const a = (i / 14) * Math.PI * 2; return <line key={i} x1={Math.cos(a) * r * 0.45} y1={Math.sin(a) * r * 0.45} x2={Math.cos(a) * r} y2={Math.sin(a) * r} stroke={color} strokeWidth={18} strokeLinecap="round" opacity={o} />; })}
+  </svg>;
+};
+const Flash: React.FC<{at: number[]}> = ({at}) => {
+  const f = useCurrentFrame();
+  const o = Math.max(0, ...at.map(a => (f >= a && f < a + 5 ? 1 - (f - a) / 5 : 0)));
+  return o > 0 ? <AbsoluteFill style={{background: '#fff', opacity: o * 0.85, pointerEvents: 'none'}} /> : null;
+};
+const Coins: React.FC<{at: number}> = ({at}) => {
+  const f = useCurrentFrame(); const d = f - at; if (d < 0 || d > 40) return null;
+  return <AbsoluteFill style={{pointerEvents: 'none'}}>{Array.from({length: 26}).map((_, i) => {
+    const a = (i * 137.5) % 360 * Math.PI / 180, v = 18 + (i % 7) * 4;
+    const x = 540 + Math.cos(a) * v * d, y = 960 + Math.sin(a) * v * d + 0.9 * d * d;
+    return <div key={i} style={{position: 'absolute', left: x, top: y, width: 46, height: 46, borderRadius: 23, background: i % 3 ? YEL : '#fff', border: `5px solid ${GREEN}`,
+      opacity: interpolate(d, [26, 40], [1, 0], {extrapolateLeft: 'clamp'}), transform: `rotate(${d * 20 + i * 30}deg) scaleX(${Math.cos(d / 3 + i)})`}} />; })}</AbsoluteFill>;
+};
+
 export const Maru: React.FC = () => {
   useFonts();
   const f = useCurrentFrame();
-  const shake = f >= 135 && f < 160 ? Math.sin(f * 3.1) * (160 - f) * 1.4 : 0;
-  return <AbsoluteFill style={{background: INK}}>
+  const shake = f >= 135 && f < 160 ? Math.sin(f * 3.1) * (160 - f) * 2.4 : 0;
+  const cam = [22, 108, 157, 259, 314].reduce((acc, a) => acc + (f >= a && f < a + 10 ? Math.sin((f - a) * 5) * (10 - (f - a)) * 2.2 : 0), 0);
+  return <AbsoluteFill style={{background: INK, transform: `translate(${cam}px, ${cam * 0.6}px) scale(${1 + Math.abs(cam) / 400})`}}>
     <style>{css}</style>
     <Audio src={staticFile('sfx/beat.wav')} volume={0.35} />
     {/* 1 갈고리 */}
     <Sequence durationInFrames={60}><Punch bg={INK}><PlanBg dark /><Brand dark />
-      <div style={{position: 'absolute', left: 90, top: 620}}><Pop at={4}>인테리어비</Pop><Pop at={22}>아껴서</Pop></div></Punch>
-      <Sequence from={4}><Audio src={staticFile('sfx/pop.wav')} /></Sequence><Sequence from={22}><Audio src={staticFile('sfx/pop.wav')} /></Sequence></Sequence>
+      <div style={{position: 'absolute', left: 90, top: 620}}><Pop at={4}>인테리어비</Pop><div style={{fontSize: 150, fontWeight: 700, letterSpacing: -4, lineHeight: 1.08}}><Hit at={22} color={LIME}>아껴서</Hit></div></div></Punch>
+      <Sequence from={4}><Audio src={staticFile('sfx/pop.wav')} /></Sequence><Sequence from={22}><Audio src={staticFile('sfx/slam.wav')} volume={0.8} /></Sequence></Sequence>
     {/* 2 숫자 */}
     <Sequence from={60} durationInFrames={75}><Punch bg={PAPER}><Brand />
       <div style={{position: 'absolute', left: 90, top: 640}}>
         <div style={{fontSize: 60, color: '#6B7067', marginBottom: 20}}>84㎡ 같은 집, 차이</div>
-        <Counter from={0} to={1189} at={4} dur={44} size={250} color={GREEN} suffix="만 원" /></div>
+        <Hit at={48} color={GREEN}><Counter from={0} to={1189} at={4} dur={44} size={250} color={GREEN} suffix="만 원" /></Hit></div><Coins at={48} />
       <Foot t="집지니 실견적 가운데값 · 부가세 10% 별도" /></Punch>
-      <Sequence from={4}><Audio src={staticFile('sfx/coins.wav')} /></Sequence><Sequence from={48}><Audio src={staticFile('sfx/ding.wav')} /></Sequence></Sequence>
+      <Sequence from={4}><Audio src={staticFile('sfx/coins.wav')} /></Sequence><Sequence from={48}><Audio src={staticFile('sfx/ding.wav')} /></Sequence><Sequence from={48}><Audio src={staticFile('sfx/slam.wav')} volume={0.7} /></Sequence><Sequence from={50}><Audio src={staticFile('sfx/coins.wav')} /></Sequence></Sequence>
     {/* 3 반전 */}
     <Sequence from={135} durationInFrames={60}><Punch bg={YEL}><Brand />
       <div style={{position: 'absolute', left: 90, top: 620, transform: `translateX(${shake}px)`}}>
         <div style={{fontSize: 190, fontWeight: 700, color: INK, letterSpacing: -6, lineHeight: 1.05, transform: `scale(${interpolate(f - 135, [0, 8], [2.6, 1], {extrapolateRight: 'clamp', easing: Easing.out(Easing.back(1.6))})})`, transformOrigin: 'left center'}}>마티즈<br />샀다</div>
-        <div style={{marginTop: 30}}><Pop at={22} size={170} color={GREEN} wobble>긔긔</Pop></div></div></Punch>
-      <Audio src={staticFile('sfx/slam.wav')} /><Sequence from={22}><Audio src={staticFile('sfx/pop.wav')} /></Sequence></Sequence>
+        <div style={{marginTop: 30}}><div style={{fontSize: 200, fontWeight: 700, letterSpacing: -4}}><Hit at={22} color={GREEN} rays={INK}>긔긔</Hit></div></div></div></Punch>
+      <Audio src={staticFile('sfx/slam.wav')} /><Sequence from={22}><Audio src={staticFile('sfx/glitch.wav')} /></Sequence><Sequence from={22}><Audio src={staticFile('sfx/slam.wav')} volume={0.6} /></Sequence></Sequence>
     {/* 4 비교 */}
     <Sequence from={195} durationInFrames={105}><Punch bg={PAPER}><Brand />
       <div style={{position: 'absolute', left: 90, right: 90, top: 560}}>
@@ -105,10 +139,11 @@ export const Maru: React.FC = () => {
       <Audio src={staticFile('sfx/whoosh.wav')} /><Sequence from={10}><Audio src={staticFile('sfx/rise.wav')} volume={0.6} /></Sequence><Sequence from={64}><Audio src={staticFile('sfx/ding.wav')} /></Sequence></Sequence>
     {/* 5 행동 */}
     <Sequence from={300} durationInFrames={75}><Punch bg={GREEN}><Brand dark />
-      <div style={{position: 'absolute', left: 90, top: 640}}><Pop at={2} size={170}>우리 집은</Pop><Pop at={14} size={170} color={YEL}>얼마?</Pop>
+      <div style={{position: 'absolute', left: 90, top: 640}}><Pop at={2} size={170}>우리 집은</Pop><div style={{fontSize: 190, fontWeight: 700, letterSpacing: -4, lineHeight: 1.08}}><Hit at={14} color={YEL}>얼마?</Hit></div>
         <div style={{marginTop: 80, fontSize: 64, fontWeight: 700, color: '#fff', borderBottom: `8px solid ${YEL}`, display: 'inline-block', paddingBottom: 10}}><Type t="jipjini.com/apt" at={26} /></div></div>
       <Foot dark t="아파트 이름만 넣으면 30초" /></Punch>
-      <Audio src={staticFile('sfx/whoosh.wav')} /><Sequence from={14}><Audio src={staticFile('sfx/pop.wav')} /></Sequence></Sequence>
+      <Audio src={staticFile('sfx/whoosh.wav')} /><Sequence from={14}><Audio src={staticFile('sfx/slam.wav')} /></Sequence></Sequence>
+    <Flash at={[22, 108, 135, 157, 259, 314]} />
     {/* 진행 막대 */}
     <div style={{position: 'absolute', top: 0, left: 0, height: 12, width: `${(f / 375) * 100}%`, background: YEL}} />
   </AbsoluteFill>;
