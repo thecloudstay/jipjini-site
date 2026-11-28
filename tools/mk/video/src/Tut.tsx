@@ -6,7 +6,7 @@ import {AbsoluteFill, Audio, Img, Sequence, interpolate, useCurrentFrame, static
 import {INK, useFonts, css} from './Maru';
 import {Fmt} from './tut/fmt';
 import {Mark, MARK_ORDER, Cap, shake} from './Marks';
-import {PAL, PEAK, moodOf, musicStart, musicVol, punchZ, hitShake} from './fx';
+import {PAL, PEAK, MEME, HOOK_LINE, pick, moodOf, musicStart, musicVol, punchZ, hitShake} from './fx';
 
 // 같은 곡을 쓰는 편은 곡의 다른 구간에서 시작한다(마디 수)
 const EXTRA_BARS: Record<string, number> = {kitchen: 4, acb: 4, auction: 3, disaster: 4};
@@ -154,18 +154,19 @@ const Hook: React.FC<{d: TutData; f: number; bgImg: string}> = ({d, f, bgImg}) =
     }
   }
 };
-// 첫 장면 소리: 형식마다 다르게, 높은 음 없이 밈·반응 소리 위주
-const hookSounds = (m: Fmt): JSX.Element[] => {
+// 첫 장면 소리: 형식마다 다르게, 높은 음 없이. 사람이 말하는 밈을 뜻에 맞춰 하나씩(편마다 다른 것)
+const hookSounds = (m: Fmt, id: string): JSX.Element[] => {
+  const v = (_pool: string[], at: number, vol = 0.8) => snd(HOOK_LINE[m.kind], at, vol, 'hv' + at);
   switch (m.kind) {
-    case 'count': return [snd('drumroll', 50 - 27, 0.55), snd('slam', 50, 0.7), snd('m_omg', 56, 0.6)];
-    case 'taps': return [snd('tok', 30, 0.6), snd('tok', 44, 0.6), snd('tok', 74, 0.6), snd('crowd_oh', 76, 0.5)];
-    case 'versus': return [1, 11, 21].map((a) => snd('thud', a, 0.6)).concat([snd('whoosh', 48, 0.4), snd('m_bruh', 62, 0.7)]);
-    case 'chat': return [0, 28, 48, 66].map((a) => snd('tok', a, 0.6)).concat([snd('laugh', 70, 0.45)]);
-    case 'myth': return [snd('slam', 46, 0.8), snd('boing', 48, 0.6), snd('laugh', 60, 0.55)];
-    case 'pov': return [snd('drop_low', 20, 0.7), snd('drop_low', 40, 0.6), snd('heart', 30, 0.6), snd('m_bruh', 56, 0.7)];
-    case 'list': return [30, 40, 50].map((a) => snd('punch', a, 0.45));
-    case 'marker': return [snd('whoosh', 24, 0.4), snd('mk2', 46, 0.7), snd('sad', 52, 0.45)];
-    case 'challenge': return [snd('tapestop', 14, 0.4), snd('drop808', 34, 0.6)];
+    case 'count': return [snd('drumroll', 50 - 27, 0.55), snd('slam', 50, 0.7), v(MEME.shock, 56)];
+    case 'taps': return [snd('tok', 30, 0.6), snd('tok', 44, 0.6), snd('tok', 74, 0.6), v(MEME.yay, 56)];
+    case 'versus': return [1, 11, 21].map((a) => snd('thud', a, 0.6)).concat([snd('whoosh', 48, 0.4), v(MEME.nope, 60)]);
+    case 'chat': return [0, 28, 48, 66].map((a) => snd('tok', a, 0.6)).concat([v(MEME.lol, 70, 0.6)]);
+    case 'myth': return [snd('slam', 46, 0.8), snd('boing', 48, 0.6), v(MEME.nope, 56)];
+    case 'pov': return [snd('drop_low', 20, 0.7), snd('drop_low', 40, 0.6), snd('heart', 30, 0.6), v(MEME.shock, 54)];
+    case 'list': return [30, 40, 50].map((a) => snd('punch', a, 0.45)).concat([v(MEME.shock, 56)]);
+    case 'marker': return [snd('whoosh', 24, 0.4), snd('mk2', 46, 0.7), v(MEME.nope, 50)];
+    case 'challenge': return [snd('tapestop', 14, 0.4), snd('drop808', 34, 0.6), v(MEME.shock, 40)];
   }
 };
 
@@ -196,7 +197,7 @@ export const Tut: React.FC<{d: TutData}> = ({d}) => {
   // 소리 — 효과 감독(fx.ts) 규칙: 결정 지점에만, 분위기에 맞는 소리만
   const mood = moodOf(m.music), pal = PAL[mood];
   const hits = d.frames.map((x, k) => x.result ? starts[k] : -1).filter((x) => x >= 0);
-  const sounds: JSX.Element[] = [snd(m.start, 0, 0.8, 'start'), ...hookSounds(m)];
+  const sounds: JSX.Element[] = [snd(m.start, 0, 0.8, 'start'), ...hookSounds(m, d.id)];
   const tapMoments: number[] = [];
   let lastCut = -99, lastStep = -1, typeN = 0;
   d.frames.forEach((x, k) => {
@@ -211,7 +212,8 @@ export const Tut: React.FC<{d: TutData}> = ({d}) => {
     if (x.result) {
       if (pal.pre) sounds.push(snd(pal.pre, s - (PEAK[pal.pre] ?? 0), 0.4, 'pre' + k));
       pal.hit.forEach(([n, v], q) => sounds.push(snd(n, s, v, 'hit' + k + q)));
-      if (pal.voice) sounds.push(snd(pal.voice[0], s + 6, pal.voice[1], 'r' + k));
+      sounds.push(snd(pick(MEME.yay, d.id, k), s + 5, 0.8, 'rv' + k));      // 결과엔 말하는 밈 하나
+      if (pal.voice) sounds.push(snd(pal.voice[0], s + 12, pal.voice[1], 'r' + k));   // 그 뒤로 관중 반응을 작게
     }
   });
   if (m.kind === 'list' && resultIdx >= 0) [20, 44, 68].forEach((a, k) => sounds.push(snd('tok', starts[resultIdx] + a, 0.5, 'l' + k)));
