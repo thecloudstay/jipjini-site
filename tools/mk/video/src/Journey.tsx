@@ -110,7 +110,7 @@ export const Journey: React.FC = () => {
         <div style={{marginTop: 90}}><Logo /></div>
       </div>
     </AbsoluteFill>}
-    <Audio src={staticFile('sfx/music_c.wav')} volume={(x) => interpolate(x, [0, 10, JOURNEY_LEN - 20, JOURNEY_LEN], [0, 0.22, 0.22, 0], C)} />
+    <Audio src={staticFile('sfx/bgm_jackal.mp3')} startFrom={1500} volume={(x) => interpolate(x, [0, 10, JOURNEY_LEN - 20, JOURNEY_LEN], [0, 0.22, 0.22, 0], C)} />
     {sounds}
   </AbsoluteFill>;
 };
