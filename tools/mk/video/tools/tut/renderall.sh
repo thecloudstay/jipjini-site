@@ -4,7 +4,7 @@ declare -A N=([cost]=우리집공사비 [cad]=도면열고물량 [req]=견적신
 mkdir -p out
 for k in cost cad req acb support disaster auction compare kitchen; do
   npx remotion render src/index.ts Tut-$k out/raw_$k.mp4 --concurrency=2 --browser-executable=$B >/dev/null 2>&1 || { echo "FAIL $k"; continue; }
-  ffmpeg -loglevel error -y -i out/raw_$k.mp4 -c:v copy -af "acompressor=threshold=-22dB:ratio=3:attack=5:release=120:makeup=3,volume=0.8dB,alimiter=limit=0.84:level=false" -ar 48000 -c:a aac -b:a 192k "out/집지니_사용법_${N[$k]}.mp4"
+  ffmpeg -loglevel error -y -i out/raw_$k.mp4 -c:v copy -af "acompressor=threshold=-22dB:ratio=3:attack=5:release=120:makeup=3,alimiter=limit=0.84:level=false,loudnorm=I=-14:TP=-1.2:LRA=9" -ar 48000 -c:a aac -b:a 192k "out/집지니_사용법_${N[$k]}.mp4"
   echo "done $k $(ffprobe -v error -show_entries format=duration -of csv=p=0 "out/집지니_사용법_${N[$k]}.mp4")"
 done
 echo ALLDONE

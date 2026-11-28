@@ -21,21 +21,22 @@ def noise(d): return rng.standard_normal(int(SR*d))
 
 # ── 배경음: 120BPM 16초. 킥·클랩·하이햇·808 베이스·오프비트 코드 찍기(톱니+저역통과, 종소리 없음)
 import sys
-L=float(os.environ.get('MLEN','16'));N=int(SR*L);M=np.zeros(N);B=0.5
+L=float(os.environ.get('MLEN','16'));N=int(SR*L);M=np.zeros(N);B=60/float(os.environ.get('BPM','120'));KS=2**(float(os.environ.get('KEY','0'))/12);HALF=os.environ.get('HALF')=='1'
 def put(x,at,v=1):
     i=int(at*SR);j=min(N,i+len(x));M[i:j]+=x[:j-i]*v
 kick=np.sin(2*np.pi*np.cumsum(np.linspace(150,45,int(SR*.25)))/SR)*env(.25,.001,.08)
 clap=lp(noise(.18),3500)*env(.18,.001,.045)
 hat=(noise(.05)-lp(noise(.05),6000))*env(.05,.001,.012)
-roots=[55,43.65,65.4,49]  # A1 F1 C2 G1
-chords=[[220,261.6,329.6],[174.6,220,261.6],[261.6,329.6,392],[196,246.9,293.7]]
+roots=[x*KS for x in [55,43.65,65.4,49]]  # A1 F1 C2 G1
+chords=[[y*KS for y in c] for c in [[220,261.6,329.6],[174.6,220,261.6],[261.6,329.6,392],[196,246.9,293.7]]]
 HITS=[2,6,8,10,10.5,12] if L==16 else []
-for bar in range(int(L/2)):
+for bar in range(int(L/(4*B))+1):
     ch=bar%4;b0=bar*4*B
     for k in range(4):
         at=b0+k*B
-        put(kick,at,0.9)
-        if k in(1,3): put(clap,at,0.45)
+        if at>=L: break
+        if not HALF or k in(0,) or (k==2 and bar%2): put(kick,at,0.9)
+        if (k==2 if HALF else k in(1,3)): put(clap,at,0.45)
         put(hat,at+B/2,0.25);put(hat,at+B/4,0.1);put(hat,at+3*B/4,0.1)
         # 808 베이스
         f=roots[ch];bs=np.sin(2*np.pi*f*t(.42))*env(.42,.004,.25);put(np.tanh(bs*2.2),at,0.5)

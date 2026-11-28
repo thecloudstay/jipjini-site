@@ -3,7 +3,7 @@ import {AbsoluteFill, Audio, Sequence, interpolate, spring, useCurrentFrame, use
 import plan from './plan.json';
 
 export const INK = '#141613', GREEN = '#1F5E2E', LIME = '#8FD19E', YEL = '#FFD43B', PAPER = '#FFFFFF';
-const css = `
+export const css = `
 @font-face{font-family:P;font-weight:400;src:url(${staticFile('ibm-plex-sans-kr-korean-400-normal.woff2')})}
 @font-face{font-family:P;font-weight:700;src:url(${staticFile('ibm-plex-sans-kr-korean-700-normal.woff2')})}
 @font-face{font-family:P;font-weight:400;src:url(${staticFile('ibm-plex-sans-kr-latin-400-normal.woff2')});unicode-range:U+0000-00FF}
