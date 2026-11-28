@@ -6,8 +6,10 @@
 import React from 'react';
 import {AbsoluteFill, Audio, Img, Sequence, interpolate, useCurrentFrame, staticFile, Easing} from 'remotion';
 import {INK, useFonts, css} from './Maru';
+import {Mark, MarkKind, Cap, shake} from './Marks';
 
-const LIME = '#8FD19E', YEL = '#FFD43B', RED = '#E5392C';
+const LIME = '#8FD19E', YEL = '#FFD43B';
+const KIND: MarkKind[] = ['hl', 'circle', 'arrow', 'underline', 'star', 'bracket', 'circle', 'box', 'arrow', 'star', 'check'];
 const C = {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'} as const;
 const snd = (n: string, at: number, v = 0.7) => <Sequence key={n + at} from={Math.max(0, Math.round(at))}><Audio src={staticFile(`sfx/${n}.wav`)} volume={v} /></Sequence>;
 
@@ -38,7 +40,7 @@ const ENDAT = 925;
 export const JOURNEY_LEN = ENDAT + 105;
 const KS = CH.flatMap((c) => c.keys);
 
-// 화면 위치: 표시한 곳 가운데가 화면 y=820 에 오게, 같은 사진이면 손가락으로 쓸어 올리듯(빠르게 출발, 천천히 멈춤)
+// 화면 위치: 표시한 곳 가운데가 화면 y=700 에 오게, 같은 사진이면 손가락으로 쓸어 올리듯(빠르게 출발, 천천히 멈춤)
 const view = (f: number) => {
   let i = 0; for (let k = 0; k < KS.length; k++) if (f >= KS[k].at) i = k;
   const cur = KS[i], prev = KS[Math.max(0, i - 1)];
@@ -47,28 +49,8 @@ const view = (f: number) => {
   const same = i > 0 && prev.img === cur.img;
   const p = same ? interpolate(f - cur.at, [0, 22], [0, 1], {...C, easing: Easing.out(Easing.poly(5))}) : 1;
   const y = same ? yOf(prev) + (yOf(cur) - yOf(prev)) * p : yOf(cur);
-  return {cur, i, s, top: 820 - y, swipe: same ? f - cur.at : -1};
+  return {cur, i, s, top: 700 - y, swipe: same ? f - cur.at : -1};
 };
-
-// 손으로 그은 동그라미(살짝 삐뚤게, 한 바퀴 조금 더)
-const Circle: React.FC<{x: number; y: number; w: number; h: number; t: number; seed: number}> = ({x, y, w, h, t, seed}) => {
-  const n = 46, pts: string[] = [];
-  for (let k = 0; k <= n; k++) {
-    const a = -1.9 + (k / n) * Math.PI * 2.18;
-    const j = 1 + 0.045 * Math.sin(k * 1.7 + seed) + 0.03 * Math.cos(k * 0.9 + seed * 2);
-    pts.push(`${(x + w / 2 + Math.cos(a) * (w / 2 + 26) * j).toFixed(1)},${(y + h / 2 + Math.sin(a) * (h / 2 + 22) * j).toFixed(1)}`);
-  }
-  const len = 2 * Math.PI * Math.sqrt(((w / 2 + 26) ** 2 + (h / 2 + 22) ** 2) / 2) * 1.12;
-  const d = interpolate(t, [0, 9], [len, 0], {...C, easing: Easing.out(Easing.quad)});
-  return <svg style={{position: 'absolute', left: 0, top: 0, width: 1080, height: 1920, overflow: 'visible'}}>
-    <polyline points={pts.join(' ')} fill="none" stroke={RED} strokeWidth={9} strokeLinecap="round" strokeLinejoin="round" strokeDasharray={len} strokeDashoffset={d} opacity={0.92} />
-  </svg>;
-};
-
-// 쇼츠 기본 자막: 흰 글씨 + 검은 테두리, 상자 없음
-const Cap: React.FC<{text: string; size?: number; color?: string}> = ({text, size = 68, color = '#fff'}) =>
-  <div style={{fontSize: size, fontWeight: 700, color, lineHeight: 1.28, letterSpacing: -1, textAlign: 'center', whiteSpace: 'pre-line',
-    WebkitTextStroke: `${Math.round(size / 9)}px #000`, paintOrder: 'stroke fill', textShadow: '0 4px 10px rgba(0,0,0,.35)'}}>{text}</div>;
 
 const Logo: React.FC = () =>
   <div style={{display: 'flex', alignItems: 'center', gap: 34}}>
@@ -82,21 +64,20 @@ export const Journey: React.FC = () => {
   const chi = CH.reduce((a, c, k) => (f >= c.from ? k : a), -1);
   const {cur, i, s, top, swipe} = view(f);
   // 손 흔들림(아주 살짝)
-  const sx = Math.sin(f * 0.21) * 3 + Math.sin(f * 0.53) * 1.5, sy = Math.cos(f * 0.17) * 3, rot = Math.sin(f * 0.11) * 0.25;
   const markT = f - cur.at - (swipe >= 0 ? 16 : 8);
 
   const sounds: JSX.Element[] = [snd('m_vine', 2, 0.8), snd('scratch', 44, 0.5)];
   KS.forEach((k, n) => {
     const newImg = n === 0 || KS[n - 1].img !== k.img;
     sounds.push(newImg ? snd(['whoosh_a', 'whoosh_b', 'whoosh_c'][n % 3], k.at - 2, 0.45) : snd('key2', k.at, 0.5));
-    sounds.push(snd('pen', k.at + (newImg ? 8 : 16), 0.55));
+    sounds.push(snd(['mk1', 'mk2', 'mk3'][n % 3], k.at + (newImg ? 8 : 16), 0.7));
   });
   sounds.push(snd('m_ah', 700, 0.6), snd('m_woo', 840, 0.6), snd('tapestop', ENDAT - 6, 0.4), snd('reveal', ENDAT + 8, 0.6));
 
   return <AbsoluteFill style={{background: '#000', fontFamily: 'P', overflow: 'hidden'}}>
     <style>{css}</style>
     {/* 갈고리: 실제 진행표 화면 위에 그냥 자막 */}
-    {f < HOOK && <AbsoluteFill style={{transform: `translate(${sx}px, ${sy}px) rotate(${rot}deg) scale(1.03)`}}>
+    {f < HOOK && <AbsoluteFill style={{transform: shake(f)}}>
       <Img src={staticFile('proc/contract.jpg')} style={{position: 'absolute', left: 0, top: -120, width: 1080}} />
       <div style={{position: 'absolute', inset: 0, background: 'rgba(0,0,0,.42)'}} />
       <div style={{position: 'absolute', left: 50, right: 50, top: 760}}>
@@ -104,23 +85,23 @@ export const Journey: React.FC = () => {
       </div>
     </AbsoluteFill>}
     {/* 단계 화면 */}
-    {f >= HOOK && f < ENDAT && <AbsoluteFill style={{background: '#F3EFE6', transform: `translate(${sx}px, ${sy}px) rotate(${rot}deg) scale(1.03)`}}>
+    {f >= HOOK && f < ENDAT && <AbsoluteFill style={{background: '#F3EFE6', transform: shake(f)}}>
       <div style={{position: 'absolute', left: 0, top, width: 1080}}>
         <Img src={staticFile(`proc/${cur.img}.jpg`)} style={{width: 1080, display: 'block'}} />
-        {markT >= 0 && <Circle x={cur.mark[0] * s} y={cur.mark[1] * s} w={cur.mark[2] * s} h={cur.mark[3] * s} t={markT} seed={i * 1.3} />}
+        {markT >= 0 && <Mark kind={KIND[i % KIND.length]} x={cur.mark[0] * s} y={cur.mark[1] * s} w={cur.mark[2] * s} h={cur.mark[3] * s} t={markT} seed={i * 1.3} />}
       </div>
       {/* 쓸어 올리는 손가락 자국(휴대폰 화면 녹화의 터치 표시처럼) */}
       {swipe >= 0 && swipe < 14 && <div style={{position: 'absolute', left: 620, top: interpolate(swipe, [0, 12], [1350, 700], C), width: 84, height: 84, borderRadius: 42, background: 'rgba(120,120,120,.45)', border: '3px solid rgba(255,255,255,.8)', opacity: interpolate(swipe, [0, 2, 10, 14], [0, 1, 1, 0], C)}} />}
     </AbsoluteFill>}
     {f >= HOOK && f < ENDAT && <>
-      <div style={{position: 'absolute', left: 0, right: 0, top: 0, height: 260, background: 'linear-gradient(rgba(0,0,0,.55), rgba(0,0,0,0))'}} />
-      <div style={{position: 'absolute', left: 0, right: 0, bottom: 0, height: 760, background: 'linear-gradient(rgba(0,0,0,0), rgba(0,0,0,.62) 45%, rgba(0,0,0,.7))'}} />
-      <div style={{position: 'absolute', left: 44, top: 70}}><Cap text={`${CH[chi].no} ${CH[chi].name}`} size={58} color={YEL} /></div>
-      <div style={{position: 'absolute', left: 40, right: 40, top: 1430}}>
+      <div style={{position: 'absolute', left: 0, right: 0, top: 0, height: 460, background: 'linear-gradient(rgba(0,0,0,.5), rgba(0,0,0,.4) 60%, rgba(0,0,0,0))'}} />
+      <div style={{position: 'absolute', left: 0, right: 0, bottom: 0, height: 960, background: 'linear-gradient(rgba(0,0,0,0), rgba(0,0,0,.6) 35%, rgba(0,0,0,.72))'}} />
+      <div style={{position: 'absolute', left: 60, top: 300}}><Cap text={`${CH[chi].no} ${CH[chi].name}`} size={58} color={YEL} /></div>
+      <div style={{position: 'absolute', left: 60, right: 150, top: 1200}}>
         <Cap text={cur.cap} size={70} />
         {cur.sub && <div style={{marginTop: 18}}><Cap text={cur.sub} size={46} color={YEL} /></div>}
       </div>
-      <div style={{position: 'absolute', right: 40, top: 1856, fontSize: 28, color: '#fff', opacity: 0.85, WebkitTextStroke: '5px #000', paintOrder: 'stroke fill'}}>실제 고객 화면 · 예시 자료</div>
+      <div style={{position: 'absolute', left: 60, top: 1500, fontSize: 28, color: '#fff', opacity: 0.85, WebkitTextStroke: '5px #000', paintOrder: 'stroke fill'}}>실제 고객 화면 · 예시 자료</div>
     </>}
     {/* 끝: 큰 로고 + 주소 */}
     {f >= ENDAT && <AbsoluteFill style={{background: INK}}>
