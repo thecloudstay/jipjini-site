@@ -33,13 +33,37 @@
 .acbs b{display:block;font-size:16px;margin-top:4px}
 .acbs svg{display:block;margin:0 auto}
 #acbOut{margin-top:10px}
+.d3h{max-width:1180px;margin:0 auto;padding:64px 20px 44px;border-top:1px solid var(--jj-rule,#DCDFD8)}
+.d3hh{display:flex;flex-wrap:wrap;gap:20px 40px;align-items:end;justify-content:space-between;margin-bottom:22px}
+.d3hh>div:first-child{flex:1 1 520px;min-width:0}
+.d3h h2{margin:0 0 12px;line-height:1.35}
+.d3hs{margin:0;color:var(--jj-pencil,#6B7067);line-height:1.8;max-width:600px}
+.d3hq{position:relative;flex:0 1 340px;min-width:240px}
+.d3hq label{display:block;font-size:13.5px;font-weight:600;margin-bottom:6px}
+.d3hq input{width:100%;box-sizing:border-box;font:inherit;font-size:17px;padding:13px 14px;border:1.5px solid var(--jj-ink,#1C1F1B);border-radius:4px;background:#fff}
+.d3hq ul{position:absolute;z-index:5;left:0;right:0;top:100%;list-style:none;margin:0;padding:0;background:#fff;border:1px solid var(--jj-rule,#DCDFD8);border-top:0;max-height:300px;overflow:auto}
+.d3hq ul:empty{display:none}
+.d3hq li button{display:block;width:100%;text-align:left;font:inherit;background:none;border:0;border-top:1px solid #EEF0EB;padding:10px 14px;cursor:pointer}
+.d3hq li button:hover{background:#F6F7F4}
+.d3hq li small{color:var(--jj-pencil,#6B7067);margin-left:8px;font-size:13px}
+.d3st{display:grid;grid-template-columns:minmax(0,1fr) 220px;border:1px solid var(--jj-ink,#1C1F1B);border-radius:4px;overflow:hidden}
+.d3st .a3d{border:0;border-radius:0}
+.d3rd{margin:0;border-left:1px solid var(--jj-ink,#1C1F1B);display:flex;flex-direction:column;font-variant-numeric:tabular-nums;background:#fff}
+.d3rd>div{padding:14px 18px;border-bottom:1px solid var(--jj-rule,#DCDFD8)}
+.d3rd dt{font-size:12.5px;color:var(--jj-pencil,#6B7067)}
+.d3rd dd{margin:2px 0 0;font-size:30px;font-weight:600;line-height:1.2}
+.d3rd .nm dd{font-size:18px;line-height:1.4}
+.d3rd .go{margin-top:auto;border-bottom:0;border-top:1px solid var(--jj-rule,#DCDFD8)}
+.d3rd .go a{font-weight:600;color:var(--jj-green,#1F5E2E)}
+.d3hf{margin:10px 0 0}.d3hf small{font-size:12.5px;color:var(--jj-pencil,#6B7067);line-height:1.7}
+@media (max-width:860px){.d3st{grid-template-columns:1fr}.a3d.d3big canvas{height:400px}.d3rd{border-left:0;border-top:1px solid var(--jj-ink,#1C1F1B);flex-direction:row;flex-wrap:wrap}.d3rd>div{flex:1 1 25%;padding:10px 12px;box-sizing:border-box}.d3rd .nm,.d3rd .go{flex:1 1 100%}.d3rd dd{font-size:22px}.d3rd .go{margin-top:0}}
 </style>
 <meta name="twitter:card" content="summary_large_image">
 </head>
 <body>
 <header class="top">
   <a href="../" class="brand"><span class="mark">집</span>집지니<small class="btag">집에서 나가는 돈을 줄입니다</small></a>
-  <nav class="links"><a href="../#f1">우리 집 공사비</a><a href="../acb/">관리비 비교</a><a href="../#claim">사고·경매</a><a href="../ir/">IR</a><a href="../req/" class="go">무료 견적</a></nav>
+  <nav class="links"><a href="../#f1">우리 집 공사비</a><a href="../acb/">관리비 비교</a><a href="../leak/">사고·경매</a><a href="../ir/">IR</a><a href="../req/" class="go">무료 견적</a></nav>
 </header>
 <main class="ap">
 <h1>옆 아파트 관리비는 얼마나 나올까?</h1>
@@ -48,6 +72,26 @@
 <div class="acbs" id="acbScale"></div>
 <section class="acb" id="acbMapWrap"><h3>관리비 지도<small>점 하나가 단지 하나 · 색은 관리비 수준</small></h3><div class="amap" id="acbMap" style="height:560px"></div></section>
 <section class="acb" id="acbOut"></section>
+<!-- 단지 입체 (2026-11-28 첫 화면에서 옮겨 옴: 수선비는 관리비 쪽 내용) -->
+<section class="d3h" id="d3">
+  <div class="d3hh">
+    <div><h2>외벽 한 번 칠하는 데 2억 7천만 원.<br>우리 관리비에서 나갑니다.</h2>
+    <p class="d3hs">얼마가 맞는지는 단지 크기를 알아야 따집니다. 집지니는 수도권 5,393단지를 동별 높이까지 재 두었습니다.</p></div>
+    <div class="d3hq"><label for="d3in">우리 단지 크기부터 확인</label><input id="d3in" type="search" placeholder="아파트 이름" autocomplete="off"><ul id="d3list"></ul></div>
+  </div>
+  <div class="d3st">
+    <div class="a3d d3big" id="d3box"></div>
+    <dl class="d3rd" id="d3rd">
+      <div class="nm"><dt id="d3msg">서울 송파구</dt><dd id="d3name">잠실엘스아파트</dd></div>
+      <div><dt>세대</dt><dd id="d3f0">5,678</dd></div>
+      <div><dt>동</dt><dd id="d3f1">72</dd></div>
+      <div><dt>최고 층</dt><dd id="d3f2">34</dd></div>
+      <div><dt>준공</dt><dd id="d3f3">2008</dd></div>
+      <div class="go"><a id="d3go" href="?c=A13822004" data-ev="home_d3">이 단지 관리비 보기</a></div>
+    </dl>
+  </div>
+  <p class="d3hf"><small>2억 7천만 원: 2024~2026년 전국 아파트 외벽 재도장 낙찰 3,547건의 가운데값 · 자료: 국토교통부 공동주택 입찰결과, 건물통합정보</small></p>
+</section>
 <p class="note">비교 대상: 같은 시·도, 같은 난방·분양 형태, 준공 연도·세대수·평균 전용면적이 가까운 10곳<br>지수 = 우리 단지 ㎡당 관리비 ÷ 10곳 가운데값 × 100</p>
 </main>
 <footer class="foot">
@@ -57,6 +101,26 @@
 </footer>
 <script src="../assets/aptsearch.js?v=20261122a"></script>
 <script src="../assets/acb/acb.js?v=20261122j"></script>
+<script src="../assets/acb/d3.js?v=20261122c"></script>
+<script>
+document.addEventListener('DOMContentLoaded',function(){
+  var box=document.getElementById('d3box'); if(!box||!window.JJd3) return;
+  var IDX=null,inp=document.getElementById('d3in'),ul=document.getElementById('d3list'),nm=document.getElementById('d3name'),msg=document.getElementById('d3msg'),go=document.getElementById('d3go');
+  var FX=null,fx=[0,1,2,3].map(function(i){return document.getElementById('d3f'+i)});
+  function facts(c){(FX?Promise.resolve(FX):fetch('../data/acb/d3facts.json').then(function(r){return r.json()}).then(function(j){FX=j;return j})).then(function(F){var f=F[c];if(!f)return;[f[0],f[1],f[2],f[3]].forEach(function(v,i){fx[i].textContent=v?(i===3?v:v.toLocaleString('ko-KR')):'—'});}).catch(function(){});}
+  function show(c,name,gu,first){ JJd3.mount(box,c,'../',{spin:first,fly:true,done:function(){nm.textContent=name;msg.textContent=gu;go.href='?c='+c;if(!first)facts(c);},
+    fail:function(){msg.textContent=name+' · 준비 중';}}); }
+  show('A13822004','잠실엘스아파트','서울 송파구',true);
+  function idx(){return IDX?Promise.resolve(IDX):fetch('../data/acb/index.json').then(function(r){return r.json()}).then(function(j){IDX=j;return j});}
+  var t; inp.addEventListener('input',function(){clearTimeout(t);t=setTimeout(function(){var q=inp.value.replace(/\s/g,'');if(q.length<2){ul.textContent='';return}
+    idx().then(function(j){ul.textContent='';var n=0,rows=[];for(var c0 in j)rows.push([c0,j[c0]]);var hits=window.JJSearch?JJSearch.rank(inp.value,rows,function(r){return{n:r[1][0],g:String(r[1][5]).replace('_',' '),d:r[1][8]||''}},20):rows.filter(function(r){return(r[1][0]+r[1][1]).replace(/\s/g,'').indexOf(q)>=0});
+      for(var hi=0;hi<hits.length;hi++){var c=hits[hi][0],e=hits[hi][1];
+      (function(c,e){var li=document.createElement('li'),b=document.createElement('button'),s=document.createElement('small');b.type='button';b.textContent=e[0];s.textContent=e[1]+(e[8]?' '+e[8]:'');b.appendChild(s);
+        b.onclick=function(){ul.textContent='';inp.value=e[0];show(c,e[0],e[1],false);if(window.gtag)gtag('event','home_d3_pick');};li.appendChild(b);ul.appendChild(li);})(c,e);
+      if(++n>=20)break;}});},150);});
+});
+</script>
+
 <script>
 (function(){
   var A=window.JJacb, IDX=null, inp=document.getElementById('acbIn'), ul=document.getElementById('acbList'), out=document.getElementById('acbOut');
