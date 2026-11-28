@@ -64,7 +64,7 @@ def audio_checks(f, x, sr=22050):
     return out
 
 def asr_check(f, narr):
-    D = os.environ.get('JJ_ASR', '/tmp/claude-0/tts/sherpa-onnx-zipformer-korean-2024-06-24/')
+    D = os.path.join(os.environ.get('JJ_ASR', '/tmp/claude-0/tts/sherpa-onnx-zipformer-korean-2024-06-24'), '')   # 끝에 빗금이 없어도 되게
     try:
         import sherpa_onnx
         g = lambda p: [D + x for x in os.listdir(D) if x.startswith(p) and x.endswith('.onnx') and 'int8' not in x][0]
