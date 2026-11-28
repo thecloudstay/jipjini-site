@@ -6,9 +6,10 @@ import {AbsoluteFill, Audio, Img, Sequence, interpolate, useCurrentFrame, static
 import {INK, useFonts, css} from './Maru';
 import {Fmt} from './tut/fmt';
 import {Mark, MARK_ORDER, Cap, shake} from './Marks';
+import {PAL, PEAK, moodOf, musicStart, musicVol, punchZ, hitShake} from './fx';
 
-// 배경음: 유튜브 오디오 보관함 「Jackal - The Mini Vandals」(표기 필요 없음, 유튜브 영상 전용). 편마다 다른 구간에서 시작
-const BGM_AT: Record<string, number> = {kitchen: 277, acb: 257, auction: 185, disaster: 313}; // 같은 곡을 쓰는 편은 시작 마디를 달리한다   // 부드럽게 깎은 판(끽끽거리는 높은 소리 제거)에서 편마다 다른 구간
+// 같은 곡을 쓰는 편은 곡의 다른 구간에서 시작한다(마디 수)
+const EXTRA_BARS: Record<string, number> = {kitchen: 4, acb: 4, auction: 3, disaster: 4};
 const GREEN = '#1F5E2E', LIME = '#8FD19E', YEL = '#FFD43B';
 const S = 2.5;            // 화면 사진 배율(432×768 → 1080×1920)
 const ZIN = 14, END = 105;
@@ -191,21 +192,32 @@ export const Tut: React.FC<{d: TutData}> = ({d}) => {
   const resultIdx = d.frames.findIndex((x) => x.result);
   const resImg = base + d.frames[resultIdx >= 0 ? resultIdx : d.frames.length - 1].img;
 
-  // 소리
+  // 소리 — 효과 감독(fx.ts) 규칙: 결정 지점에만, 분위기에 맞는 소리만
+  const mood = moodOf(m.music), pal = PAL[mood];
+  const hits = d.frames.map((x, k) => x.result ? starts[k] : -1).filter((x) => x >= 0);
   const sounds: JSX.Element[] = [snd(m.start, 0, 0.8, 'start'), ...hookSounds(m)];
-  const W = ['whoosh_a', 'whoosh_b', 'whoosh_c'], K = ['key1', 'key2', 'key3'];
   const tapMoments: number[] = [];
+  let lastCut = -99, lastStep = -1, typeN = 0;
   d.frames.forEach((x, k) => {
     const s = starts[k];
-    if (x.cap && !x.result) sounds.push(snd(W[k % 3], s - 3, 0.35, 'w' + k));
-    if (x.kind === 'tap' && x.tapAt) {const tm = s + Math.round(len(x, m) * 0.45); tapMoments.push(tm); sounds.push(snd(K[k % 3], tm, 0.7, 't' + k));}
-    if (x.kind === 'type') sounds.push(snd(K[(k + 1) % 3], s + 1, 0.45, 'k' + k));
-    if (x.focus && (x.result || x.kind === 'shot') && x.cap) sounds.push(snd(['mk1', 'mk2', 'mk3'][k % 3], s + ZIN + 2, 0.7, 'mk' + k));
-    if (x.result) sounds.push(snd(m.kind === 'myth' ? 'm_woo' : 'm_ah', s + 6, 0.8, 'r' + k));
+    // 단계가 바뀔 때만 휙(가장 큰 순간이 컷에 닿게), 2초 안에 또 넣지 않는다
+    if (pal.cut && x.cap && !x.result && x.step !== lastStep && s - lastCut >= 60) {sounds.push(snd(pal.cut, s - (PEAK[pal.cut] ?? 2), 0.3, 'w' + k)); lastCut = s;}
+    if (x.step) lastStep = x.step;
+    // 누르는 소리는 화면 속 소리라 남기되 작게
+    if (x.kind === 'tap' && x.tapAt) {const tm = s + Math.round(len(x, m) * 0.45); tapMoments.push(tm); sounds.push(snd(pal.tap, tm, pal.tapV, 't' + k));}
+    if (x.kind === 'type' && typeN++ % 2 === 0) sounds.push(snd('key1', s + 1, 0.28, 'k' + k));
+    if (x.focus && (x.result || x.kind === 'shot') && x.cap) sounds.push(snd(['mk1', 'mk2', 'mk3'][k % 3], s + ZIN + 2, 0.5, 'mk' + k));
+    if (x.result) {
+      if (pal.pre) sounds.push(snd(pal.pre, s - (PEAK[pal.pre] ?? 0), 0.4, 'pre' + k));
+      pal.hit.forEach(([n, v], q) => sounds.push(snd(n, s, v, 'hit' + k + q)));
+      if (pal.voice) sounds.push(snd(pal.voice, s + 8, 0.6, 'r' + k));
+    }
   });
-  if (m.kind === 'taps') tapMoments.forEach((tm, k) => sounds.push(snd('qup', tm + 2, 0.4, 'q' + k)));
-  if (m.kind === 'list' && resultIdx >= 0) [20, 44, 68].forEach((a, k) => sounds.push(snd('punch', starts[resultIdx] + a, 0.5, 'l' + k)));
-  if (m.kind === 'challenge') sounds.push(snd('airhorn', endAt - 4, 0.5, 'win'));
+  if (m.kind === 'list' && resultIdx >= 0) [20, 44, 68].forEach((a, k) => sounds.push(snd('tok', starts[resultIdx] + a, 0.5, 'l' + k)));
+  if (m.kind === 'challenge') sounds.push(snd('airhorn', endAt - 4, 0.4, 'win'));
+  // 결과 순간 화면 효과
+  const lfHit = fr && fr.result ? f - starts[i] : -1;
+  const pz = punchZ(lfHit, pal.punch), hs = pal.shake ? hitShake(lfHit) : '';
 
   // 손가락 자국(휴대폰 화면 녹화의 터치 표시처럼 회색 점)
   let tapEl = null;
@@ -255,7 +267,7 @@ export const Tut: React.FC<{d: TutData}> = ({d}) => {
     <style>{css}</style>
     {f < HOOK && <Hook d={d} f={f} bgImg={resImg} />}
     {fr && <AbsoluteFill>
-      <div style={{position: 'absolute', inset: 0, transform: shake(f)}}>
+      <div style={{position: 'absolute', inset: 0, transformOrigin: '540px 800px', transform: `${shake(f)}${hs} scale(${pz})`}}>
       <div style={{position: 'absolute', left: 0, top: 0, width: 1080, height: 1920, transformOrigin: '0 0', transform: tf}}>
         <Img src={staticFile(base + fr.img)} style={{width: 1080, height: 1920}} />
       </div>
@@ -272,8 +284,8 @@ export const Tut: React.FC<{d: TutData}> = ({d}) => {
         <div style={{marginTop: 90}}><Logo at={endAt + 10} fg={m.fg} light={light} /></div>
       </div>
     </AbsoluteFill>}
-    <Audio src={staticFile(m.music.startsWith('bgm_') ? `sfx/${m.music}_soft.mp3` : `sfx/${m.music}.wav`)} startFrom={BGM_AT[d.id] ?? 0} volume={(x) => interpolate(x, [0, 15, total - 25, total], [0, 0.24, 0.24, 0], C)} />
+    <Audio src={staticFile(`sfx/${m.music}.wav`)} startFrom={musicStart(mood, hits[0] ?? endAt, EXTRA_BARS[d.id] ?? 0)} volume={(x) => musicVol(x, total, hits)} />
     {sounds}
-    {snd('whoosh_b', endAt, 0.5, 'e1')}{snd('reveal', endAt + 10, 0.6, 'e2')}
+    {snd('whoosh_b', endAt - 6, 0.4, 'e1')}{snd('reveal', endAt + 10, 0.5, 'e2')}
   </AbsoluteFill>;
 };
