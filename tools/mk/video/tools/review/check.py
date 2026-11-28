@@ -101,7 +101,7 @@ def source_checks(src, kind):
 def batch_checks(fmt):
     """묶음 검사(대표 지적 「왜 다 똑같은 폼?」 「동그라미만」 「하나만 전체에 다 적용」): 형식·표시·곡이 고루 쓰였는지"""
     out = []; s = open(fmt, encoding='utf8').read(); from collections import Counter
-    kinds = re.findall(r"kind: '([a-z]+)'", s); music = Counter(re.findall(r"music: '([a-z_]+)'", s))
+    kinds = re.findall(r"\{kind: '([a-z]+)'", s); music = Counter(re.findall(r"music: '([a-z_]+)'", s))
     dup = [k for k, c in Counter(kinds).items() if c > 1]
     if dup: out.append(('형식 다양성', '수정', '같은 형식이 두 편 이상: ' + ', '.join(dup), '', '편마다 갈고리 형식을 다르게'))
     over = [f'{k}({c}편)' for k, c in music.items() if c > 3]

@@ -47,5 +47,6 @@ export const musicVol = (x: number, total: number, hits: number[], base = 0.24) 
   return v * fadeIn * fadeOut;
 };
 // 결과 순간 화면: 살짝 당겨 잡기(4프레임), 놀람 편은 8프레임만 흔든다
-export const punchZ = (lf: number, punch: number) => lf < 0 ? 1 : 1 + (punch - 1) * Math.min(1, lf / 4);
+// 4프레임에 치고 들어갔다가 18프레임까지 제자리로(계속 확대해 두면 화면 좌우 글자가 잘린다)
+export const punchZ = (lf: number, punch: number) => lf < 0 || lf > 18 ? 1 : 1 + (punch - 1) * (lf < 4 ? lf / 4 : 1 - (lf - 4) / 14);
 export const hitShake = (lf: number) => lf < 0 || lf > 8 ? '' : ` translate(${Math.sin(lf * 2.6) * (8 - lf) * 1.6}px, ${Math.cos(lf * 3.1) * (8 - lf) * 1.2}px)`;
