@@ -1,6 +1,6 @@
 """집지니 마케팅 팀 ④ 검수 — 통과(PASS) 못 하면 올라가지 않는다.
 쓰임: python3 tools/mk/check.py mk/queue/<주>.json   (실패 시 종료 코드 1, 무엇이 왜 틀렸는지 줄마다)
-규칙: 숫자는 mk/facts.json 에 있는 것만 · 공사비 글은 「부가세 10% 별도」 · 이모지·과장 금지어 없음 · 길이 · 카드 3~7장(첫 장 hook, 끝 장 cta) · 링크는 jipjini.com · 사진 파일 있음"""
+규칙: 숫자는 mk/facts.json 에 있는 것만 · 공사비 글은 「부가세 10% 별도」 · 이모지·과장 금지어 없음 · 길이 · 카드 3~7장(첫 장 hook, 끝 장 cta) · 링크는 jipjini.com(내부용) · 글·카드엔 주소 대신 「집지니」만 · 사진 파일 있음"""
 import json, re, sys, os, pathlib
 ROOT = pathlib.Path(__file__).resolve().parents[2]
 BAN = ["보장합니다", "최저가 보장", "무조건 싸", "100%", "업계 1위"]   # 2026-11-28 대표 「헐 미친 대박 등 … 더욱더 쌔고 자극적으로」 — 감탄·병맛은 허용, 사실을 장담하는 말만 막음
@@ -25,6 +25,8 @@ def main(qf):
         if len(it.get("본문", "")) > 2000: bad.append(f"{i}: 인스타 본문 2,000자 넘음")
         if not it.get("스레드") or len(it["스레드"]) > 450: bad.append(f"{i}: 스레드 글 없음 또는 450자 넘음")
         if not str(it.get("링크", "")).startswith("https://jipjini.com"): bad.append(f"{i}: 링크는 jipjini.com 깊은 쪽으로")
+        shown = " ".join([it.get("본문", ""), it.get("스레드", "")] + [str(c.get("url", "")) for c in cs])
+        if re.search(r"jipjini\.com|https?://", shown): bad.append(f"{i}: 글·카드에 주소 노출 — 「집지니」로만 (2026-11-28 대표)")
         extra = sorted(n for n in nums(txt) - allow if not re.fullmatch(r"\d{1,2}", n) or int(n) > 12)
         if extra: bad.append(f"{i}: 소재에 없는 숫자 {extra} — facts.json 숫자만 쓴다")
         for w in BAN:
