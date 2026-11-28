@@ -98,6 +98,22 @@ def source_checks(src, kind):
         if w in words: out.append(('글', '수정', f'꾸밈말 「{w}」', '', '구체적인 사실 문장으로 바꾼다'))
     return out
 
+def batch_checks(fmt):
+    """묶음 검사(대표 지적 「왜 다 똑같은 폼?」 「동그라미만」 「하나만 전체에 다 적용」): 형식·표시·곡이 고루 쓰였는지"""
+    out = []; s = open(fmt, encoding='utf8').read(); from collections import Counter
+    kinds = re.findall(r"kind: '([a-z]+)'", s); music = Counter(re.findall(r"music: '([a-z_]+)'", s))
+    dup = [k for k, c in Counter(kinds).items() if c > 1]
+    if dup: out.append(('형식 다양성', '수정', '같은 형식이 두 편 이상: ' + ', '.join(dup), '', '편마다 갈고리 형식을 다르게'))
+    over = [f'{k}({c}편)' for k, c in music.items() if c > 3]
+    if over: out.append(('곡 쏠림', '수정', ', '.join(over), '', '한 곡은 한 묶음에 3편까지'))
+    if len(music) < min(3, len(kinds)): out.append(('곡 쏠림', '수정', f'곡이 {len(music)}가지뿐', '', '분위기에 맞춰 곡을 나눠 쓴다'))
+    marks = os.path.join(os.path.dirname(os.path.dirname(fmt)), 'Marks.tsx')
+    if os.path.exists(marks):
+        m = re.search(r"MARK_ORDER[^=]*=\s*\[([^\]]+)\]", open(marks, encoding='utf8').read())
+        n = len(set(re.findall(r"'([a-z]+)'", m.group(1)))) if m else 0
+        if n < 4: out.append(('표시 다양성', '수정', f'손 표시가 {n}가지뿐', '', '동그라미·별표·밑줄·화살표 등 4가지 이상을 돌려 쓴다'))
+    return out
+
 def first_frame(f):
     a = np.frombuffer(sh('ffmpeg', '-loglevel', 'error', '-ss', '0.5', '-i', f, '-frames:v', '1', '-vf', 'scale=90:160,format=gray', '-f', 'rawvideo', '-').stdout, dtype=np.uint8).astype(float)
     return float(a.std()) if len(a) else 0
@@ -138,10 +154,13 @@ def selftest():
     print('검사기 자체 시험:', '정상(망친 영상을 모두 걸러 냄)' if ok else '고장(망친 영상이 통과함)'); return ok
 
 if __name__ == '__main__':
-    ap = argparse.ArgumentParser(); ap.add_argument('files', nargs='*'); ap.add_argument('--type', default='tutorial', choices=list(LIMIT)); ap.add_argument('--src'); ap.add_argument('--narr'); ap.add_argument('--selftest', action='store_true')
+    ap = argparse.ArgumentParser(); ap.add_argument('files', nargs='*'); ap.add_argument('--type', default='tutorial', choices=list(LIMIT)); ap.add_argument('--src'); ap.add_argument('--narr'); ap.add_argument('--selftest', action='store_true'); ap.add_argument('--batch', help='묶음 형식 파일(src/tut/fmt.ts)')
     ap.add_argument('--out', default=os.path.join(REPO, 'mk', 'review')); a = ap.parse_args()
     if a.selftest: sys.exit(0 if selftest() else 1)
     bad = 0
+    if a.batch:
+        b = batch_checks(a.batch); bad += bool(b); print('[묶음]', '통과' if not b else '수정')
+        for i in b: print(f'    - {i[1]} · {i[0]}: {i[2]} → {i[4]}')
     for f in a.files:
         r = review(f, a.type, a.src, a.narr, a.out); bad += r['상태'] != '통과'
         print(f"[{r['상태']}] {r['파일']}  {r['길이']}초  {r['음량']} LUFS")
